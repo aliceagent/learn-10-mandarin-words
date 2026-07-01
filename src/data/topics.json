@@ -366,12 +366,12 @@
           "english": "cow",
           "sentences": [
             {
-              "cn": "我喜欢牛，因为它很有意思。",
-              "en": "I like learning the word cow because it is useful."
+              "cn": "爷爷每天早上去挤牛奶。",
+              "en": "Grandpa milks the cow every morning."
             },
             {
-              "cn": "这个牛在生活中很常见。",
-              "en": "This word, cow, is common in daily life."
+              "cn": "那头牛在田里慢慢地吃草。",
+              "en": "That cow is slowly eating grass in the field."
             }
           ]
         },
@@ -381,12 +381,12 @@
           "english": "horse",
           "sentences": [
             {
-              "cn": "今天我们学习马这个词。",
-              "en": "Today we are learning the word horse."
+              "cn": "他骑着马跑过草地。",
+              "en": "He rode the horse across the meadow."
             },
             {
-              "cn": "很多人都知道马。",
-              "en": "Many people know the word horse."
+              "cn": "这匹马跑得比别的动物都快。",
+              "en": "This horse runs faster than the other animals."
             }
           ]
         },
@@ -396,12 +396,12 @@
           "english": "sheep",
           "sentences": [
             {
-              "cn": "请你看一看这个羊。",
-              "en": "Please look at this word: sheep."
+              "cn": "农民春天给羊剪毛。",
+              "en": "The farmer shears the sheep's wool in spring."
             },
             {
-              "cn": "我想用中文说羊。",
-              "en": "I want to say sheep in Chinese."
+              "cn": "山坡上有一群白色的羊。",
+              "en": "There is a flock of white sheep on the hillside."
             }
           ]
         },
@@ -411,12 +411,12 @@
           "english": "pig",
           "sentences": [
             {
-              "cn": "我喜欢猪，因为它很有意思。",
-              "en": "I like learning the word pig because it is useful."
+              "cn": "我们把剩饭喂给猪吃。",
+              "en": "We feed the leftover food to the pigs."
             },
             {
-              "cn": "这个猪在生活中很常见。",
-              "en": "This word, pig, is common in daily life."
+              "cn": "小猪在泥里睡得很舒服。",
+              "en": "The little pig sleeps comfortably in the mud."
             }
           ]
         },
@@ -426,12 +426,12 @@
           "english": "chicken",
           "sentences": [
             {
-              "cn": "今天我们学习鸡这个词。",
-              "en": "Today we are learning the word chicken."
+              "cn": "母鸡今天早上下了三个蛋。",
+              "en": "The hen laid three eggs this morning."
             },
             {
-              "cn": "很多人都知道鸡。",
-              "en": "Many people know the word chicken."
+              "cn": "天一亮，公鸡就开始叫。",
+              "en": "As soon as it gets light, the rooster starts to crow."
             }
           ]
         },
@@ -441,12 +441,12 @@
           "english": "duck",
           "sentences": [
             {
-              "cn": "请你看一看这个鸭。",
-              "en": "Please look at this word: duck."
+              "cn": "几只鸭在池塘里游来游去。",
+              "en": "A few ducks swim around in the pond."
             },
             {
-              "cn": "我想用中文说鸭。",
-              "en": "I want to say duck in Chinese."
+              "cn": "奶奶用鸭肉做了一道菜。",
+              "en": "Grandma made a dish with duck meat."
             }
           ]
         },
@@ -456,12 +456,12 @@
           "english": "goose",
           "sentences": [
             {
-              "cn": "我喜欢鹅，因为它很有意思。",
-              "en": "I like learning the word goose because it is useful."
+              "cn": "那只鹅看见陌生人就大声叫。",
+              "en": "That goose honks loudly when it sees a stranger."
             },
             {
-              "cn": "这个鹅在生活中很常见。",
-              "en": "This word, goose, is common in daily life."
+              "cn": "白鹅伸长脖子在河边喝水。",
+              "en": "The white goose stretches its neck to drink by the river."
             }
           ]
         },
@@ -471,12 +471,12 @@
           "english": "donkey",
           "sentences": [
             {
-              "cn": "今天我们学习驴这个词。",
-              "en": "Today we are learning the word donkey."
+              "cn": "农民用驴把粮食运到山上。",
+              "en": "The farmer uses the donkey to carry grain up the mountain."
             },
             {
-              "cn": "很多人都知道驴。",
-              "en": "Many people know the word donkey."
+              "cn": "这头驴力气大，能拉很重的车。",
+              "en": "This donkey is strong and can pull a heavy cart."
             }
           ]
         },
@@ -486,12 +486,12 @@
           "english": "rabbit",
           "sentences": [
             {
-              "cn": "请你看一看这个兔子。",
-              "en": "Please look at this word: rabbit."
+              "cn": "兔子最喜欢吃新鲜的胡萝卜。",
+              "en": "Rabbits love to eat fresh carrots."
             },
             {
-              "cn": "我想用中文说兔子。",
-              "en": "I want to say rabbit in Chinese."
+              "cn": "小兔子的耳朵又长又软。",
+              "en": "The little rabbit's ears are long and soft."
             }
           ]
         },
@@ -501,12 +501,12 @@
           "english": "goat",
           "sentences": [
             {
-              "cn": "我喜欢山羊，因为它很有意思。",
-              "en": "I like learning the word goat because it is useful."
+              "cn": "山羊会爬到很高的石头上。",
+              "en": "Goats can climb up onto very high rocks."
             },
             {
-              "cn": "这个山羊在生活中很常见。",
-              "en": "This word, goat, is common in daily life."
+              "cn": "这只山羊的胡子是白色的。",
+              "en": "This goat has a white beard."
             }
           ]
         }
@@ -530,12 +530,12 @@
           "english": "tiger",
           "sentences": [
             {
-              "cn": "我喜欢老虎，因为它很有意思。",
-              "en": "I like learning the word tiger because it is useful."
+              "cn": "老虎晚上出来找食物。",
+              "en": "The tiger comes out at night to hunt for food."
             },
             {
-              "cn": "这个老虎在生活中很常见。",
-              "en": "This word, tiger, is common in daily life."
+              "cn": "在动物园里，老虎住在很大的笼子里。",
+              "en": "At the zoo, the tiger lives in a large enclosure."
             }
           ]
         },
@@ -545,12 +545,12 @@
           "english": "lion",
           "sentences": [
             {
-              "cn": "今天我们学习狮子这个词。",
-              "en": "Today we are learning the word lion."
+              "cn": "草原上，狮子正在追一只斑马。",
+              "en": "On the grassland, the lion is chasing a zebra."
             },
             {
-              "cn": "很多人都知道狮子。",
-              "en": "Many people know the word lion."
+              "cn": "公狮子的头上有很多毛。",
+              "en": "The male lion has a lot of hair around its head."
             }
           ]
         },
@@ -560,12 +560,12 @@
           "english": "elephant",
           "sentences": [
             {
-              "cn": "请你看一看这个大象。",
-              "en": "Please look at this word: elephant."
+              "cn": "大象用长长的鼻子喝水。",
+              "en": "The elephant drinks water with its long trunk."
             },
             {
-              "cn": "我想用中文说大象。",
-              "en": "I want to say elephant in Chinese."
+              "cn": "一头大象一天要吃很多树叶。",
+              "en": "A single elephant eats a lot of leaves in a day."
             }
           ]
         },
@@ -575,12 +575,12 @@
           "english": "bear",
           "sentences": [
             {
-              "cn": "我喜欢熊，因为它很有意思。",
-              "en": "I like learning the word bear because it is useful."
+              "cn": "冬天到了，熊要睡很长时间。",
+              "en": "When winter comes, the bear sleeps for a long time."
             },
             {
-              "cn": "这个熊在生活中很常见。",
-              "en": "This word, bear, is common in daily life."
+              "cn": "在森林里看到熊，要慢慢地走开。",
+              "en": "If you see a bear in the forest, back away slowly."
             }
           ]
         },
@@ -590,12 +590,12 @@
           "english": "wolf",
           "sentences": [
             {
-              "cn": "今天我们学习狼这个词。",
-              "en": "Today we are learning the word wolf."
+              "cn": "狼常常一起出来找猎物。",
+              "en": "Wolves often come out together to look for prey."
             },
             {
-              "cn": "很多人都知道狼。",
-              "en": "Many people know the word wolf."
+              "cn": "夜里，我们听到远处狼的叫声。",
+              "en": "At night, we heard a wolf howling in the distance."
             }
           ]
         },
@@ -605,12 +605,12 @@
           "english": "monkey",
           "sentences": [
             {
-              "cn": "请你看一看这个猴子。",
-              "en": "Please look at this word: monkey."
+              "cn": "猴子在树上跳来跳去。",
+              "en": "The monkey jumps around in the trees."
             },
             {
-              "cn": "我想用中文说猴子。",
-              "en": "I want to say monkey in Chinese."
+              "cn": "那只猴子从游客手里拿走了香蕉。",
+              "en": "That monkey grabbed a banana from the tourist's hand."
             }
           ]
         },
@@ -620,12 +620,12 @@
           "english": "giraffe",
           "sentences": [
             {
-              "cn": "我喜欢长颈鹿，因为它很有意思。",
-              "en": "I like learning the word giraffe because it is useful."
+              "cn": "长颈鹿的脖子很长，能吃到高处的叶子。",
+              "en": "The giraffe's neck is long, so it can reach leaves up high."
             },
             {
-              "cn": "这个长颈鹿在生活中很常见。",
-              "en": "This word, giraffe, is common in daily life."
+              "cn": "我们在动物园第一次看到长颈鹿。",
+              "en": "We saw a giraffe for the first time at the zoo."
             }
           ]
         },
@@ -635,12 +635,12 @@
           "english": "zebra",
           "sentences": [
             {
-              "cn": "今天我们学习斑马这个词。",
-              "en": "Today we are learning the word zebra."
+              "cn": "斑马身上有黑白两种颜色。",
+              "en": "A zebra has both black and white on its body."
             },
             {
-              "cn": "很多人都知道斑马。",
-              "en": "Many people know the word zebra."
+              "cn": "一群斑马正在过河。",
+              "en": "A herd of zebras is crossing the river."
             }
           ]
         },
@@ -650,12 +650,12 @@
           "english": "fox",
           "sentences": [
             {
-              "cn": "请你看一看这个狐狸。",
-              "en": "Please look at this word: fox."
+              "cn": "狐狸很聪明，会想办法找吃的。",
+              "en": "The fox is clever and finds ways to get food."
             },
             {
-              "cn": "我想用中文说狐狸。",
-              "en": "I want to say fox in Chinese."
+              "cn": "那只红色的狐狸很快跑进了树林。",
+              "en": "The red fox quickly ran into the woods."
             }
           ]
         },
@@ -665,12 +665,12 @@
           "english": "deer",
           "sentences": [
             {
-              "cn": "我喜欢鹿，因为它很有意思。",
-              "en": "I like learning the word deer because it is useful."
+              "cn": "清晨，几只鹿在树林边吃草。",
+              "en": "In the early morning, a few deer graze at the edge of the woods."
             },
             {
-              "cn": "这个鹿在生活中很常见。",
-              "en": "This word, deer, is common in daily life."
+              "cn": "那只鹿听到声音就跑走了。",
+              "en": "The deer ran off as soon as it heard a sound."
             }
           ]
         }
@@ -694,12 +694,12 @@
           "english": "fish",
           "sentences": [
             {
-              "cn": "我喜欢鱼，因为它很有意思。",
-              "en": "I like learning the word fish because it is useful."
+              "cn": "爸爸周末去海边钓鱼。",
+              "en": "Dad goes to the seaside to fish on weekends."
             },
             {
-              "cn": "这个鱼在生活中很常见。",
-              "en": "This word, fish, is common in daily life."
+              "cn": "水里有很多小鱼游过来。",
+              "en": "Lots of small fish come swimming over in the water."
             }
           ]
         },
@@ -709,12 +709,12 @@
           "english": "whale",
           "sentences": [
             {
-              "cn": "今天我们学习鲸鱼这个词。",
-              "en": "Today we are learning the word whale."
+              "cn": "鲸鱼是海里最大的动物。",
+              "en": "The whale is the largest animal in the sea."
             },
             {
-              "cn": "很多人都知道鲸鱼。",
-              "en": "Many people know the word whale."
+              "cn": "我们坐船出海，看到了一头鲸鱼。",
+              "en": "We took a boat out to sea and spotted a whale."
             }
           ]
         },
@@ -724,12 +724,12 @@
           "english": "dolphin",
           "sentences": [
             {
-              "cn": "请你看一看这个海豚。",
-              "en": "Please look at this word: dolphin."
+              "cn": "海豚很聪明，喜欢跟着船游。",
+              "en": "Dolphins are smart and like to swim alongside boats."
             },
             {
-              "cn": "我想用中文说海豚。",
-              "en": "I want to say dolphin in Chinese."
+              "cn": "在水族馆，海豚跳得很高。",
+              "en": "At the aquarium, the dolphin jumped very high."
             }
           ]
         },
@@ -739,12 +739,12 @@
           "english": "shark",
           "sentences": [
             {
-              "cn": "我喜欢鲨鱼，因为它很有意思。",
-              "en": "I like learning the word shark because it is useful."
+              "cn": "看到鲨鱼的时候，游泳的人都上了岸。",
+              "en": "When they saw the shark, the swimmers all got out of the water."
             },
             {
-              "cn": "这个鲨鱼在生活中很常见。",
-              "en": "This word, shark, is common in daily life."
+              "cn": "鲨鱼的牙齿又尖又多。",
+              "en": "A shark's teeth are sharp and numerous."
             }
           ]
         },
@@ -754,12 +754,12 @@
           "english": "octopus",
           "sentences": [
             {
-              "cn": "今天我们学习章鱼这个词。",
-              "en": "Today we are learning the word octopus."
+              "cn": "章鱼有八条腿，能钻进小石缝里。",
+              "en": "An octopus has eight legs and can squeeze into small crevices."
             },
             {
-              "cn": "很多人都知道章鱼。",
-              "en": "Many people know the word octopus."
+              "cn": "厨师用章鱼做了一盘海鲜。",
+              "en": "The chef made a seafood dish with octopus."
             }
           ]
         },
@@ -769,12 +769,12 @@
           "english": "crab",
           "sentences": [
             {
-              "cn": "请你看一看这个螃蟹。",
-              "en": "Please look at this word: crab."
+              "cn": "退潮以后，我们在沙滩上抓螃蟹。",
+              "en": "After the tide went out, we caught crabs on the beach."
             },
             {
-              "cn": "我想用中文说螃蟹。",
-              "en": "I want to say crab in Chinese."
+              "cn": "螃蟹用两只大钳子夹东西。",
+              "en": "A crab pinches things with its two big claws."
             }
           ]
         },
@@ -784,12 +784,12 @@
           "english": "sea turtle",
           "sentences": [
             {
-              "cn": "我喜欢海龟，因为它很有意思。",
-              "en": "I like learning the word sea turtle because it is useful."
+              "cn": "海龟游得很慢，可是能活很多年。",
+              "en": "Sea turtles swim slowly, but they can live for many years."
             },
             {
-              "cn": "这个海龟在生活中很常见。",
-              "en": "This word, sea turtle, is common in daily life."
+              "cn": "我们在沙滩上看到海龟在下蛋。",
+              "en": "We watched a sea turtle laying eggs on the beach."
             }
           ]
         },
@@ -799,12 +799,12 @@
           "english": "starfish",
           "sentences": [
             {
-              "cn": "今天我们学习海星这个词。",
-              "en": "Today we are learning the word starfish."
+              "cn": "海星常常贴在海边的石头上。",
+              "en": "Starfish often cling to the rocks by the sea."
             },
             {
-              "cn": "很多人都知道海星。",
-              "en": "Many people know the word starfish."
+              "cn": "这只海星有五只脚，样子像星星。",
+              "en": "This starfish has five arms and looks like a star."
             }
           ]
         },
@@ -814,12 +814,12 @@
           "english": "jellyfish",
           "sentences": [
             {
-              "cn": "请你看一看这个水母。",
-              "en": "Please look at this word: jellyfish."
+              "cn": "游泳的时候要小心水母。",
+              "en": "Watch out for jellyfish when you swim."
             },
             {
-              "cn": "我想用中文说水母。",
-              "en": "I want to say jellyfish in Chinese."
+              "cn": "水母的身体是透明的，在水里一动一动。",
+              "en": "A jellyfish's body is transparent and pulses in the water."
             }
           ]
         },
@@ -829,12 +829,12 @@
           "english": "seahorse",
           "sentences": [
             {
-              "cn": "我喜欢海马，因为它很有意思。",
-              "en": "I like learning the word seahorse because it is useful."
+              "cn": "海马虽然叫马，其实是一种小鱼。",
+              "en": "Although it is called a sea horse, the seahorse is really a small fish."
             },
             {
-              "cn": "这个海马在生活中很常见。",
-              "en": "This word, seahorse, is common in daily life."
+              "cn": "我们在水族馆看到一只很小的海马。",
+              "en": "We saw a tiny seahorse at the aquarium."
             }
           ]
         }
@@ -858,12 +858,12 @@
           "english": "sparrow",
           "sentences": [
             {
-              "cn": "我喜欢麻雀，因为它很有意思。",
-              "en": "I like learning the word sparrow because it is useful."
+              "cn": "几只麻雀站在电线上叫。",
+              "en": "A few sparrows are chirping on the power line."
             },
             {
-              "cn": "这个麻雀在生活中很常见。",
-              "en": "This word, sparrow, is common in daily life."
+              "cn": "麻雀很小，可是飞得很快。",
+              "en": "Sparrows are tiny, but they fly very fast."
             }
           ]
         },
@@ -873,12 +873,12 @@
           "english": "pigeon",
           "sentences": [
             {
-              "cn": "今天我们学习鸽子这个词。",
-              "en": "Today we are learning the word pigeon."
+              "cn": "广场上有很多鸽子在找吃的。",
+              "en": "There are many pigeons looking for food in the square."
             },
             {
-              "cn": "很多人都知道鸽子。",
-              "en": "Many people know the word pigeon."
+              "cn": "爷爷在屋顶上养了几只鸽子。",
+              "en": "Grandpa keeps a few pigeons on the roof."
             }
           ]
         },
@@ -888,12 +888,12 @@
           "english": "eagle",
           "sentences": [
             {
-              "cn": "请你看一看这个老鹰。",
-              "en": "Please look at this word: eagle."
+              "cn": "老鹰的眼睛很好，能看到地上的小动物。",
+              "en": "The eagle has sharp eyes and can spot small animals on the ground."
             },
             {
-              "cn": "我想用中文说老鹰。",
-              "en": "I want to say eagle in Chinese."
+              "cn": "一只老鹰从山顶上飞了下来。",
+              "en": "An eagle swooped down from the mountaintop."
             }
           ]
         },
@@ -903,12 +903,12 @@
           "english": "duck",
           "sentences": [
             {
-              "cn": "我喜欢鸭子，因为它很有意思。",
-              "en": "I like learning the word duck because it is useful."
+              "cn": "妈妈带我们去公园喂鸭子。",
+              "en": "Mom took us to the park to feed the ducks."
             },
             {
-              "cn": "这个鸭子在生活中很常见。",
-              "en": "This word, duck, is common in daily life."
+              "cn": "鸭子的脚上有蹼，游泳很方便。",
+              "en": "Ducks have webbed feet, which makes swimming easy."
             }
           ]
         },
@@ -918,12 +918,12 @@
           "english": "swan",
           "sentences": [
             {
-              "cn": "今天我们学习天鹅这个词。",
-              "en": "Today we are learning the word swan."
+              "cn": "湖里有两只白天鹅慢慢地游。",
+              "en": "Two white swans glide slowly across the lake."
             },
             {
-              "cn": "很多人都知道天鹅。",
-              "en": "Many people know the word swan."
+              "cn": "天鹅的脖子又长又弯。",
+              "en": "A swan's neck is long and curved."
             }
           ]
         },
@@ -933,12 +933,12 @@
           "english": "owl",
           "sentences": [
             {
-              "cn": "请你看一看这个猫头鹰。",
-              "en": "Please look at this word: owl."
+              "cn": "猫头鹰白天睡觉，晚上出来。",
+              "en": "Owls sleep during the day and come out at night."
             },
             {
-              "cn": "我想用中文说猫头鹰。",
-              "en": "I want to say owl in Chinese."
+              "cn": "猫头鹰的头能转到后面。",
+              "en": "An owl can turn its head all the way around."
             }
           ]
         },
@@ -948,12 +948,12 @@
           "english": "parrot",
           "sentences": [
             {
-              "cn": "我喜欢鹦鹉，因为它很有意思。",
-              "en": "I like learning the word parrot because it is useful."
+              "cn": "我家的鹦鹉会说几句简单的话。",
+              "en": "My family's parrot can say a few simple phrases."
             },
             {
-              "cn": "这个鹦鹉在生活中很常见。",
-              "en": "This word, parrot, is common in daily life."
+              "cn": "这只鹦鹉的羽毛是绿色和红色的。",
+              "en": "This parrot's feathers are green and red."
             }
           ]
         },
@@ -963,12 +963,12 @@
           "english": "chicken",
           "sentences": [
             {
-              "cn": "今天我们学习鸡这个词。",
-              "en": "Today we are learning the word chicken."
+              "cn": "农场里的鸡每天很早就醒了。",
+              "en": "The chickens on the farm wake up very early every day."
             },
             {
-              "cn": "很多人都知道鸡。",
-              "en": "Many people know the word chicken."
+              "cn": "妈妈买了一只鸡，晚上做汤喝。",
+              "en": "Mom bought a chicken to make soup for dinner."
             }
           ]
         },
@@ -978,12 +978,12 @@
           "english": "penguin",
           "sentences": [
             {
-              "cn": "请你看一看这个企鹅。",
-              "en": "Please look at this word: penguin."
+              "cn": "企鹅不会飞，可是很会游泳。",
+              "en": "Penguins cannot fly, but they are great swimmers."
             },
             {
-              "cn": "我想用中文说企鹅。",
-              "en": "I want to say penguin in Chinese."
+              "cn": "企鹅走路的样子很可爱。",
+              "en": "The way penguins walk is really cute."
             }
           ]
         },
@@ -993,12 +993,12 @@
           "english": "peacock",
           "sentences": [
             {
-              "cn": "我喜欢孔雀，因为它很有意思。",
-              "en": "I like learning the word peacock because it is useful."
+              "cn": "孔雀开屏的时候特别漂亮。",
+              "en": "A peacock is especially beautiful when it spreads its tail."
             },
             {
-              "cn": "这个孔雀在生活中很常见。",
-              "en": "This word, peacock, is common in daily life."
+              "cn": "我们在动物园看到一只蓝色的孔雀。",
+              "en": "We saw a blue peacock at the zoo."
             }
           ]
         }
@@ -1022,12 +1022,12 @@
           "english": "goldfish",
           "sentences": [
             {
-              "cn": "我喜欢金鱼，因为它很有意思。",
-              "en": "I like learning the word goldfish because it is useful."
+              "cn": "我在鱼缸里养了两条金鱼。",
+              "en": "I keep two goldfish in a fish tank."
             },
             {
-              "cn": "这个金鱼在生活中很常见。",
-              "en": "This word, goldfish, is common in daily life."
+              "cn": "金鱼的颜色是橙红色的，很好看。",
+              "en": "Goldfish are an orange-red color and look lovely."
             }
           ]
         },
@@ -1037,12 +1037,12 @@
           "english": "shark",
           "sentences": [
             {
-              "cn": "今天我们学习鲨鱼这个词。",
-              "en": "Today we are learning the word shark."
+              "cn": "鲨鱼是海里很厉害的猎手。",
+              "en": "The shark is a fierce hunter in the sea."
             },
             {
-              "cn": "很多人都知道鲨鱼。",
-              "en": "Many people know the word shark."
+              "cn": "电影里有一条很大的鲨鱼。",
+              "en": "There is a huge shark in the movie."
             }
           ]
         },
@@ -1052,12 +1052,12 @@
           "english": "carp",
           "sentences": [
             {
-              "cn": "请你看一看这个鲤鱼。",
-              "en": "Please look at this word: carp."
+              "cn": "池塘里的鲤鱼游到我脚边。",
+              "en": "The carp in the pond swam right up to my feet."
             },
             {
-              "cn": "我想用中文说鲤鱼。",
-              "en": "I want to say carp in Chinese."
+              "cn": "过年的时候，很多人喜欢吃鲤鱼。",
+              "en": "During the New Year, many people like to eat carp."
             }
           ]
         },
@@ -1067,12 +1067,12 @@
           "english": "salmon",
           "sentences": [
             {
-              "cn": "我喜欢三文鱼，因为它很有意思。",
-              "en": "I like learning the word salmon because it is useful."
+              "cn": "这家店的三文鱼很新鲜，可以生吃。",
+              "en": "The salmon at this shop is fresh enough to eat raw."
             },
             {
-              "cn": "这个三文鱼在生活中很常见。",
-              "en": "This word, salmon, is common in daily life."
+              "cn": "三文鱼喜欢逆着水往上游。",
+              "en": "Salmon like to swim upstream against the current."
             }
           ]
         },
@@ -1082,12 +1082,12 @@
           "english": "tuna",
           "sentences": [
             {
-              "cn": "今天我们学习金枪鱼这个词。",
-              "en": "Today we are learning the word tuna."
+              "cn": "我用金枪鱼做了三明治。",
+              "en": "I made a sandwich with tuna."
             },
             {
-              "cn": "很多人都知道金枪鱼。",
-              "en": "Many people know the word tuna."
+              "cn": "金枪鱼在大海里游得很快。",
+              "en": "Tuna swim very fast in the open sea."
             }
           ]
         },
@@ -1097,12 +1097,12 @@
           "english": "beltfish",
           "sentences": [
             {
-              "cn": "请你看一看这个带鱼。",
-              "en": "Please look at this word: beltfish."
+              "cn": "妈妈把带鱼煎得两面金黄。",
+              "en": "Mom fried the beltfish until it was golden on both sides."
             },
             {
-              "cn": "我想用中文说带鱼。",
-              "en": "I want to say beltfish in Chinese."
+              "cn": "带鱼又长又扁，像一条带子。",
+              "en": "A beltfish is long and flat, like a belt."
             }
           ]
         },
@@ -1112,12 +1112,12 @@
           "english": "eel",
           "sentences": [
             {
-              "cn": "我喜欢鳗鱼，因为它很有意思。",
-              "en": "I like learning the word eel because it is useful."
+              "cn": "鳗鱼的身体又滑又长。",
+              "en": "An eel's body is slippery and long."
             },
             {
-              "cn": "这个鳗鱼在生活中很常见。",
-              "en": "This word, eel, is common in daily life."
+              "cn": "我第一次吃烤鳗鱼，觉得很好吃。",
+              "en": "I tried grilled eel for the first time and found it delicious."
             }
           ]
         },
@@ -1127,12 +1127,12 @@
           "english": "grass carp",
           "sentences": [
             {
-              "cn": "今天我们学习草鱼这个词。",
-              "en": "Today we are learning the word grass carp."
+              "cn": "草鱼主要吃水里的草。",
+              "en": "Grass carp mainly eat the plants in the water."
             },
             {
-              "cn": "很多人都知道草鱼。",
-              "en": "Many people know the word grass carp."
+              "cn": "这条草鱼很大，够全家人吃。",
+              "en": "This grass carp is big enough to feed the whole family."
             }
           ]
         },
@@ -1142,12 +1142,12 @@
           "english": "tropical fish",
           "sentences": [
             {
-              "cn": "请你看一看这个热带鱼。",
-              "en": "Please look at this word: tropical fish."
+              "cn": "热带鱼的颜色很多，特别漂亮。",
+              "en": "Tropical fish come in many colors and are especially pretty."
             },
             {
-              "cn": "我想用中文说热带鱼。",
-              "en": "I want to say tropical fish in Chinese."
+              "cn": "他在客厅放了一缸热带鱼。",
+              "en": "He put a tank of tropical fish in the living room."
             }
           ]
         },
@@ -1157,12 +1157,12 @@
           "english": "flatfish",
           "sentences": [
             {
-              "cn": "我喜欢比目鱼，因为它很有意思。",
-              "en": "I like learning the word flatfish because it is useful."
+              "cn": "比目鱼的两只眼睛长在一边。",
+              "en": "A flatfish has both eyes on one side of its body."
             },
             {
-              "cn": "这个比目鱼在生活中很常见。",
-              "en": "This word, flatfish, is common in daily life."
+              "cn": "比目鱼平平地趴在海底。",
+              "en": "The flatfish lies flat on the sea floor."
             }
           ]
         }
@@ -1186,12 +1186,12 @@
           "english": "ant",
           "sentences": [
             {
-              "cn": "我喜欢蚂蚁，因为它很有意思。",
-              "en": "I like learning the word ant because it is useful."
+              "cn": "一群蚂蚁把面包渣搬回家。",
+              "en": "A line of ants carried the bread crumbs back home."
             },
             {
-              "cn": "这个蚂蚁在生活中很常见。",
-              "en": "This word, ant, is common in daily life."
+              "cn": "蚂蚁虽然很小，力气却很大。",
+              "en": "Ants are tiny, yet they are very strong."
             }
           ]
         },
@@ -1201,12 +1201,12 @@
           "english": "bee",
           "sentences": [
             {
-              "cn": "今天我们学习蜜蜂这个词。",
-              "en": "Today we are learning the word bee."
+              "cn": "蜜蜂在花园里采花蜜。",
+              "en": "The bees are gathering nectar in the garden."
             },
             {
-              "cn": "很多人都知道蜜蜂。",
-              "en": "Many people know the word bee."
+              "cn": "被蜜蜂蜇了会又疼又肿。",
+              "en": "A bee sting hurts and swells up."
             }
           ]
         },
@@ -1216,12 +1216,12 @@
           "english": "butterfly",
           "sentences": [
             {
-              "cn": "请你看一看这个蝴蝶。",
-              "en": "Please look at this word: butterfly."
+              "cn": "春天，花园里有很多蝴蝶。",
+              "en": "In spring, there are many butterflies in the garden."
             },
             {
-              "cn": "我想用中文说蝴蝶。",
-              "en": "I want to say butterfly in Chinese."
+              "cn": "那只蝴蝶的翅膀又大又美。",
+              "en": "That butterfly's wings are large and beautiful."
             }
           ]
         },
@@ -1231,12 +1231,12 @@
           "english": "dragonfly",
           "sentences": [
             {
-              "cn": "我喜欢蜻蜓，因为它很有意思。",
-              "en": "I like learning the word dragonfly because it is useful."
+              "cn": "下雨以前，蜻蜓飞得很低。",
+              "en": "Before it rains, dragonflies fly low."
             },
             {
-              "cn": "这个蜻蜓在生活中很常见。",
-              "en": "This word, dragonfly, is common in daily life."
+              "cn": "池塘边停着一只红色的蜻蜓。",
+              "en": "A red dragonfly is resting by the pond."
             }
           ]
         },
@@ -1246,12 +1246,12 @@
           "english": "fly",
           "sentences": [
             {
-              "cn": "今天我们学习苍蝇这个词。",
-              "en": "Today we are learning the word fly."
+              "cn": "吃饭的时候，苍蝇让人很烦。",
+              "en": "Flies are annoying while you are eating."
             },
             {
-              "cn": "很多人都知道苍蝇。",
-              "en": "Many people know the word fly."
+              "cn": "我们把窗户关上，不让苍蝇进来。",
+              "en": "We shut the window to keep the flies out."
             }
           ]
         },
@@ -1261,12 +1261,12 @@
           "english": "mosquito",
           "sentences": [
             {
-              "cn": "请你看一看这个蚊子。",
-              "en": "Please look at this word: mosquito."
+              "cn": "夏天的晚上，蚊子特别多。",
+              "en": "On summer nights, there are especially many mosquitoes."
             },
             {
-              "cn": "我想用中文说蚊子。",
-              "en": "I want to say mosquito in Chinese."
+              "cn": "被蚊子咬了，皮肤会很痒。",
+              "en": "A mosquito bite leaves your skin itchy."
             }
           ]
         },
@@ -1276,12 +1276,12 @@
           "english": "ladybug",
           "sentences": [
             {
-              "cn": "我喜欢瓢虫，因为它很有意思。",
-              "en": "I like learning the word ladybug because it is useful."
+              "cn": "瓢虫身上有红色和黑色的点。",
+              "en": "A ladybug has red and black spots on its back."
             },
             {
-              "cn": "这个瓢虫在生活中很常见。",
-              "en": "This word, ladybug, is common in daily life."
+              "cn": "瓢虫会吃掉菜叶上的小虫子。",
+              "en": "Ladybugs eat the small pests on vegetable leaves."
             }
           ]
         },
@@ -1291,12 +1291,12 @@
           "english": "cricket",
           "sentences": [
             {
-              "cn": "今天我们学习蟋蟀这个词。",
-              "en": "Today we are learning the word cricket."
+              "cn": "秋天的夜里，蟋蟀叫个不停。",
+              "en": "On autumn nights, the crickets chirp without stopping."
             },
             {
-              "cn": "很多人都知道蟋蟀。",
-              "en": "Many people know the word cricket."
+              "cn": "小时候我们喜欢在草丛里抓蟋蟀。",
+              "en": "As kids, we loved catching crickets in the grass."
             }
           ]
         },
@@ -1306,12 +1306,12 @@
           "english": "spider",
           "sentences": [
             {
-              "cn": "请你看一看这个蜘蛛。",
-              "en": "Please look at this word: spider."
+              "cn": "墙角有一只蜘蛛在结网。",
+              "en": "A spider is spinning a web in the corner."
             },
             {
-              "cn": "我想用中文说蜘蛛。",
-              "en": "I want to say spider in Chinese."
+              "cn": "蜘蛛有八条腿，其实不是昆虫。",
+              "en": "A spider has eight legs and is not actually an insect."
             }
           ]
         },
@@ -1321,12 +1321,12 @@
           "english": "mantis",
           "sentences": [
             {
-              "cn": "我喜欢螳螂，因为它很有意思。",
-              "en": "I like learning the word mantis because it is useful."
+              "cn": "螳螂的两只前腿像两把小刀。",
+              "en": "A mantis's two front legs are like little knives."
             },
             {
-              "cn": "这个螳螂在生活中很常见。",
-              "en": "This word, mantis, is common in daily life."
+              "cn": "那只绿色的螳螂正在等着抓虫子。",
+              "en": "That green mantis is waiting to catch a bug."
             }
           ]
         }
@@ -1350,12 +1350,12 @@
           "english": "rose",
           "sentences": [
             {
-              "cn": "我喜欢玫瑰，因为它很有意思。",
-              "en": "I like learning the word rose because it is useful."
+              "cn": "情人节那天，他送了女朋友一束红玫瑰。",
+              "en": "On Valentine's Day, he gave his girlfriend a bunch of red roses."
             },
             {
-              "cn": "这个玫瑰在生活中很常见。",
-              "en": "This word, rose, is common in daily life."
+              "cn": "这种玫瑰的香味很浓。",
+              "en": "This kind of rose has a strong fragrance."
             }
           ]
         },
@@ -1365,12 +1365,12 @@
           "english": "chrysanthemum",
           "sentences": [
             {
-              "cn": "今天我们学习菊花这个词。",
-              "en": "Today we are learning the word chrysanthemum."
+              "cn": "秋天，公园里开满了菊花。",
+              "en": "In autumn, the park is full of chrysanthemums."
             },
             {
-              "cn": "很多人都知道菊花。",
-              "en": "Many people know the word chrysanthemum."
+              "cn": "奶奶喜欢用菊花泡茶喝。",
+              "en": "Grandma likes to brew tea with chrysanthemums."
             }
           ]
         },
@@ -1380,12 +1380,12 @@
           "english": "lotus",
           "sentences": [
             {
-              "cn": "请你看一看这个荷花。",
-              "en": "Please look at this word: lotus."
+              "cn": "夏天，池塘里的荷花开了。",
+              "en": "In summer, the lotus flowers in the pond come into bloom."
             },
             {
-              "cn": "我想用中文说荷花。",
-              "en": "I want to say lotus in Chinese."
+              "cn": "荷花从水里长出来，特别干净。",
+              "en": "The lotus grows up out of the water and looks remarkably clean."
             }
           ]
         },
@@ -1395,12 +1395,12 @@
           "english": "orchid",
           "sentences": [
             {
-              "cn": "我喜欢兰花，因为它很有意思。",
-              "en": "I like learning the word orchid because it is useful."
+              "cn": "爸爸在书房里养了一盆兰花。",
+              "en": "Dad keeps a pot of orchids in his study."
             },
             {
-              "cn": "这个兰花在生活中很常见。",
-              "en": "This word, orchid, is common in daily life."
+              "cn": "兰花的样子简单，可是很好看。",
+              "en": "The orchid looks simple, yet it is very pretty."
             }
           ]
         },
@@ -1410,12 +1410,12 @@
           "english": "peony",
           "sentences": [
             {
-              "cn": "今天我们学习牡丹这个词。",
-              "en": "Today we are learning the word peony."
+              "cn": "牡丹花又大又红，看起来很富贵。",
+              "en": "Peonies are large and red, and look rich and elegant."
             },
             {
-              "cn": "很多人都知道牡丹。",
-              "en": "Many people know the word peony."
+              "cn": "四月是看牡丹最好的时候。",
+              "en": "April is the best time to see peonies."
             }
           ]
         },
@@ -1425,12 +1425,12 @@
           "english": "sunflower",
           "sentences": [
             {
-              "cn": "请你看一看这个向日葵。",
-              "en": "Please look at this word: sunflower."
+              "cn": "向日葵总是朝着太阳。",
+              "en": "Sunflowers always turn to face the sun."
             },
             {
-              "cn": "我想用中文说向日葵。",
-              "en": "I want to say sunflower in Chinese."
+              "cn": "这片向日葵长得比人还高。",
+              "en": "This field of sunflowers grows taller than a person."
             }
           ]
         },
@@ -1440,12 +1440,12 @@
           "english": "lily",
           "sentences": [
             {
-              "cn": "我喜欢百合，因为它很有意思。",
-              "en": "I like learning the word lily because it is useful."
+              "cn": "她在桌子上放了一瓶白百合。",
+              "en": "She placed a vase of white lilies on the table."
             },
             {
-              "cn": "这个百合在生活中很常见。",
-              "en": "This word, lily, is common in daily life."
+              "cn": "百合的花瓣又白又香。",
+              "en": "The lily's petals are white and fragrant."
             }
           ]
         },
@@ -1455,12 +1455,12 @@
           "english": "jasmine",
           "sentences": [
             {
-              "cn": "今天我们学习茉莉这个词。",
-              "en": "Today we are learning the word jasmine."
+              "cn": "茉莉花小小的，香味却很远。",
+              "en": "Jasmine flowers are tiny, but their scent carries far."
             },
             {
-              "cn": "很多人都知道茉莉。",
-              "en": "Many people know the word jasmine."
+              "cn": "很多人喜欢喝茉莉花茶。",
+              "en": "Many people enjoy drinking jasmine tea."
             }
           ]
         },
@@ -1470,12 +1470,12 @@
           "english": "plum blossom",
           "sentences": [
             {
-              "cn": "请你看一看这个梅花。",
-              "en": "Please look at this word: plum blossom."
+              "cn": "梅花在冬天最冷的时候开。",
+              "en": "Plum blossoms bloom in the coldest part of winter."
             },
             {
-              "cn": "我想用中文说梅花。",
-              "en": "I want to say plum blossom in Chinese."
+              "cn": "下雪的时候，梅花特别好看。",
+              "en": "Plum blossoms look especially beautiful in the snow."
             }
           ]
         },
@@ -1485,12 +1485,12 @@
           "english": "peach blossom",
           "sentences": [
             {
-              "cn": "我喜欢桃花，因为它很有意思。",
-              "en": "I like learning the word peach blossom because it is useful."
+              "cn": "三月，山上的桃花都开了。",
+              "en": "In March, the peach blossoms on the hills all open up."
             },
             {
-              "cn": "这个桃花在生活中很常见。",
-              "en": "This word, peach blossom, is common in daily life."
+              "cn": "我们在桃花树下照了很多相。",
+              "en": "We took many photos under the peach blossom trees."
             }
           ]
         }
@@ -1514,12 +1514,12 @@
           "english": "cabbage",
           "sentences": [
             {
-              "cn": "我喜欢白菜，因为它很有意思。",
-              "en": "I like learning the word cabbage because it is useful."
+              "cn": "冬天，北方人喜欢用白菜包饺子。",
+              "en": "In winter, people in the north like to put cabbage in dumplings."
             },
             {
-              "cn": "这个白菜在生活中很常见。",
-              "en": "This word, cabbage, is common in daily life."
+              "cn": "这棵白菜很新鲜，叶子还很绿。",
+              "en": "This cabbage is fresh, and its leaves are still green."
             }
           ]
         },
@@ -1529,12 +1529,12 @@
           "english": "potato",
           "sentences": [
             {
-              "cn": "今天我们学习土豆这个词。",
-              "en": "Today we are learning the word potato."
+              "cn": "妈妈把土豆切成丝炒着吃。",
+              "en": "Mom cut the potatoes into thin strips and stir-fried them."
             },
             {
-              "cn": "很多人都知道土豆。",
-              "en": "Many people know the word potato."
+              "cn": "土豆放在阴凉的地方能放很久。",
+              "en": "Potatoes keep for a long time in a cool, dark place."
             }
           ]
         },
@@ -1544,12 +1544,12 @@
           "english": "tomato",
           "sentences": [
             {
-              "cn": "请你看一看这个西红柿。",
-              "en": "Please look at this word: tomato."
+              "cn": "西红柿炒鸡蛋是一道家常菜。",
+              "en": "Tomato and egg is a common home-cooked dish."
             },
             {
-              "cn": "我想用中文说西红柿。",
-              "en": "I want to say tomato in Chinese."
+              "cn": "夏天的西红柿又红又甜。",
+              "en": "Summer tomatoes are red and sweet."
             }
           ]
         },
@@ -1559,12 +1559,12 @@
           "english": "cucumber",
           "sentences": [
             {
-              "cn": "我喜欢黄瓜，因为它很有意思。",
-              "en": "I like learning the word cucumber because it is useful."
+              "cn": "天热的时候，凉拌黄瓜很好吃。",
+              "en": "On hot days, cold cucumber salad is delicious."
             },
             {
-              "cn": "这个黄瓜在生活中很常见。",
-              "en": "This word, cucumber, is common in daily life."
+              "cn": "黄瓜的皮是绿色的，里面是浅绿的。",
+              "en": "A cucumber has green skin and a pale-green inside."
             }
           ]
         },
@@ -1574,12 +1574,12 @@
           "english": "eggplant",
           "sentences": [
             {
-              "cn": "今天我们学习茄子这个词。",
-              "en": "Today we are learning the word eggplant."
+              "cn": "这道红烧茄子做得很软很香。",
+              "en": "This braised eggplant turned out soft and fragrant."
             },
             {
-              "cn": "很多人都知道茄子。",
-              "en": "Many people know the word eggplant."
+              "cn": "茄子的颜色是深紫色的。",
+              "en": "Eggplants are a deep purple color."
             }
           ]
         },
@@ -1589,12 +1589,12 @@
           "english": "radish",
           "sentences": [
             {
-              "cn": "请你看一看这个萝卜。",
-              "en": "Please look at this word: radish."
+              "cn": "冬天喝萝卜汤对身体好。",
+              "en": "Radish soup is good for you in winter."
             },
             {
-              "cn": "我想用中文说萝卜。",
-              "en": "I want to say radish in Chinese."
+              "cn": "奶奶在院子里种了几个大萝卜。",
+              "en": "Grandma grew a few big radishes in the yard."
             }
           ]
         },
@@ -1604,12 +1604,12 @@
           "english": "spinach",
           "sentences": [
             {
-              "cn": "我喜欢菠菜，因为它很有意思。",
-              "en": "I like learning the word spinach because it is useful."
+              "cn": "菠菜里有很多铁，多吃对身体好。",
+              "en": "Spinach is high in iron, so eating more of it is good for you."
             },
             {
-              "cn": "这个菠菜在生活中很常见。",
-              "en": "This word, spinach, is common in daily life."
+              "cn": "我把菠菜用开水烫一下再炒。",
+              "en": "I blanch the spinach in boiling water before stir-frying it."
             }
           ]
         },
@@ -1619,12 +1619,12 @@
           "english": "onion",
           "sentences": [
             {
-              "cn": "今天我们学习洋葱这个词。",
-              "en": "Today we are learning the word onion."
+              "cn": "切洋葱的时候，我的眼睛一直流泪。",
+              "en": "When I cut onions, my eyes keep watering."
             },
             {
-              "cn": "很多人都知道洋葱。",
-              "en": "Many people know the word onion."
+              "cn": "洋葱炒牛肉的味道很香。",
+              "en": "Onions stir-fried with beef smell wonderful."
             }
           ]
         },
@@ -1634,12 +1634,12 @@
           "english": "carrot",
           "sentences": [
             {
-              "cn": "请你看一看这个胡萝卜。",
-              "en": "Please look at this word: carrot."
+              "cn": "胡萝卜对眼睛好，妈妈让我多吃。",
+              "en": "Carrots are good for the eyes, so Mom has me eat more of them."
             },
             {
-              "cn": "我想用中文说胡萝卜。",
-              "en": "I want to say carrot in Chinese."
+              "cn": "兔子最爱吃的就是胡萝卜。",
+              "en": "A rabbit's favorite food is carrots."
             }
           ]
         },
@@ -1649,12 +1649,12 @@
           "english": "green pepper",
           "sentences": [
             {
-              "cn": "我喜欢青椒，因为它很有意思。",
-              "en": "I like learning the word green pepper because it is useful."
+              "cn": "青椒炒肉是我最喜欢的菜。",
+              "en": "Green pepper with pork is my favorite dish."
             },
             {
-              "cn": "这个青椒在生活中很常见。",
-              "en": "This word, green pepper, is common in daily life."
+              "cn": "这个青椒不辣，孩子也能吃。",
+              "en": "This green pepper is not spicy, so children can eat it too."
             }
           ]
         }
@@ -1678,12 +1678,12 @@
           "english": "mango",
           "sentences": [
             {
-              "cn": "我喜欢芒果，因为它很有意思。",
-              "en": "I like learning the word mango because it is useful."
+              "cn": "这个芒果熟了，闻起来很香。",
+              "en": "This mango is ripe and smells sweet."
             },
             {
-              "cn": "这个芒果在生活中很常见。",
-              "en": "This word, mango, is common in daily life."
+              "cn": "我喜欢把芒果切成块放在冰上。",
+              "en": "I like to cut mango into chunks and put it on ice."
             }
           ]
         },
@@ -1693,12 +1693,12 @@
           "english": "pineapple",
           "sentences": [
             {
-              "cn": "今天我们学习菠萝这个词。",
-              "en": "Today we are learning the word pineapple."
+              "cn": "吃菠萝以前，要先用盐水泡一下。",
+              "en": "Before eating pineapple, soak it in salt water first."
             },
             {
-              "cn": "很多人都知道菠萝。",
-              "en": "Many people know the word pineapple."
+              "cn": "菠萝的皮很硬，上面有很多刺。",
+              "en": "A pineapple's skin is hard and covered with prickles."
             }
           ]
         },
@@ -1708,12 +1708,12 @@
           "english": "banana",
           "sentences": [
             {
-              "cn": "请你看一看这个香蕉。",
-              "en": "Please look at this word: banana."
+              "cn": "香蕉很甜，剥了皮就能吃。",
+              "en": "Bananas are sweet and ready to eat once you peel them."
             },
             {
-              "cn": "我想用中文说香蕉。",
-              "en": "I want to say banana in Chinese."
+              "cn": "每天早上我吃一根香蕉。",
+              "en": "I eat one banana every morning."
             }
           ]
         },
@@ -1723,12 +1723,12 @@
           "english": "coconut",
           "sentences": [
             {
-              "cn": "我喜欢椰子，因为它很有意思。",
-              "en": "I like learning the word coconut because it is useful."
+              "cn": "在海边，我们买了一个椰子喝椰汁。",
+              "en": "At the beach, we bought a coconut and drank the coconut water."
             },
             {
-              "cn": "这个椰子在生活中很常见。",
-              "en": "This word, coconut, is common in daily life."
+              "cn": "椰子的外壳很硬，要用刀打开。",
+              "en": "You need a knife to open a coconut's hard shell."
             }
           ]
         },
@@ -1738,12 +1738,12 @@
           "english": "papaya",
           "sentences": [
             {
-              "cn": "今天我们学习木瓜这个词。",
-              "en": "Today we are learning the word papaya."
+              "cn": "木瓜里面有很多黑色的小种子。",
+              "en": "A papaya has many small black seeds inside."
             },
             {
-              "cn": "很多人都知道木瓜。",
-              "en": "Many people know the word papaya."
+              "cn": "这种木瓜又甜又软，很好消化。",
+              "en": "This kind of papaya is sweet, soft, and easy to digest."
             }
           ]
         },
@@ -1753,12 +1753,12 @@
           "english": "dragonfruit",
           "sentences": [
             {
-              "cn": "请你看一看这个火龙果。",
-              "en": "Please look at this word: dragonfruit."
+              "cn": "火龙果的皮是红色的，里面是白的。",
+              "en": "The dragonfruit is red on the outside and white on the inside."
             },
             {
-              "cn": "我想用中文说火龙果。",
-              "en": "I want to say dragonfruit in Chinese."
+              "cn": "火龙果吃起来不太甜。",
+              "en": "Dragonfruit does not taste very sweet."
             }
           ]
         },
@@ -1768,12 +1768,12 @@
           "english": "durian",
           "sentences": [
             {
-              "cn": "我喜欢榴莲，因为它很有意思。",
-              "en": "I like learning the word durian because it is useful."
+              "cn": "榴莲的味道很重，有人爱有人不爱。",
+              "en": "Durian has a strong smell that some people love and others hate."
             },
             {
-              "cn": "这个榴莲在生活中很常见。",
-              "en": "This word, durian, is common in daily life."
+              "cn": "第一次吃榴莲，我还有点害怕。",
+              "en": "The first time I ate durian, I was a little scared."
             }
           ]
         },
@@ -1783,12 +1783,12 @@
           "english": "lychee",
           "sentences": [
             {
-              "cn": "今天我们学习荔枝这个词。",
-              "en": "Today we are learning the word lychee."
+              "cn": "夏天的荔枝又甜又多汁。",
+              "en": "Summer lychees are sweet and juicy."
             },
             {
-              "cn": "很多人都知道荔枝。",
-              "en": "Many people know the word lychee."
+              "cn": "荔枝的壳是红色的，很好剥。",
+              "en": "The lychee has a red shell that peels off easily."
             }
           ]
         },
@@ -1798,12 +1798,12 @@
           "english": "longan",
           "sentences": [
             {
-              "cn": "请你看一看这个龙眼。",
-              "en": "Please look at this word: longan."
+              "cn": "龙眼长得像小小的葡萄。",
+              "en": "Longans look like small grapes."
             },
             {
-              "cn": "我想用中文说龙眼。",
-              "en": "I want to say longan in Chinese."
+              "cn": "奶奶说龙眼干可以用来煮汤。",
+              "en": "Grandma says dried longan can be used to make soup."
             }
           ]
         },
@@ -1813,12 +1813,12 @@
           "english": "passionfruit",
           "sentences": [
             {
-              "cn": "我喜欢百香果，因为它很有意思。",
-              "en": "I like learning the word passionfruit because it is useful."
+              "cn": "百香果的味道又酸又香。",
+              "en": "Passionfruit tastes both tart and fragrant."
             },
             {
-              "cn": "这个百香果在生活中很常见。",
-              "en": "This word, passionfruit, is common in daily life."
+              "cn": "我喜欢把百香果加到水里喝。",
+              "en": "I like to add passionfruit to my water."
             }
           ]
         }
@@ -1842,12 +1842,12 @@
           "english": "mountain",
           "sentences": [
             {
-              "cn": "我喜欢山，因为它很有意思。",
-              "en": "I like learning the word mountain because it is useful."
+              "cn": "周末我们一起去爬山。",
+              "en": "On the weekend we went hiking up the mountain together."
             },
             {
-              "cn": "这个山在生活中很常见。",
-              "en": "This word, mountain, is common in daily life."
+              "cn": "那座山很高，山顶上有雪。",
+              "en": "That mountain is very high, and there is snow at the top."
             }
           ]
         },
@@ -1857,12 +1857,12 @@
           "english": "river",
           "sentences": [
             {
-              "cn": "今天我们学习河这个词。",
-              "en": "Today we are learning the word river."
+              "cn": "小时候我常在河里游泳。",
+              "en": "As a child, I often swam in the river."
             },
             {
-              "cn": "很多人都知道河。",
-              "en": "Many people know the word river."
+              "cn": "这条河的水很清，能看到底。",
+              "en": "This river's water is so clear you can see the bottom."
             }
           ]
         },
@@ -1872,12 +1872,12 @@
           "english": "lake",
           "sentences": [
             {
-              "cn": "请你看一看这个湖。",
-              "en": "Please look at this word: lake."
+              "cn": "湖面很平，像一面镜子。",
+              "en": "The surface of the lake is smooth, like a mirror."
             },
             {
-              "cn": "我想用中文说湖。",
-              "en": "I want to say lake in Chinese."
+              "cn": "我们坐在湖边看日落。",
+              "en": "We sat by the lake and watched the sunset."
             }
           ]
         },
@@ -1887,12 +1887,12 @@
           "english": "sea",
           "sentences": [
             {
-              "cn": "我喜欢海，因为它很有意思。",
-              "en": "I like learning the word sea because it is useful."
+              "cn": "站在海边，能听到海浪的声音。",
+              "en": "Standing by the sea, you can hear the sound of the waves."
             },
             {
-              "cn": "这个海在生活中很常见。",
-              "en": "This word, sea, is common in daily life."
+              "cn": "夏天，很多人到海里游泳。",
+              "en": "In summer, many people go swimming in the sea."
             }
           ]
         },
@@ -1902,12 +1902,12 @@
           "english": "forest",
           "sentences": [
             {
-              "cn": "今天我们学习森林这个词。",
-              "en": "Today we are learning the word forest."
+              "cn": "走进森林，空气特别新鲜。",
+              "en": "Walking into the forest, the air is especially fresh."
             },
             {
-              "cn": "很多人都知道森林。",
-              "en": "Many people know the word forest."
+              "cn": "这片森林里住着很多动物。",
+              "en": "Many animals live in this forest."
             }
           ]
         },
@@ -1917,12 +1917,12 @@
           "english": "grassland",
           "sentences": [
             {
-              "cn": "请你看一看这个草原。",
-              "en": "Please look at this word: grassland."
+              "cn": "草原上有很多牛羊在吃草。",
+              "en": "On the grassland, many cattle and sheep are grazing."
             },
             {
-              "cn": "我想用中文说草原。",
-              "en": "I want to say grassland in Chinese."
+              "cn": "夏天的草原一望无边。",
+              "en": "The summer grassland stretches as far as the eye can see."
             }
           ]
         },
@@ -1932,12 +1932,12 @@
           "english": "desert",
           "sentences": [
             {
-              "cn": "我喜欢沙漠，因为它很有意思。",
-              "en": "I like learning the word desert because it is useful."
+              "cn": "沙漠里白天很热，晚上很冷。",
+              "en": "In the desert it is hot during the day and cold at night."
             },
             {
-              "cn": "这个沙漠在生活中很常见。",
-              "en": "This word, desert, is common in daily life."
+              "cn": "在沙漠里很难找到水。",
+              "en": "It is hard to find water in the desert."
             }
           ]
         },
@@ -1947,12 +1947,12 @@
           "english": "waterfall",
           "sentences": [
             {
-              "cn": "今天我们学习瀑布这个词。",
-              "en": "Today we are learning the word waterfall."
+              "cn": "瀑布从山上流下来，声音很大。",
+              "en": "The waterfall rushes down the mountain with a loud roar."
             },
             {
-              "cn": "很多人都知道瀑布。",
-              "en": "Many people know the word waterfall."
+              "cn": "我们在瀑布前面照了一张相。",
+              "en": "We took a photo in front of the waterfall."
             }
           ]
         },
@@ -1962,12 +1962,12 @@
           "english": "island",
           "sentences": [
             {
-              "cn": "请你看一看这个岛。",
-              "en": "Please look at this word: island."
+              "cn": "这个岛很小，坐船一会儿就到了。",
+              "en": "This island is small; you get there by boat in no time."
             },
             {
-              "cn": "我想用中文说岛。",
-              "en": "I want to say island in Chinese."
+              "cn": "岛上有很多椰子树。",
+              "en": "There are many coconut trees on the island."
             }
           ]
         },
@@ -1977,12 +1977,12 @@
           "english": "valley",
           "sentences": [
             {
-              "cn": "我喜欢山谷，因为它很有意思。",
-              "en": "I like learning the word valley because it is useful."
+              "cn": "山谷里有一条小河。",
+              "en": "There is a small stream in the valley."
             },
             {
-              "cn": "这个山谷在生活中很常见。",
-              "en": "This word, valley, is common in daily life."
+              "cn": "春天，山谷里开满了野花。",
+              "en": "In spring, the valley is full of wild flowers."
             }
           ]
         }
