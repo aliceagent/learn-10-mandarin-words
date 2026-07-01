@@ -17,6 +17,7 @@ export type AnalyticsEvent =
   | "onboarding_skipped"
   | "topic_start"
   | "quiz_completed"
+  | "tone_practice_completed"
   | "review_completed"
   | "favorite_saved"
   | "install_prompt_shown"

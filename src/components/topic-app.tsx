@@ -8,6 +8,7 @@ import { track } from "@/lib/analytics";
 import { useProgress } from "./use-progress";
 import { SpeakButton } from "./speak-button";
 import { VideoPlayer } from "./video-player";
+import { TonePractice } from "./tone-practice";
 
 // ─── Quiz types ──────────────────────────────────────────────────────────────
 
@@ -471,6 +472,15 @@ export function TopicApp({ topic }: { topic: Topic }) {
           </section>
         )
       ) : null}
+
+      {/* ── Tone practice (additive; independent of the mode tabs above) ── */}
+      <div className="mt-10">
+        <h2 className="text-lg font-semibold text-white">Tone practice</h2>
+        <p className="mt-1 text-sm text-slate-400">
+          Train your ear for tones — derived from each word&apos;s pinyin.
+        </p>
+        <TonePractice topic={topic} />
+      </div>
     </main>
   );
 }
