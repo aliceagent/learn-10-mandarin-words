@@ -2,57 +2,15 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { Topic } from "@/lib/types";
+import type { Topic, VocabItem } from "@/lib/types";
 import { wordKey } from "@/lib/data";
+import { buildQuiz, itemsForKeys, type QuizMode } from "@/lib/quiz-logic";
 import { downloadableMp4Url, hasPlayableVideo } from "@/lib/video";
 import { track } from "@/lib/analytics";
 import { useProgress } from "./use-progress";
 import { SpeakButton } from "./speak-button";
 import { VideoPlayer } from "./video-player";
 import { TonePractice } from "./tone-practice";
-
-// ─── Quiz types ──────────────────────────────────────────────────────────────
-
-type QuizMode = "hanzi-english" | "english-hanzi" | "hanzi-pinyin";
-
-type QuizCard = {
-  prompt: string;
-  promptPinyin?: string;
-  answer: string;
-  choices: string[];
-};
-
-// ─── Utilities ────────────────────────────────────────────────────────────────
-
-function shuffle<T>(items: T[]): T[] {
-  return [...items].sort(() => Math.random() - 0.5);
-}
-
-function buildQuiz(topic: Topic, mode: QuizMode): QuizCard[] {
-  return topic.items.map((item) => {
-    if (mode === "hanzi-english") {
-      return {
-        prompt: item.hanzi,
-        promptPinyin: item.pinyin,
-        answer: item.english,
-        choices: shuffle([item.english, ...shuffle(topic.items.filter((o) => o.english !== item.english)).slice(0, 3).map((o) => o.english)]),
-      };
-    }
-    if (mode === "english-hanzi") {
-      return {
-        prompt: item.english,
-        answer: item.hanzi,
-        choices: shuffle([item.hanzi, ...shuffle(topic.items.filter((o) => o.hanzi !== item.hanzi)).slice(0, 3).map((o) => o.hanzi)]),
-      };
-    }
-    // hanzi-pinyin
-    return {
-      prompt: item.hanzi,
-      answer: item.pinyin,
-      choices: shuffle([item.pinyin, ...shuffle(topic.items.filter((o) => o.pinyin !== item.pinyin)).slice(0, 3).map((o) => o.pinyin)]),
-    };
-  });
-}
 
 // ─── Touch swipe hook ─────────────────────────────────────────────────────────
 
@@ -99,6 +57,12 @@ export function TopicApp({ topic }: { topic: Topic }) {
   const [quizMode, setQuizMode] = useState<QuizMode>("hanzi-english");
   const [quizState, setQuizState] = useState({ index: 0, score: 0, picked: null as string | null });
   const [quizComplete, setQuizComplete] = useState(false);
+  // The words currently being quizzed. Starts as the whole topic; a "Retry
+  // missed" run narrows it to just the missed words. Distractors still come from
+  // the full topic (see the buildQuiz pool argument) so choices stay plausible.
+  const [activeItems, setActiveItems] = useState<VocabItem[]>(topic.items);
+  // Keys of words answered incorrectly during the current quiz run.
+  const [missedKeys, setMissedKeys] = useState<string[]>([]);
 
   const isLearned = progress.learnedTopics.includes(topic.slug);
   const isFavoriteTopic = progress.favoriteTopics.includes(topic.slug);
@@ -109,27 +73,51 @@ export function TopicApp({ topic }: { topic: Topic }) {
   const videoReady = hasPlayableVideo(topic);
   const mp4Url = downloadableMp4Url(topic);
 
-  const quiz = useMemo<QuizCard[]>(() => buildQuiz(topic, quizMode), [topic, quizMode]);
+  const keyFor = useCallback((item: VocabItem) => wordKey(topic, item), [topic]);
+  const quiz = useMemo(
+    () => buildQuiz(activeItems, topic.items, quizMode, keyFor),
+    [activeItems, topic.items, quizMode, keyFor],
+  );
   const currentQuiz = quiz[quizState.index % quiz.length];
+  // Words missed in the just-finished run, in topic order, for the summary.
+  const missedItemsList = useMemo(
+    () => itemsForKeys(topic.items, keyFor, missedKeys),
+    [topic.items, keyFor, missedKeys],
+  );
 
   // Record a topic start once per mounted topic (anonymous, local/dev only).
   useEffect(() => {
     track("topic_start", { topic: topic.slug });
   }, [topic.slug]);
 
+  // Switching to a different topic resets the quiz back to that topic's full
+  // word set and clears any missed state carried over from the previous topic.
+  // This uses React's "adjust state while rendering on prop change" pattern
+  // rather than an effect, so it applies before paint without a cascading render.
+  const [quizTopicSlug, setQuizTopicSlug] = useState(topic.slug);
+  if (quizTopicSlug !== topic.slug) {
+    setQuizTopicSlug(topic.slug);
+    setActiveItems(topic.items);
+    setMissedKeys([]);
+    setQuizState({ index: 0, score: 0, picked: null });
+    setQuizComplete(false);
+  }
+
   function changeQuizMode(m: QuizMode) {
     setQuizMode(m);
+    setActiveItems(topic.items);
+    setMissedKeys([]);
     setQuizState({ index: 0, score: 0, picked: null });
     setQuizComplete(false);
   }
 
   function answerQuiz(choice: string) {
     if (quizState.picked) return;
-    setQuizState((s) => ({
-      ...s,
-      picked: choice,
-      score: choice === currentQuiz.answer ? s.score + 1 : s.score,
-    }));
+    const correct = choice === currentQuiz.answer;
+    setQuizState((s) => ({ ...s, picked: choice, score: correct ? s.score + 1 : s.score }));
+    if (!correct) {
+      setMissedKeys((keys) => (keys.includes(currentQuiz.key) ? keys : [...keys, currentQuiz.key]));
+    }
   }
 
   function nextQuiz() {
@@ -142,7 +130,20 @@ export function TopicApp({ topic }: { topic: Topic }) {
     }
   }
 
+  // "Try again": replay the full topic quiz from the start.
   function restartQuiz() {
+    setActiveItems(topic.items);
+    setMissedKeys([]);
+    setQuizState({ index: 0, score: 0, picked: null });
+    setQuizComplete(false);
+  }
+
+  // "Retry missed": replay a quiz over only the words missed this run.
+  function retryMissed() {
+    const missed = itemsForKeys(topic.items, keyFor, missedKeys);
+    if (missed.length === 0) return;
+    setActiveItems(missed);
+    setMissedKeys([]);
     setQuizState({ index: 0, score: 0, picked: null });
     setQuizComplete(false);
   }
@@ -402,17 +403,45 @@ export function TopicApp({ topic }: { topic: Topic }) {
         quizComplete ? (
           /* Celebration screen */
           <div className="animate-celebrate mt-6 rounded-[2rem] border border-white/10 bg-white/[0.045] p-8 text-center">
-            <p className="text-6xl">🎉</p>
+            <p className="text-6xl">{missedItemsList.length === 0 ? "🎉" : "💪"}</p>
             <p className="mt-4 text-2xl font-semibold text-white">Quiz complete!</p>
             <p className="mt-3 text-5xl font-bold text-emerald-300">{quizState.score}<span className="text-2xl text-slate-400">/{quiz.length}</span></p>
             <p className="mt-2 text-slate-400">
-              {quizState.score === quiz.length
+              {missedItemsList.length === 0
                 ? "Perfect score! Every answer correct."
                 : quizState.score >= Math.ceil(quiz.length * 0.8)
-                ? "Great job! Almost there."
-                : "Keep practicing — flashcards help build recall."}
+                ? "Great job! Just a few to nail down."
+                : "Keep practicing — retry the ones you missed below."}
             </p>
+
+            {/* Missed-words summary + retry (only when there were mistakes) */}
+            {missedItemsList.length > 0 ? (
+              <div className="mx-auto mt-6 max-w-md rounded-2xl border border-white/10 bg-slate-950/60 p-5 text-left">
+                <p className="text-sm font-semibold text-slate-300">
+                  {missedItemsList.length} to review
+                </p>
+                <ul className="mt-3 space-y-2">
+                  {missedItemsList.map((item) => (
+                    <li key={item.hanzi} className="flex items-baseline gap-3">
+                      <span className="font-hanzi text-xl text-white">{item.hanzi}</span>
+                      <span className="font-hanzi text-sm text-emerald-300">{item.pinyin}</span>
+                      <span className="text-sm text-slate-400">{item.english}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
             <div className="mt-6 flex flex-wrap justify-center gap-3">
+              {missedItemsList.length > 0 ? (
+                <button
+                  type="button"
+                  onClick={retryMissed}
+                  className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+                >
+                  Retry missed ({missedItemsList.length})
+                </button>
+              ) : null}
               <button
                 type="button"
                 onClick={restartQuiz}
@@ -423,7 +452,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
               <button
                 type="button"
                 onClick={() => { setMode("flashcards"); setCardIndex(0); setRevealed(false); }}
-                className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+                className={`min-h-[44px] rounded-full px-6 py-3 font-semibold transition ${missedItemsList.length === 0 ? "bg-emerald-400 text-slate-950 hover:bg-emerald-300" : "border border-white/15 text-white hover:border-emerald-300"}`}
               >
                 Practice flashcards
               </button>
