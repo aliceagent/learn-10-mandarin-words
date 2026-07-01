@@ -31,14 +31,23 @@ export type MandarinData = {
   topics: Topic[];
 };
 
+export type FlashcardStat = {
+  intervalDays: number;
+  ease: number;
+  dueAt: string;
+  reviewCount: number;
+};
+
 export type ProgressState = {
   learnedTopics: string[];
   favoriteTopics: string[];
   favoriteWords: string[];
-  flashcardStats: Record<string, {
-    intervalDays: number;
-    ease: number;
-    dueAt: string;
-    reviewCount: number;
-  }>;
+  flashcardStats: Record<string, FlashcardStat>;
+  studiedDates: string[];
 };
+
+// Architecture-ready interface for future cloud sync (not yet implemented)
+export interface CloudSyncProvider {
+  load(): Promise<ProgressState | null>;
+  save(state: ProgressState): Promise<void>;
+}

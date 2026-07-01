@@ -2,17 +2,25 @@
 
 A global-friendly Mandarin vocabulary learning app built with Next.js.
 
-The app turns the 100-topic `十种...` HSK 3 vocabulary list into an interactive learning product:
+The app turns the 100-topic `十种...` vocabulary list into an interactive learning product:
 
 - 100 ten-word vocabulary lessons
-- 1,000 Mandarin words
-- Category browsing and search
+- 1,000 Mandarin words with pinyin and English
+- Category browsing, search with diacritic-tolerant pinyin matching
 - Topic pages with Chinese, pinyin, English, and example sentences
-- Flashcards with local spaced-repetition style grading
-- Matching quizzes
+- Flashcards with spaced-repetition grading
+- Three quiz modes: Hanzi→English, English→Hanzi, Hanzi→Pinyin
+- Pinyin always shown in quiz prompts
 - Favorite words and lists
 - Mark topics as learned
-- Browser-local progress storage
+- Browser-local progress with export/import JSON backup
+- Streak tracker and per-topic progress indicators
+- Daily review queue using spaced-repetition due dates
+- Audio pronunciation via browser TTS (zh-CN speechSynthesis)
+- Mobile swipe gestures on flashcards
+- Mobile bottom navigation (Home / Review / Favorites)
+- Favorites consolidated view
+- Video player supporting MP4 and YouTube IDs/URLs
 
 ## Tech stack
 
@@ -43,41 +51,27 @@ npm run lint
 npm run build
 ```
 
-## Data pipeline
+## Pages
 
-The app data is generated from Jonathan's Mandarin topic list:
+| Route | Description |
+|-------|-------------|
+| `/` | Home — hero, stats, search, topic library |
+| `/topics/[slug]` | Topic page — video, words, flashcards, quiz |
+| `/review` | Daily review — spaced-repetition due queue |
+| `/favorites` | Favorites — saved words and lists |
 
-```bash
-python3 scripts/build-data.py
-```
+## Data
 
-This writes:
-
-```text
-src/data/topics.json
-```
-
-The current generated dataset contains:
-
-- 13 categories
-- 100 topics
-- 1,000 vocabulary words
+13 categories, 100 topics, 1,000 vocabulary words in `src/data/topics.json`.
 
 ## Video integration
 
-Each topic already has a `videoPath` field. The UI currently shows a video placeholder until the final MP4 hosting source is connected.
+Each topic has a `videoPath` field. Pass a YouTube ID, YouTube URL, or `.mp4` URL and the VideoPlayer component handles it automatically. A placeholder is shown when no valid video source is detected.
 
-Planned video options:
+## Progress
 
-- YouTube playlist embeds
-- Hugging Face dataset direct MP4 URLs
-- Self-hosted static video URLs
+All progress is stored in `localStorage` under `learn-10-mandarin-progress-v1`. Use the Export/Import buttons on the home page to back up or restore your data.
 
-## Product roadmap
+## Architecture note
 
-- Connect generated videos to each topic page
-- Add daily review dashboard
-- Add audio playback per word
-- Add quiz history and weak-word review
-- Add PWA offline mode
-- Add optional cloud sync
+`src/lib/types.ts` exports a `CloudSyncProvider` interface for future optional cloud sync — no implementation required to run the app.
