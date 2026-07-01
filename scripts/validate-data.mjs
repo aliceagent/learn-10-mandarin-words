@@ -18,7 +18,7 @@ function localVideoExists(src) {
   return MP4_PATH.test(src) && existsSync(resolve(PUBLIC_DIR, src.replace(/^\//, "")));
 }
 
-const EXPECTED_TOPICS = 100;
+const EXPECTED_TOPICS = 102;
 const EXPECTED_ITEMS_PER_TOPIC = 10;
 
 // Tone-mark vowels (marks tones 1–4). Their absence implies a neutral tone.

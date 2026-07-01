@@ -72,5 +72,5 @@ test("tone count matches syllable count for real dataset pinyin", () => {
       checked++;
     }
   }
-  assert.equal(checked, 1000);
+  assert.equal(checked, 1020);
 });

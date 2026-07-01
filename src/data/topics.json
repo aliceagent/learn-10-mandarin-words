@@ -177,6 +177,14 @@
         "ten-types-of-documents-and-ids",
         "ten-types-of-things-at-a-scenic-spot"
       ]
+    },
+    {
+      "name": "Useful Phrases",
+      "slug": "useful-phrases",
+      "topics": [
+        "ten-ways-to-apologize",
+        "ten-good-wishes-and-social-phrases"
+      ]
     }
   ],
   "topics": [
@@ -16175,6 +16183,326 @@
             {
               "cn": "这个拍照点在生活中很常见。",
               "en": "This word, photo spot, is common in daily life."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "ten-ways-to-apologize",
+      "titleCn": "十种道歉的说法",
+      "titleEn": "Ten Ways to Apologize",
+      "category": "Useful Phrases",
+      "categorySlug": "useful-phrases",
+      "videoPath": "/videos/ten-ways-to-apologize.mp4",
+      "items": [
+        {
+          "hanzi": "对不起",
+          "pinyin": "duì bu qǐ",
+          "english": "sorry",
+          "sentences": [
+            {
+              "cn": "对不起，我来晚了。",
+              "en": "Sorry, I'm late."
+            },
+            {
+              "cn": "对不起，这是我的问题。",
+              "en": "Sorry, this is my problem."
+            }
+          ]
+        },
+        {
+          "hanzi": "不好意思",
+          "pinyin": "bù hǎo yì si",
+          "english": "excuse me / sorry",
+          "sentences": [
+            {
+              "cn": "不好意思，请问洗手间在哪里？",
+              "en": "Excuse me, where is the restroom?"
+            },
+            {
+              "cn": "不好意思，我没听清楚。",
+              "en": "Sorry, I didn't hear you clearly."
+            }
+          ]
+        },
+        {
+          "hanzi": "抱歉",
+          "pinyin": "bào qiàn",
+          "english": "apologies",
+          "sentences": [
+            {
+              "cn": "抱歉，我今天不能去了。",
+              "en": "Apologies, I can't make it today."
+            },
+            {
+              "cn": "很抱歉给你添了麻烦。",
+              "en": "I'm sorry for causing you trouble."
+            }
+          ]
+        },
+        {
+          "hanzi": "真不好意思",
+          "pinyin": "zhēn bù hǎo yì si",
+          "english": "I'm really sorry",
+          "sentences": [
+            {
+              "cn": "真不好意思，让你等这么久。",
+              "en": "I'm really sorry to make you wait so long."
+            },
+            {
+              "cn": "真不好意思，我忘了带钱包。",
+              "en": "I'm really sorry, I forgot my wallet."
+            }
+          ]
+        },
+        {
+          "hanzi": "是我的错",
+          "pinyin": "shì wǒ de cuò",
+          "english": "it's my fault",
+          "sentences": [
+            {
+              "cn": "这件事是我的错。",
+              "en": "This whole thing is my fault."
+            },
+            {
+              "cn": "是我的错，我不该迟到。",
+              "en": "It's my fault, I shouldn't have been late."
+            }
+          ]
+        },
+        {
+          "hanzi": "我不是故意的",
+          "pinyin": "wǒ bú shì gù yì de",
+          "english": "I didn't mean to",
+          "sentences": [
+            {
+              "cn": "我不是故意的，请别生气。",
+              "en": "I didn't mean to, please don't be angry."
+            },
+            {
+              "cn": "撞到你了，我不是故意的。",
+              "en": "I bumped into you, I didn't mean to."
+            }
+          ]
+        },
+        {
+          "hanzi": "请原谅我",
+          "pinyin": "qǐng yuán liàng wǒ",
+          "english": "please forgive me",
+          "sentences": [
+            {
+              "cn": "请原谅我，我不会再犯了。",
+              "en": "Please forgive me, I won't do it again."
+            },
+            {
+              "cn": "我错了，请原谅我。",
+              "en": "I was wrong, please forgive me."
+            }
+          ]
+        },
+        {
+          "hanzi": "让你久等了",
+          "pinyin": "ràng nǐ jiǔ děng le",
+          "english": "sorry to keep you waiting",
+          "sentences": [
+            {
+              "cn": "不好意思，让你久等了。",
+              "en": "Sorry, I kept you waiting."
+            },
+            {
+              "cn": "路上堵车，让你久等了。",
+              "en": "There was traffic, sorry to keep you waiting."
+            }
+          ]
+        },
+        {
+          "hanzi": "打扰一下",
+          "pinyin": "dǎ rǎo yí xià",
+          "english": "excuse me / sorry to bother you",
+          "sentences": [
+            {
+              "cn": "打扰一下，请问现在几点了？",
+              "en": "Excuse me, what time is it now?"
+            },
+            {
+              "cn": "打扰一下，我可以进来吗？",
+              "en": "Sorry to bother you, may I come in?"
+            }
+          ]
+        },
+        {
+          "hanzi": "下次我会注意",
+          "pinyin": "xià cì wǒ huì zhù yì",
+          "english": "I'll be more careful next time",
+          "sentences": [
+            {
+              "cn": "真不好意思，下次我会注意。",
+              "en": "I'm really sorry, I'll be more careful next time."
+            },
+            {
+              "cn": "谢谢提醒，下次我会注意。",
+              "en": "Thanks for the reminder, I'll be more careful next time."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "ten-good-wishes-and-social-phrases",
+      "titleCn": "十种祝福和社交用语",
+      "titleEn": "Ten Good Wishes and Social Phrases",
+      "category": "Useful Phrases",
+      "categorySlug": "useful-phrases",
+      "videoPath": "/videos/ten-good-wishes-and-social-phrases.mp4",
+      "items": [
+        {
+          "hanzi": "一路顺风",
+          "pinyin": "yí lù shùn fēng",
+          "english": "have a nice trip",
+          "sentences": [
+            {
+              "cn": "祝你一路顺风！",
+              "en": "Have a nice trip!"
+            },
+            {
+              "cn": "明天你就要走了，一路顺风。",
+              "en": "You're leaving tomorrow — have a nice trip."
+            }
+          ]
+        },
+        {
+          "hanzi": "保持联系",
+          "pinyin": "bǎo chí lián xì",
+          "english": "keep in touch",
+          "sentences": [
+            {
+              "cn": "我们以后一定要保持联系。",
+              "en": "We should definitely keep in touch from now on."
+            },
+            {
+              "cn": "你搬走以后，我们还是保持联系吧。",
+              "en": "After you move away, let's still keep in touch."
+            }
+          ]
+        },
+        {
+          "hanzi": "新年快乐",
+          "pinyin": "xīn nián kuài lè",
+          "english": "happy new year",
+          "sentences": [
+            {
+              "cn": "新年快乐，万事如意！",
+              "en": "Happy new year, may all go well!"
+            },
+            {
+              "cn": "我给爸妈打电话说新年快乐。",
+              "en": "I called my parents to say happy new year."
+            }
+          ]
+        },
+        {
+          "hanzi": "早日康复",
+          "pinyin": "zǎo rì kāng fù",
+          "english": "get well soon",
+          "sentences": [
+            {
+              "cn": "祝你早日康复！",
+              "en": "I wish you a speedy recovery!"
+            },
+            {
+              "cn": "听说你病了，早日康复。",
+              "en": "I heard you're sick — get well soon."
+            }
+          ]
+        },
+        {
+          "hanzi": "祝你好运",
+          "pinyin": "zhù nǐ hǎo yùn",
+          "english": "good luck",
+          "sentences": [
+            {
+              "cn": "明天考试，祝你好运！",
+              "en": "Exam tomorrow — good luck!"
+            },
+            {
+              "cn": "祝你好运，我相信你可以的。",
+              "en": "Good luck, I believe you can do it."
+            }
+          ]
+        },
+        {
+          "hanzi": "恭喜你",
+          "pinyin": "gōng xǐ nǐ",
+          "english": "congratulations",
+          "sentences": [
+            {
+              "cn": "恭喜你找到了新工作！",
+              "en": "Congratulations on your new job!"
+            },
+            {
+              "cn": "听说你结婚了，恭喜你！",
+              "en": "I heard you got married — congratulations!"
+            }
+          ]
+        },
+        {
+          "hanzi": "生日快乐",
+          "pinyin": "shēng rì kuài lè",
+          "english": "happy birthday",
+          "sentences": [
+            {
+              "cn": "生日快乐，这是给你的礼物。",
+              "en": "Happy birthday, here's a gift for you."
+            },
+            {
+              "cn": "我们一起唱生日快乐歌吧。",
+              "en": "Let's sing the happy birthday song together."
+            }
+          ]
+        },
+        {
+          "hanzi": "玩得开心",
+          "pinyin": "wán de kāi xīn",
+          "english": "have fun",
+          "sentences": [
+            {
+              "cn": "假期玩得开心！",
+              "en": "Have fun on your holiday!"
+            },
+            {
+              "cn": "你们去旅行，玩得开心。",
+              "en": "You're off traveling — have fun."
+            }
+          ]
+        },
+        {
+          "hanzi": "一切顺利",
+          "pinyin": "yí qiè shùn lì",
+          "english": "may everything go smoothly",
+          "sentences": [
+            {
+              "cn": "祝你一切顺利。",
+              "en": "May everything go smoothly for you."
+            },
+            {
+              "cn": "希望你的新工作一切顺利。",
+              "en": "I hope everything goes smoothly at your new job."
+            }
+          ]
+        },
+        {
+          "hanzi": "周末愉快",
+          "pinyin": "zhōu mò yú kuài",
+          "english": "have a nice weekend",
+          "sentences": [
+            {
+              "cn": "周末愉快，好好休息！",
+              "en": "Have a nice weekend, get some good rest!"
+            },
+            {
+              "cn": "下班了，祝大家周末愉快。",
+              "en": "Off work now — wishing everyone a nice weekend."
             }
           ]
         }

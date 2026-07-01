@@ -13,9 +13,42 @@ import {
 
 const topics = rawData.topics;
 
-test("dataset has exactly 100 topics and 1000 words", () => {
-  assert.equal(topics.length, 100);
-  assert.equal(allWords(topics).length, 1000);
+test("dataset has exactly 102 topics and 1020 words", () => {
+  assert.equal(topics.length, 102);
+  assert.equal(allWords(topics).length, 1020);
+});
+
+test("Useful Phrases category has 2 topics and 20 items, all well-formed", () => {
+  const category = rawData.categories.find((c) => c.slug === "useful-phrases");
+  assert.ok(category, "useful-phrases category exists");
+  assert.equal(category.name, "Useful Phrases");
+  assert.equal(category.topics.length, 2);
+  assert.deepEqual(category.topics, [
+    "ten-ways-to-apologize",
+    "ten-good-wishes-and-social-phrases",
+  ]);
+
+  const catTopics = topics.filter((t) => t.categorySlug === "useful-phrases");
+  assert.equal(catTopics.length, 2);
+  // Every topic the category lists resolves, and its categorySlug agrees.
+  for (const slug of category.topics) {
+    const topic = getTopic(topics, slug);
+    assert.ok(topic, `topic ${slug} exists`);
+    assert.equal(topic.categorySlug, "useful-phrases");
+    assert.equal(topic.category, "Useful Phrases");
+    assert.equal(topic.items.length, 10);
+    for (const item of topic.items) {
+      assert.ok(item.hanzi && item.pinyin && item.english);
+      // Exactly two example sentences, each with cn + en.
+      assert.equal(item.sentences.length, 2);
+      for (const s of item.sentences) {
+        assert.ok(s.cn && s.en);
+      }
+    }
+  }
+
+  const items = catTopics.flatMap((t) => t.items);
+  assert.equal(items.length, 20);
 });
 
 test("allWords annotates each word with its topic + category", () => {
