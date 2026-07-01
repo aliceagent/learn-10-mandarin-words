@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Topic, VocabItem } from "@/lib/types";
-import { isUsefulPhraseTopic, wordKey } from "@/lib/data";
+import { isUsefulPhraseTopic, nextTopicAfter, wordKey } from "@/lib/data";
 import { buildQuiz, itemsForKeys, type QuizMode } from "@/lib/quiz-logic";
+import { computeStats } from "@/lib/progress-logic";
 import { downloadableMp4Url, hasPlayableVideo } from "@/lib/video";
 import { track } from "@/lib/analytics";
 import { useProgress } from "./use-progress";
@@ -12,6 +13,7 @@ import { SpeakButton } from "./speak-button";
 import { VideoPlayer } from "./video-player";
 import { TonePractice } from "./tone-practice";
 import { PhrasebookPanel } from "./phrasebook-panel";
+import { NextStepPanel } from "./next-step-panel";
 
 // ─── Touch swipe hook ─────────────────────────────────────────────────────────
 
@@ -79,6 +81,14 @@ export function TopicApp({ topic }: { topic: Topic }) {
   const studiedPct = total > 0 ? (studied / total) * 100 : 0;
   const videoReady = hasPlayableVideo(topic);
   const mp4Url = downloadableMp4Url(topic);
+
+  // Once the learner finishes this topic — marked it learned, or completed its
+  // quiz — surface a single onward-steps panel. Both triggers share one panel so
+  // there's never a duplicate/conflicting completion prompt; the quiz keeps its
+  // own score + retry UI, and this panel handles "where to next".
+  const showNextStep = isLearned || (mode === "quiz" && quizComplete);
+  const nextTopic = nextTopicAfter(progress.learnedTopics, topic.slug);
+  const dueReviews = computeStats(progress).dueReviews;
 
   const keyFor = useCallback((item: VocabItem) => wordKey(topic, item), [topic]);
   const quiz = useMemo(
@@ -576,6 +586,16 @@ export function TopicApp({ topic }: { topic: Topic }) {
             ) : null}
           </section>
         )
+      ) : null}
+
+      {/* ── Next-step panel (shown once the topic is learned or the quiz is done) ── */}
+      {showNextStep ? (
+        <NextStepPanel
+          nextTopic={nextTopic}
+          dueReviews={dueReviews}
+          isFavoriteTopic={isFavoriteTopic}
+          onToggleFavorite={() => toggleFavoriteTopic(topic.slug)}
+        />
       ) : null}
 
       {/* ── Tone practice (additive; independent of the mode tabs above) ── */}

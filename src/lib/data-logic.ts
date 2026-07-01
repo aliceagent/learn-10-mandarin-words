@@ -78,6 +78,27 @@ export function nextRecommendedTopic(topics: Topic[], learnedTopics: string[]): 
   );
 }
 
+/**
+ * The topic to move on to after finishing `currentSlug`. Like
+ * `nextRecommendedTopic`, but it always excludes the topic the learner just
+ * completed (even if they have not marked it learned yet, e.g. after a quiz),
+ * and returns `null` when there is genuinely no other topic to suggest. Order:
+ * first unfinished recommended topic, then first unfinished topic overall.
+ */
+export function nextTopicAfter(
+  topics: Topic[],
+  learnedTopics: string[],
+  currentSlug: string,
+): Topic | null {
+  const done = new Set([...learnedTopics, currentSlug]);
+  const path = recommendedPath(topics);
+  return (
+    path.find((t) => !done.has(t.slug)) ??
+    topics.find((t) => !done.has(t.slug)) ??
+    null
+  );
+}
+
 // A resolved section of the guided learning path: a titled group of real topics.
 export type PathSection = {
   key: string;

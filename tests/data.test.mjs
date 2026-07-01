@@ -8,6 +8,7 @@ import {
   getTopic,
   isUsefulPhraseTopic,
   nextRecommendedTopic,
+  nextTopicAfter,
   pathSections,
   recommendedPath,
   STARTER_SLUGS,
@@ -182,6 +183,40 @@ test("nextRecommendedTopic falls back to first unlearned topic overall", () => {
 test("nextRecommendedTopic falls back to topic 1 when everything is learned", () => {
   const learned = topics.map((t) => t.slug);
   assert.equal(nextRecommendedTopic(topics, learned).slug, topics[0].slug);
+});
+
+test("nextTopicAfter never returns the just-finished topic", () => {
+  const path = recommendedPath(topics);
+  // Finishing the first recommended topic (not marked learned) points onward.
+  const next = nextTopicAfter(topics, [], path[0].slug);
+  assert.ok(next);
+  assert.notEqual(next.slug, path[0].slug);
+  assert.equal(next.slug, path[1].slug);
+});
+
+test("nextTopicAfter treats the current topic as done alongside learnedTopics", () => {
+  const path = recommendedPath(topics);
+  // First recommended already learned, and we just finished the second one:
+  // the suggestion skips both to the third recommended topic.
+  const next = nextTopicAfter(topics, [path[0].slug], path[1].slug);
+  assert.equal(next.slug, path[2].slug);
+});
+
+test("nextTopicAfter falls back to the first unfinished topic overall", () => {
+  const learned = recommendedPath(topics).map((t) => t.slug);
+  const current = topics.find((t) => !learned.includes(t.slug));
+  const next = nextTopicAfter(topics, learned, current.slug);
+  assert.ok(next);
+  assert.notEqual(next.slug, current.slug);
+  const firstUnfinished = topics.find(
+    (t) => !learned.includes(t.slug) && t.slug !== current.slug,
+  );
+  assert.equal(next.slug, firstUnfinished.slug);
+});
+
+test("nextTopicAfter returns null when every topic is finished", () => {
+  const learned = topics.map((t) => t.slug);
+  assert.equal(nextTopicAfter(topics, learned, topics[0].slug), null);
 });
 
 test("pathSections starts with the starter essentials from recommendedPath", () => {

@@ -46,6 +46,14 @@ export function nextRecommendedTopic(learnedTopics: string[]): Topic {
   return logic.nextRecommendedTopic(data.topics, learnedTopics);
 }
 
+/**
+ * The topic to move on to after finishing `currentSlug`, drawn from the real
+ * dataset. Never returns the just-finished topic; `null` when none remain.
+ */
+export function nextTopicAfter(learnedTopics: string[], currentSlug: string): Topic | null {
+  return logic.nextTopicAfter(data.topics, learnedTopics, currentSlug);
+}
+
 /** The guided learning path as ordered sections, drawn from the real dataset. */
 export function pathSections(): logic.PathSection[] {
   return logic.pathSections(data.topics);
