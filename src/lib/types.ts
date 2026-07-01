@@ -74,6 +74,12 @@ export type OnboardingState = {
 };
 
 export type ProgressState = {
+  /**
+   * Version of the persisted progress shape. Bumped when the schema changes so
+   * `normalizeProgress` can migrate older saves. See
+   * CURRENT_PROGRESS_SCHEMA_VERSION in progress-logic.ts.
+   */
+  schemaVersion: number;
   learnedTopics: string[];
   favoriteTopics: string[];
   favoriteWords: string[];

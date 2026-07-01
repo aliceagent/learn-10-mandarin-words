@@ -2,10 +2,14 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  CURRENT_PROGRESS_SCHEMA_VERSION,
+  EASE_CEIL,
+  EASE_FLOOR,
   computeStreak,
   defaultStat,
   emptyProgress,
   normalizeProgress,
+  normalizeStat,
   scheduleReview,
   uniqueToggle,
 } from "../src/lib/progress-logic.ts";
@@ -13,12 +17,14 @@ import {
 test("normalizeProgress fills a full shape from empty input", () => {
   const p = normalizeProgress({});
   assert.deepEqual(p, emptyProgress);
+  assert.equal(p.schemaVersion, CURRENT_PROGRESS_SCHEMA_VERSION);
   // Returns a fresh object, not the shared default.
   assert.notEqual(p, emptyProgress);
 });
 
-test("normalizeProgress upgrades a legacy save without onboarding", () => {
+test("normalizeProgress upgrades a legacy save without schemaVersion or onboarding", () => {
   const legacy = {
+    // No schemaVersion and no onboarding — a pre-migration save.
     learnedTopics: ["ten-types-of-pets"],
     favoriteTopics: ["ten-types-of-drinks"],
     favoriteWords: ["ten-types-of-pets:狗"],
@@ -26,11 +32,68 @@ test("normalizeProgress upgrades a legacy save without onboarding", () => {
     studiedDates: ["2026-06-30"],
   };
   const p = normalizeProgress(legacy);
+  // Migration stamps the current version and backfills onboarding...
+  assert.equal(p.schemaVersion, CURRENT_PROGRESS_SCHEMA_VERSION);
+  assert.deepEqual(p.onboarding, { completed: false, dailyGoal: 0, completedAt: null });
+  // ...without dropping any of the user's existing data.
   assert.deepEqual(p.learnedTopics, legacy.learnedTopics);
   assert.deepEqual(p.favoriteTopics, legacy.favoriteTopics);
   assert.deepEqual(p.favoriteWords, legacy.favoriteWords);
   assert.deepEqual(p.studiedDates, legacy.studiedDates);
-  assert.deepEqual(p.onboarding, { completed: false, dailyGoal: 0, completedAt: null });
+});
+
+test("normalizeProgress never throws on garbage and preserves valid arrays", () => {
+  const p = normalizeProgress({
+    schemaVersion: 1,
+    learnedTopics: ["keep-me", 42, null], // non-strings are dropped
+    favoriteTopics: "not-an-array", // wrong type falls back to []
+    favoriteWords: ["ten-types-of-fruit:桃"],
+    studiedDates: ["2026-06-30"],
+    onboarding: "nope",
+  });
+  assert.equal(p.schemaVersion, CURRENT_PROGRESS_SCHEMA_VERSION);
+  assert.deepEqual(p.learnedTopics, ["keep-me"]);
+  assert.deepEqual(p.favoriteTopics, []);
+  assert.deepEqual(p.favoriteWords, ["ten-types-of-fruit:桃"]);
+  assert.deepEqual(p.studiedDates, ["2026-06-30"]);
+  assert.deepEqual(p.onboarding, emptyProgress.onboarding);
+});
+
+test("normalizeProgress repairs partial/invalid flashcard stats without dropping keys", () => {
+  const now = new Date("2026-07-01T00:00:00.000Z");
+  const p = normalizeProgress(
+    {
+      flashcardStats: {
+        // Valid entry passes through untouched.
+        "topic:好": { intervalDays: 3, ease: 2.4, dueAt: "2026-07-05T00:00:00.000Z", reviewCount: 2 },
+        // Missing reviewCount + out-of-range ease + bad dueAt are all repaired.
+        "topic:坏": { intervalDays: 5, ease: 9, dueAt: "not-a-date" },
+        // Fully broken entry becomes a fresh default stat.
+        "topic:空": null,
+      },
+    },
+    now,
+  );
+  const keys = new Set(Object.keys(p.flashcardStats));
+  assert.deepEqual(keys, new Set(["topic:好", "topic:坏", "topic:空"]));
+  assert.deepEqual(p.flashcardStats["topic:好"], {
+    intervalDays: 3,
+    ease: 2.4,
+    dueAt: "2026-07-05T00:00:00.000Z",
+    reviewCount: 2,
+  });
+  assert.equal(p.flashcardStats["topic:坏"].ease, EASE_CEIL); // 9 clamped down
+  assert.equal(p.flashcardStats["topic:坏"].reviewCount, 0); // backfilled
+  assert.equal(p.flashcardStats["topic:坏"].dueAt, now.toISOString()); // invalid date repaired
+  assert.deepEqual(p.flashcardStats["topic:空"], defaultStat(now));
+});
+
+test("normalizeStat clamps ease to the sane range and floors negatives", () => {
+  const now = new Date("2026-07-01T00:00:00.000Z");
+  assert.equal(normalizeStat({ ease: 99 }, now).ease, EASE_CEIL);
+  assert.equal(normalizeStat({ ease: 0.1 }, now).ease, EASE_FLOOR);
+  assert.equal(normalizeStat({ ease: Number.NaN }, now).ease, defaultStat(now).ease);
+  assert.equal(normalizeStat({ intervalDays: -4 }, now).intervalDays, 0);
 });
 
 test("normalizeProgress keeps a partial onboarding and backfills the rest", () => {
@@ -82,8 +145,13 @@ test("scheduleReview schedules a first review deterministically per grade", () =
   assert.equal(again.ease, 2.3);
   assert.equal(again.dueAt, new Date("2026-07-02T12:00:00.000Z").toISOString());
 
-  assert.equal(scheduleReview(base, "hard", now).intervalDays, 1);
-  assert.equal(scheduleReview(base, "good", now).intervalDays, 2);
+  const hard = scheduleReview(base, "hard", now);
+  assert.equal(hard.intervalDays, 1);
+  assert.equal(hard.ease, 2.35); // 2.5 - 0.15
+
+  const good = scheduleReview(base, "good", now);
+  assert.equal(good.intervalDays, 2);
+  assert.equal(good.ease, 2.5); // "good" leaves ease unchanged
 
   const easy = scheduleReview(base, "easy", now);
   assert.equal(easy.intervalDays, 4);
@@ -105,4 +173,29 @@ test("scheduleReview clamps ease to a 1.3 floor", () => {
   assert.equal(stat.ease, 1.3);
   stat = scheduleReview(stat, "again", now); // stays at floor
   assert.equal(stat.ease, 1.3);
+});
+
+test("scheduleReview clamps ease to the EASE_CEIL upper bound", () => {
+  const now = new Date("2026-07-01T00:00:00.000Z");
+  let stat = { intervalDays: 10, ease: 2.95, dueAt: now.toISOString(), reviewCount: 4 };
+  stat = scheduleReview(stat, "easy", now); // 2.95 + 0.15 = 3.1 -> capped at 3.0
+  assert.equal(stat.ease, EASE_CEIL);
+  stat = scheduleReview(stat, "easy", now); // stays at ceiling
+  assert.equal(stat.ease, EASE_CEIL);
+});
+
+test("scheduleReview grows intervals deterministically and normalizes bad input", () => {
+  const now = new Date("2026-07-01T00:00:00.000Z");
+  // easy triples the interval each time (min 4): 4 -> 12 -> 36.
+  const first = scheduleReview(defaultStat(now), "easy", now);
+  assert.equal(first.intervalDays, 4);
+  const second = scheduleReview(first, "easy", now);
+  assert.equal(second.intervalDays, 12);
+  assert.equal(second.dueAt, new Date("2026-07-13T00:00:00.000Z").toISOString());
+
+  // A corrupt existing stat is normalized before scheduling, never throwing.
+  const fromGarbage = scheduleReview({ intervalDays: -2, ease: 99, reviewCount: -1 }, "good", now);
+  assert.equal(fromGarbage.intervalDays, 2); // interval floored to 0 then doubled -> 2
+  assert.equal(fromGarbage.ease, EASE_CEIL); // 99 clamped to 3.0, "good" adds 0
+  assert.equal(fromGarbage.reviewCount, 1); // -1 repaired to 0 then incremented
 });
