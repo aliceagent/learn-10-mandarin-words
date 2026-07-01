@@ -79,6 +79,9 @@ export function HomeApp({ data }: { data: MandarinData }) {
             <Link href="/review" className="rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300/70">
               Daily review
             </Link>
+            <Link href="/stats" className="rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300/70">
+              Your stats
+            </Link>
           </div>
         </div>
 
@@ -258,6 +261,7 @@ export function HomeApp({ data }: { data: MandarinData }) {
             <Link href="/path" className="transition hover:text-slate-300">Path</Link>
             <Link href="/review" className="transition hover:text-slate-300">Review</Link>
             <Link href="/favorites" className="transition hover:text-slate-300">Favorites</Link>
+            <Link href="/stats" className="transition hover:text-slate-300">Stats</Link>
             <Link href="/privacy" className="transition hover:text-slate-300">Privacy</Link>
           </div>
         </div>

@@ -40,6 +40,15 @@ const NAV_ITEMS = [
       </svg>
     ),
   },
+  {
+    href: "/stats",
+    label: "Stats",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M4 20V10h4v10H4zm6 0V4h4v16h-4zm6 0v-6h4v6h-4z" />
+      </svg>
+    ),
+  },
 ];
 
 export function BottomNav() {
@@ -57,7 +66,7 @@ export function BottomNav() {
             key={item.href}
             href={item.href}
             aria-current={active ? "page" : undefined}
-            className={`flex flex-col items-center gap-1 px-6 py-1 text-xs font-semibold transition ${active ? "text-emerald-400" : "text-slate-400 hover:text-white"}`}
+            className={`flex flex-col items-center gap-1 px-4 py-1 text-xs font-semibold transition ${active ? "text-emerald-400" : "text-slate-400 hover:text-white"}`}
           >
             {item.icon}
             {item.label}

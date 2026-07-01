@@ -132,6 +132,62 @@ export function computeStreak(studiedDates: string[], today: string = todayISO()
   return streak;
 }
 
+// ─── Derived dashboard stats ──────────────────────────────────────────────────
+
+// Pure, dataset-independent stats derived from a ProgressState, used by the
+// /stats page. Everything below reads only fields that already exist in the
+// persisted schema — nothing is invented. `now` is injectable so "due today"
+// and the streak anchor are deterministic in tests.
+export type ProgressStats = {
+  /** Topics the user has marked learned. */
+  learnedTopics: number;
+  /** Individual words saved as favorites. */
+  favoriteWords: number;
+  /** Whole topics saved as favorites. */
+  favoriteTopics: number;
+  /** Flashcards whose next review is due now or in the past. */
+  dueReviews: number;
+  /** Distinct words that have been graded at least once. */
+  reviewedWords: number;
+  /** Distinct words tracked in the spaced-repetition queue. */
+  wordsTracked: number;
+  /** Total graded reviews across all words. */
+  totalReviews: number;
+  /** Distinct days on which the user studied. */
+  daysStudied: number;
+  /** Consecutive-day study streak ending today (or yesterday). */
+  streak: number;
+};
+
+export function computeStats(progress: ProgressState, now: Date = new Date()): ProgressStats {
+  const stats = Object.values(progress.flashcardStats ?? {});
+  const nowMs = now.getTime();
+
+  let dueReviews = 0;
+  let reviewedWords = 0;
+  let totalReviews = 0;
+  for (const stat of stats) {
+    const due = new Date(stat.dueAt).getTime();
+    if (Number.isFinite(due) && due <= nowMs) dueReviews++;
+    if (stat.reviewCount > 0) reviewedWords++;
+    totalReviews += stat.reviewCount;
+  }
+
+  return {
+    learnedTopics: progress.learnedTopics.length,
+    favoriteWords: progress.favoriteWords.length,
+    favoriteTopics: progress.favoriteTopics.length,
+    dueReviews,
+    reviewedWords,
+    wordsTracked: stats.length,
+    totalReviews,
+    daysStudied: progress.studiedDates.length,
+    // computeStreak takes the "today" anchor as an ISO day string; derive it
+    // from the injectable clock so tests stay deterministic.
+    streak: computeStreak(progress.studiedDates ?? [], isoDay(now)),
+  };
+}
+
 export type Grade = "again" | "hard" | "good" | "easy";
 
 // The stat used for a word's very first review.
