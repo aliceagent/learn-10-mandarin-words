@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Topic } from "@/lib/types";
 import { wordKey } from "@/lib/data";
+import { downloadableMp4Url, hasPlayableVideo } from "@/lib/video";
 import { track } from "@/lib/analytics";
 import { useProgress } from "./use-progress";
 import { SpeakButton } from "./speak-button";
@@ -105,6 +106,8 @@ export function TopicApp({ topic }: { topic: Topic }) {
   const currentKey = wordKey(topic, current);
   const { studied, mastered, total } = topicStats(topic, progress.flashcardStats);
   const studiedPct = total > 0 ? (studied / total) * 100 : 0;
+  const videoReady = hasPlayableVideo(topic);
+  const mp4Url = downloadableMp4Url(topic);
 
   const quiz = useMemo<QuizCard[]>(() => buildQuiz(topic, quizMode), [topic, quizMode]);
   const currentQuiz = quiz[quizState.index % quiz.length];
@@ -236,6 +239,37 @@ export function TopicApp({ topic }: { topic: Topic }) {
 
         <div className="rounded-[2rem] border border-white/10 bg-white/[0.05] p-4">
           <VideoPlayer src={topic.videoPath} title={`${topic.titleEn} video lesson`} video={topic.video} />
+
+          {/* Availability badge + direct link + hosting note */}
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+            {videoReady ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-300/90 px-3 py-1 text-xs font-bold text-slate-950">
+                ▶ Video available
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1 text-xs font-semibold text-slate-400">
+                Video coming soon
+              </span>
+            )}
+
+            {mp4Url ? (
+              <a
+                href={mp4Url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-white/15 px-4 py-1.5 text-xs font-semibold text-emerald-300 transition hover:border-emerald-300 hover:text-emerald-200"
+                aria-label={`Open the ${topic.titleEn} video in a new tab`}
+              >
+                Open video ↗
+              </a>
+            ) : null}
+          </div>
+
+          {mp4Url ? (
+            <p className="mt-2 text-xs leading-5 text-slate-500">
+              Video lessons are hosted on GitHub Releases and stream from there.
+            </p>
+          ) : null}
         </div>
       </section>
 

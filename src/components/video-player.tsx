@@ -46,6 +46,8 @@ export function VideoPlayer({ src, title, video }: VideoPlayerProps) {
   }
 
   // Intentional "lesson coming soon" placeholder until a real video is connected.
+  // The only lists without a generated video today are the Useful Phrases topics,
+  // so the copy is written to feel deliberate rather than broken.
   return (
     <div className="flex aspect-video items-center justify-center rounded-[1.5rem] border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 text-center">
       <div className="px-8">
@@ -56,8 +58,9 @@ export function VideoPlayer({ src, title, video }: VideoPlayerProps) {
         </div>
         <p className="text-lg font-semibold text-white">Video lesson coming soon</p>
         <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-slate-400">
-          Practice the ten words below now. The drill video for this list plugs in here as soon as
-          it&apos;s produced — your progress carries over.
+          This list is fully ready to study — the walkthrough video just isn&apos;t recorded yet.
+          Tap the speaker on each phrase to hear it, practice below, and your progress will be here
+          when the video arrives.
         </p>
       </div>
     </div>

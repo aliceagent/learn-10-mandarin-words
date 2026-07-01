@@ -1,7 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { remoteMp4, resolveSource, youtubeId } from "../src/lib/video.ts";
+import {
+  downloadableMp4Url,
+  hasPlayableVideo,
+  remoteMp4,
+  resolveSource,
+  youtubeId,
+} from "../src/lib/video.ts";
 
 test("youtubeId parses watch, youtu.be, and embed URLs", () => {
   assert.equal(youtubeId("https://www.youtube.com/watch?v=dQw4w9WgXcQ"), "dQw4w9WgXcQ");
@@ -50,6 +56,47 @@ test("resolveSource returns placeholder for a bare local /videos path", () => {
   assert.deepEqual(resolveSource("/videos/ten-types-of-pets.mp4", { provider: "none" }), {
     kind: "placeholder",
   });
+});
+
+test("hasPlayableVideo is true for MP4/YouTube topics and false for placeholders", () => {
+  assert.equal(
+    hasPlayableVideo({ videoPath: "https://cdn.example.com/x.mp4" }),
+    true
+  );
+  assert.equal(
+    hasPlayableVideo({
+      videoPath: "/videos/x.mp4",
+      video: { provider: "youtube", source: "dQw4w9WgXcQ" },
+    }),
+    true
+  );
+  assert.equal(hasPlayableVideo({ videoPath: "/videos/ten-types-of-pets.mp4" }), false);
+  assert.equal(
+    hasPlayableVideo({ videoPath: "/videos/x.mp4", video: { provider: "none" } }),
+    false
+  );
+});
+
+test("downloadableMp4Url returns MP4 URLs only (null for YouTube/placeholder)", () => {
+  assert.equal(
+    downloadableMp4Url({ videoPath: "https://cdn.example.com/x.mp4" }),
+    "https://cdn.example.com/x.mp4"
+  );
+  assert.equal(
+    downloadableMp4Url({
+      videoPath: "/videos/x.mp4",
+      video: { provider: "mp4", source: "https://cdn.example.com/y.mp4" },
+    }),
+    "https://cdn.example.com/y.mp4"
+  );
+  assert.equal(
+    downloadableMp4Url({
+      videoPath: "/videos/x.mp4",
+      video: { provider: "youtube", source: "dQw4w9WgXcQ" },
+    }),
+    null
+  );
+  assert.equal(downloadableMp4Url({ videoPath: "/videos/ten-types-of-pets.mp4" }), null);
 });
 
 test("resolveSource falls back to interpreting the legacy videoPath", () => {

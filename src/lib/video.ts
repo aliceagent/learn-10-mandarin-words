@@ -1,4 +1,4 @@
-import type { VideoMeta } from "./types";
+import type { Topic, VideoMeta } from "./types";
 
 // Pure video-source helpers, extracted from video-player.tsx so they can be
 // unit-tested without rendering. The component imports resolveSource from here.
@@ -45,4 +45,18 @@ export function resolveSource(src: string, video?: VideoMeta): Resolved {
   if (remoteMp4(src)) return { kind: "mp4", src, poster: video?.poster, captions: video?.captions };
 
   return { kind: "placeholder" };
+}
+
+// A topic has a playable video when its source resolves to something the player
+// can actually show (a YouTube embed or a remote MP4) rather than the
+// "coming soon" placeholder. Used to drive availability badges.
+export function hasPlayableVideo(topic: Pick<Topic, "videoPath" | "video">): boolean {
+  return resolveSource(topic.videoPath, topic.video).kind !== "placeholder";
+}
+
+// Direct MP4 URL suitable for an "Open video" / download link, or null when the
+// topic has no downloadable MP4 (YouTube embeds and placeholders return null).
+export function downloadableMp4Url(topic: Pick<Topic, "videoPath" | "video">): string | null {
+  const resolved = resolveSource(topic.videoPath, topic.video);
+  return resolved.kind === "mp4" ? resolved.src : null;
 }

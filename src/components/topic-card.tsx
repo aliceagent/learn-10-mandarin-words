@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Topic } from "@/lib/types";
+import { hasPlayableVideo } from "@/lib/video";
 
 // Shared topic card used by the home library grid and the per-category pages so
 // both surfaces stay visually identical. Progress-derived flags are passed in by
@@ -21,6 +22,7 @@ export function TopicCard({
   }).length;
 
   const pct = (studiedCount / topic.items.length) * 100;
+  const videoReady = hasPlayableVideo(topic);
 
   return (
     <Link
@@ -33,7 +35,22 @@ export function TopicCard({
         <span className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-xs font-medium text-slate-400">
           {topic.category}
         </span>
-        <div className="flex gap-1.5 text-xs font-bold">
+        <div className="flex flex-wrap justify-end gap-1.5 text-xs font-bold">
+          {videoReady ? (
+            <span
+              className="rounded-full bg-sky-300/90 px-2.5 py-1 text-slate-950"
+              title="Video available"
+            >
+              ▶ Video
+            </span>
+          ) : (
+            <span
+              className="rounded-full border border-white/15 px-2.5 py-1 font-semibold text-slate-400"
+              title="Video coming soon"
+            >
+              Video soon
+            </span>
+          )}
           {favorite ? (
             <span className="rounded-full bg-amber-300/90 px-2.5 py-1 text-slate-950">Saved</span>
           ) : null}
