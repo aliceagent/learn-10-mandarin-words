@@ -1,20 +1,26 @@
 import Link from "next/link";
 import type { Topic } from "@/lib/types";
 import { hasPlayableVideo } from "@/lib/video";
+import { normalizePinyin } from "@/lib/highlight";
+import { HighlightedText } from "./highlighted-text";
 
 // Shared topic card used by the home library grid and the per-category pages so
 // both surfaces stay visually identical. Progress-derived flags are passed in by
-// the caller (which owns the localStorage progress state).
+// the caller (which owns the localStorage progress state). `query` is optional:
+// when the home search passes it, matched text is highlighted; category pages
+// omit it and the card renders plain.
 export function TopicCard({
   topic,
   learned,
   favorite,
   flashcardStats,
+  query,
 }: {
   topic: Topic;
   learned: boolean;
   favorite: boolean;
   flashcardStats: Record<string, { reviewCount: number }>;
+  query?: string;
 }) {
   const studiedCount = topic.items.filter((item) => {
     const key = `${topic.slug}:${item.hanzi}`;
@@ -23,6 +29,17 @@ export function TopicCard({
 
   const pct = (studiedCount / topic.items.length) * 100;
   const videoReady = hasPlayableVideo(topic);
+
+  // When the home search is active, surface the specific words that matched so
+  // the learner can see (and scan) the highlighted hanzi, pinyin, and English
+  // without opening the lesson. Matching mirrors the diacritic-tolerant home
+  // search haystack. Capped to keep the card compact.
+  const q = normalizePinyin((query ?? "").trim());
+  const matchedItems = q
+    ? topic.items
+        .filter((item) => normalizePinyin(`${item.hanzi} ${item.pinyin} ${item.english}`).includes(q))
+        .slice(0, 4)
+    : [];
 
   return (
     <Link
@@ -33,7 +50,7 @@ export function TopicCard({
       {/* Row 1: category badge + status badges */}
       <div className="flex items-center justify-between gap-2">
         <span className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-xs font-medium text-slate-400">
-          {topic.category}
+          <HighlightedText text={topic.category} query={query} />
         </span>
         <div className="flex flex-wrap justify-end gap-1.5 text-xs font-bold">
           {videoReady ? (
@@ -64,9 +81,11 @@ export function TopicCard({
       <div className="mt-3 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="text-lg font-semibold leading-tight text-white transition group-hover:text-emerald-50">
-            {topic.titleEn}
+            <HighlightedText text={topic.titleEn} query={query} />
           </h3>
-          <p className="font-hanzi mt-1 text-2xl font-semibold text-emerald-300">{topic.titleCn}</p>
+          <p className="font-hanzi mt-1 text-2xl font-semibold text-emerald-300">
+            <HighlightedText text={topic.titleCn} query={query} />
+          </p>
         </div>
         <div
           className="font-hanzi shrink-0 select-none text-5xl font-bold leading-none text-white/15 transition group-hover:text-white/30"
@@ -98,10 +117,30 @@ export function TopicCard({
             key={item.hanzi}
             className="font-hanzi rounded-full bg-slate-900 px-2.5 py-1 text-sm text-slate-300"
           >
-            {item.hanzi}
+            <HighlightedText text={item.hanzi} query={query} />
           </span>
         ))}
       </div>
+
+      {/* Row 5: matched words (only while searching) — shows the exact hanzi,
+          pinyin, and English that matched, with the query highlighted. */}
+      {matchedItems.length > 0 ? (
+        <div className="mt-3 space-y-1 rounded-2xl border border-emerald-300/15 bg-emerald-300/[0.04] p-3">
+          {matchedItems.map((item) => (
+            <div key={item.hanzi} className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-sm">
+              <span className="font-hanzi text-white">
+                <HighlightedText text={item.hanzi} query={query} />
+              </span>
+              <span className="text-slate-400">
+                <HighlightedText text={item.pinyin} query={query} />
+              </span>
+              <span className="text-slate-500">
+                <HighlightedText text={item.english} query={query} />
+              </span>
+            </div>
+          ))}
+        </div>
+      ) : null}
 
       <p className="mt-auto pt-4 text-sm font-semibold text-emerald-300 group-hover:underline">
         Open lesson →

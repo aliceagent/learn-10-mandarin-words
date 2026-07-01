@@ -8,14 +8,9 @@ import { track } from "@/lib/analytics";
 import { useProgress, computeStreak } from "./use-progress";
 import { OnboardingModal, ContinueLearningCard } from "./onboarding";
 import { TopicCard } from "./topic-card";
-
-// Normalize diacritics so "nǐ", "ni", "ní" all match
-function normalizePinyin(str: string): string {
-  return str
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase();
-}
+// Shared diacritic-tolerant normalizer so "nǐ", "ni", "ní" all match — the same
+// helper the highlighter uses, keeping search and highlight in lockstep.
+import { normalizePinyin } from "@/lib/highlight";
 
 export function HomeApp({ data }: { data: MandarinData }) {
   const [query, setQuery] = useState("");
@@ -245,6 +240,7 @@ export function HomeApp({ data }: { data: MandarinData }) {
                 learned={progress.learnedTopics.includes(topic.slug)}
                 favorite={progress.favoriteTopics.includes(topic.slug)}
                 flashcardStats={progress.flashcardStats}
+                query={query}
               />
             ))}
           </div>
