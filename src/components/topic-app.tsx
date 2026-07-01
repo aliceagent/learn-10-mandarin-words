@@ -78,10 +78,10 @@ export function TopicApp({ topic }: { topic: Topic }) {
         </div>
       </section>
 
-      <nav className="mt-10 flex flex-wrap gap-2 rounded-3xl border border-white/10 bg-slate-950/80 p-2">
+      <nav className="mt-10 grid grid-cols-3 gap-2 rounded-3xl border border-white/10 bg-slate-950/80 p-2" aria-label="Practice modes">
         <Tab active={mode === "words"} onClick={() => setMode("words")}>Words</Tab>
-        <Tab active={mode === "flashcards"} onClick={() => setMode("flashcards")}>Flashcards</Tab>
-        <Tab active={mode === "quiz"} onClick={() => setMode("quiz")}>Matching quiz</Tab>
+        <Tab active={mode === "flashcards"} onClick={() => setMode("flashcards")}>Cards</Tab>
+        <Tab active={mode === "quiz"} onClick={() => setMode("quiz")}>Quiz</Tab>
       </nav>
 
       {mode === "words" ? (
@@ -145,5 +145,5 @@ export function TopicApp({ topic }: { topic: Topic }) {
 }
 
 function Tab({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
-  return <button onClick={onClick} className={`rounded-2xl px-5 py-3 font-semibold transition ${active ? "bg-emerald-400 text-slate-950" : "text-slate-300 hover:bg-white/[0.06] hover:text-white"}`}>{children}</button>;
+  return <button onClick={onClick} className={`min-w-0 rounded-2xl px-2 py-3 text-sm font-semibold transition sm:px-5 sm:text-base ${active ? "bg-emerald-400 text-slate-950" : "text-slate-300 hover:bg-white/[0.06] hover:text-white"}`}>{children}</button>;
 }
