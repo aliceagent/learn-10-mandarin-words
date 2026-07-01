@@ -168,16 +168,20 @@ export function TopicApp({ topic }: { topic: Topic }) {
           </p>
           <div className="flex shrink-0 items-center gap-2">
             <button
+              type="button"
               onClick={() => toggleFavoriteTopic(topic.slug)}
               className="rounded-full border border-white/15 px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-amber-300 hover:text-white"
               aria-pressed={isFavoriteTopic}
+              aria-label={isFavoriteTopic ? "Remove from saved lists" : "Save this list"}
             >
               {isFavoriteTopic ? "Saved ★" : "Save"}
             </button>
             <button
+              type="button"
               onClick={() => toggleLearnedTopic(topic.slug)}
               className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${isLearned ? "bg-emerald-400 text-slate-950" : "border border-emerald-400/40 text-emerald-300 hover:bg-emerald-400/15"}`}
               aria-pressed={isLearned}
+              aria-label={isLearned ? "Unmark as learned" : "Mark as learned"}
             >
               {isLearned ? "Learned ✓" : "Mark learned"}
             </button>
@@ -210,16 +214,18 @@ export function TopicApp({ topic }: { topic: Topic }) {
 
           <div className="mt-5 flex flex-wrap gap-3">
             <button
+              type="button"
               onClick={() => toggleFavoriteTopic(topic.slug)}
-              className="rounded-full border border-white/15 px-5 py-3 font-semibold text-white transition hover:border-amber-300"
+              className="min-h-[44px] rounded-full border border-white/15 px-5 py-3 font-semibold text-white transition hover:border-amber-300"
               aria-pressed={isFavoriteTopic}
               aria-label={isFavoriteTopic ? "Remove from saved lists" : "Save this list"}
             >
               {isFavoriteTopic ? "Saved list ★" : "Save list"}
             </button>
             <button
+              type="button"
               onClick={() => toggleLearnedTopic(topic.slug)}
-              className="rounded-full bg-emerald-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+              className="min-h-[44px] rounded-full bg-emerald-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
               aria-pressed={isLearned}
               aria-label={isLearned ? "Unmark as learned" : "Mark as learned"}
             >
@@ -264,8 +270,9 @@ export function TopicApp({ topic }: { topic: Topic }) {
                     <SpeakButton text={item.hanzi} label={`Pronounce ${item.hanzi} (${item.pinyin})`} />
                   </div>
                   <button
+                    type="button"
                     onClick={() => { if (!favorite) track("favorite_saved", { topic: topic.slug, kind: "word" }); toggleFavoriteWord(key); }}
-                    className="shrink-0 rounded-full border border-white/10 px-3.5 py-2 text-sm font-semibold text-slate-200 transition hover:border-amber-300"
+                    className="min-h-[44px] shrink-0 rounded-full border border-white/10 px-3.5 py-2 text-sm font-semibold text-slate-200 transition hover:border-amber-300"
                     aria-pressed={favorite}
                     aria-label={favorite ? `Remove ${item.english} from favorites` : `Save ${item.english} to favorites`}
                   >
@@ -323,6 +330,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             {!revealed ? (
               <button
+                type="button"
                 onClick={() => setRevealed(true)}
                 className="min-h-[44px] rounded-full bg-emerald-400 px-7 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
                 aria-label="Reveal answer"
@@ -334,6 +342,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
                 {(["again", "hard", "good", "easy"] as const).map((grade) => (
                   <button
                     key={grade}
+                    type="button"
                     onClick={() => { gradeWord(currentKey, grade); setRevealed(false); setCardIndex((v) => (v + 1) % topic.items.length); }}
                     className="min-h-[44px] rounded-full border border-white/15 px-5 py-3 font-semibold capitalize text-white transition hover:border-emerald-300"
                     aria-label={`Grade as ${grade}`}
@@ -371,12 +380,14 @@ export function TopicApp({ topic }: { topic: Topic }) {
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <button
+                type="button"
                 onClick={restartQuiz}
                 className="min-h-[44px] rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300"
               >
                 Try again
               </button>
               <button
+                type="button"
                 onClick={() => { setMode("flashcards"); setCardIndex(0); setRevealed(false); }}
                 className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
               >
@@ -395,8 +406,9 @@ export function TopicApp({ topic }: { topic: Topic }) {
               ] as const).map((m) => (
                 <button
                   key={m.key}
+                  type="button"
                   onClick={() => changeQuizMode(m.key)}
-                  className={`min-h-[36px] rounded-full border px-4 py-2 text-xs font-semibold transition ${quizMode === m.key ? "border-emerald-300 bg-emerald-300 text-slate-950" : "border-white/10 text-slate-400 hover:border-emerald-300 hover:text-white"}`}
+                  className={`min-h-[44px] rounded-full border px-4 py-2 text-xs font-semibold transition ${quizMode === m.key ? "border-emerald-300 bg-emerald-300 text-slate-950" : "border-white/10 text-slate-400 hover:border-emerald-300 hover:text-white"}`}
                   aria-pressed={quizMode === m.key}
                 >
                   {m.label}
@@ -437,6 +449,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
                 return (
                   <button
                     key={`${quizState.index}:${choice}`}
+                    type="button"
                     onClick={() => answerQuiz(choice)}
                     role="option"
                     aria-selected={quizState.picked === choice}
@@ -458,6 +471,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
             {quizState.picked ? (
               <div className="mt-6 flex items-center gap-4">
                 <button
+                  type="button"
                   onClick={nextQuiz}
                   className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
                   aria-label={quizState.index + 1 >= quiz.length ? "See results" : "Next question"}
@@ -490,6 +504,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
 function Tab({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       role="tab"
       aria-selected={active}

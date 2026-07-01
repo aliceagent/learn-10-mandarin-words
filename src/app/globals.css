@@ -32,6 +32,20 @@ input {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* ── Keyboard focus visibility ──────────────────────────────────────────────── */
+/* A consistent emerald focus ring for keyboard users only (mouse/touch clicks   */
+/* don't trigger :focus-visible), matching the app's accent color. Modern         */
+/* browsers follow the element's border-radius for the outline.                   */
+a:focus-visible,
+button:focus-visible,
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #34d399;
+  outline-offset: 2px;
+}
+
 ::selection {
   background: #34d399;
   color: #020617;

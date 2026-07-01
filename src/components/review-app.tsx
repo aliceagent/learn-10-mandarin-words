@@ -141,6 +141,7 @@ export function ReviewApp({ data }: { data: MandarinData }) {
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <button
+              type="button"
               onClick={() => { setCardIndex(0); setRevealed(false); setDone(false); }}
               className="min-h-[44px] rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300"
             >
@@ -193,6 +194,7 @@ export function ReviewApp({ data }: { data: MandarinData }) {
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             {!revealed ? (
               <button
+                type="button"
                 onClick={() => setRevealed(true)}
                 className="min-h-[44px] rounded-full bg-emerald-400 px-7 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
                 aria-label="Reveal answer"
@@ -203,6 +205,7 @@ export function ReviewApp({ data }: { data: MandarinData }) {
               (["again", "hard", "good", "easy"] as const).map((grade) => (
                 <button
                   key={grade}
+                  type="button"
                   onClick={() => handleGrade(grade)}
                   className="min-h-[44px] rounded-full border border-white/15 px-5 py-3 font-semibold capitalize text-white transition hover:border-emerald-300"
                   aria-label={`Grade as ${grade}`}

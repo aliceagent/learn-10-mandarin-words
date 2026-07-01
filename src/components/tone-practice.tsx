@@ -116,6 +116,7 @@ export function TonePractice({ topic }: { topic: Topic }) {
                   return (
                     <button
                       key={tone}
+                      type="button"
                       onClick={() => pick(sIdx, tone)}
                       aria-pressed={isPicked}
                       aria-label={`Tone ${tone === 5 ? "neutral" : tone} for ${label}`}
@@ -141,6 +142,7 @@ export function TonePractice({ topic }: { topic: Topic }) {
       <div className="mt-6 flex flex-wrap items-center gap-3">
         {!checked ? (
           <button
+            type="button"
             onClick={check}
             disabled={!complete}
             className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-40"
@@ -156,6 +158,7 @@ export function TonePractice({ topic }: { topic: Topic }) {
               {allCorrect ? "Correct — nice ear!" : "Not quite — the correct tones are shown."}
             </p>
             <button
+              type="button"
               onClick={next}
               className="min-h-[44px] rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300"
             >

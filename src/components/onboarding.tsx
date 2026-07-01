@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Topic } from "@/lib/types";
 
 const GOAL_OPTIONS = [
@@ -9,6 +9,10 @@ const GOAL_OPTIONS = [
   { value: 10, label: "Steady", detail: "10 words / day" },
   { value: 20, label: "Serious", detail: "20 words / day" },
 ];
+
+// Elements that can receive keyboard focus inside the modal.
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 // ── First-run onboarding modal ────────────────────────────────────────────────
 // Presentational only: the parent owns progress state and persists the choice.
@@ -23,6 +27,50 @@ export function OnboardingModal({
   onSkip: () => void;
 }) {
   const [goal, setGoal] = useState(10);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const previouslyFocused = useRef<HTMLElement | null>(null);
+
+  // On open: remember the trigger, move focus into the dialog. On close (any
+  // path — skip, complete, or navigate away), restore focus to the trigger.
+  useEffect(() => {
+    previouslyFocused.current = (document.activeElement as HTMLElement | null) ?? null;
+    const focusables = dialogRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+    focusables?.[0]?.focus();
+    return () => {
+      // The trigger may have unmounted (e.g. after navigation); guard the call.
+      previouslyFocused.current?.focus?.();
+    };
+  }, []);
+
+  // Escape closes the modal; Tab / Shift+Tab are trapped within it.
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onSkip();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const node = dialogRef.current;
+      if (!node) return;
+      const focusables = Array.from(node.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey) {
+        if (active === first || !node.contains(active)) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else if (active === last || !node.contains(active)) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [onSkip]);
 
   return (
     <div
@@ -30,6 +78,8 @@ export function OnboardingModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="onboarding-title"
+      aria-describedby="onboarding-desc"
+      ref={dialogRef}
     >
       <div className="animate-celebrate w-full max-w-lg rounded-[2rem] border border-white/10 bg-slate-900 p-7 shadow-2xl">
         <p className="inline-flex rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-300">
@@ -38,7 +88,7 @@ export function OnboardingModal({
         <h2 id="onboarding-title" className="mt-4 text-3xl font-semibold tracking-tight text-white">
           Learn 10 Mandarin words at a time
         </h2>
-        <p className="mt-3 text-slate-300">
+        <p id="onboarding-desc" className="mt-3 text-slate-300">
           Pick a daily goal and we&apos;ll point you to a starting lesson. Everything stays on
           your device — no account, no tracking.
         </p>
