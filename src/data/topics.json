@@ -194,7 +194,7 @@
       "titleEn": "Ten Types of Pets",
       "category": "Animals & Living Things",
       "categorySlug": "animals-and-living-things",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-pets.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-pets-rewritten.mp4",
       "items": [
         {
           "hanzi": "狗",
@@ -202,12 +202,12 @@
           "english": "dog",
           "sentences": [
             {
-              "cn": "我喜欢狗，因为它很有意思。",
-              "en": "I like dogs because they are interesting."
+              "cn": "我每天早上带狗去公园散步。",
+              "en": "I take the dog to the park every morning."
             },
             {
-              "cn": "这个狗在生活中很常见。",
-              "en": "This word, dog, is common in daily life."
+              "cn": "我回家的时候，狗在门口等我。",
+              "en": "When I come home, the dog waits by the door."
             }
           ]
         },
@@ -217,12 +217,12 @@
           "english": "cat",
           "sentences": [
             {
-              "cn": "今天我们学习猫这个词。",
-              "en": "Today we are learning the word cat."
+              "cn": "猫喜欢坐在窗边晒太阳。",
+              "en": "The cat likes sitting by the window in the sun."
             },
             {
-              "cn": "很多人都知道猫。",
-              "en": "Many people know the word cat."
+              "cn": "晚上，猫会安静地在屋里走来走去。",
+              "en": "At night, the cat walks quietly around the house."
             }
           ]
         },
@@ -232,12 +232,12 @@
           "english": "rabbit",
           "sentences": [
             {
-              "cn": "请你看一看这个兔子。",
-              "en": "Please look at this word: rabbit."
+              "cn": "兔子喜欢吃新鲜的菜叶。",
+              "en": "Rabbits like eating fresh green leaves."
             },
             {
-              "cn": "我想用中文说兔子。",
-              "en": "I want to say rabbit in Chinese."
+              "cn": "小兔子害怕的时候会躲到角落里。",
+              "en": "When the little rabbit is scared, it hides in the corner."
             }
           ]
         },
@@ -247,12 +247,12 @@
           "english": "goldfish",
           "sentences": [
             {
-              "cn": "我喜欢金鱼，因为它很有意思。",
-              "en": "I like learning the word goldfish because it is useful."
+              "cn": "金鱼在鱼缸里慢慢游来游去。",
+              "en": "The goldfish swims slowly back and forth in the tank."
             },
             {
-              "cn": "这个金鱼在生活中很常见。",
-              "en": "This word, goldfish, is common in daily life."
+              "cn": "孩子每天给金鱼喂一点鱼食。",
+              "en": "The child feeds the goldfish a little food every day."
             }
           ]
         },
@@ -262,12 +262,12 @@
           "english": "hamster",
           "sentences": [
             {
-              "cn": "今天我们学习仓鼠这个词。",
-              "en": "Today we are learning the word hamster."
+              "cn": "仓鼠喜欢在小轮子上跑。",
+              "en": "The hamster likes running on its little wheel."
             },
             {
-              "cn": "很多人都知道仓鼠。",
-              "en": "Many people know the word hamster."
+              "cn": "晚上，仓鼠常常醒来找东西吃。",
+              "en": "At night, the hamster often wakes up to look for food."
             }
           ]
         },
@@ -277,12 +277,12 @@
           "english": "turtle",
           "sentences": [
             {
-              "cn": "请你看一看这个乌龟。",
-              "en": "Please look at this word: turtle."
+              "cn": "乌龟走得很慢，但是很安静。",
+              "en": "The turtle walks slowly, but it is very calm."
             },
             {
-              "cn": "我想用中文说乌龟。",
-              "en": "I want to say turtle in Chinese."
+              "cn": "我们把乌龟放在阳光下晒一会儿。",
+              "en": "We let the turtle sit in the sun for a while."
             }
           ]
         },
@@ -292,12 +292,12 @@
           "english": "bird",
           "sentences": [
             {
-              "cn": "我喜欢鸟，因为它很有意思。",
-              "en": "I like learning the word bird because it is useful."
+              "cn": "这只鸟早上唱得很好听。",
+              "en": "This bird sings beautifully in the morning."
             },
             {
-              "cn": "这个鸟在生活中很常见。",
-              "en": "This word, bird, is common in daily life."
+              "cn": "鸟笼要经常清理，水也要每天换。",
+              "en": "The birdcage needs cleaning often, and the water should be changed every day."
             }
           ]
         },
@@ -307,12 +307,12 @@
           "english": "parrot",
           "sentences": [
             {
-              "cn": "今天我们学习鹦鹉这个词。",
-              "en": "Today we are learning the word parrot."
+              "cn": "鹦鹉会模仿人的声音。",
+              "en": "A parrot can imitate people's voices."
             },
             {
-              "cn": "很多人都知道鹦鹉。",
-              "en": "Many people know the word parrot."
+              "cn": "我的鹦鹉听到音乐就会叫。",
+              "en": "My parrot calls out when it hears music."
             }
           ]
         },
@@ -322,12 +322,12 @@
           "english": "snake",
           "sentences": [
             {
-              "cn": "请你看一看这个蛇。",
-              "en": "Please look at this word: snake."
+              "cn": "这条蛇很安静，不太需要人陪。",
+              "en": "This snake is quiet and does not need much company."
             },
             {
-              "cn": "我想用中文说蛇。",
-              "en": "I want to say snake in Chinese."
+              "cn": "有些人喜欢养蛇，因为它很特别。",
+              "en": "Some people like keeping snakes because they are unusual."
             }
           ]
         },
@@ -337,19 +337,19 @@
           "english": "mini pig",
           "sentences": [
             {
-              "cn": "我喜欢小猪，因为它很有意思。",
-              "en": "I like learning the word mini pig because it is useful."
+              "cn": "小猪很聪明，可以学会简单的口令。",
+              "en": "A mini pig is smart and can learn simple commands."
             },
             {
-              "cn": "这个小猪在生活中很常见。",
-              "en": "This word, mini pig, is common in daily life."
+              "cn": "小猪吃完东西后喜欢躺下休息。",
+              "en": "After eating, the mini pig likes to lie down and rest."
             }
           ]
         }
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-pets.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-pets-rewritten.mp4"
       }
     },
     {
