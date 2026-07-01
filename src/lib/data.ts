@@ -1,11 +1,21 @@
 import rawData from "@/data/topics.json";
-import type { MandarinData, Topic, VocabItem } from "./types";
+import type { Category, MandarinData, Topic, VocabItem } from "./types";
 import * as logic from "./data-logic";
 
 export const data = rawData as MandarinData;
 
 export function getTopic(slug: string): Topic | undefined {
   return logic.getTopic(data.topics, slug);
+}
+
+/** Look up a category by its slug in the real dataset. */
+export function getCategory(slug: string): Category | undefined {
+  return logic.getCategory(data.categories, slug);
+}
+
+/** All topics in a category, drawn from the real dataset. */
+export function topicsForCategory(slug: string): Topic[] {
+  return logic.topicsForCategory(data.topics, slug);
 }
 
 export function wordKey(topic: Topic, item: VocabItem): string {

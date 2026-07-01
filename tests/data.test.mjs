@@ -4,14 +4,17 @@ import assert from "node:assert/strict";
 import rawData from "../src/data/topics.json" with { type: "json" };
 import {
   allWords,
+  getCategory,
   getTopic,
   nextRecommendedTopic,
   recommendedPath,
   STARTER_SLUGS,
+  topicsForCategory,
   wordKey,
 } from "../src/lib/data-logic.ts";
 
 const topics = rawData.topics;
+const categories = rawData.categories;
 
 test("dataset has exactly 102 topics and 1020 words", () => {
   assert.equal(topics.length, 102);
@@ -49,6 +52,49 @@ test("Useful Phrases category has 2 topics and 20 items, all well-formed", () =>
 
   const items = catTopics.flatMap((t) => t.items);
   assert.equal(items.length, 20);
+});
+
+test("getCategory resolves every category slug and rejects unknown ones", () => {
+  assert.equal(categories.length, 14);
+  for (const category of categories) {
+    const found = getCategory(categories, category.slug);
+    assert.ok(found, `category ${category.slug} resolves`);
+    assert.equal(found.slug, category.slug);
+    assert.equal(found.name, category.name);
+  }
+  assert.equal(getCategory(categories, "no-such-category-slug"), undefined);
+});
+
+test("topicsForCategory returns the two Useful Phrases topics", () => {
+  const phraseTopics = topicsForCategory(topics, "useful-phrases");
+  assert.equal(phraseTopics.length, 2);
+  assert.deepEqual(
+    phraseTopics.map((t) => t.slug),
+    ["ten-ways-to-apologize", "ten-good-wishes-and-social-phrases"]
+  );
+  for (const topic of phraseTopics) {
+    assert.equal(topic.categorySlug, "useful-phrases");
+  }
+});
+
+test("topicsForCategory covers all topics and matches each category's declared count", () => {
+  let total = 0;
+  for (const category of categories) {
+    const catTopics = topicsForCategory(topics, category.slug);
+    // Every topic filtered by categorySlug is listed in the category, and the
+    // counts agree — so the category page and the dataset never drift.
+    assert.equal(catTopics.length, category.topics.length, `count for ${category.slug}`);
+    for (const topic of catTopics) {
+      assert.ok(category.topics.includes(topic.slug), `${topic.slug} listed in ${category.slug}`);
+    }
+    total += catTopics.length;
+  }
+  // Categories partition every topic exactly once.
+  assert.equal(total, topics.length);
+});
+
+test("topicsForCategory returns an empty array for an unknown slug", () => {
+  assert.deepEqual(topicsForCategory(topics, "no-such-category-slug"), []);
 });
 
 test("allWords annotates each word with its topic + category", () => {

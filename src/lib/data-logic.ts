@@ -1,4 +1,4 @@
-import type { Topic, VocabItem } from "./types";
+import type { Category, Topic, VocabItem } from "./types";
 
 // Pure data helpers parameterized by the topics array, extracted from data.ts
 // so they can be unit-tested against topics.json without the "@/" path alias.
@@ -6,6 +6,20 @@ import type { Topic, VocabItem } from "./types";
 
 export function getTopic(topics: Topic[], slug: string): Topic | undefined {
   return topics.find((topic) => topic.slug === slug);
+}
+
+/** Look up a category by its slug. */
+export function getCategory(categories: Category[], slug: string): Category | undefined {
+  return categories.find((category) => category.slug === slug);
+}
+
+/**
+ * All topics belonging to a category, in natural data order. Filters on each
+ * topic's own `categorySlug` so it stays correct even if a category's `topics`
+ * list and the topics array ever drift.
+ */
+export function topicsForCategory(topics: Topic[], slug: string): Topic[] {
+  return topics.filter((topic) => topic.categorySlug === slug);
 }
 
 export function wordKey(topic: Topic, item: VocabItem): string {
