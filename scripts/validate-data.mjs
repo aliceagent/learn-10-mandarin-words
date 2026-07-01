@@ -8,6 +8,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
+import { collectQualityWarnings } from "./quality-lint.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_PATH = resolve(__dirname, "../src/data/topics.json");
@@ -198,6 +199,13 @@ for (const slug of topicSlugs) {
   }
 }
 
+// ── Content-quality lint ─────────────────────────────────────────────────────
+// Heuristic checks for awkward/malformed generated text (bad articles,
+// truncated sentences, duplicate labels, CN/EN punctuation drift). These are
+// warnings by default and never fail `npm run validate:data`; pass
+// `--strict-quality` (or `--strict`) to make them blocking. See scripts/quality-lint.mjs.
+const qualityWarnings = collectQualityWarnings(topics);
+
 // ── Report ───────────────────────────────────────────────────────────────────
 function report() {
   const totalItems = topics.reduce((n, t) => n + (Array.isArray(t?.items) ? t.items.length : 0), 0);
@@ -205,8 +213,13 @@ function report() {
   console.log(`  categories: ${categories.length}  topics: ${topics.length}  words: ${totalItems}\n`);
 
   if (warnings.length) {
-    console.log(`⚠ ${warnings.length} warning(s):`);
+    console.log(`⚠ ${warnings.length} structural warning(s):`);
     for (const w of warnings) console.log(`  ⚠ ${w}`);
+    console.log("");
+  }
+  if (qualityWarnings.length) {
+    console.log(`⚠ ${qualityWarnings.length} content-quality warning(s):`);
+    for (const w of qualityWarnings) console.log(`  ⚠ ${w}`);
     console.log("");
   }
   if (errors.length) {
@@ -214,7 +227,8 @@ function report() {
     for (const e of errors) console.log(`  ✖ ${e}`);
     console.log("");
   }
-  if (!errors.length && !warnings.length) {
+  const totalWarnings = warnings.length + qualityWarnings.length;
+  if (!errors.length && !totalWarnings) {
     console.log("✓ All checks passed.\n");
   } else if (!errors.length) {
     console.log("✓ No blocking errors.\n");
@@ -223,5 +237,12 @@ function report() {
 
 report();
 
+// `--strict` fails on any warning; `--strict-quality` fails only on the
+// content-quality lint findings (leaving pre-existing structural warnings green).
 const strict = process.argv.includes("--strict");
-process.exit(errors.length || (strict && warnings.length) ? 1 : 0);
+const strictQuality = strict || process.argv.includes("--strict-quality");
+const blocking =
+  errors.length ||
+  (strict && warnings.length) ||
+  (strictQuality && qualityWarnings.length);
+process.exit(blocking ? 1 : 0);

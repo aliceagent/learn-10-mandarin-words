@@ -10,6 +10,7 @@
     "lint": "eslint",
     "test": "node --test",
     "validate:data": "node scripts/validate-data.mjs",
+    "validate:quality": "node scripts/validate-data.mjs --strict-quality",
     "map:videos": "node scripts/map-videos.mjs"
   },
   "dependencies": {
