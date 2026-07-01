@@ -15,6 +15,42 @@ export default function OfflinePage() {
         This page hasn&apos;t been cached yet. Lessons you&apos;ve already opened, plus your saved
         progress, still work without a connection — everything is stored on your device.
       </p>
+
+      {/* Honest offline help: vocabulary data is local, but the walkthrough
+          videos stream from GitHub Releases and need a connection. */}
+      <section className="mt-10 w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.04] p-6 text-left">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+          What works offline
+        </h2>
+        <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-300">
+          <li className="flex gap-3">
+            <span aria-hidden="true">✅</span>
+            <span>
+              <strong className="font-semibold text-white">Vocabulary &amp; the app itself.</strong>{" "}
+              Words, pinyin, flashcards, quizzes, and your saved progress live on your device, so any
+              lesson you&apos;ve already opened keeps working with no connection.
+            </span>
+          </li>
+          <li className="flex gap-3">
+            <span aria-hidden="true">📶</span>
+            <span>
+              <strong className="font-semibold text-white">Video lessons need internet.</strong>{" "}
+              Walkthrough videos stream from GitHub Releases and aren&apos;t bundled with the app. They
+              play only when you&apos;re online, or if your browser happens to have cached that clip from
+              an earlier visit.
+            </span>
+          </li>
+          <li className="flex gap-3">
+            <span aria-hidden="true">💬</span>
+            <span>
+              <strong className="font-semibold text-white">Useful Phrases videos are coming soon.</strong>{" "}
+              Those two lists are fully ready to study now — the walkthrough videos just aren&apos;t
+              recorded yet.
+            </span>
+          </li>
+        </ul>
+      </section>
+
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Link
           href="/"

@@ -6,6 +6,14 @@
  *   - Static build assets (/_next/static, icons, svg): stale-while-revalidate.
  *   - Media (videos/audio) and cross-origin requests: passthrough, never cached
  *     (keeps the cache small and avoids storing large future MP4s/audio).
+ *
+ * Video policy: lesson MP4s are hosted on GitHub Releases (github.com), which is
+ * cross-origin, so they hit the cross-origin guard below and are never precached
+ * or runtime-cached. Videos therefore need a live connection unless the browser
+ * itself already cached a clip. Do NOT add MP4 URLs to PRECACHE_URLS — precaching
+ * 100 remote videos would blow up storage and defeat the point of this shell.
+ * (Guarded by tests/sw-policy.test.mjs.)
+ *
  * Bump CACHE_VERSION to invalidate old caches on the next activate.
  */
 const CACHE_VERSION = "v1";

@@ -288,7 +288,8 @@ export function TopicApp({ topic }: { topic: Topic }) {
 
           {mp4Url ? (
             <p className="mt-2 text-xs leading-5 text-slate-500">
-              Video lessons are hosted on GitHub Releases and stream from there.
+              Video lessons stream from GitHub Releases, so they need a connection — the words and
+              your progress on this page still work offline.
             </p>
           ) : null}
         </div>
