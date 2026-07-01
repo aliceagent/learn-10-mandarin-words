@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "node --test",
     "validate:data": "node scripts/validate-data.mjs",
     "map:videos": "node scripts/map-videos.mjs"
   },
