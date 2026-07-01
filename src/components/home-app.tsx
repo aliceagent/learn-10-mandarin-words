@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { useRef, useMemo, useState } from "react";
 import type { MandarinData, Topic } from "@/lib/types";
+import { nextRecommendedTopic } from "@/lib/data";
+import { track } from "@/lib/analytics";
 import { useProgress, computeStreak } from "./use-progress";
+import { OnboardingModal, ContinueLearningCard } from "./onboarding";
 
 // Normalize diacritics so "nǐ", "ni", "ní" all match
 function normalizePinyin(str: string): string {
@@ -16,8 +19,11 @@ function normalizePinyin(str: string): string {
 export function HomeApp({ data }: { data: MandarinData }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
-  const { progress, exportProgress, importProgress } = useProgress();
+  const { progress, loaded, exportProgress, importProgress, completeOnboarding, skipOnboarding } = useProgress();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const nextTopic = useMemo(() => nextRecommendedTopic(progress.learnedTopics), [progress.learnedTopics]);
+  const showOnboarding = loaded && !progress.onboarding.completed;
 
   const filtered = useMemo(() => {
     const q = normalizePinyin(query.trim());
@@ -143,8 +149,17 @@ export function HomeApp({ data }: { data: MandarinData }) {
         </div>
       </section>
 
+      {/* ── Continue learning / Start here CTA ── */}
+      {loaded ? (
+        <ContinueLearningCard
+          nextTopic={nextTopic}
+          learnedCount={learnedCount}
+          dailyGoal={progress.onboarding.dailyGoal}
+        />
+      ) : null}
+
       {/* ── Feature row ── */}
-      <section id="practice" className="border-y border-white/10 bg-slate-950/70 px-6 py-12 md:px-10">
+      <section id="practice" className="mt-14 border-y border-white/10 bg-slate-950/70 px-6 py-12 md:px-10">
         <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-4">
           <Feature title="Video lessons" body="Each topic gets one short drill video with Chinese, pinyin, and English." />
           <Feature title="Matching quizzes" body="Three quiz modes: Hanzi→English, English→Hanzi, and Hanzi→Pinyin." />
@@ -208,6 +223,27 @@ export function HomeApp({ data }: { data: MandarinData }) {
           </div>
         )}
       </section>
+
+      {/* ── Footer ── */}
+      <footer className="mx-auto max-w-7xl px-6 pb-28 md:px-10 md:pb-12">
+        <div className="flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-sm text-slate-500 sm:flex-row">
+          <p>Local-first · your progress never leaves your device.</p>
+          <div className="flex gap-4">
+            <Link href="/review" className="transition hover:text-slate-300">Review</Link>
+            <Link href="/favorites" className="transition hover:text-slate-300">Favorites</Link>
+            <Link href="/privacy" className="transition hover:text-slate-300">Privacy</Link>
+          </div>
+        </div>
+      </footer>
+
+      {/* ── First-run onboarding ── */}
+      {showOnboarding ? (
+        <OnboardingModal
+          firstTopic={nextTopic}
+          onComplete={(goal) => { completeOnboarding(goal); track("onboarding_completed", { dailyGoal: goal }); }}
+          onSkip={() => { skipOnboarding(); track("onboarding_skipped"); }}
+        />
+      ) : null}
     </main>
   );
 }

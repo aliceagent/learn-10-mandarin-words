@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# local video mapping (may contain private/CDN URLs); use scripts/videos.example.json as a template
+/video-map.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

@@ -4,9 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/validate-data.mjs",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "validate:data": "node scripts/validate-data.mjs",
+    "map:videos": "node scripts/map-videos.mjs"
   },
   "dependencies": {
     "next": "16.2.9",

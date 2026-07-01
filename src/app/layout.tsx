@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Noto_Sans_SC } from "next/font/google";
 import "./globals.css";
 import { BottomNav } from "@/components/bottom-nav";
+import { PwaRegister } from "@/components/pwa-register";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,6 +24,25 @@ const notoSansSC = Noto_Sans_SC({
 export const metadata: Metadata = {
   title: "Learn 10 Mandarin Words",
   description: "A Mandarin vocabulary learning app with video lessons, quizzes, flashcards, favorites, and local progress tracking.",
+  applicationName: "Learn 10 Mandarin Words",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Learn 10",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: [{ url: "/icon.svg", type: "image/svg+xml" }],
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#020617",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({
@@ -35,6 +55,7 @@ export default function RootLayout({
       <body className="min-h-full bg-slate-950 text-white">
         {children}
         <BottomNav />
+        <PwaRegister />
       </body>
     </html>
   );

@@ -11,7 +11,18 @@ const emptyProgress: ProgressState = {
   favoriteWords: [],
   flashcardStats: {},
   studiedDates: [],
+  onboarding: { completed: false, dailyGoal: 0, completedAt: null },
 };
+
+// Merge stored data over defaults without dropping the nested onboarding shape
+// (older saves predate the onboarding field, and imports may omit it).
+function normalizeProgress(partial: Partial<ProgressState>): ProgressState {
+  return {
+    ...emptyProgress,
+    ...partial,
+    onboarding: { ...emptyProgress.onboarding, ...(partial.onboarding ?? {}) },
+  };
+}
 
 function uniqueToggle(values: string[], value: string): string[] {
   return values.includes(value) ? values.filter((item) => item !== value) : [...values, value];
@@ -52,7 +63,7 @@ export function useProgress() {
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        setProgress({ ...emptyProgress, ...JSON.parse(stored) });
+        setProgress(normalizeProgress(JSON.parse(stored)));
       }
     } finally {
       setLoaded(true);
@@ -78,7 +89,7 @@ export function useProgress() {
   const importProgress = useCallback((json: string) => {
     try {
       const parsed = JSON.parse(json);
-      setProgress({ ...emptyProgress, ...parsed });
+      setProgress(normalizeProgress(parsed));
     } catch {
       throw new Error("Invalid progress file");
     }
@@ -100,6 +111,18 @@ export function useProgress() {
     toggleFavoriteWord: (key: string) => setProgress((current) => ({
       ...current,
       favoriteWords: uniqueToggle(current.favoriteWords, key),
+    })),
+    completeOnboarding: (dailyGoal: number) => setProgress((current) => ({
+      ...current,
+      onboarding: { completed: true, dailyGoal, completedAt: todayISO() },
+    })),
+    skipOnboarding: () => setProgress((current) => ({
+      ...current,
+      onboarding: { ...current.onboarding, completed: true, completedAt: current.onboarding.completedAt ?? todayISO() },
+    })),
+    setDailyGoal: (dailyGoal: number) => setProgress((current) => ({
+      ...current,
+      onboarding: { ...current.onboarding, dailyGoal },
     })),
     gradeWord: (key: string, grade: "again" | "hard" | "good" | "easy") => setProgress((current) => {
       const existing = current.flashcardStats[key] ?? { intervalDays: 0, ease: 2.5, dueAt: new Date().toISOString(), reviewCount: 0 };

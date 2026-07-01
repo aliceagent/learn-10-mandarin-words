@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Topic } from "@/lib/types";
 import { wordKey } from "@/lib/data";
+import { track } from "@/lib/analytics";
 import { useProgress } from "./use-progress";
 import { SpeakButton } from "./speak-button";
 import { VideoPlayer } from "./video-player";
@@ -107,6 +108,11 @@ export function TopicApp({ topic }: { topic: Topic }) {
   const quiz = useMemo<QuizCard[]>(() => buildQuiz(topic, quizMode), [topic, quizMode]);
   const currentQuiz = quiz[quizState.index % quiz.length];
 
+  // Record a topic start once per mounted topic (anonymous, local/dev only).
+  useEffect(() => {
+    track("topic_start", { topic: topic.slug });
+  }, [topic.slug]);
+
   function changeQuizMode(m: QuizMode) {
     setQuizMode(m);
     setQuizState({ index: 0, score: 0, picked: null });
@@ -126,6 +132,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
     const nextIndex = quizState.index + 1;
     if (nextIndex >= quiz.length) {
       setQuizComplete(true);
+      track("quiz_completed", { topic: topic.slug, mode: quizMode, score: quizState.score, total: quiz.length });
     } else {
       setQuizState((s) => ({ ...s, picked: null, index: nextIndex }));
     }
@@ -221,7 +228,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
         </div>
 
         <div className="rounded-[2rem] border border-white/10 bg-white/[0.05] p-4">
-          <VideoPlayer src={topic.videoPath} title={`${topic.titleEn} video lesson`} />
+          <VideoPlayer src={topic.videoPath} title={`${topic.titleEn} video lesson`} video={topic.video} />
         </div>
       </section>
 
@@ -256,7 +263,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
                     <SpeakButton text={item.hanzi} label={`Pronounce ${item.hanzi} (${item.pinyin})`} />
                   </div>
                   <button
-                    onClick={() => toggleFavoriteWord(key)}
+                    onClick={() => { if (!favorite) track("favorite_saved", { topic: topic.slug, kind: "word" }); toggleFavoriteWord(key); }}
                     className="shrink-0 rounded-full border border-white/10 px-3.5 py-2 text-sm font-semibold text-slate-200 transition hover:border-amber-300"
                     aria-pressed={favorite}
                     aria-label={favorite ? `Remove ${item.english} from favorites` : `Save ${item.english} to favorites`}

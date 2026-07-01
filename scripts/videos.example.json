@@ -1,0 +1,13 @@
+{
+  "_comment": "Template for npm run map:videos. Copy to video-map.json (gitignored) and fill in REAL sources. Keys are topic slugs from src/data/topics.json. Values are a YouTube id/URL string, an .mp4 URL string, or a { provider, source, poster?, captions? } object. Remove this _comment key before running.",
+  "ten-types-of-pets": "REPLACE_WITH_YOUTUBE_ID",
+  "ten-types-of-drinks": {
+    "provider": "mp4",
+    "source": "https://your-cdn.example.com/videos/ten-types-of-drinks.mp4",
+    "poster": "https://your-cdn.example.com/posters/ten-types-of-drinks.jpg",
+    "captions": [
+      { "lang": "zh-CN", "label": "中文", "src": "https://your-cdn.example.com/captions/drinks.zh.vtt" },
+      { "lang": "en", "label": "English", "src": "https://your-cdn.example.com/captions/drinks.en.vtt" }
+    ]
+  }
+}

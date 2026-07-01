@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useMemo, useRef, useState } from "react";
 import type { MandarinData } from "@/lib/types";
 import { wordKey } from "@/lib/data";
+import { track } from "@/lib/analytics";
 import { useProgress } from "./use-progress";
 import { SpeakButton } from "./speak-button";
 
@@ -80,6 +81,7 @@ export function ReviewApp({ data }: { data: MandarinData }) {
     setRevealed(false);
     if (cardIndex + 1 >= totalDue) {
       setDone(true);
+      track("review_completed", { count: totalDue });
     } else {
       setCardIndex((v) => v + 1);
     }
