@@ -7,6 +7,7 @@ import {
   getCategory,
   getTopic,
   nextRecommendedTopic,
+  pathSections,
   recommendedPath,
   STARTER_SLUGS,
   topicsForCategory,
@@ -158,4 +159,46 @@ test("nextRecommendedTopic falls back to first unlearned topic overall", () => {
 test("nextRecommendedTopic falls back to topic 1 when everything is learned", () => {
   const learned = topics.map((t) => t.slug);
   assert.equal(nextRecommendedTopic(topics, learned).slug, topics[0].slug);
+});
+
+test("pathSections starts with the starter essentials from recommendedPath", () => {
+  const sections = pathSections(topics);
+  assert.ok(sections.length > 0);
+  assert.equal(sections[0].key, "starter-essentials");
+  assert.deepEqual(
+    sections[0].topics.map((t) => t.slug),
+    recommendedPath(topics).map((t) => t.slug)
+  );
+});
+
+test("pathSections includes a Useful Phrases section with the two phrase topics", () => {
+  const sections = pathSections(topics);
+  const phrases = sections.find((s) => s.key === "useful-phrases");
+  assert.ok(phrases, "useful-phrases section exists");
+  assert.deepEqual(
+    phrases.topics.map((t) => t.slug),
+    ["ten-ways-to-apologize", "ten-good-wishes-and-social-phrases"]
+  );
+});
+
+test("pathSections places every topic in exactly one section", () => {
+  const sections = pathSections(topics);
+  const slugs = sections.flatMap((s) => s.topics.map((t) => t.slug));
+  // No duplicates: starter topics are not repeated inside their categories.
+  assert.equal(new Set(slugs).size, slugs.length);
+  // Complete coverage: the path reaches every topic in the dataset.
+  assert.equal(slugs.length, topics.length);
+  assert.deepEqual(new Set(slugs), new Set(topics.map((t) => t.slug)));
+});
+
+test("pathSections only references real topics and drops empty sections", () => {
+  const sections = pathSections(topics);
+  const known = new Set(topics.map((t) => t.slug));
+  for (const section of sections) {
+    assert.ok(section.topics.length > 0, `${section.key} is non-empty`);
+    assert.ok(section.title && section.blurb, `${section.key} is labelled`);
+    for (const topic of section.topics) {
+      assert.ok(known.has(topic.slug), `${topic.slug} is a real topic`);
+    }
+  }
 });

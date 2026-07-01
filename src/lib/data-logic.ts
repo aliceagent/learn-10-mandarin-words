@@ -65,3 +65,90 @@ export function nextRecommendedTopic(topics: Topic[], learnedTopics: string[]): 
     topics[0]
   );
 }
+
+// A resolved section of the guided learning path: a titled group of real topics.
+export type PathSection = {
+  key: string;
+  title: string;
+  blurb: string;
+  topics: Topic[];
+};
+
+// The curriculum spine. Each section (after the curated starter) maps to one or
+// more existing category slugs, and the sections together cover all 14
+// categories in a sensible learn-from-here order. Nothing is invented: every
+// topic is pulled from the dataset, and empty sections are dropped. `starter`
+// pulls from `recommendedPath` so the two stay in lockstep.
+const PATH_SECTION_DEFS: { key: string; title: string; blurb: string; categorySlugs: string[] }[] = [
+  {
+    key: "everyday-life",
+    title: "Everyday life",
+    blurb: "Words you reach for at home, getting dressed, and talking about people.",
+    categorySlugs: ["home-and-objects", "clothing-and-accessories", "body-and-health", "people-and-jobs"],
+  },
+  {
+    key: "nature-and-animals",
+    title: "Nature & animals",
+    blurb: "Living things and the natural world around you.",
+    categorySlugs: ["animals-and-living-things", "plants-and-nature"],
+  },
+  {
+    key: "food-and-drink",
+    title: "Food & drink",
+    blurb: "Order, cook, and talk about meals with confidence.",
+    categorySlugs: ["food-and-drink"],
+  },
+  {
+    key: "travel-and-places",
+    title: "Travel & places",
+    blurb: "Get around town and beyond — places, buildings, and transport.",
+    categorySlugs: ["travel-and-tourism", "places-and-buildings", "transportation"],
+  },
+  {
+    key: "activities-and-ideas",
+    title: "Activities & ideas",
+    blurb: "Sports, hobbies, and more abstract vocabulary once the basics stick.",
+    categorySlugs: ["sports-and-activities", "abstract-but-picturable", "themed-sub-categories"],
+  },
+  {
+    key: "useful-phrases",
+    title: "Useful phrases",
+    blurb: "Practical, ready-to-say phrases to round out the path.",
+    categorySlugs: ["useful-phrases"],
+  },
+];
+
+/**
+ * The guided learning path as ordered sections of real topics. The first
+ * section is the curated `recommendedPath` starter set; the rest group the
+ * remaining topics by category in a learn-from-here order. A topic appears in
+ * exactly one section (starter topics are not repeated later), and sections
+ * with no topics are omitted, so the result is always non-empty and drift-free.
+ */
+export function pathSections(topics: Topic[]): PathSection[] {
+  const seen = new Set<string>();
+  const sections: PathSection[] = [];
+
+  const starterTopics = recommendedPath(topics);
+  starterTopics.forEach((t) => seen.add(t.slug));
+  if (starterTopics.length > 0) {
+    sections.push({
+      key: "starter-essentials",
+      title: "Starter essentials",
+      blurb: "Begin here — high-frequency, concrete topics that make a strong first week.",
+      topics: starterTopics,
+    });
+  }
+
+  for (const def of PATH_SECTION_DEFS) {
+    const sectionTopics = topics.filter(
+      (t) => def.categorySlugs.includes(t.categorySlug) && !seen.has(t.slug)
+    );
+    sectionTopics.forEach((t) => seen.add(t.slug));
+    if (sectionTopics.length > 0) {
+      sections.push({ key: def.key, title: def.title, blurb: def.blurb, topics: sectionTopics });
+    }
+  }
+
+  return sections;
+}

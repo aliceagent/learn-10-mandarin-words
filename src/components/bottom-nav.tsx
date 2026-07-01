@@ -14,6 +14,15 @@ const NAV_ITEMS = [
     ),
   },
   {
+    href: "/path",
+    label: "Path",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M6 2a3 3 0 0 0-1 5.83V16a2 2 0 0 0 2 2h5a1 1 0 0 1 0 2H9v-1.5L4.5 21 9 23.5V22h3a3 3 0 0 0 0-6H7V7.83A3 3 0 0 0 6 2zm12 6a3 3 0 0 0-1 5.83V22h2v-8.17A3 3 0 0 0 18 8z" />
+      </svg>
+    ),
+  },
+  {
     href: "/review",
     label: "Review",
     icon: (

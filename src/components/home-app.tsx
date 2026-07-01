@@ -73,6 +73,9 @@ export function HomeApp({ data }: { data: MandarinData }) {
             <a href="#library" className="rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300">
               Browse library
             </a>
+            <Link href="/path" className="rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300/70">
+              Learning path
+            </Link>
             <Link href="/review" className="rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300/70">
               Daily review
             </Link>
@@ -252,6 +255,7 @@ export function HomeApp({ data }: { data: MandarinData }) {
         <div className="flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-sm text-slate-500 sm:flex-row">
           <p>Local-first · your progress never leaves your device.</p>
           <div className="flex gap-4">
+            <Link href="/path" className="transition hover:text-slate-300">Path</Link>
             <Link href="/review" className="transition hover:text-slate-300">Review</Link>
             <Link href="/favorites" className="transition hover:text-slate-300">Favorites</Link>
             <Link href="/privacy" className="transition hover:text-slate-300">Privacy</Link>

@@ -2,6 +2,8 @@ import rawData from "@/data/topics.json";
 import type { Category, MandarinData, Topic, VocabItem } from "./types";
 import * as logic from "./data-logic";
 
+export type { PathSection } from "./data-logic";
+
 export const data = rawData as MandarinData;
 
 export function getTopic(slug: string): Topic | undefined {
@@ -37,4 +39,9 @@ export function recommendedPath(): Topic[] {
  */
 export function nextRecommendedTopic(learnedTopics: string[]): Topic {
   return logic.nextRecommendedTopic(data.topics, learnedTopics);
+}
+
+/** The guided learning path as ordered sections, drawn from the real dataset. */
+export function pathSections(): logic.PathSection[] {
+  return logic.pathSections(data.topics);
 }
