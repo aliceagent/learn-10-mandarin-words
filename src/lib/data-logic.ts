@@ -26,6 +26,18 @@ export function wordKey(topic: Topic, item: VocabItem): string {
   return `${topic.slug}:${item.hanzi}`;
 }
 
+/** Slug of the practical-phrases category (see topics.json / getCategory). */
+export const USEFUL_PHRASES_CATEGORY_SLUG = "useful-phrases";
+
+/**
+ * Whether a topic belongs to the Useful Phrases category. Keyed off the topic's
+ * own `categorySlug` (stable dataset identifier), never off item text, so it
+ * stays correct if phrases are added, edited, or reworded.
+ */
+export function isUsefulPhraseTopic(topic: Pick<Topic, "categorySlug">): boolean {
+  return topic.categorySlug === USEFUL_PHRASES_CATEGORY_SLUG;
+}
+
 export function allWords(topics: Topic[]) {
   return topics.flatMap((topic) =>
     topic.items.map((item) => ({ ...item, topicSlug: topic.slug, topicTitle: topic.titleEn, category: topic.category }))

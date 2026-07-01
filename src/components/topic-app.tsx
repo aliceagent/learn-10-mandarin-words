@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Topic, VocabItem } from "@/lib/types";
-import { wordKey } from "@/lib/data";
+import { isUsefulPhraseTopic, wordKey } from "@/lib/data";
 import { buildQuiz, itemsForKeys, type QuizMode } from "@/lib/quiz-logic";
 import { downloadableMp4Url, hasPlayableVideo } from "@/lib/video";
 import { track } from "@/lib/analytics";
@@ -11,6 +11,7 @@ import { useProgress } from "./use-progress";
 import { SpeakButton } from "./speak-button";
 import { VideoPlayer } from "./video-player";
 import { TonePractice } from "./tone-practice";
+import { PhrasebookPanel } from "./phrasebook-panel";
 
 // ─── Touch swipe hook ─────────────────────────────────────────────────────────
 
@@ -51,7 +52,13 @@ function topicStats(topic: Topic, flashcardStats: Record<string, { reviewCount: 
 
 export function TopicApp({ topic }: { topic: Topic }) {
   const { progress, toggleFavoriteTopic, toggleFavoriteWord, toggleLearnedTopic, gradeWord } = useProgress();
-  const [mode, setMode] = useState<"words" | "flashcards" | "quiz">("words");
+  // Useful Phrases topics get an extra "Phrasebook" mode, shown first and
+  // selected by default so they read like a practical phrasebook rather than a
+  // vocabulary list. Words/Cards/Quiz stay available for every topic.
+  const isPhrasebook = isUsefulPhraseTopic(topic);
+  const [mode, setMode] = useState<"phrasebook" | "words" | "flashcards" | "quiz">(
+    isPhrasebook ? "phrasebook" : "words",
+  );
   const [cardIndex, setCardIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [quizMode, setQuizMode] = useState<QuizMode>("hanzi-english");
@@ -101,6 +108,9 @@ export function TopicApp({ topic }: { topic: Topic }) {
     setMissedKeys([]);
     setQuizState({ index: 0, score: 0, picked: null });
     setQuizComplete(false);
+    // Land on the mode that fits the newly shown topic (phrasebook vs. words),
+    // so a mode that no longer has a tab is never left selected.
+    setMode(isPhrasebook ? "phrasebook" : "words");
   }
 
   function changeQuizMode(m: QuizMode) {
@@ -275,11 +285,29 @@ export function TopicApp({ topic }: { topic: Topic }) {
       </section>
 
       {/* ── Mode tabs ── */}
-      <nav className="mt-10 grid grid-cols-3 gap-2 rounded-3xl border border-white/10 bg-slate-950/80 p-2" aria-label="Practice modes">
+      <nav
+        className={`mt-10 grid gap-2 rounded-3xl border border-white/10 bg-slate-950/80 p-2 ${isPhrasebook ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3"}`}
+        aria-label="Practice modes"
+      >
+        {isPhrasebook ? (
+          <Tab active={mode === "phrasebook"} onClick={() => setMode("phrasebook")}>Phrasebook</Tab>
+        ) : null}
         <Tab active={mode === "words"} onClick={() => setMode("words")}>Words</Tab>
         <Tab active={mode === "flashcards"} onClick={() => setMode("flashcards")}>Cards</Tab>
         <Tab active={mode === "quiz"} onClick={() => setMode("quiz")}>Quiz</Tab>
       </nav>
+
+      {/* ── Phrasebook (Useful Phrases only) ── */}
+      {mode === "phrasebook" ? (
+        <PhrasebookPanel
+          topic={topic}
+          favoriteWords={progress.favoriteWords}
+          onToggleFavorite={(key) => {
+            if (!progress.favoriteWords.includes(key)) track("favorite_saved", { topic: topic.slug, kind: "word" });
+            toggleFavoriteWord(key);
+          }}
+        />
+      ) : null}
 
       {/* ── Words ── */}
       {mode === "words" ? (

@@ -24,6 +24,11 @@ export function wordKey(topic: Topic, item: VocabItem): string {
   return logic.wordKey(topic, item);
 }
 
+/** Whether a topic is part of the Useful Phrases category (phrasebook mode). */
+export function isUsefulPhraseTopic(topic: Topic): boolean {
+  return logic.isUsefulPhraseTopic(topic);
+}
+
 export function allWords() {
   return logic.allWords(data.topics);
 }

@@ -6,11 +6,13 @@ import {
   allWords,
   getCategory,
   getTopic,
+  isUsefulPhraseTopic,
   nextRecommendedTopic,
   pathSections,
   recommendedPath,
   STARTER_SLUGS,
   topicsForCategory,
+  USEFUL_PHRASES_CATEGORY_SLUG,
   wordKey,
 } from "../src/lib/data-logic.ts";
 
@@ -53,6 +55,27 @@ test("Useful Phrases category has 2 topics and 20 items, all well-formed", () =>
 
   const items = catTopics.flatMap((t) => t.items);
   assert.equal(items.length, 20);
+});
+
+test("isUsefulPhraseTopic is true only for the two Useful Phrases topics", () => {
+  // The constant matches a real category slug.
+  assert.ok(getCategory(categories, USEFUL_PHRASES_CATEGORY_SLUG), "constant is a real slug");
+
+  const phraseTopics = topics.filter((t) => isUsefulPhraseTopic(t));
+  assert.deepEqual(
+    phraseTopics.map((t) => t.slug),
+    ["ten-ways-to-apologize", "ten-good-wishes-and-social-phrases"]
+  );
+  // Every other topic classifies as non-phrasebook.
+  const others = topics.filter((t) => !isUsefulPhraseTopic(t));
+  assert.equal(others.length, topics.length - 2);
+});
+
+test("isUsefulPhraseTopic keys off categorySlug, not item text or title", () => {
+  // A topic whose words happen to look like phrases but sits in another
+  // category is NOT phrasebook; category membership is the only signal.
+  assert.equal(isUsefulPhraseTopic({ categorySlug: "food-and-drink" }), false);
+  assert.equal(isUsefulPhraseTopic({ categorySlug: USEFUL_PHRASES_CATEGORY_SLUG }), true);
 });
 
 test("getCategory resolves every category slug and rejects unknown ones", () => {
