@@ -13,10 +13,6 @@ function normalizePinyin(str: string): string {
     .toLowerCase();
 }
 
-function statLabel(value: number, label: string) {
-  return `${value.toLocaleString()} ${label}`;
-}
-
 export function HomeApp({ data }: { data: MandarinData }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
@@ -39,8 +35,8 @@ export function HomeApp({ data }: { data: MandarinData }) {
   const favoriteCount = progress.favoriteWords.length + progress.favoriteTopics.length;
   const streak = computeStreak(progress.studiedDates ?? []);
 
-  // Count cards studied total across all topics
   const studiedWordsCount = Object.values(progress.flashcardStats).filter((s) => s.reviewCount > 0).length;
+  const totalWords = data.topics.length * 10;
 
   function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -59,10 +55,11 @@ export function HomeApp({ data }: { data: MandarinData }) {
 
   return (
     <main>
+      {/* ── Hero ── */}
       <section className="mx-auto grid min-h-[88dvh] max-w-7xl items-center gap-10 px-6 py-12 pb-24 md:grid-cols-[1.05fr_0.95fr] md:px-10 md:pb-12">
         <div>
           <p className="mb-5 inline-flex rounded-full border border-emerald-500/25 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-300">
-            100 Mandarin vocab lists. 1,000 words. One clean habit.
+            100 Mandarin vocab lists · 1,000 words · one clean habit
           </p>
           <h1 className="max-w-3xl text-5xl font-semibold tracking-tight text-white md:text-7xl">
             Learn 10 Mandarin Words
@@ -80,35 +77,55 @@ export function HomeApp({ data }: { data: MandarinData }) {
           </div>
         </div>
 
+        {/* ── Stats card ── */}
         <div className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-5 shadow-2xl shadow-emerald-950/20 backdrop-blur">
           <div className="rounded-[1.5rem] bg-slate-950 p-5">
             <div className="mb-5 flex items-center justify-between border-b border-white/10 pb-4">
-              <span className="text-sm font-semibold text-slate-300">Today&apos;s learning map</span>
+              <span className="text-sm font-semibold text-slate-300">Today&apos;s snapshot</span>
               {streak > 0 ? (
-                <span className="rounded-full bg-amber-400 px-3 py-1 text-xs font-bold text-slate-950" aria-label={`${streak} day streak`}>
-                  {streak}d streak
-                </span>
+                <div className="flex items-center gap-1.5 rounded-full bg-amber-400 px-3 py-1.5" aria-label={`${streak} day streak`}>
+                  <span className="text-sm font-black text-slate-950">{streak}</span>
+                  <span className="text-xs font-bold text-slate-950">day streak 🔥</span>
+                </div>
               ) : (
                 <span className="rounded-full bg-emerald-400 px-3 py-1 text-xs font-bold text-slate-950">Local first</span>
               )}
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <Metric value={statLabel(data.categories.length, "categories")} label="Global-friendly sections" />
-              <Metric value={statLabel(data.topics.length, "topics")} label="Ten-word lessons" />
-              <Metric value={statLabel(studiedWordsCount, "studied")} label={`of ${data.topics.length * 10} words`} />
-              <Metric value={statLabel(learnedCount, "learned")} label={`${favoriteCount} saved favorites`} />
+              <Metric
+                value={`${data.categories.length}`}
+                label="categories"
+                sublabel="topic sections"
+              />
+              <Metric
+                value={`${data.topics.length}`}
+                label="lessons"
+                sublabel="ten-word topics"
+              />
+              <Metric
+                value={`${studiedWordsCount}`}
+                label={`of ${totalWords} words`}
+                sublabel="flashcard studied"
+                progress={{ current: studiedWordsCount, max: totalWords }}
+              />
+              <Metric
+                value={`${learnedCount}`}
+                label={`of ${data.topics.length} learned`}
+                sublabel={`${favoriteCount} favorite${favoriteCount !== 1 ? "s" : ""}`}
+                progress={{ current: learnedCount, max: data.topics.length }}
+              />
             </div>
             <div className="mt-4 flex gap-2 border-t border-white/10 pt-4">
               <button
                 onClick={exportProgress}
-                className="flex-1 rounded-2xl border border-white/10 py-2 text-xs font-semibold text-slate-300 transition hover:border-emerald-300 hover:text-white"
+                className="flex-1 rounded-2xl border border-white/10 py-2.5 text-xs font-semibold text-slate-300 transition hover:border-emerald-300 hover:text-white"
                 aria-label="Export progress as JSON"
               >
                 Export progress
               </button>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="flex-1 rounded-2xl border border-white/10 py-2 text-xs font-semibold text-slate-300 transition hover:border-emerald-300 hover:text-white"
+                className="flex-1 rounded-2xl border border-white/10 py-2.5 text-xs font-semibold text-slate-300 transition hover:border-emerald-300 hover:text-white"
                 aria-label="Import progress from JSON file"
               >
                 Import progress
@@ -126,6 +143,7 @@ export function HomeApp({ data }: { data: MandarinData }) {
         </div>
       </section>
 
+      {/* ── Feature row ── */}
       <section id="practice" className="border-y border-white/10 bg-slate-950/70 px-6 py-12 md:px-10">
         <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-4">
           <Feature title="Video lessons" body="Each topic gets one short drill video with Chinese, pinyin, and English." />
@@ -135,6 +153,7 @@ export function HomeApp({ data }: { data: MandarinData }) {
         </div>
       </section>
 
+      {/* ── Library ── */}
       <section id="library" className="mx-auto max-w-7xl px-6 py-14 pb-24 md:px-10 md:pb-14">
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
@@ -147,7 +166,7 @@ export function HomeApp({ data }: { data: MandarinData }) {
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search words, pinyin, English"
               aria-label="Search vocabulary"
-              className="min-w-72 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-300"
+              className="min-w-64 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-300"
             />
             <select
               value={category}
@@ -162,7 +181,19 @@ export function HomeApp({ data }: { data: MandarinData }) {
         </div>
 
         {filtered.length === 0 ? (
-          <p className="text-slate-400">No topics match your search.</p>
+          <div className="mt-10 rounded-[2rem] border border-white/10 bg-white/[0.03] p-12 text-center">
+            <p className="text-4xl">🔍</p>
+            <p className="mt-4 text-xl font-semibold text-white">No topics found</p>
+            <p className="mt-2 text-slate-400">
+              {query ? `No results for "${query}" — try a different word, pinyin, or English translation.` : "No topics match the selected category."}
+            </p>
+            <button
+              onClick={() => { setQuery(""); setCategory("all"); }}
+              className="mt-6 rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+            >
+              Clear filters
+            </button>
+          </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {filtered.map((topic) => (
@@ -181,14 +212,35 @@ export function HomeApp({ data }: { data: MandarinData }) {
   );
 }
 
-function Metric({ value, label }: { value: string; label: string }) {
+// ── Metric card with optional progress bar ────────────────────────────────────
+
+function Metric({
+  value,
+  label,
+  sublabel,
+  progress,
+}: {
+  value: string;
+  label: string;
+  sublabel?: string;
+  progress?: { current: number; max: number };
+}) {
+  const pct = progress ? Math.min(100, progress.max > 0 ? (progress.current / progress.max) * 100 : 0) : 0;
   return (
     <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
       <div className="text-2xl font-semibold text-white">{value}</div>
-      <div className="mt-1 text-sm text-slate-400">{label}</div>
+      <div className="mt-0.5 text-sm font-medium text-slate-300">{label}</div>
+      {sublabel ? <div className="mt-0.5 text-xs text-slate-500">{sublabel}</div> : null}
+      {progress && progress.max > 0 ? (
+        <div className="progress-bar-track mt-3">
+          <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
+        </div>
+      ) : null}
     </div>
   );
 }
+
+// ── Feature card ──────────────────────────────────────────────────────────────
 
 function Feature({ title, body }: { title: string; body: string }) {
   return (
@@ -198,6 +250,8 @@ function Feature({ title, body }: { title: string; body: string }) {
     </div>
   );
 }
+
+// ── Topic card ─────────────────────────────────────────────────────────────────
 
 function TopicCard({
   topic,
@@ -215,31 +269,75 @@ function TopicCard({
     return (flashcardStats[key]?.reviewCount ?? 0) > 0;
   }).length;
 
+  const pct = (studiedCount / topic.items.length) * 100;
+
   return (
     <Link
       href={`/topics/${topic.slug}`}
-      className="group rounded-3xl border border-white/10 bg-white/[0.045] p-5 transition hover:-translate-y-1 hover:border-emerald-300/50 hover:bg-white/[0.07]"
+      className="group flex flex-col rounded-3xl border border-white/10 bg-white/[0.045] p-5 transition hover:-translate-y-1 hover:border-emerald-300/50 hover:bg-white/[0.07]"
       aria-label={`${topic.titleEn} — ${topic.category}`}
     >
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div>
-          <p className="text-sm text-slate-400">{topic.category}</p>
-          <h3 className="mt-2 text-2xl font-semibold text-white">{topic.titleEn}</h3>
-          <p className="mt-1 text-xl font-medium text-emerald-300">{topic.titleCn}</p>
-          {studiedCount > 0 ? (
-            <p className="mt-1 text-xs text-slate-500">{studiedCount}/10 studied</p>
+      {/* Row 1: category badge + status badges */}
+      <div className="flex items-center justify-between gap-2">
+        <span className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-xs font-medium text-slate-400">
+          {topic.category}
+        </span>
+        <div className="flex gap-1.5 text-xs font-bold">
+          {favorite ? (
+            <span className="rounded-full bg-amber-300/90 px-2.5 py-1 text-slate-950">Saved</span>
+          ) : null}
+          {learned ? (
+            <span className="rounded-full bg-emerald-300/90 px-2.5 py-1 text-slate-950">Learned</span>
           ) : null}
         </div>
-        <div className="flex gap-2 text-xs font-bold">
-          {favorite ? <span className="rounded-full bg-amber-300 px-2 py-1 text-slate-950">Saved</span> : null}
-          {learned ? <span className="rounded-full bg-emerald-300 px-2 py-1 text-slate-950">Learned</span> : null}
+      </div>
+
+      {/* Row 2: title + featured hanzi */}
+      <div className="mt-3 flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h3 className="text-lg font-semibold leading-tight text-white transition group-hover:text-emerald-50">
+            {topic.titleEn}
+          </h3>
+          <p className="font-hanzi mt-1 text-2xl font-semibold text-emerald-300">{topic.titleCn}</p>
+        </div>
+        <div
+          className="font-hanzi shrink-0 select-none text-5xl font-bold leading-none text-white/15 transition group-hover:text-white/30"
+          aria-hidden="true"
+        >
+          {topic.items[0]?.hanzi}
         </div>
       </div>
-      <div className="flex flex-wrap gap-2">
-        {topic.items.slice(0, 5).map((item) => <span key={item.hanzi} className="rounded-full bg-slate-900 px-3 py-1 text-sm text-slate-300">{item.hanzi}</span>)}
+
+      {/* Row 3: progress bar (only if any studied) */}
+      {studiedCount > 0 ? (
+        <div className="mt-3">
+          <div className="mb-1.5 flex items-center justify-between">
+            <span className="text-xs text-slate-500">{studiedCount}/10 studied</span>
+            {studiedCount === 10 ? (
+              <span className="text-xs font-semibold text-emerald-400">Complete ✓</span>
+            ) : null}
+          </div>
+          <div className="progress-bar-track">
+            <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
+          </div>
+        </div>
+      ) : null}
+
+      {/* Row 4: hanzi word chips */}
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        {topic.items.slice(0, 5).map((item) => (
+          <span
+            key={item.hanzi}
+            className="font-hanzi rounded-full bg-slate-900 px-2.5 py-1 text-sm text-slate-300"
+          >
+            {item.hanzi}
+          </span>
+        ))}
       </div>
-      <p className="mt-5 text-sm font-semibold text-emerald-300 group-hover:underline">Open lesson</p>
+
+      <p className="mt-auto pt-4 text-sm font-semibold text-emerald-300 group-hover:underline">
+        Open lesson →
+      </p>
     </Link>
   );
 }
-

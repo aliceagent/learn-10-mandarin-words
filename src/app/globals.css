@@ -36,3 +36,89 @@ input {
   background: #34d399;
   color: #020617;
 }
+
+/* ── CJK hanzi/pinyin typography ────────────────────────────────────────────── */
+/* Apply className="font-hanzi" to any element rendering hanzi or pinyin.       */
+/* Uses next/font variable if loaded, then system CJK fonts as fallback.        */
+.font-hanzi {
+  font-family: var(--font-noto-sc, "Noto Sans SC"), "Noto Sans CJK SC",
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    "WenQuanYi Micro Hei", sans-serif;
+}
+
+/* ── Quiz feedback animations ───────────────────────────────────────────────── */
+@keyframes quiz-shake {
+  0%,  100% { transform: translateX(0); }
+  20%       { transform: translateX(-7px); }
+  40%       { transform: translateX(7px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}
+
+@keyframes quiz-pop {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.07); }
+  100% { transform: scale(1); }
+}
+
+.animate-quiz-wrong {
+  animation: quiz-shake 0.42s ease-in-out;
+}
+
+.animate-quiz-correct {
+  animation: quiz-pop 0.32s ease-out;
+}
+
+/* ── Lesson / quiz celebration ──────────────────────────────────────────────── */
+@keyframes celebrate-in {
+  0%  { opacity: 0; transform: scale(0.84) translateY(18px); }
+  60% { opacity: 1; transform: scale(1.04) translateY(-5px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.animate-celebrate {
+  animation: celebrate-in 0.48s ease-out both;
+}
+
+/* ── Reduced-motion safety ──────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .animate-quiz-wrong,
+  .animate-quiz-correct {
+    animation: none;
+  }
+  .animate-celebrate {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* ── Progress bar ───────────────────────────────────────────────────────────── */
+.progress-bar-track {
+  height: 0.25rem;
+  width: 100%;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: #34d399;
+  transition: width 0.4s ease;
+}
+
+/* ── Swipe gesture hint chips ───────────────────────────────────────────────── */
+.swipe-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #64748b;
+  user-select: none;
+  pointer-events: none;
+}
