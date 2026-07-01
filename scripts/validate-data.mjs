@@ -5,12 +5,18 @@
 // Reports ERRORS (exit code 1) and WARNINGS (exit code 0 unless --strict).
 // Does NOT mutate data. See README "Data validation" for the full rule list.
 
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_PATH = resolve(__dirname, "../src/data/topics.json");
+const PUBLIC_DIR = resolve(__dirname, "../public");
+
+// Does a local "/videos/x.mp4" source have a real file under public/videos/?
+function localVideoExists(src) {
+  return MP4_PATH.test(src) && existsSync(resolve(PUBLIC_DIR, src.replace(/^\//, "")));
+}
 
 const EXPECTED_TOPICS = 100;
 const EXPECTED_ITEMS_PER_TOPIC = 10;
@@ -110,6 +116,14 @@ for (const [i, topic] of topics.entries()) {
 
   if (topic?.videoPath && !validVideoPath(topic.videoPath)) {
     warn(`${label}: videoPath "${topic.videoPath}" is not a /videos/*.mp4 path, YouTube id, or http(s) URL.`);
+  }
+
+  // If a topic has been mapped to a local video (via scripts/map-videos.mjs),
+  // check the file is actually present. Warning only — CI stays green when the
+  // generated MP4s aren't committed. `--strict` escalates warnings to failures.
+  const videoSource = topic?.video?.provider === "mp4" ? topic.video.source : null;
+  if (videoSource && MP4_PATH.test(videoSource) && !localVideoExists(videoSource)) {
+    warn(`${label}: local video "${videoSource}" has no file under public/videos/.`);
   }
 
   // ── Items ──

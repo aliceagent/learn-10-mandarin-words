@@ -1,6 +1,8 @@
 {
-  "_comment": "Template for npm run map:videos. Copy to video-map.json (gitignored) and fill in REAL sources. Keys are topic slugs from src/data/topics.json. Values are a YouTube id/URL string, an .mp4 URL string, or a { provider, source, poster?, captions? } object. Remove this _comment key before running.",
+  "_comment": "Template for `npm run map:videos`. Copy to video-map.json (gitignored) and fill in REAL sources, then run `npm run map:videos -- --dry-run` to preview and `npm run map:videos` to apply. Keys are topic slugs from src/data/topics.json. A value is a YouTube id/URL string, a remote .mp4 URL string, a local /videos/<slug>.mp4 path, or a { provider, source, poster?, captions? } object. Keys starting with _ (like this one) are ignored, so you can leave this comment in place.",
+  "_youtube_string": "ten-types-of-pets is mapped from a bare 11-char YouTube id (a full youtube.com / youtu.be URL also works)",
   "ten-types-of-pets": "REPLACE_WITH_YOUTUBE_ID",
+  "_remote_mp4_object": "ten-types-of-drinks is a remote MP4 with a poster frame and caption tracks",
   "ten-types-of-drinks": {
     "provider": "mp4",
     "source": "https://your-cdn.example.com/videos/ten-types-of-drinks.mp4",
@@ -9,5 +11,7 @@
       { "lang": "zh-CN", "label": "中文", "src": "https://your-cdn.example.com/captions/drinks.zh.vtt" },
       { "lang": "en", "label": "English", "src": "https://your-cdn.example.com/captions/drinks.en.vtt" }
     ]
-  }
+  },
+  "_local_mp4_object": "ten-types-of-farm-animals maps a locally generated MP4. It is applied ONLY if public/videos/ten-types-of-farm-animals.mp4 exists; otherwise it is warned about and skipped (never written as a broken path). Use --dry-run to check before applying.",
+  "ten-types-of-farm-animals": { "provider": "mp4", "source": "/videos/ten-types-of-farm-animals.mp4" }
 }

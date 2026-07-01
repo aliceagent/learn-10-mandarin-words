@@ -95,7 +95,43 @@ category ↔ topic cross-references are consistent; pinyin shape and tone marks
 
 ## Video integration
 
-Each topic has a `videoPath` field. Pass a YouTube ID, YouTube URL, or `.mp4` URL and the VideoPlayer component handles it automatically. A placeholder is shown when no valid video source is detected.
+Each topic has a `videoPath` field. Pass a YouTube ID, YouTube URL, or `.mp4` URL
+and the VideoPlayer component handles it automatically. A placeholder is shown
+when no valid video source is detected. Topics ship with local
+`/videos/<slug>.mp4` placeholder paths; the player treats a bare local path as a
+"coming soon" placeholder until a real video is connected.
+
+### Mapping real videos
+
+Use `npm run map:videos` to write video metadata onto topics from a JSON map
+keyed by topic slug. Copy `scripts/videos.example.json` to `video-map.json`
+(gitignored) and fill in **real** sources. A value can be:
+
+- a **YouTube** id or URL — `"dQw4w9WgXcQ"` or `"https://youtu.be/dQw4w9WgXcQ"`
+- a **remote MP4** URL — `"https://cdn.example.com/clip.mp4"`
+- a **local MP4** — `{ "provider": "mp4", "source": "/videos/<slug>.mp4" }`
+- a full object — `{ provider, source, poster?, captions? }`
+
+**Dry run first.** Preview exactly what would change without touching
+`topics.json`:
+
+```bash
+npm run map:videos -- --dry-run          # uses video-map.json
+npm run map:videos path/to/map.json -- --dry-run
+```
+
+**Local files.** A `{ "provider": "mp4", "source": "/videos/<slug>.mp4" }` entry
+is applied only if the file exists under `public/videos/`. If the file is
+missing it is **warned about and skipped** — a broken local path is never
+written. Drop your generated MP4s in `public/videos/` first, then run the mapper.
+
+Applying the map (no `--dry-run`) writes a `video` metadata object onto each
+matched topic and keeps `videoPath` in sync. Re-run `npm run validate:data`
+afterwards.
+
+`validate:data` also checks that any mapped local `/videos/*.mp4` source has a
+real file under `public/videos/` — this is a **warning** (so CI stays green when
+the MP4s aren't committed) unless you pass `--strict`.
 
 ## Progress
 
