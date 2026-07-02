@@ -21,6 +21,7 @@ export type AnalyticsEvent =
   | "review_completed"
   | "practice_session_completed"
   | "typed_recall_completed"
+  | "matching_completed"
   | "favorite_saved"
   | "install_prompt_shown"
   | "install_accepted"

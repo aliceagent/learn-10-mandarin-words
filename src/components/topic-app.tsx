@@ -18,6 +18,7 @@ import { WordsPanel } from "./topic/words-panel";
 import { FlashcardsPanel } from "./topic/flashcards-panel";
 import { QuizPanel } from "./topic/quiz-panel";
 import { TypingPanel } from "./topic/typing-panel";
+import { MatchPanel } from "./topic/match-panel";
 import { Toast } from "./toast";
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -28,7 +29,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
   // selected by default so they read like a practical phrasebook rather than a
   // vocabulary list. Words/Cards/Quiz stay available for every topic.
   const isPhrasebook = isUsefulPhraseTopic(topic);
-  const [mode, setMode] = useState<"phrasebook" | "words" | "flashcards" | "quiz" | "typed">(
+  const [mode, setMode] = useState<"phrasebook" | "words" | "flashcards" | "quiz" | "typed" | "match">(
     isPhrasebook ? "phrasebook" : "words",
   );
   const [cardIndex, setCardIndex] = useState(0);
@@ -298,6 +299,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
         <Tab active={mode === "flashcards"} onClick={() => setMode("flashcards")}>Cards</Tab>
         <Tab active={mode === "quiz"} onClick={() => setMode("quiz")}>Quiz</Tab>
         <Tab active={mode === "typed"} onClick={() => setMode("typed")}>Type</Tab>
+        <Tab active={mode === "match"} onClick={() => setMode("match")}>Match</Tab>
       </nav>
 
       {/* ── Phrasebook (Useful Phrases only) ── */}
@@ -368,6 +370,11 @@ export function TopicApp({ topic }: { topic: Topic }) {
       {/* ── Typed recall ── */}
       {mode === "typed" ? (
         <TypingPanel topic={topic} onRecord={recordQuizAnswer} />
+      ) : null}
+
+      {/* ── Matching pairs game ── */}
+      {mode === "match" ? (
+        <MatchPanel topic={topic} onRecord={recordQuizAnswer} onTakeQuiz={() => setMode("quiz")} />
       ) : null}
 
       {/* ── Next-step panel (shown once the topic is learned or the quiz is done) ── */}
