@@ -14,6 +14,7 @@ import { VideoPlayer } from "./video-player";
 import { TonePractice } from "./tone-practice";
 import { PhrasebookPanel } from "./phrasebook-panel";
 import { NextStepPanel } from "./next-step-panel";
+import { SaveOfflineButton } from "./save-offline-button";
 
 // ─── Touch swipe hook ─────────────────────────────────────────────────────────
 
@@ -290,10 +291,13 @@ export function TopicApp({ topic }: { topic: Topic }) {
           </div>
 
           {mp4Url ? (
-            <p className="mt-2 text-xs leading-5 text-slate-500">
-              Video lessons stream from GitHub Releases, so they need a connection — the words and
-              your progress on this page still work offline.
-            </p>
+            <div className="mt-3 border-t border-white/10 pt-3">
+              <SaveOfflineButton source={mp4Url} slug={topic.slug} pageUrl={`/topics/${topic.slug}`} />
+              <p className="mt-2 text-xs leading-5 text-slate-500">
+                Video lessons stream from GitHub Releases, so they need a connection — save this
+                lesson to watch it offline. The words and your progress on this page always work offline.
+              </p>
+            </div>
           ) : null}
         </div>
       </section>

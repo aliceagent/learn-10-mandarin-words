@@ -21,7 +21,9 @@ export type AnalyticsEvent =
   | "review_completed"
   | "favorite_saved"
   | "install_prompt_shown"
-  | "install_accepted";
+  | "install_accepted"
+  | "lesson_saved_offline"
+  | "lesson_removed_offline";
 
 // Props are intentionally constrained to non-identifying primitives.
 export type AnalyticsProps = Record<string, string | number | boolean>;

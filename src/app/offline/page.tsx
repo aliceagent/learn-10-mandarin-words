@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { SavedLessonsPanel } from "@/components/saved-lessons-panel";
 
 export const metadata: Metadata = {
   title: "Offline | Learn 10 Mandarin Words",
@@ -34,10 +35,11 @@ export default function OfflinePage() {
           <li className="flex gap-3">
             <span aria-hidden="true">📶</span>
             <span>
-              <strong className="font-semibold text-white">Video lessons need internet.</strong>{" "}
-              Walkthrough videos stream from GitHub Releases and aren&apos;t bundled with the app. They
-              play only when you&apos;re online, or if your browser happens to have cached that clip from
-              an earlier visit.
+              <strong className="font-semibold text-white">Videos work offline only after you save them.</strong>{" "}
+              Walkthrough videos stream from GitHub Releases and aren&apos;t bundled with the app. To
+              watch one without a connection, open its lesson while online and tap{" "}
+              <span className="font-semibold text-emerald-300">Save for offline</span>. Any lesson you
+              haven&apos;t saved needs internet to play.
             </span>
           </li>
           <li className="flex gap-3">
@@ -50,6 +52,9 @@ export default function OfflinePage() {
           </li>
         </ul>
       </section>
+
+      {/* Lessons the learner explicitly saved for offline playback (client-only). */}
+      <SavedLessonsPanel />
 
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Link
