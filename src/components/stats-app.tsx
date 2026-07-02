@@ -156,9 +156,22 @@ export function StatsApp({
       {/* ── Trickiest words (only once there's enough quiz history) ── */}
       {weakWords.length > 0 ? (
         <section className="mt-10" aria-label="Trickiest words">
-          <h2 className="text-xl font-semibold text-white">Trickiest words</h2>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-xl font-semibold text-white">Trickiest words</h2>
+            <Link
+              href="/practice"
+              className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-5 py-2 font-semibold text-slate-950 transition hover:bg-emerald-300"
+            >
+              Practice these words
+            </Link>
+          </div>
           <p className="mt-1 text-sm text-slate-400">
-            The words you miss most in quizzes. Tap one to jump back to its topic and practice.
+            The words you miss most in quizzes. Tap one to jump back to its topic, or practice them all in one
+            focused deck.
+          </p>
+          <p className="mt-1 text-xs text-slate-500">
+            Only words you&apos;ve answered at least three times in quizzes appear here, so a single unlucky guess
+            never lands a word on the list.
           </p>
           <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {weakWords.map((word) => (
