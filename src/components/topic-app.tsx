@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Topic, VocabItem } from "@/lib/types";
 import { isUsefulPhraseTopic, nextTopicAfter, wordKey } from "@/lib/data";
 import { buildQuiz, itemsForKeys, type QuizMode } from "@/lib/quiz-logic";
-import { computeStats, formatIntervalDays, previewIntervals, topicProgress } from "@/lib/progress-logic";
+import { computeStats, formatIntervalDays, previewIntervals, topicProgress, topicWordStatuses } from "@/lib/progress-logic";
 import { downloadableMp4Url, hasPlayableVideo } from "@/lib/video";
 import { track } from "@/lib/analytics";
 import { useProgress } from "./use-progress";
@@ -14,6 +14,7 @@ import { TonePractice } from "./tone-practice";
 import { PhrasebookPanel } from "./phrasebook-panel";
 import { NextStepPanel } from "./next-step-panel";
 import { SaveOfflineButton } from "./save-offline-button";
+import { MasteryDots, masteryCountsLabel } from "./mastery-dots";
 import { WordsPanel } from "./topic/words-panel";
 import { FlashcardsPanel } from "./topic/flashcards-panel";
 import { QuizPanel } from "./topic/quiz-panel";
@@ -70,6 +71,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
   const currentKey = wordKey(topic, current);
   const { studied, mastered, total } = topicProgress(topic, progress.flashcardStats);
   const studiedPct = total > 0 ? (studied / total) * 100 : 0;
+  const wordStatuses = topicWordStatuses(topic, progress.flashcardStats, progress.quizStats);
   const videoReady = hasPlayableVideo(topic);
   const mp4Url = downloadableMp4Url(topic);
 
@@ -222,6 +224,29 @@ export function TopicApp({ topic }: { topic: Topic }) {
                 <div className="progress-bar-fill" style={{ width: `${studiedPct}%` }} />
               </div>
             ) : null}
+            {/* Per-word mastery dots + a legend naming each color (color is never
+                the only channel). Legend renders only here, on the topic page. */}
+            <div className="mt-3">
+              <MasteryDots statuses={wordStatuses} size="md" label={masteryCountsLabel(wordStatuses)} />
+              <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500">
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden="true" />
+                  mastered
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400/40" aria-hidden="true" />
+                  learning
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-rose-400" aria-hidden="true" />
+                  tricky
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full border border-white/15" aria-hidden="true" />
+                  new
+                </span>
+              </div>
+            </div>
           </div>
 
           <div className="mt-5 flex flex-wrap gap-3">

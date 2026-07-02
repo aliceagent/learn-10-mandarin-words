@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { Category, Topic } from "@/lib/types";
+import { masterySummary } from "@/lib/progress-logic";
 import { useProgress } from "./use-progress";
 import { TopicCard } from "./topic-card";
 
@@ -10,6 +11,9 @@ import { TopicCard } from "./topic-card";
 // search/filter — this is a standalone, focused view of a single category.
 export function CategoryApp({ category, topics }: { category: Category; topics: Topic[] }) {
   const { progress, loaded } = useProgress();
+
+  // Words-mastered summary across this category, derived from existing progress.
+  const summary = masterySummary(topics, progress.flashcardStats, progress.quizStats);
 
   return (
     <main className="mx-auto max-w-7xl px-6 pb-24 pt-8 md:px-10 md:pb-12">
@@ -25,6 +29,11 @@ export function CategoryApp({ category, topics }: { category: Category; topics: 
         <p className="mt-3 text-lg text-slate-300">
           {topics.length} topic{topics.length !== 1 ? "s" : ""} · {topics.length * 10} words
         </p>
+        {summary.total > 0 ? (
+          <span className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-emerald-300/30 bg-emerald-300/[0.08] px-3 py-1 text-sm font-semibold text-emerald-200">
+            {summary.mastered} of {summary.total} words mastered
+          </span>
+        ) : null}
       </div>
 
       {topics.length === 0 ? (
@@ -47,6 +56,7 @@ export function CategoryApp({ category, topics }: { category: Category; topics: 
               learned={progress.learnedTopics.includes(topic.slug)}
               favorite={progress.favoriteTopics.includes(topic.slug)}
               flashcardStats={progress.flashcardStats}
+              quizStats={progress.quizStats}
             />
           ))}
         </div>

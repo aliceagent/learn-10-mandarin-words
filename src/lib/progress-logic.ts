@@ -521,3 +521,80 @@ export function goalProgress(
   const practiced = practicedCountOn(progress.dailyActivity, today);
   return { practiced, goal, met: goal > 0 && practiced >= goal };
 }
+
+// ─── Word / topic mastery status (Sprint 10) ───────────────────────────────────
+
+// Derived, at-a-glance status for a single word. Purely a read over the existing
+// flashcard + quiz stats — nothing here is persisted.
+export type WordStatus = "new" | "learning" | "mastered" | "tricky";
+
+// Aggregate word-status counts over a set of topics (a category's, or all).
+export type MasterySummary = {
+  mastered: number;
+  learning: number;
+  tricky: number;
+  new: number;
+  total: number;
+};
+
+// A word is "tricky" once the learner has quizzed it enough times to trust the
+// signal (TRICKY_MIN_ATTEMPTS) and is still getting it wrong more often than not
+// (accuracy below TRICKY_MAX_ACCURACY). These mirror computeWeakWords' evidence
+// convention so the two surfaces agree, and live as named constants so the
+// thresholds sit in exactly one place.
+export const TRICKY_MAX_ACCURACY = 0.5;
+export const TRICKY_MIN_ATTEMPTS = 3;
+
+// Fixed clock for normalizing a flashcard stat here: `wordStatus` only reads
+// `intervalDays` and `reviewCount` (never the `dueAt` default that `now` seeds),
+// so pinning it keeps the derivation pure and deterministic.
+const MASTERY_NORMALIZE_EPOCH = new Date(0);
+
+// Derive a word's status from its flashcard + quiz stats. Precedence is
+// deliberate: mastered > tricky > learning > new. A word whose SRS interval has
+// reached the mastery threshold stays "mastered" even if its quiz accuracy is
+// poor — the interval is the stronger, longer-horizon signal. Tolerant of
+// undefined/corrupt inputs via normalizeStat/normalizeQuizStat, so it never
+// throws on legacy data.
+export function wordStatus(
+  stat: FlashcardStat | undefined,
+  quiz: QuizStat | undefined,
+): WordStatus {
+  const s = stat != null ? normalizeStat(stat, MASTERY_NORMALIZE_EPOCH) : undefined;
+  const q = normalizeQuizStat(quiz);
+  const accuracy = q.attempts > 0 ? q.correct / q.attempts : 0;
+
+  if (s != null && s.intervalDays >= MASTERED_INTERVAL_DAYS) return "mastered";
+  if (q.attempts >= TRICKY_MIN_ATTEMPTS && accuracy < TRICKY_MAX_ACCURACY) return "tricky";
+  if ((s != null && s.reviewCount > 0) || q.attempts > 0) return "learning";
+  return "new";
+}
+
+// Per-item statuses for a topic, in `topic.items` order, keyed by `wordKey`.
+export function topicWordStatuses(
+  topic: Topic,
+  flashcardStats: Record<string, FlashcardStat>,
+  quizStats: Record<string, QuizStat>,
+): WordStatus[] {
+  return topic.items.map((item) => {
+    const key = wordKey(topic, item);
+    return wordStatus(flashcardStats?.[key], quizStats?.[key]);
+  });
+}
+
+// Aggregate word-status counts across a set of topics. `total` always equals the
+// sum of the four buckets (one status per word).
+export function masterySummary(
+  topics: Topic[],
+  flashcardStats: Record<string, FlashcardStat>,
+  quizStats: Record<string, QuizStat>,
+): MasterySummary {
+  const summary: MasterySummary = { mastered: 0, learning: 0, tricky: 0, new: 0, total: 0 };
+  for (const topic of topics) {
+    for (const status of topicWordStatuses(topic, flashcardStats, quizStats)) {
+      summary[status] += 1;
+      summary.total += 1;
+    }
+  }
+  return summary;
+}

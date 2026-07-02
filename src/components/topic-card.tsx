@@ -1,9 +1,11 @@
 import Link from "next/link";
-import type { Topic } from "@/lib/types";
+import type { FlashcardStat, QuizStat, Topic } from "@/lib/types";
 import { wordKey } from "@/lib/data";
+import { topicWordStatuses } from "@/lib/progress-logic";
 import { hasPlayableVideo } from "@/lib/video";
 import { normalizePinyin } from "@/lib/highlight";
 import { HighlightedText } from "./highlighted-text";
+import { MasteryDots, masteryCountsLabel } from "./mastery-dots";
 
 // Shared topic card used by the home library grid and the per-category pages so
 // both surfaces stay visually identical. Progress-derived flags are passed in by
@@ -15,12 +17,16 @@ export function TopicCard({
   learned,
   favorite,
   flashcardStats,
+  quizStats,
   query,
 }: {
   topic: Topic;
   learned: boolean;
   favorite: boolean;
-  flashcardStats: Record<string, { reviewCount: number }>;
+  flashcardStats: Record<string, FlashcardStat>;
+  // Optional per-word quiz accuracy. When supplied (home + category grids) the
+  // card shows mastery dots; callers that omit it (path page) render as before.
+  quizStats?: Record<string, QuizStat>;
   query?: string;
 }) {
   const studiedCount = topic.items.filter(
@@ -28,6 +34,9 @@ export function TopicCard({
   ).length;
 
   const pct = (studiedCount / topic.items.length) * 100;
+  // Derive the ten word statuses only when the caller opted into the dots by
+  // passing quizStats; otherwise the card keeps its original studied bar.
+  const statuses = quizStats ? topicWordStatuses(topic, flashcardStats, quizStats) : null;
   const videoReady = hasPlayableVideo(topic);
 
   // When the home search is active, surface the specific words that matched so
@@ -95,8 +104,19 @@ export function TopicCard({
         </div>
       </div>
 
-      {/* Row 3: progress bar (only if any studied) */}
-      {studiedCount > 0 ? (
+      {/* Row 3: mastery dots + studied count (when quizStats is supplied), else
+          the original studied bar for callers that don't opt into the dots. */}
+      {statuses ? (
+        <div className="mt-3">
+          <div className="mb-1.5 flex items-center justify-between">
+            <span className="text-xs text-slate-500">{studiedCount}/10 studied</span>
+            {studiedCount === 10 ? (
+              <span className="text-xs font-semibold text-emerald-400">Complete ✓</span>
+            ) : null}
+          </div>
+          <MasteryDots statuses={statuses} size="sm" label={masteryCountsLabel(statuses)} />
+        </div>
+      ) : studiedCount > 0 ? (
         <div className="mt-3">
           <div className="mb-1.5 flex items-center justify-between">
             <span className="text-xs text-slate-500">{studiedCount}/10 studied</span>

@@ -13,6 +13,7 @@ import {
   emptyProgress,
   formatIntervalDays,
   goalProgress,
+  masterySummary,
   normalizeProgress,
   normalizeQuizStat,
   normalizeStat,
@@ -22,8 +23,10 @@ import {
   scheduleReview,
   streakAtRisk,
   topicProgress,
+  topicWordStatuses,
   updateQuizStats,
   uniqueToggle,
+  wordStatus,
 } from "../src/lib/progress-logic.ts";
 
 // Minimal Topic/VocabItem fixtures for the dataset-shaped helpers. Only the
@@ -561,4 +564,98 @@ test("normalizeProgress round-trips dailyActivity through serialization", () => 
   };
   const roundTripped = normalizeProgress(JSON.parse(JSON.stringify(state)));
   assert.deepEqual(roundTripped.dailyActivity, state.dailyActivity);
+});
+
+// ─── Sprint 10: word / topic mastery status ────────────────────────────────────
+
+// Build a flashcard stat with a given interval / reviewCount; other fields are
+// irrelevant to wordStatus but kept well-formed.
+function makeStat({ intervalDays = 0, reviewCount = 0 } = {}) {
+  return { intervalDays, ease: 2.5, dueAt: "2026-07-01T00:00:00.000Z", reviewCount };
+}
+
+test("wordStatus: new when there is no flashcard or quiz activity", () => {
+  assert.equal(wordStatus(undefined, undefined), "new");
+  // A stat that exists but has never been reviewed and no quiz attempts is new.
+  assert.equal(wordStatus(makeStat({ intervalDays: 0, reviewCount: 0 }), { correct: 0, attempts: 0 }), "new");
+});
+
+test("wordStatus: learning from a graded card or any quiz attempt", () => {
+  assert.equal(wordStatus(makeStat({ intervalDays: 2, reviewCount: 1 }), undefined), "learning");
+  assert.equal(wordStatus(undefined, { correct: 1, attempts: 1 }), "learning");
+});
+
+test("wordStatus: mastered once the interval reaches the threshold", () => {
+  assert.equal(wordStatus(makeStat({ intervalDays: 7, reviewCount: 3 }), undefined), "mastered");
+  // Just under the threshold is not mastered.
+  assert.equal(wordStatus(makeStat({ intervalDays: 6, reviewCount: 3 }), undefined), "learning");
+});
+
+test("wordStatus: tricky when quizzed enough and mostly wrong", () => {
+  // 1/4 correct over 4 attempts → 25% < 50% with attempts >= 3 → tricky.
+  assert.equal(wordStatus(undefined, { correct: 1, attempts: 4 }), "tricky");
+  // Not enough attempts (2 < 3) → falls back to learning, not tricky.
+  assert.equal(wordStatus(undefined, { correct: 0, attempts: 2 }), "learning");
+  // Exactly 50% is not below the max-accuracy cutoff → learning, not tricky.
+  assert.equal(wordStatus(undefined, { correct: 2, attempts: 4 }), "learning");
+});
+
+test("wordStatus: precedence mastered > tricky > learning > new", () => {
+  // mastered + tricky → mastered (the SRS interval is the stronger signal).
+  assert.equal(
+    wordStatus(makeStat({ intervalDays: 10, reviewCount: 5 }), { correct: 0, attempts: 5 }),
+    "mastered",
+  );
+  // tricky + learning → tricky (quiz attempts also satisfy learning, tricky wins).
+  assert.equal(
+    wordStatus(makeStat({ intervalDays: 1, reviewCount: 1 }), { correct: 0, attempts: 3 }),
+    "tricky",
+  );
+});
+
+test("wordStatus: tolerates corrupt inputs without throwing", () => {
+  assert.equal(wordStatus({}, {}), "new");
+  assert.equal(wordStatus({ intervalDays: "oops", reviewCount: null }, { correct: "x", attempts: -2 }), "new");
+  // A corrupt stat with a valid mastery interval still resolves to mastered.
+  assert.equal(wordStatus({ intervalDays: 30 }, undefined), "mastered");
+});
+
+test("topicWordStatuses returns statuses in topic.items order", () => {
+  const topic = makeTopic("t", ["好", "坏", "空", "半"]);
+  const flashcardStats = {
+    "t:好": makeStat({ intervalDays: 7, reviewCount: 3 }), // mastered
+    "t:空": makeStat({ intervalDays: 2, reviewCount: 1 }), // learning
+  };
+  const quizStats = {
+    "t:坏": { correct: 0, attempts: 4 }, // tricky
+    // 半 has nothing → new
+  };
+  assert.deepEqual(topicWordStatuses(topic, flashcardStats, quizStats), [
+    "mastered",
+    "tricky",
+    "learning",
+    "new",
+  ]);
+});
+
+test("masterySummary counts sum to the total across mixed topics", () => {
+  const topics = [makeTopic("a", ["好", "坏", "空"]), makeTopic("b", ["半", "天"])];
+  const flashcardStats = {
+    "a:好": makeStat({ intervalDays: 7, reviewCount: 3 }), // mastered
+    "a:空": makeStat({ intervalDays: 2, reviewCount: 1 }), // learning
+  };
+  const quizStats = {
+    "a:坏": { correct: 0, attempts: 3 }, // tricky
+    "b:天": { correct: 1, attempts: 1 }, // learning
+    // b:半 → new
+  };
+  const summary = masterySummary(topics, flashcardStats, quizStats);
+  assert.deepEqual(summary, { mastered: 1, learning: 2, tricky: 1, new: 1, total: 5 });
+  assert.equal(summary.mastered + summary.learning + summary.tricky + summary.new, summary.total);
+});
+
+test("masterySummary on empty progress is all-new", () => {
+  const topics = [makeTopic("a", ["好", "坏"]), makeTopic("b", ["空"])];
+  const summary = masterySummary(topics, {}, {});
+  assert.deepEqual(summary, { mastered: 0, learning: 0, tricky: 0, new: 3, total: 3 });
 });

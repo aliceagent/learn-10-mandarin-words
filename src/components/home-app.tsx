@@ -288,6 +288,7 @@ export function HomeApp({ data }: { data: MandarinData }) {
                 learned={progress.learnedTopics.includes(topic.slug)}
                 favorite={progress.favoriteTopics.includes(topic.slug)}
                 flashcardStats={progress.flashcardStats}
+                quizStats={progress.quizStats}
                 query={query}
               />
             ))}

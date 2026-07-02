@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-import type { MandarinData, ProgressState, VocabItem } from "@/lib/types";
+import type { MandarinData, ProgressState, Topic, VocabItem } from "@/lib/types";
 import { wordKey } from "@/lib/data";
 import { useProgress } from "./use-progress";
 import { LoadingScreen } from "./loading-screen";
 import { ProgressRing } from "./progress-ring";
 import { GOAL_OPTIONS } from "./onboarding";
 import { computeStats, computeWeakWords } from "@/lib/stats-logic";
-import { goalProgress, streakAtRisk } from "@/lib/progress-logic";
+import { goalProgress, masterySummary, streakAtRisk, type MasterySummary } from "@/lib/progress-logic";
 
 type WeakWordRow = VocabItem & {
   topicSlug: string;
@@ -59,6 +59,22 @@ export function StatsApp({
     }
     return rows;
   }, [data.topics, progress.quizStats]);
+
+  // Per-category mastery, derived from existing flashcard + quiz stats. One row
+  // per category (14 total); topics are resolved from the category's slug list.
+  const categoryMastery = useMemo(() => {
+    const bySlug = new Map(data.topics.map((topic) => [topic.slug, topic]));
+    return data.categories.map((category) => {
+      const topics = category.topics
+        .map((slug) => bySlug.get(slug))
+        .filter((topic): topic is Topic => topic != null);
+      return {
+        name: category.name,
+        slug: category.slug,
+        summary: masterySummary(topics, progress.flashcardStats, progress.quizStats),
+      };
+    });
+  }, [data.categories, data.topics, progress.flashcardStats, progress.quizStats]);
 
   if (!loaded) {
     return <LoadingScreen />;
@@ -156,6 +172,19 @@ export function StatsApp({
         />
       </div>
 
+      {/* ── Mastery by category (always rendered; zeros are informative) ── */}
+      <section className="mt-10" aria-label="Mastery by category">
+        <h2 className="text-xl font-semibold text-white">Mastery by category</h2>
+        <p className="mt-1 text-sm text-slate-400">
+          Words per category — mastered when their review interval reaches a week.
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {categoryMastery.map((cat) => (
+            <CategoryMasteryCard key={cat.slug} name={cat.name} slug={cat.slug} summary={cat.summary} />
+          ))}
+        </div>
+      </section>
+
       {/* ── Trickiest words (only once there's enough quiz history) ── */}
       {weakWords.length > 0 ? (
         <section className="mt-10" aria-label="Trickiest words">
@@ -204,6 +233,45 @@ export function StatsApp({
         </section>
       ) : null}
     </main>
+  );
+}
+
+// ── Compact per-category mastery card ─────────────────────────────────────────
+// A ProgressRing (mastered / total words) with the category name and a learning
+// · tricky sub-line, linking to the category page. Reuses the shared ProgressRing
+// so the arc's motion is already reduced-motion-guarded in globals.css.
+function CategoryMasteryCard({
+  name,
+  slug,
+  summary,
+}: {
+  name: string;
+  slug: string;
+  summary: MasterySummary;
+}) {
+  return (
+    <Link
+      href={`/categories/${slug}`}
+      className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition hover:-translate-y-0.5 hover:border-emerald-300/50 hover:bg-white/[0.07]"
+    >
+      <ProgressRing
+        value={summary.mastered}
+        max={summary.total}
+        size={64}
+        label={`${name}: ${summary.mastered} of ${summary.total} words mastered`}
+      >
+        {summary.mastered}
+      </ProgressRing>
+      <div className="min-w-0">
+        <p className="truncate text-sm font-semibold text-white">{name}</p>
+        <p className="mt-0.5 text-xs text-slate-400">
+          {summary.mastered} of {summary.total} mastered
+        </p>
+        <p className="mt-0.5 text-xs text-slate-500">
+          {summary.learning} learning · {summary.tricky} tricky
+        </p>
+      </div>
+    </Link>
   );
 }
 
