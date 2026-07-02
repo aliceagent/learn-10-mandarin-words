@@ -11,5 +11,5 @@ export const metadata: Metadata = {
 export default function StatsPage() {
   const totalTopics = data.topics.length;
   const totalWords = data.topics.reduce((sum, topic) => sum + topic.items.length, 0);
-  return <StatsApp totalTopics={totalTopics} totalWords={totalWords} />;
+  return <StatsApp data={data} totalTopics={totalTopics} totalWords={totalWords} />;
 }

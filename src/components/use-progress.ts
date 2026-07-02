@@ -10,6 +10,7 @@ import {
   scheduleReview,
   todayISO,
   uniqueToggle,
+  updateQuizStats,
 } from "@/lib/progress-logic";
 
 export { computeStreak };
@@ -90,6 +91,10 @@ export function useProgress() {
     setDailyGoal: (dailyGoal: number) => setProgress((current) => ({
       ...current,
       onboarding: { ...current.onboarding, dailyGoal },
+    })),
+    recordQuizAnswer: (key: string, correct: boolean) => setProgress((current) => recordStudyToday({
+      ...current,
+      quizStats: updateQuizStats(current.quizStats, key, correct),
     })),
     gradeWord: (key: string, grade: "again" | "hard" | "good" | "easy") => setProgress((current) => {
       const now = new Date();

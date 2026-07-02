@@ -5,6 +5,7 @@ import {
   buildQuiz,
   buildQuizCard,
   itemsForKeys,
+  rankedDistractors,
 } from "../src/lib/quiz-logic.ts";
 
 // A tiny fixture of vocab items (only the fields the quiz logic reads).
@@ -87,4 +88,77 @@ test("itemsForKeys: a single missed key yields exactly that item", () => {
 
 test("itemsForKeys: unknown keys are ignored", () => {
   assert.deepEqual(itemsForKeys(ITEMS, keyFor, ["pets:🐉"]), []);
+});
+
+// ─── Ranked distractors ────────────────────────────────────────────────────────
+
+// hanzi-pinyin ranking fixture: `near` shares the tone-stripped pinyin "ma"
+// with the target, `mid` matches only syllable count + tone, and `far` is a
+// two-syllable word that matches on nothing.
+const target = { hanzi: "妈", pinyin: "mā", english: "mom", sentences: [] };
+const near = { hanzi: "马", pinyin: "mǎ", english: "horse", sentences: [] };
+const mid = { hanzi: "八", pinyin: "bā", english: "eight", sentences: [] };
+const far = { hanzi: "朋友", pinyin: "péngyou", english: "friend", sentences: [] };
+
+test("rankedDistractors: hanzi-pinyin prefers tone-stripped similarity, then syllable/tone match", () => {
+  // Pool is deliberately out of similarity order to prove the ranking reorders it.
+  const ranked = rankedDistractors(target, [far, mid, near], "hanzi-pinyin", identity);
+  assert.deepEqual(ranked, ["mǎ", "bā", "péngyou"]);
+});
+
+test("rankedDistractors: english-hanzi prefers same length and shared characters", () => {
+  const tHan = { hanzi: "好人", pinyin: "hǎo rén", english: "good person", sentences: [] };
+  const shareLen = { hanzi: "坏人", pinyin: "huài rén", english: "bad person", sentences: [] }; // shares 人, len 2
+  const shareChar = { hanzi: "好", pinyin: "hǎo", english: "good", sentences: [] }; // shares 好 but len 1
+  const unrelated = { hanzi: "水", pinyin: "shuǐ", english: "water", sentences: [] }; // nothing shared, len 1
+  const ranked = rankedDistractors(tHan, [unrelated, shareChar, shareLen], "english-hanzi", identity);
+  // "坏人" shares a character AND the length, so it outranks the others.
+  assert.equal(ranked[0], "坏人");
+  assert.equal(ranked[ranked.length - 1], "水");
+});
+
+test("rankedDistractors: dedupes by answer-field value and never returns the answer", () => {
+  const dupPool = [
+    { hanzi: "猫", pinyin: "māo", english: "cat", sentences: [] },
+    { hanzi: "貓", pinyin: "māo", english: "cat", sentences: [] }, // duplicate English label
+    { hanzi: "狗", pinyin: "gǒu", english: "dog", sentences: [] },
+  ];
+  const dog = dupPool[2];
+  const ranked = rankedDistractors(dog, dupPool, "hanzi-english", identity);
+  // "cat" appears once (dedup) and "dog" (the answer) never appears.
+  assert.deepEqual(ranked, ["cat"]);
+});
+
+test("rankedDistractors: a tiny pool yields fewer distractors", () => {
+  const ranked = rankedDistractors(ITEMS[0], ITEMS.slice(0, 2), "hanzi-english", identity);
+  assert.deepEqual(ranked, ["cat"]); // only one other word in the pool
+});
+
+test("buildQuizCard: duplicate English labels can never appear twice in the choices", () => {
+  const dupPool = [
+    { hanzi: "狗", pinyin: "gǒu", english: "dog", sentences: [] },
+    { hanzi: "犬", pinyin: "quǎn", english: "dog", sentences: [] }, // same English, different hanzi
+    { hanzi: "猫", pinyin: "māo", english: "cat", sentences: [] },
+    { hanzi: "鱼", pinyin: "yú", english: "fish", sentences: [] },
+  ];
+  const card = buildQuizCard(dupPool[2], dupPool, "hanzi-english", keyFor, identity);
+  assert.equal(new Set(card.choices).size, card.choices.length); // all unique
+  assert.equal(card.choices.filter((c) => c === "dog").length, 1); // dog appears at most once
+});
+
+test("buildQuizCard: choices are always unique across every mode", () => {
+  for (const mode of ["hanzi-english", "english-hanzi", "hanzi-pinyin"]) {
+    for (const item of ITEMS) {
+      const card = buildQuizCard(item, ITEMS, mode, keyFor, identity);
+      assert.equal(new Set(card.choices).size, card.choices.length, `unique choices for ${mode}`);
+      assert.ok(card.choices.includes(card.answer), `answer present for ${mode}`);
+    }
+  }
+});
+
+test("buildQuizCard: with an injected identity shuffle the answer stays first (determinism preserved)", () => {
+  const card = buildQuizCard(target, [target, near, mid, far], "hanzi-pinyin", keyFor, identity);
+  // identity shuffle => choices === [answer, ...rankedDistractors]
+  assert.equal(card.choices[0], "mā");
+  assert.deepEqual(card.choices.slice(1), ["mǎ", "bā", "péngyou"]);
 });

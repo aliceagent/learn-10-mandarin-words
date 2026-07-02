@@ -6,11 +6,14 @@ import {
   EASE_CEIL,
   EASE_FLOOR,
   computeStreak,
+  computeWeakWords,
   defaultStat,
   emptyProgress,
   normalizeProgress,
+  normalizeQuizStat,
   normalizeStat,
   scheduleReview,
+  updateQuizStats,
   uniqueToggle,
 } from "../src/lib/progress-logic.ts";
 
@@ -99,6 +102,105 @@ test("normalizeStat clamps ease to the sane range and floors negatives", () => {
 test("normalizeProgress keeps a partial onboarding and backfills the rest", () => {
   const p = normalizeProgress({ onboarding: { completed: true } });
   assert.deepEqual(p.onboarding, { completed: true, dailyGoal: 0, completedAt: null });
+});
+
+// ─── quizStats: migration, normalization, weak-word derivation ──────────────────
+
+test("normalizeProgress migrates a v2 save to v3 and backfills empty quizStats", () => {
+  const v2 = {
+    schemaVersion: 2, // pre-quizStats save
+    learnedTopics: ["ten-types-of-pets"],
+    favoriteTopics: [],
+    favoriteWords: ["ten-types-of-pets:狗"],
+    flashcardStats: {},
+    studiedDates: ["2026-06-30"],
+    onboarding: { completed: true, dailyGoal: 5, completedAt: "2026-06-30" },
+  };
+  const p = normalizeProgress(v2);
+  assert.equal(p.schemaVersion, CURRENT_PROGRESS_SCHEMA_VERSION); // 3
+  assert.deepEqual(p.quizStats, {}); // backfilled, lossless
+  // Everything the v2 save carried is preserved untouched.
+  assert.deepEqual(p.learnedTopics, v2.learnedTopics);
+  assert.deepEqual(p.favoriteWords, v2.favoriteWords);
+  assert.deepEqual(p.studiedDates, v2.studiedDates);
+  assert.deepEqual(p.onboarding, v2.onboarding);
+});
+
+test("normalizeProgress repairs corrupt quizStats without dropping keys", () => {
+  const p = normalizeProgress({
+    quizStats: {
+      "t:好": { correct: 4, attempts: 6 }, // valid, passes through
+      "t:坏": { correct: 10, attempts: 3 }, // correct clamped down to attempts
+      "t:半": { correct: 2.7, attempts: 5.2 }, // rounded to integers
+      "t:空": "garbage", // non-object → 0/0
+      "t:负": { correct: -1, attempts: -4 }, // negatives → 0/0
+    },
+  });
+  const keys = new Set(Object.keys(p.quizStats));
+  assert.deepEqual(keys, new Set(["t:好", "t:坏", "t:半", "t:空", "t:负"]));
+  assert.deepEqual(p.quizStats["t:好"], { correct: 4, attempts: 6 });
+  assert.deepEqual(p.quizStats["t:坏"], { correct: 3, attempts: 3 }); // clamped
+  assert.deepEqual(p.quizStats["t:半"], { correct: 3, attempts: 5 }); // rounded
+  assert.deepEqual(p.quizStats["t:空"], { correct: 0, attempts: 0 });
+  assert.deepEqual(p.quizStats["t:负"], { correct: 0, attempts: 0 });
+});
+
+test("normalizeQuizStat enforces correct ≤ attempts and non-negative integers", () => {
+  assert.deepEqual(normalizeQuizStat({ correct: 3, attempts: 5 }), { correct: 3, attempts: 5 });
+  assert.deepEqual(normalizeQuizStat({ correct: 9, attempts: 2 }), { correct: 2, attempts: 2 });
+  assert.deepEqual(normalizeQuizStat({ correct: 3 }), { correct: 0, attempts: 0 }); // no attempts
+  assert.deepEqual(normalizeQuizStat(null), { correct: 0, attempts: 0 });
+  assert.deepEqual(normalizeQuizStat({ attempts: Number.NaN }), { correct: 0, attempts: 0 });
+});
+
+test("updateQuizStats increments attempts (and correct) immutably", () => {
+  const start = {};
+  const afterWrong = updateQuizStats(start, "t:好", false);
+  assert.deepEqual(afterWrong, { "t:好": { correct: 0, attempts: 1 } });
+  assert.deepEqual(start, {}); // input untouched
+  const afterRight = updateQuizStats(afterWrong, "t:好", true);
+  assert.deepEqual(afterRight["t:好"], { correct: 1, attempts: 2 });
+  // A corrupt existing entry is normalized before the increment.
+  const fromGarbage = updateQuizStats({ "t:坏": { correct: 99, attempts: 1 } }, "t:坏", true);
+  assert.deepEqual(fromGarbage["t:坏"], { correct: 2, attempts: 2 }); // 1→normalized to 1/1, then +1/+1
+});
+
+test("computeWeakWords sorts by lowest accuracy and filters by attempts", () => {
+  const quizStats = {
+    a: { correct: 1, attempts: 4 }, // 25%
+    b: { correct: 3, attempts: 4 }, // 75%
+    c: { correct: 2, attempts: 2 }, // 100% but only 2 attempts → filtered out (min 3)
+    d: { correct: 0, attempts: 5 }, // 0%
+    e: { correct: 4, attempts: 4 }, // 100%
+  };
+  const weak = computeWeakWords(quizStats);
+  assert.deepEqual(weak.map((w) => w.key), ["d", "a", "b", "e"]);
+  assert.deepEqual(weak[0], { key: "d", correct: 0, attempts: 5, accuracy: 0 });
+  assert.equal(weak[1].accuracy, 0.25);
+});
+
+test("computeWeakWords respects the limit and minAttempts options", () => {
+  const quizStats = {
+    a: { correct: 1, attempts: 4 },
+    b: { correct: 3, attempts: 4 },
+    d: { correct: 0, attempts: 5 },
+  };
+  assert.deepEqual(computeWeakWords(quizStats, { limit: 2 }).map((w) => w.key), ["d", "a"]);
+  // minAttempts 5 leaves only the 5-attempt word.
+  assert.deepEqual(computeWeakWords(quizStats, { minAttempts: 5 }).map((w) => w.key), ["d"]);
+});
+
+test("computeWeakWords breaks accuracy ties toward more-attempted words", () => {
+  const quizStats = {
+    x: { correct: 1, attempts: 4 }, // 25%, 4 attempts
+    y: { correct: 2, attempts: 8 }, // 25%, 8 attempts
+  };
+  assert.deepEqual(computeWeakWords(quizStats).map((w) => w.key), ["y", "x"]);
+});
+
+test("computeWeakWords tolerates empty or missing quizStats", () => {
+  assert.deepEqual(computeWeakWords({}), []);
+  assert.deepEqual(computeWeakWords(undefined), []);
 });
 
 test("uniqueToggle adds when absent and removes when present", () => {

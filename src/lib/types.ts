@@ -64,6 +64,14 @@ export type FlashcardStat = {
   reviewCount: number;
 };
 
+// Per-word quiz accuracy, keyed by the same `wordKey` (`topic.slug:hanzi`) used
+// for flashcardStats. `correct` is always ≤ `attempts`; both are non-negative
+// integers. Used to surface weak/tricky words on the stats page.
+export type QuizStat = {
+  correct: number;
+  attempts: number;
+};
+
 export type OnboardingState = {
   /** Whether the user has completed or skipped first-run onboarding. */
   completed: boolean;
@@ -84,6 +92,8 @@ export type ProgressState = {
   favoriteTopics: string[];
   favoriteWords: string[];
   flashcardStats: Record<string, FlashcardStat>;
+  /** Per-word quiz accuracy, keyed by `wordKey`. Added in schema v3. */
+  quizStats: Record<string, QuizStat>;
   studiedDates: string[];
   onboarding: OnboardingState;
 };

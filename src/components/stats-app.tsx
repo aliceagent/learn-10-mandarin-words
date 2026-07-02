@@ -2,17 +2,59 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
+import type { MandarinData, VocabItem } from "@/lib/types";
+import { wordKey } from "@/lib/data";
 import { useProgress } from "./use-progress";
-import { computeStats } from "@/lib/stats-logic";
+import { computeStats, computeWeakWords } from "@/lib/stats-logic";
+
+type WeakWordRow = VocabItem & {
+  topicSlug: string;
+  topicTitle: string;
+  accuracy: number;
+  attempts: number;
+};
 
 // Local stats dashboard. Reads only the existing localStorage progress via
 // useProgress and derives everything with the pure computeStats helper, so it
 // renders without an account and tolerates a totally empty progress state.
-export function StatsApp({ totalTopics, totalWords }: { totalTopics: number; totalWords: number }) {
+export function StatsApp({
+  data,
+  totalTopics,
+  totalWords,
+}: {
+  data: MandarinData;
+  totalTopics: number;
+  totalWords: number;
+}) {
   const { progress, loaded } = useProgress();
 
   // computeStats defaults `now` to the real clock; recompute when progress changes.
   const stats = useMemo(() => computeStats(progress), [progress]);
+
+  // Weakest quizzed words, resolved back to their word + topic for display.
+  // computeWeakWords already filters to words with enough attempts, so an entry
+  // whose key no longer matches the dataset is simply dropped.
+  const weakWords = useMemo<WeakWordRow[]>(() => {
+    const byKey = new Map<string, { item: VocabItem; topicSlug: string; topicTitle: string }>();
+    for (const topic of data.topics) {
+      for (const item of topic.items) {
+        byKey.set(wordKey(topic, item), { item, topicSlug: topic.slug, topicTitle: topic.titleEn });
+      }
+    }
+    const rows: WeakWordRow[] = [];
+    for (const weak of computeWeakWords(progress.quizStats)) {
+      const found = byKey.get(weak.key);
+      if (!found) continue;
+      rows.push({
+        ...found.item,
+        topicSlug: found.topicSlug,
+        topicTitle: found.topicTitle,
+        accuracy: weak.accuracy,
+        attempts: weak.attempts,
+      });
+    }
+    return rows;
+  }, [data.topics, progress.quizStats]);
 
   if (!loaded) {
     return (
@@ -105,6 +147,41 @@ export function StatsApp({ totalTopics, totalWords }: { totalTopics: number; tot
           sublabel={stats.streak > 0 ? `${stats.streak}-day current streak` : "build a streak by studying daily"}
         />
       </div>
+
+      {/* ── Trickiest words (only once there's enough quiz history) ── */}
+      {weakWords.length > 0 ? (
+        <section className="mt-10" aria-label="Trickiest words">
+          <h2 className="text-xl font-semibold text-white">Trickiest words</h2>
+          <p className="mt-1 text-sm text-slate-400">
+            The words you miss most in quizzes. Tap one to jump back to its topic and practice.
+          </p>
+          <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {weakWords.map((word) => (
+              <li key={`${word.topicSlug}:${word.hanzi}`}>
+                <Link
+                  href={`/topics/${word.topicSlug}`}
+                  className="block rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition hover:-translate-y-0.5 hover:border-emerald-300/50 hover:bg-white/[0.07]"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-hanzi text-3xl font-semibold text-white">{word.hanzi}</p>
+                      <p className="font-hanzi mt-1 text-base text-emerald-300">{word.pinyin}</p>
+                      <p className="mt-1 font-semibold text-slate-200">{word.english}</p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="text-2xl font-bold text-rose-300">{Math.round(word.accuracy * 100)}%</p>
+                      <p className="mt-0.5 text-xs text-slate-500">
+                        {word.attempts} attempt{word.attempts !== 1 ? "s" : ""}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="mt-3 truncate text-xs text-slate-500">{word.topicTitle}</p>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </main>
   );
 }

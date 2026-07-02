@@ -1,4 +1,4 @@
-import type { FlashcardStat, ProgressState } from "./types";
+import type { FlashcardStat, ProgressState, QuizStat } from "./types";
 
 // Pure progress helpers, extracted from use-progress.ts so they can be
 // unit-tested without React. The hook imports these and layers persistence /
@@ -7,7 +7,9 @@ import type { FlashcardStat, ProgressState } from "./types";
 // Bump this whenever the persisted ProgressState shape changes. Old saves that
 // carry a lower (or missing) version are upgraded by `normalizeProgress`, which
 // is written to never throw and never drop user data.
-export const CURRENT_PROGRESS_SCHEMA_VERSION = 2;
+//   v2 → v3: added `quizStats` (per-word quiz accuracy). Older saves simply lack
+//   the field and migrate to an empty `{}`, losing nothing else.
+export const CURRENT_PROGRESS_SCHEMA_VERSION = 3;
 
 export const emptyProgress: ProgressState = {
   schemaVersion: CURRENT_PROGRESS_SCHEMA_VERSION,
@@ -15,6 +17,7 @@ export const emptyProgress: ProgressState = {
   favoriteTopics: [],
   favoriteWords: [],
   flashcardStats: {},
+  quizStats: {},
   studiedDates: [],
   onboarding: { completed: false, dailyGoal: 0, completedAt: null },
 };
@@ -76,12 +79,51 @@ function normalizeFlashcardStats(raw: unknown, now: Date): Record<string, Flashc
   return out;
 }
 
+// Repair a single quiz stat: coerce missing/non-finite/negative counts to safe
+// non-negative integers and enforce the `correct ≤ attempts` invariant so a
+// corrupt entry can never yield an accuracy above 100% or below 0.
+export function normalizeQuizStat(stat: unknown): QuizStat {
+  const base: QuizStat = { correct: 0, attempts: 0 };
+  if (!stat || typeof stat !== "object") return base;
+  const s = stat as Partial<QuizStat>;
+  const attempts =
+    Number.isFinite(s.attempts) && (s.attempts as number) >= 0 ? Math.round(s.attempts as number) : 0;
+  const rawCorrect =
+    Number.isFinite(s.correct) && (s.correct as number) >= 0 ? Math.round(s.correct as number) : 0;
+  return { correct: Math.min(rawCorrect, attempts), attempts };
+}
+
+function normalizeQuizStats(raw: unknown): Record<string, QuizStat> {
+  if (!raw || typeof raw !== "object") return {};
+  const out: Record<string, QuizStat> = {};
+  for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
+    out[key] = normalizeQuizStat(value);
+  }
+  return out;
+}
+
+// Record one quiz answer against `key`, returning a NEW quizStats map (pure).
+// The existing entry is normalized first so a corrupt stat can't corrupt the
+// increment. Used by the useProgress hook's `recordQuizAnswer`.
+export function updateQuizStats(
+  quizStats: Record<string, QuizStat>,
+  key: string,
+  correct: boolean,
+): Record<string, QuizStat> {
+  const prev = normalizeQuizStat(quizStats?.[key]);
+  return {
+    ...quizStats,
+    [key]: { correct: prev.correct + (correct ? 1 : 0), attempts: prev.attempts + 1 },
+  };
+}
+
 // Merge stored data over defaults and migrate legacy saves. This is the single
 // entry point for loading persisted or imported progress: it upgrades saves
-// that predate `schemaVersion`, `onboarding`, or `reviewCount`, sanitizes
-// unexpected/partial values, and never throws — preserving learnedTopics,
-// favoriteTopics, favoriteWords, flashcardStats, and studiedDates. `now` is
-// injectable so repaired stats have deterministic timestamps in tests.
+// that predate `schemaVersion`, `onboarding`, `reviewCount`, or `quizStats`,
+// sanitizes unexpected/partial values, and never throws — preserving
+// learnedTopics, favoriteTopics, favoriteWords, flashcardStats, quizStats, and
+// studiedDates. `now` is injectable so repaired stats have deterministic
+// timestamps in tests.
 export function normalizeProgress(
   partial: Partial<ProgressState> | Record<string, unknown> | null | undefined = {},
   now: Date = new Date(),
@@ -96,6 +138,7 @@ export function normalizeProgress(
     favoriteTopics: asStringArray(p.favoriteTopics) ?? [],
     favoriteWords: asStringArray(p.favoriteWords) ?? [],
     flashcardStats: normalizeFlashcardStats(p.flashcardStats, now),
+    quizStats: normalizeQuizStats(p.quizStats),
     studiedDates: asStringArray(p.studiedDates) ?? [],
     onboarding: { ...emptyProgress.onboarding, ...onboarding },
   };
@@ -186,6 +229,45 @@ export function computeStats(progress: ProgressState, now: Date = new Date()): P
     // from the injectable clock so tests stay deterministic.
     streak: computeStreak(progress.studiedDates ?? [], isoDay(now)),
   };
+}
+
+// ─── Weak / tricky words ──────────────────────────────────────────────────────
+
+export type WeakWord = {
+  /** The `wordKey` (`topic.slug:hanzi`) this stat belongs to. */
+  key: string;
+  correct: number;
+  attempts: number;
+  /** Share of attempts answered correctly, in [0, 1]. */
+  accuracy: number;
+};
+
+// Rank the learner's quizzed words from weakest (lowest accuracy) to strongest,
+// keeping only words with at least `minAttempts` recorded answers so a single
+// unlucky guess doesn't dominate. Ties break toward more-attempted words (more
+// evidence), then by key for a stable order. Pure; reads only `quizStats`.
+export function computeWeakWords(
+  quizStats: Record<string, QuizStat> | undefined,
+  { minAttempts = 3, limit = 10 }: { minAttempts?: number; limit?: number } = {},
+): WeakWord[] {
+  const out: WeakWord[] = [];
+  for (const [key, raw] of Object.entries(quizStats ?? {})) {
+    const stat = normalizeQuizStat(raw);
+    if (stat.attempts < minAttempts) continue;
+    out.push({
+      key,
+      correct: stat.correct,
+      attempts: stat.attempts,
+      accuracy: stat.attempts > 0 ? stat.correct / stat.attempts : 0,
+    });
+  }
+  out.sort(
+    (a, b) =>
+      a.accuracy - b.accuracy ||
+      b.attempts - a.attempts ||
+      (a.key < b.key ? -1 : a.key > b.key ? 1 : 0),
+  );
+  return out.slice(0, limit);
 }
 
 export type Grade = "again" | "hard" | "good" | "easy";

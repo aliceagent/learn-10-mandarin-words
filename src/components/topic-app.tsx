@@ -53,7 +53,7 @@ function topicStats(topic: Topic, flashcardStats: Record<string, { reviewCount: 
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function TopicApp({ topic }: { topic: Topic }) {
-  const { progress, toggleFavoriteTopic, toggleFavoriteWord, toggleLearnedTopic, gradeWord } = useProgress();
+  const { progress, toggleFavoriteTopic, toggleFavoriteWord, toggleLearnedTopic, gradeWord, recordQuizAnswer } = useProgress();
   // Useful Phrases topics get an extra "Phrasebook" mode, shown first and
   // selected by default so they read like a practical phrasebook rather than a
   // vocabulary list. Words/Cards/Quiz stay available for every topic.
@@ -134,6 +134,9 @@ export function TopicApp({ topic }: { topic: Topic }) {
   function answerQuiz(choice: string) {
     if (quizState.picked) return;
     const correct = choice === currentQuiz.answer;
+    // The `picked` guard above means this runs exactly once per card — the first
+    // answer — so per-word quiz accuracy is recorded once per attempt.
+    recordQuizAnswer(currentQuiz.key, correct);
     setQuizState((s) => ({ ...s, picked: choice, score: correct ? s.score + 1 : s.score }));
     if (!correct) {
       setMissedKeys((keys) => (keys.includes(currentQuiz.key) ? keys : [...keys, currentQuiz.key]));
