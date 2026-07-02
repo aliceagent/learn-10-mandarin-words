@@ -6,12 +6,16 @@ import {
   computeStreak,
   defaultStat,
   emptyProgress,
+  goalProgress,
   normalizeProgress,
+  practicedCountOn,
+  recordDailyPractice,
   scheduleReview,
   todayISO,
   uniqueToggle,
   updateQuizStats,
 } from "@/lib/progress-logic";
+import { track } from "@/lib/analytics";
 
 export { computeStreak };
 
@@ -21,6 +25,22 @@ function recordStudyToday(current: ProgressState): ProgressState {
   const today = todayISO();
   if (current.studiedDates.includes(today)) return current;
   return { ...current, studiedDates: [...current.studiedDates, today] };
+}
+
+// Shared choke point for every graded/practice interaction: stamp today's study
+// date AND record `key` as a distinct word practiced today (schema v4). Fires the
+// `daily_goal_met` analytics event exactly on the below-goal → at-goal crossing,
+// decided by count-before vs. count-after so it can only fire once per day.
+function withPractice(current: ProgressState, key: string): ProgressState {
+  const today = todayISO();
+  const goal = goalProgress(current, today);
+  const before = practicedCountOn(current.dailyActivity, today);
+  const dailyActivity = recordDailyPractice(current.dailyActivity, key, today);
+  const after = practicedCountOn(dailyActivity, today);
+  if (goal.goal > 0 && before < goal.goal && after >= goal.goal) {
+    track("daily_goal_met", { goal: goal.goal, practiced: after });
+  }
+  return recordStudyToday({ ...current, dailyActivity });
 }
 
 export function useProgress() {
@@ -92,20 +112,20 @@ export function useProgress() {
       ...current,
       onboarding: { ...current.onboarding, dailyGoal },
     })),
-    recordQuizAnswer: (key: string, correct: boolean) => setProgress((current) => recordStudyToday({
+    recordQuizAnswer: (key: string, correct: boolean) => setProgress((current) => withPractice({
       ...current,
       quizStats: updateQuizStats(current.quizStats, key, correct),
-    })),
+    }, key)),
     gradeWord: (key: string, grade: "again" | "hard" | "good" | "easy") => setProgress((current) => {
       const now = new Date();
       const existing = current.flashcardStats[key] ?? defaultStat(now);
-      return recordStudyToday({
+      return withPractice({
         ...current,
         flashcardStats: {
           ...current.flashcardStats,
           [key]: scheduleReview(existing, grade, now),
         },
-      });
+      }, key);
     }),
   }), [progress, loaded, exportProgress, importProgress]);
 }

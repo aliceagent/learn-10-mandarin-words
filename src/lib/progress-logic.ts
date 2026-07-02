@@ -13,7 +13,9 @@ import { wordKey } from "./data-logic.ts";
 // is written to never throw and never drop user data.
 //   v2 → v3: added `quizStats` (per-word quiz accuracy). Older saves simply lack
 //   the field and migrate to an empty `{}`, losing nothing else.
-export const CURRENT_PROGRESS_SCHEMA_VERSION = 3;
+//   v3 → v4: added `dailyActivity` (distinct wordKeys practiced per ISO day).
+//   Older saves lack the field and migrate to an empty `{}`, losing nothing else.
+export const CURRENT_PROGRESS_SCHEMA_VERSION = 4;
 
 export const emptyProgress: ProgressState = {
   schemaVersion: CURRENT_PROGRESS_SCHEMA_VERSION,
@@ -22,9 +24,14 @@ export const emptyProgress: ProgressState = {
   favoriteWords: [],
   flashcardStats: {},
   quizStats: {},
+  dailyActivity: {},
   studiedDates: [],
   onboarding: { completed: false, dailyGoal: 0, completedAt: null },
 };
+
+// How many days of per-day practice history to retain. Bounds storage growth:
+// ~14 days of short wordKey strings. Older days are pruned on every write.
+export const DAILY_ACTIVITY_RETENTION_DAYS = 14;
 
 // ─── SM-2-ish scheduling constants ────────────────────────────────────────────
 // The scheduler below is a simplified SuperMemo-2 variant. `ease` behaves like
@@ -106,6 +113,32 @@ function normalizeQuizStats(raw: unknown): Record<string, QuizStat> {
   return out;
 }
 
+// True for a well-formed ISO day key ("YYYY-MM-DD"). Used to drop junk keys from
+// a corrupt `dailyActivity` map without throwing.
+function isISODayKey(value: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(new Date(value).getTime());
+}
+
+// Sanitize a persisted/imported `dailyActivity` map: drop non-array day values,
+// non-string members, and invalid day keys; dedupe each day's words; and keep at
+// most the newest DAILY_ACTIVITY_RETENTION_DAYS day-keys (ISO keys sort
+// chronologically). Never throws. Added in schema v4.
+function normalizeDailyActivity(raw: unknown): Record<string, string[]> {
+  if (!raw || typeof raw !== "object") return {};
+  const kept: [string, string[]][] = [];
+  for (const [day, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (!isISODayKey(day)) continue;
+    const words = asStringArray(value);
+    if (!words) continue; // non-array (incl. a day mapped to a bare string) → drop
+    kept.push([day, Array.from(new Set(words))]);
+  }
+  kept.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
+  const trimmed = kept.slice(Math.max(0, kept.length - DAILY_ACTIVITY_RETENTION_DAYS));
+  const out: Record<string, string[]> = {};
+  for (const [day, words] of trimmed) out[day] = words;
+  return out;
+}
+
 // Record one quiz answer against `key`, returning a NEW quizStats map (pure).
 // The existing entry is normalized first so a corrupt stat can't corrupt the
 // increment. Used by the useProgress hook's `recordQuizAnswer`.
@@ -143,6 +176,7 @@ export function normalizeProgress(
     favoriteWords: asStringArray(p.favoriteWords) ?? [],
     flashcardStats: normalizeFlashcardStats(p.flashcardStats, now),
     quizStats: normalizeQuizStats(p.quizStats),
+    dailyActivity: normalizeDailyActivity(p.dailyActivity),
     studiedDates: asStringArray(p.studiedDates) ?? [],
     onboarding: { ...emptyProgress.onboarding, ...onboarding },
   };
@@ -442,4 +476,48 @@ export function formatIntervalDays(days: number): string {
 // "streak > 0 AND today not yet studied". `today` is injectable for tests.
 export function streakAtRisk(studiedDates: string[], today: string = todayISO()): boolean {
   return computeStreak(studiedDates, today) > 0 && !studiedDates.includes(today);
+}
+
+// ─── Daily goal loop (schema v4) ───────────────────────────────────────────────
+
+// Add `key` to `today`'s set of practiced words, returning a NEW map (pure).
+// Re-practicing the same word the same day is a no-op for the count (deduped).
+// The result is pruned to the newest DAILY_ACTIVITY_RETENTION_DAYS day-keys so
+// storage stays bounded; ISO day keys sort chronologically.
+export function recordDailyPractice(
+  activity: Record<string, string[]> | undefined,
+  key: string,
+  today: string,
+): Record<string, string[]> {
+  const base = activity && typeof activity === "object" ? activity : {};
+  const existing = Array.isArray(base[today]) ? base[today] : [];
+  const todayWords = existing.includes(key) ? existing : [...existing, key];
+  const next: Record<string, string[]> = { ...base, [today]: todayWords };
+  const days = Object.keys(next).sort();
+  if (days.length <= DAILY_ACTIVITY_RETENTION_DAYS) return next;
+  const keep = new Set(days.slice(days.length - DAILY_ACTIVITY_RETENTION_DAYS));
+  const pruned: Record<string, string[]> = {};
+  for (const day of days) if (keep.has(day)) pruned[day] = next[day];
+  return pruned;
+}
+
+// Number of distinct words practiced on `day` (0 when the day is absent).
+export function practicedCountOn(
+  activity: Record<string, string[]> | undefined,
+  day: string,
+): number {
+  const words = activity?.[day];
+  return Array.isArray(words) ? words.length : 0;
+}
+
+// Today's practiced/goal/met, reading the goal from onboarding.dailyGoal. A goal
+// of 0 (never set) yields `met: false`; the UI branches on `goal > 0`. Reaching
+// exactly the goal counts as met.
+export function goalProgress(
+  progress: ProgressState,
+  today: string = todayISO(),
+): { practiced: number; goal: number; met: boolean } {
+  const goal = progress.onboarding?.dailyGoal ?? 0;
+  const practiced = practicedCountOn(progress.dailyActivity, today);
+  return { practiced, goal, met: goal > 0 && practiced >= goal };
 }

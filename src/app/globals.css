@@ -104,6 +104,11 @@ textarea:focus-visible,
   animation: toast-in 0.24s ease-out both;
 }
 
+/* ── Progress ring arc (daily goal / mastery) ───────────────────────────────── */
+.progress-ring-arc {
+  transition: stroke-dashoffset 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
 /* ── Reduced-motion safety ──────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .animate-quiz-wrong,
@@ -117,6 +122,9 @@ textarea:focus-visible,
   .animate-toast-in {
     animation: none;
     opacity: 1;
+  }
+  .progress-ring-arc {
+    transition: none;
   }
 }
 

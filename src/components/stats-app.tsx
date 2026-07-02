@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-import type { MandarinData, VocabItem } from "@/lib/types";
+import type { MandarinData, ProgressState, VocabItem } from "@/lib/types";
 import { wordKey } from "@/lib/data";
 import { useProgress } from "./use-progress";
 import { LoadingScreen } from "./loading-screen";
+import { ProgressRing } from "./progress-ring";
+import { GOAL_OPTIONS } from "./onboarding";
 import { computeStats, computeWeakWords } from "@/lib/stats-logic";
-import { streakAtRisk } from "@/lib/progress-logic";
+import { goalProgress, streakAtRisk } from "@/lib/progress-logic";
 
 type WeakWordRow = VocabItem & {
   topicSlug: string;
@@ -28,7 +30,7 @@ export function StatsApp({
   totalTopics: number;
   totalWords: number;
 }) {
-  const { progress, loaded } = useProgress();
+  const { progress, loaded, setDailyGoal } = useProgress();
 
   // computeStats defaults `now` to the real clock; recompute when progress changes.
   const stats = useMemo(() => computeStats(progress), [progress]);
@@ -117,6 +119,7 @@ export function StatsApp({
 
       {/* ── Stat grid (always rendered so an empty state still shows zeros) ── */}
       <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <GoalCard progress={progress} setDailyGoal={setDailyGoal} />
         <StatCard
           value={`${stats.learnedTopics}`}
           label={`of ${totalTopics} topics learned`}
@@ -201,6 +204,101 @@ export function StatsApp({
         </section>
       ) : null}
     </main>
+  );
+}
+
+// ── Today's goal card with an editable daily goal ─────────────────────────────
+// Spans the grid so the ring and the goal editor sit side by side. The chips
+// reuse the exact GOAL_OPTIONS from onboarding; the numeric input covers any
+// value 1–100. Both call setDailyGoal, which persists immediately via useProgress.
+function GoalCard({
+  progress,
+  setDailyGoal,
+}: {
+  progress: ProgressState;
+  setDailyGoal: (goal: number) => void;
+}) {
+  const goal = goalProgress(progress);
+  const current = progress.onboarding.dailyGoal;
+
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 sm:col-span-2 lg:col-span-3">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          {current > 0 ? (
+            <ProgressRing
+              value={goal.practiced}
+              max={goal.goal}
+              size={80}
+              label={`Daily goal: ${goal.practiced} of ${goal.goal} words practiced today`}
+            >
+              {goal.practiced}/{goal.goal}
+            </ProgressRing>
+          ) : (
+            <div
+              className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full border border-dashed border-white/20 text-2xl"
+              aria-hidden="true"
+            >
+              🎯
+            </div>
+          )}
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-slate-300">Today&apos;s goal</p>
+            <p className="mt-0.5 text-lg font-semibold text-white">
+              {current > 0
+                ? goal.met
+                  ? "Goal met 🎉"
+                  : `${goal.practiced} of ${goal.goal} words`
+                : "No daily goal set"}
+            </p>
+            <p className="mt-0.5 text-xs text-slate-500">distinct words practiced today</p>
+          </div>
+        </div>
+
+        <div>
+          <p id="daily-goal-label" className="mb-2 text-sm font-semibold text-slate-300">
+            Daily goal
+          </p>
+          <div
+            className="flex flex-wrap items-center gap-2"
+            role="group"
+            aria-labelledby="daily-goal-label"
+          >
+            {GOAL_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setDailyGoal(opt.value)}
+                aria-pressed={current === opt.value}
+                className={`min-h-[44px] rounded-2xl border px-4 py-2 text-sm font-semibold transition ${
+                  current === opt.value
+                    ? "border-emerald-300 bg-emerald-300/10 text-white"
+                    : "border-white/10 text-slate-300 hover:border-emerald-300/60"
+                }`}
+              >
+                {opt.label} {opt.value}
+              </button>
+            ))}
+            <label className="flex min-h-[44px] items-center gap-2 text-xs text-slate-400">
+              Custom
+              <input
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={100}
+                value={current > 0 ? current : ""}
+                onChange={(e) => {
+                  const n = Math.round(Number(e.target.value));
+                  if (Number.isFinite(n) && n >= 1 && n <= 100) setDailyGoal(n);
+                }}
+                aria-label="Custom daily goal, 1 to 100 words"
+                className="w-16 rounded-2xl border border-white/10 bg-white/[0.06] px-3 py-2 text-base text-white outline-none transition focus:border-emerald-300"
+              />
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 

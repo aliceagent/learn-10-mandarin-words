@@ -94,6 +94,12 @@ export type ProgressState = {
   flashcardStats: Record<string, FlashcardStat>;
   /** Per-word quiz accuracy, keyed by `wordKey`. Added in schema v3. */
   quizStats: Record<string, QuizStat>;
+  /**
+   * Distinct wordKeys practiced per ISO day (`YYYY-MM-DD` → wordKeys). Powers the
+   * daily-goal ring. Pruned to the most recent DAILY_ACTIVITY_RETENTION_DAYS days
+   * on every write so storage stays bounded. Added in schema v4.
+   */
+  dailyActivity: Record<string, string[]>;
   studiedDates: string[];
   onboarding: OnboardingState;
 };

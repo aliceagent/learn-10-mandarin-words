@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import {
   CURRENT_PROGRESS_SCHEMA_VERSION,
+  DAILY_ACTIVITY_RETENTION_DAYS,
   EASE_CEIL,
   EASE_FLOOR,
   computeStreak,
@@ -11,10 +12,13 @@ import {
   dueCards,
   emptyProgress,
   formatIntervalDays,
+  goalProgress,
   normalizeProgress,
   normalizeQuizStat,
   normalizeStat,
+  practicedCountOn,
   previewIntervals,
+  recordDailyPractice,
   scheduleReview,
   streakAtRisk,
   topicProgress,
@@ -425,4 +429,136 @@ test("scheduleReview grows intervals deterministically and normalizes bad input"
   assert.equal(fromGarbage.intervalDays, 2); // interval floored to 0 then doubled -> 2
   assert.equal(fromGarbage.ease, EASE_CEIL); // 99 clamped to 3.0, "good" adds 0
   assert.equal(fromGarbage.reviewCount, 1); // -1 repaired to 0 then incremented
+});
+
+// ─── dailyActivity: migration, normalization, pruning, goal progress (schema v4) ─
+
+test("normalizeProgress migrates a v3 save to v4 and backfills empty dailyActivity", () => {
+  const v3 = {
+    schemaVersion: 3, // pre-dailyActivity save
+    learnedTopics: ["ten-types-of-pets"],
+    favoriteTopics: [],
+    favoriteWords: ["ten-types-of-pets:狗"],
+    flashcardStats: {},
+    quizStats: { "ten-types-of-pets:狗": { correct: 2, attempts: 3 } },
+    studiedDates: ["2026-06-30"],
+    onboarding: { completed: true, dailyGoal: 10, completedAt: "2026-06-30" },
+  };
+  const p = normalizeProgress(v3);
+  assert.equal(p.schemaVersion, CURRENT_PROGRESS_SCHEMA_VERSION); // 4
+  assert.deepEqual(p.dailyActivity, {}); // backfilled, lossless
+  // Everything the v3 save carried is preserved untouched.
+  assert.deepEqual(p.learnedTopics, v3.learnedTopics);
+  assert.deepEqual(p.favoriteWords, v3.favoriteWords);
+  assert.deepEqual(p.quizStats, v3.quizStats);
+  assert.deepEqual(p.studiedDates, v3.studiedDates);
+  assert.deepEqual(p.onboarding, v3.onboarding);
+});
+
+test("normalizeProgress sanitizes corrupt dailyActivity shapes without throwing", () => {
+  // The whole field is a number, not a map → empty map.
+  assert.deepEqual(normalizeProgress({ dailyActivity: 42 }).dailyActivity, {});
+
+  const p = normalizeProgress({
+    dailyActivity: {
+      "2026-07-01": ["t:好", "t:坏"], // valid, passes through
+      "2026-07-02": "t:空", // a day mapped to a bare string → dropped
+      "2026-07-03": ["t:半", 7, null], // a day array holding non-strings → members filtered
+      "not-a-day": ["t:x"], // invalid day key → dropped
+      "2026-13-40": ["t:y"], // impossible date → dropped
+    },
+  });
+  assert.deepEqual(new Set(Object.keys(p.dailyActivity)), new Set(["2026-07-01", "2026-07-03"]));
+  assert.deepEqual(p.dailyActivity["2026-07-01"], ["t:好", "t:坏"]);
+  assert.deepEqual(p.dailyActivity["2026-07-03"], ["t:半"]); // non-string members removed
+});
+
+test("normalizeProgress prunes dailyActivity to the newest retention window", () => {
+  const activity = {};
+  for (let d = 1; d <= 16; d++) {
+    const day = `2026-07-${String(d).padStart(2, "0")}`;
+    activity[day] = [`t:${d}`];
+  }
+  const p = normalizeProgress({ dailyActivity: activity });
+  const days = Object.keys(p.dailyActivity).sort();
+  assert.equal(days.length, DAILY_ACTIVITY_RETENTION_DAYS); // 14
+  assert.equal(days[0], "2026-07-03"); // oldest two (07-01, 07-02) dropped
+  assert.equal(days[days.length - 1], "2026-07-16");
+});
+
+test("recordDailyPractice: same-day dedup, new-day creation, and purity", () => {
+  const start = {};
+  const day1 = recordDailyPractice(start, "t:狗", "2026-07-01");
+  assert.deepEqual(day1, { "2026-07-01": ["t:狗"] });
+  assert.deepEqual(start, {}); // input untouched (pure)
+
+  // Re-practicing the same word the same day does not grow the list.
+  const again = recordDailyPractice(day1, "t:狗", "2026-07-01");
+  assert.deepEqual(again["2026-07-01"], ["t:狗"]);
+
+  // A distinct word the same day appends.
+  const more = recordDailyPractice(again, "t:猫", "2026-07-01");
+  assert.deepEqual(more["2026-07-01"], ["t:狗", "t:猫"]);
+
+  // A new day creates a new key without touching the old one.
+  const day2 = recordDailyPractice(more, "t:鸟", "2026-07-02");
+  assert.deepEqual(day2["2026-07-01"], ["t:狗", "t:猫"]);
+  assert.deepEqual(day2["2026-07-02"], ["t:鸟"]);
+  assert.deepEqual(more["2026-07-02"], undefined); // previous map untouched
+});
+
+test("recordDailyPractice prunes to the newest retention window on write", () => {
+  let activity = {};
+  // Fill 14 days, then write two more distinct days: the oldest two drop.
+  for (let d = 1; d <= 16; d++) {
+    const day = `2026-07-${String(d).padStart(2, "0")}`;
+    activity = recordDailyPractice(activity, `t:${d}`, day);
+  }
+  const days = Object.keys(activity).sort();
+  assert.equal(days.length, DAILY_ACTIVITY_RETENTION_DAYS); // 14
+  assert.equal(days[0], "2026-07-03"); // 07-01 and 07-02 pruned
+  assert.equal(days[days.length - 1], "2026-07-16");
+});
+
+test("practicedCountOn returns distinct-word counts, 0 when absent", () => {
+  const activity = { "2026-07-01": ["t:狗", "t:猫"] };
+  assert.equal(practicedCountOn(activity, "2026-07-01"), 2);
+  assert.equal(practicedCountOn(activity, "2026-07-02"), 0);
+  assert.equal(practicedCountOn(undefined, "2026-07-01"), 0);
+});
+
+test("goalProgress reports practiced/goal/met including goal:0 and the exact boundary", () => {
+  const base = { ...emptyProgress, dailyActivity: { "2026-07-01": ["t:a", "t:b", "t:c"] } };
+
+  // goal 0 (unset): met stays false regardless of practice.
+  const unset = goalProgress({ ...base, onboarding: { ...base.onboarding, dailyGoal: 0 } }, "2026-07-01");
+  assert.deepEqual(unset, { practiced: 3, goal: 0, met: false });
+
+  // Below goal.
+  const below = goalProgress({ ...base, onboarding: { ...base.onboarding, dailyGoal: 5 } }, "2026-07-01");
+  assert.deepEqual(below, { practiced: 3, goal: 5, met: false });
+
+  // Exactly at goal → met.
+  const exact = goalProgress({ ...base, onboarding: { ...base.onboarding, dailyGoal: 3 } }, "2026-07-01");
+  assert.deepEqual(exact, { practiced: 3, goal: 3, met: true });
+
+  // Over goal → still met.
+  const over = goalProgress({ ...base, onboarding: { ...base.onboarding, dailyGoal: 2 } }, "2026-07-01");
+  assert.deepEqual(over, { practiced: 3, goal: 2, met: true });
+
+  // A day with no activity reads 0 practiced.
+  const empty = goalProgress({ ...base, onboarding: { ...base.onboarding, dailyGoal: 3 } }, "2026-07-09");
+  assert.deepEqual(empty, { practiced: 0, goal: 3, met: false });
+});
+
+test("normalizeProgress round-trips dailyActivity through serialization", () => {
+  const state = {
+    ...emptyProgress,
+    dailyActivity: {
+      "2026-07-01": ["ten-types-of-pets:狗", "ten-types-of-pets:猫"],
+      "2026-07-02": ["ten-types-of-drinks:茶"],
+    },
+  };
+  const roundTripped = normalizeProgress(JSON.parse(JSON.stringify(state)));
+  assert.deepEqual(roundTripped.dailyActivity, state.dailyActivity);
 });

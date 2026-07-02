@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { Topic } from "@/lib/types";
 
-const GOAL_OPTIONS = [
+// Shared daily-goal presets. Exported so the stats-page goal editor reuses the
+// exact same options and copy as first-run onboarding.
+export const GOAL_OPTIONS = [
   { value: 5, label: "Casual", detail: "5 words / day" },
   { value: 10, label: "Steady", detail: "10 words / day" },
   { value: 20, label: "Serious", detail: "20 words / day" },

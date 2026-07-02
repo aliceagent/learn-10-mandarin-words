@@ -6,8 +6,9 @@ import type { MandarinData } from "@/lib/types";
 import { nextRecommendedTopic } from "@/lib/data";
 import { track } from "@/lib/analytics";
 import { useProgress, computeStreak } from "./use-progress";
-import { streakAtRisk } from "@/lib/progress-logic";
+import { goalProgress, streakAtRisk } from "@/lib/progress-logic";
 import { OnboardingModal, ContinueLearningCard } from "./onboarding";
+import { ProgressRing } from "./progress-ring";
 import { TopicCard } from "./topic-card";
 // Shared diacritic-tolerant normalizer so "nǐ", "ni", "ní" all match — the same
 // helper the highlighter uses, keeping search and highlight in lockstep.
@@ -41,6 +42,7 @@ export function HomeApp({ data }: { data: MandarinData }) {
 
   const studiedWordsCount = Object.values(progress.flashcardStats).filter((s) => s.reviewCount > 0).length;
   const totalWords = data.topics.length * 10;
+  const goal = goalProgress(progress);
 
   function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -132,6 +134,37 @@ export function HomeApp({ data }: { data: MandarinData }) {
                 progress={{ current: learnedCount, max: data.topics.length }}
               />
             </div>
+            {/* ── Today's goal ── */}
+            {loaded && goal.goal > 0 ? (
+              <div className="mt-4 flex items-center gap-4 border-t border-white/10 pt-4">
+                <ProgressRing
+                  value={goal.practiced}
+                  max={goal.goal}
+                  size={64}
+                  label={`Daily goal: ${goal.practiced} of ${goal.goal} words practiced today`}
+                >
+                  {goal.practiced}/{goal.goal}
+                </ProgressRing>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-white">
+                    {goal.met ? "Goal met 🎉" : "words practiced today"}
+                  </p>
+                  <p className="mt-0.5 text-xs text-slate-500">
+                    {goal.met
+                      ? `${goal.practiced} distinct word${goal.practiced !== 1 ? "s" : ""} today`
+                      : `${goal.practiced} of ${goal.goal} distinct words today`}
+                  </p>
+                </div>
+              </div>
+            ) : loaded ? (
+              <div className="mt-4 border-t border-white/10 pt-4 text-sm text-slate-400">
+                <Link href="/stats" className="font-semibold text-emerald-300 transition hover:text-emerald-200">
+                  Set a daily goal
+                </Link>{" "}
+                on the stats page to track today&apos;s practice.
+              </div>
+            ) : null}
+
             <div className="mt-4 flex gap-2 border-t border-white/10 pt-4">
               <button
                 onClick={exportProgress}
