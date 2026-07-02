@@ -1,44 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import type { MandarinData } from "@/lib/types";
-import { wordKey } from "@/lib/data";
+import { dueCards } from "@/lib/progress-logic";
 import { track } from "@/lib/analytics";
 import { useProgress } from "./use-progress";
+import { useSwipe } from "./use-swipe";
+import { LoadingScreen } from "./loading-screen";
 import { SpeakButton } from "./speak-button";
-
-type ReviewCard = {
-  topicSlug: string;
-  topicTitle: string;
-  hanzi: string;
-  pinyin: string;
-  english: string;
-  key: string;
-  dueAt: string;
-  intervalDays: number;
-};
-
-// ─── Touch swipe hook ─────────────────────────────────────────────────────────
-
-function useSwipe(onLeft: () => void, onRight: () => void) {
-  const startX = useRef<number | null>(null);
-
-  const onTouchStart = useCallback((e: React.TouchEvent) => {
-    startX.current = e.touches[0].clientX;
-  }, []);
-
-  const onTouchEnd = useCallback((e: React.TouchEvent) => {
-    if (startX.current === null) return;
-    const dx = e.changedTouches[0].clientX - startX.current;
-    startX.current = null;
-    if (Math.abs(dx) < 50) return;
-    if (dx < 0) onLeft();
-    else onRight();
-  }, [onLeft, onRight]);
-
-  return { onTouchStart, onTouchEnd };
-}
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
@@ -48,32 +18,13 @@ export function ReviewApp({ data }: { data: MandarinData }) {
   const [revealed, setRevealed] = useState(false);
   const [done, setDone] = useState(false);
 
-  const dueCards = useMemo<ReviewCard[]>(() => {
-    const now = new Date();
-    const cards: ReviewCard[] = [];
-    for (const topic of data.topics) {
-      for (const item of topic.items) {
-        const key = wordKey(topic, item);
-        const stat = progress.flashcardStats[key];
-        if (stat && new Date(stat.dueAt) <= now) {
-          cards.push({
-            topicSlug: topic.slug,
-            topicTitle: topic.titleEn,
-            hanzi: item.hanzi,
-            pinyin: item.pinyin,
-            english: item.english,
-            key,
-            dueAt: stat.dueAt,
-            intervalDays: stat.intervalDays,
-          });
-        }
-      }
-    }
-    return cards.sort((a, b) => new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime());
-  }, [data.topics, progress.flashcardStats]);
+  const cards = useMemo(
+    () => dueCards(data.topics, progress.flashcardStats),
+    [data.topics, progress.flashcardStats],
+  );
 
-  const totalDue = dueCards.length;
-  const current = dueCards[cardIndex];
+  const totalDue = cards.length;
+  const current = cards[cardIndex];
 
   function handleGrade(grade: "again" | "hard" | "good" | "easy") {
     if (!current) return;
@@ -94,11 +45,7 @@ export function ReviewApp({ data }: { data: MandarinData }) {
   );
 
   if (!loaded) {
-    return (
-      <main className="mx-auto max-w-7xl px-6 py-8 md:px-10">
-        <p className="text-slate-400">Loading progress…</p>
-      </main>
-    );
+    return <LoadingScreen />;
   }
 
   return (

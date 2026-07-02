@@ -1,4 +1,8 @@
-import type { FlashcardStat, ProgressState, QuizStat } from "./types";
+import type { FlashcardStat, ProgressState, QuizStat, Topic } from "./types";
+// Value import needs the explicit `.ts` extension so it resolves under
+// `node --test` (Node's native TS runner does not add extensions); `next build`
+// and tsc accept it via `allowImportingTsExtensions`. Mirrors quiz-logic.ts.
+import { wordKey } from "./data-logic.ts";
 
 // Pure progress helpers, extracted from use-progress.ts so they can be
 // unit-tested without React. The hook imports these and layers persistence /
@@ -229,6 +233,88 @@ export function computeStats(progress: ProgressState, now: Date = new Date()): P
     // from the injectable clock so tests stay deterministic.
     streak: computeStreak(progress.studiedDates ?? [], isoDay(now)),
   };
+}
+
+// ─── Per-topic progress ───────────────────────────────────────────────────────
+
+export type TopicProgress = {
+  /** Words in the topic graded at least once. */
+  studied: number;
+  /** Words whose review interval has reached the mastery threshold. */
+  mastered: number;
+  /** Total words in the topic. */
+  total: number;
+};
+
+// A word counts as "mastered" once its spaced-repetition interval reaches a
+// week. Kept as a named constant so the topic page and any future surface share
+// exactly one threshold.
+export const MASTERED_INTERVAL_DAYS = 7;
+
+// Studied / mastered / total counts for a single topic, derived from the
+// persisted flashcard stats. Pure and dataset-independent: it reads only
+// `reviewCount` and `intervalDays` off each word's stat, keyed by `wordKey`, so
+// the thresholds live in one place. Extracted from topic-app's `topicStats`
+// with identical behavior.
+export function topicProgress(
+  topic: Topic,
+  flashcardStats: Record<string, Pick<FlashcardStat, "reviewCount" | "intervalDays">>,
+): TopicProgress {
+  let studied = 0;
+  let mastered = 0;
+  for (const item of topic.items) {
+    const stat = flashcardStats[wordKey(topic, item)];
+    if (stat && stat.reviewCount > 0) studied++;
+    if (stat && stat.intervalDays >= MASTERED_INTERVAL_DAYS) mastered++;
+  }
+  return { studied, mastered, total: topic.items.length };
+}
+
+// ─── Spaced-repetition review queue ────────────────────────────────────────────
+
+// A word due for review, resolved back to its display fields and originating
+// topic. Built by `dueCards` and rendered directly by the /review page.
+export type DueCard = {
+  topicSlug: string;
+  topicTitle: string;
+  hanzi: string;
+  pinyin: string;
+  english: string;
+  key: string;
+  dueAt: string;
+  intervalDays: number;
+};
+
+// Every word across `topics` whose next review is due at or before `now`,
+// sorted oldest-due first. Pure; `now` is injectable so the queue is
+// deterministic in tests (defaults to the real clock, matching the component's
+// previous inline `new Date()`). Extracted from review-app's `dueCards` memo
+// with identical behavior.
+export function dueCards(
+  topics: Topic[],
+  flashcardStats: Record<string, FlashcardStat>,
+  now: Date = new Date(),
+): DueCard[] {
+  const cards: DueCard[] = [];
+  for (const topic of topics) {
+    for (const item of topic.items) {
+      const key = wordKey(topic, item);
+      const stat = flashcardStats[key];
+      if (stat && new Date(stat.dueAt) <= now) {
+        cards.push({
+          topicSlug: topic.slug,
+          topicTitle: topic.titleEn,
+          hanzi: item.hanzi,
+          pinyin: item.pinyin,
+          english: item.english,
+          key,
+          dueAt: stat.dueAt,
+          intervalDays: stat.intervalDays,
+        });
+      }
+    }
+  }
+  return cards.sort((a, b) => new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime());
 }
 
 // ─── Weak / tricky words ──────────────────────────────────────────────────────

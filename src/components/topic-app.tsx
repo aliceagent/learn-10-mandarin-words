@@ -1,55 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Topic, VocabItem } from "@/lib/types";
 import { isUsefulPhraseTopic, nextTopicAfter, wordKey } from "@/lib/data";
 import { buildQuiz, itemsForKeys, type QuizMode } from "@/lib/quiz-logic";
-import { computeStats } from "@/lib/progress-logic";
+import { computeStats, topicProgress } from "@/lib/progress-logic";
 import { downloadableMp4Url, hasPlayableVideo } from "@/lib/video";
 import { track } from "@/lib/analytics";
 import { useProgress } from "./use-progress";
-import { SpeakButton } from "./speak-button";
 import { VideoPlayer } from "./video-player";
 import { TonePractice } from "./tone-practice";
 import { PhrasebookPanel } from "./phrasebook-panel";
 import { NextStepPanel } from "./next-step-panel";
 import { SaveOfflineButton } from "./save-offline-button";
-
-// ─── Touch swipe hook ─────────────────────────────────────────────────────────
-
-function useSwipe(onLeft: () => void, onRight: () => void) {
-  const startX = useRef<number | null>(null);
-
-  const onTouchStart = useCallback((e: React.TouchEvent) => {
-    startX.current = e.touches[0].clientX;
-  }, []);
-
-  const onTouchEnd = useCallback((e: React.TouchEvent) => {
-    if (startX.current === null) return;
-    const dx = e.changedTouches[0].clientX - startX.current;
-    startX.current = null;
-    if (Math.abs(dx) < 50) return;
-    if (dx < 0) onLeft();
-    else onRight();
-  }, [onLeft, onRight]);
-
-  return { onTouchStart, onTouchEnd };
-}
-
-// ─── Topic progress helpers ───────────────────────────────────────────────────
-
-function topicStats(topic: Topic, flashcardStats: Record<string, { reviewCount: number; intervalDays: number }>) {
-  let studied = 0;
-  let mastered = 0;
-  for (const item of topic.items) {
-    const key = wordKey(topic, item);
-    const stat = flashcardStats[key];
-    if (stat && stat.reviewCount > 0) studied++;
-    if (stat && stat.intervalDays >= 7) mastered++;
-  }
-  return { studied, mastered, total: topic.items.length };
-}
+import { WordsPanel } from "./topic/words-panel";
+import { FlashcardsPanel } from "./topic/flashcards-panel";
+import { QuizPanel } from "./topic/quiz-panel";
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
@@ -78,7 +45,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
   const isFavoriteTopic = progress.favoriteTopics.includes(topic.slug);
   const current = topic.items[cardIndex % topic.items.length];
   const currentKey = wordKey(topic, current);
-  const { studied, mastered, total } = topicStats(topic, progress.flashcardStats);
+  const { studied, mastered, total } = topicProgress(topic, progress.flashcardStats);
   const studiedPct = total > 0 ? (studied / total) * 100 : 0;
   const videoReady = hasPlayableVideo(topic);
   const mp4Url = downloadableMp4Url(topic);
@@ -171,12 +138,6 @@ export function TopicApp({ topic }: { topic: Topic }) {
     setQuizState({ index: 0, score: 0, picked: null });
     setQuizComplete(false);
   }
-
-  // Swipe: right = easy, left = again (when revealed)
-  const swipe = useSwipe(
-    () => { if (revealed) { gradeWord(currentKey, "again"); setRevealed(false); setCardIndex((v) => (v + 1) % topic.items.length); } },
-    () => { if (revealed) { gradeWord(currentKey, "easy"); setRevealed(false); setCardIndex((v) => (v + 1) % topic.items.length); } else setRevealed(true); }
-  );
 
   return (
     <main className="mx-auto max-w-7xl px-6 pb-24 pt-0 md:px-10 md:pb-12">
@@ -329,271 +290,45 @@ export function TopicApp({ topic }: { topic: Topic }) {
 
       {/* ── Words ── */}
       {mode === "words" ? (
-        <section className="mt-6 grid gap-4 md:grid-cols-2" aria-label="Vocabulary words">
-          {topic.items.map((item) => {
-            const key = wordKey(topic, item);
-            const favorite = progress.favoriteWords.includes(key);
-            const stat = progress.flashcardStats[key];
-            return (
-              <article key={item.hanzi} className="rounded-3xl border border-white/10 bg-white/[0.045] p-5">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex min-w-0 items-start gap-3">
-                    <div className="min-w-0">
-                      <h2 className="font-hanzi text-4xl font-semibold text-white">{item.hanzi}</h2>
-                      <p className="font-hanzi mt-2 text-xl text-emerald-300">{item.pinyin}</p>
-                      <p className="mt-1 text-lg font-semibold text-slate-200">{item.english}</p>
-                      {stat && stat.reviewCount > 0 ? (
-                        <p className="mt-1 text-xs text-slate-500">
-                          {stat.reviewCount} review{stat.reviewCount !== 1 ? "s" : ""} · interval {stat.intervalDays}d
-                        </p>
-                      ) : null}
-                    </div>
-                    <SpeakButton text={item.hanzi} label={`Pronounce ${item.hanzi} (${item.pinyin})`} />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => { if (!favorite) track("favorite_saved", { topic: topic.slug, kind: "word" }); toggleFavoriteWord(key); }}
-                    className="min-h-[44px] shrink-0 rounded-full border border-white/10 px-3.5 py-2 text-sm font-semibold text-slate-200 transition hover:border-amber-300"
-                    aria-pressed={favorite}
-                    aria-label={favorite ? `Remove ${item.english} from favorites` : `Save ${item.english} to favorites`}
-                  >
-                    {favorite ? "Saved" : "Save"}
-                  </button>
-                </div>
-                <div className="mt-5 space-y-3 border-t border-white/10 pt-4">
-                  {item.sentences.map((sentence) => (
-                    <div key={sentence.cn} className="flex items-start gap-2">
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm leading-6 text-slate-300">
-                          <span className="font-hanzi text-white">{sentence.cn}</span>
-                          <br />{sentence.en}
-                        </p>
-                      </div>
-                      <SpeakButton text={sentence.cn} label={`Pronounce: ${sentence.cn}`} />
-                    </div>
-                  ))}
-                </div>
-              </article>
-            );
-          })}
-        </section>
+        <WordsPanel
+          topic={topic}
+          favoriteWords={progress.favoriteWords}
+          flashcardStats={progress.flashcardStats}
+          onToggleFavorite={(key) => {
+            if (!progress.favoriteWords.includes(key)) track("favorite_saved", { topic: topic.slug, kind: "word" });
+            toggleFavoriteWord(key);
+          }}
+        />
       ) : null}
 
       {/* ── Flashcards ── */}
       {mode === "flashcards" ? (
-        <section
-          className="mt-6 rounded-[2rem] border border-white/10 bg-white/[0.045] p-6 text-center"
-          {...swipe}
-          aria-label="Flashcard practice"
-          role="region"
-        >
-          <div className="flex items-center justify-between gap-2 text-sm text-slate-400">
-            <span>Card {cardIndex + 1} of {topic.items.length}</span>
-            {/* Swipe gesture hints */}
-            <div className="flex gap-2">
-              <span className="swipe-hint">← again</span>
-              <span className="swipe-hint">easy →</span>
-            </div>
-          </div>
-
-          <div className="mt-6 flex items-center justify-center gap-3">
-            <h2 className="font-hanzi text-7xl font-semibold text-white">{current.hanzi}</h2>
-            <SpeakButton text={current.hanzi} label={`Pronounce ${current.hanzi}`} />
-          </div>
-
-          {revealed ? (
-            <div className="mt-5 animate-celebrate">
-              <p className="font-hanzi text-2xl text-emerald-300">{current.pinyin}</p>
-              <p className="mt-2 text-xl text-slate-200">{current.english}</p>
-            </div>
-          ) : null}
-
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            {!revealed ? (
-              <button
-                type="button"
-                onClick={() => setRevealed(true)}
-                className="min-h-[44px] rounded-full bg-emerald-400 px-7 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
-                aria-label="Reveal answer"
-              >
-                Reveal
-              </button>
-            ) : (
-              <>
-                {(["again", "hard", "good", "easy"] as const).map((grade) => (
-                  <button
-                    key={grade}
-                    type="button"
-                    onClick={() => { gradeWord(currentKey, grade); setRevealed(false); setCardIndex((v) => (v + 1) % topic.items.length); }}
-                    className="min-h-[44px] rounded-full border border-white/15 px-5 py-3 font-semibold capitalize text-white transition hover:border-emerald-300"
-                    aria-label={`Grade as ${grade}`}
-                  >
-                    {grade}
-                  </button>
-                ))}
-              </>
-            )}
-          </div>
-
-          {/* Tip on first card */}
-          {!revealed && cardIndex === 0 ? (
-            <p className="mt-6 text-xs text-slate-600">
-              Tap Reveal, then grade your recall · swipe left/right after revealing
-            </p>
-          ) : null}
-        </section>
+        <FlashcardsPanel
+          topic={topic}
+          cardIndex={cardIndex}
+          current={current}
+          revealed={revealed}
+          onReveal={() => setRevealed(true)}
+          onGrade={(grade) => { gradeWord(currentKey, grade); setRevealed(false); setCardIndex((v) => (v + 1) % topic.items.length); }}
+        />
       ) : null}
 
       {/* ── Quiz ── */}
       {mode === "quiz" ? (
-        quizComplete ? (
-          /* Celebration screen */
-          <div className="animate-celebrate mt-6 rounded-[2rem] border border-white/10 bg-white/[0.045] p-8 text-center">
-            <p className="text-6xl">{missedItemsList.length === 0 ? "🎉" : "💪"}</p>
-            <p className="mt-4 text-2xl font-semibold text-white">Quiz complete!</p>
-            <p className="mt-3 text-5xl font-bold text-emerald-300">{quizState.score}<span className="text-2xl text-slate-400">/{quiz.length}</span></p>
-            <p className="mt-2 text-slate-400">
-              {missedItemsList.length === 0
-                ? "Perfect score! Every answer correct."
-                : quizState.score >= Math.ceil(quiz.length * 0.8)
-                ? "Great job! Just a few to nail down."
-                : "Keep practicing — retry the ones you missed below."}
-            </p>
-
-            {/* Missed-words summary + retry (only when there were mistakes) */}
-            {missedItemsList.length > 0 ? (
-              <div className="mx-auto mt-6 max-w-md rounded-2xl border border-white/10 bg-slate-950/60 p-5 text-left">
-                <p className="text-sm font-semibold text-slate-300">
-                  {missedItemsList.length} to review
-                </p>
-                <ul className="mt-3 space-y-2">
-                  {missedItemsList.map((item) => (
-                    <li key={item.hanzi} className="flex items-baseline gap-3">
-                      <span className="font-hanzi text-xl text-white">{item.hanzi}</span>
-                      <span className="font-hanzi text-sm text-emerald-300">{item.pinyin}</span>
-                      <span className="text-sm text-slate-400">{item.english}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-
-            <div className="mt-6 flex flex-wrap justify-center gap-3">
-              {missedItemsList.length > 0 ? (
-                <button
-                  type="button"
-                  onClick={retryMissed}
-                  className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
-                >
-                  Retry missed ({missedItemsList.length})
-                </button>
-              ) : null}
-              <button
-                type="button"
-                onClick={restartQuiz}
-                className="min-h-[44px] rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300"
-              >
-                Try again
-              </button>
-              <button
-                type="button"
-                onClick={() => { setMode("flashcards"); setCardIndex(0); setRevealed(false); }}
-                className={`min-h-[44px] rounded-full px-6 py-3 font-semibold transition ${missedItemsList.length === 0 ? "bg-emerald-400 text-slate-950 hover:bg-emerald-300" : "border border-white/15 text-white hover:border-emerald-300"}`}
-              >
-                Practice flashcards
-              </button>
-            </div>
-          </div>
-        ) : (
-          <section className="mt-6 rounded-[2rem] border border-white/10 bg-white/[0.045] p-6" aria-label="Quiz practice">
-            {/* Quiz mode selector */}
-            <div className="mb-5 flex flex-wrap gap-2" role="group" aria-label="Quiz mode">
-              {([
-                { key: "hanzi-english", label: "Hanzi → English" },
-                { key: "english-hanzi", label: "English → Hanzi" },
-                { key: "hanzi-pinyin", label: "Hanzi → Pinyin" },
-              ] as const).map((m) => (
-                <button
-                  key={m.key}
-                  type="button"
-                  onClick={() => changeQuizMode(m.key)}
-                  className={`min-h-[44px] rounded-full border px-4 py-2 text-xs font-semibold transition ${quizMode === m.key ? "border-emerald-300 bg-emerald-300 text-slate-950" : "border-white/10 text-slate-400 hover:border-emerald-300 hover:text-white"}`}
-                  aria-pressed={quizMode === m.key}
-                >
-                  {m.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex items-center justify-between gap-4">
-              <p className="text-sm text-slate-400">Question {(quizState.index % quiz.length) + 1} of {quiz.length}</p>
-              <p className="text-sm font-semibold text-emerald-300">Score {quizState.score}</p>
-            </div>
-
-            {/* Progress bar through quiz */}
-            <div className="progress-bar-track mt-2">
-              <div className="progress-bar-fill" style={{ width: `${(quizState.index / quiz.length) * 100}%` }} />
-            </div>
-
-            {/* Prompt */}
-            <div className="mt-8 text-center">
-              <div className="flex items-center justify-center gap-3">
-                <h2 className={`font-hanzi text-7xl font-semibold text-white ${quizMode === "english-hanzi" ? "font-sans text-4xl" : ""}`}>
-                  {currentQuiz.prompt}
-                </h2>
-                {(quizMode === "hanzi-english" || quizMode === "hanzi-pinyin") ? (
-                  <SpeakButton text={currentQuiz.prompt} label={`Pronounce: ${currentQuiz.prompt}`} />
-                ) : null}
-              </div>
-              {currentQuiz.promptPinyin ? (
-                <p className="font-hanzi mt-2 text-2xl text-emerald-300">{currentQuiz.promptPinyin}</p>
-              ) : null}
-            </div>
-
-            {/* Choices */}
-            <div className="mt-8 grid gap-3 md:grid-cols-2" role="listbox" aria-label="Answer choices">
-              {currentQuiz.choices.map((choice) => {
-                const right = quizState.picked !== null && choice === currentQuiz.answer;
-                const wrong = quizState.picked === choice && choice !== currentQuiz.answer;
-                return (
-                  <button
-                    key={`${quizState.index}:${choice}`}
-                    type="button"
-                    onClick={() => answerQuiz(choice)}
-                    role="option"
-                    aria-selected={quizState.picked === choice}
-                    aria-disabled={quizState.picked !== null && quizState.picked !== choice}
-                    className={`min-h-[52px] rounded-2xl border px-5 py-4 text-left font-semibold transition
-                      ${right ? "animate-quiz-correct border-emerald-300 bg-emerald-300 text-slate-950" : ""}
-                      ${wrong ? "animate-quiz-wrong border-rose-400 bg-rose-400/20 text-rose-200" : ""}
-                      ${!right && !wrong ? "border-white/10 bg-slate-950 text-white hover:border-emerald-300" : ""}
-                    `}
-                  >
-                    <span className={quizMode === "english-hanzi" || quizMode === "hanzi-pinyin" ? "font-hanzi" : ""}>
-                      {choice}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {quizState.picked ? (
-              <div className="mt-6 flex items-center gap-4">
-                <button
-                  type="button"
-                  onClick={nextQuiz}
-                  className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
-                  aria-label={quizState.index + 1 >= quiz.length ? "See results" : "Next question"}
-                >
-                  {quizState.index + 1 >= quiz.length ? "See results" : "Next question"}
-                </button>
-                {quizMode !== "hanzi-english" && quizMode !== "english-hanzi" ? (
-                  <SpeakButton text={currentQuiz.prompt} label="Hear pronunciation" />
-                ) : null}
-              </div>
-            ) : null}
-          </section>
-        )
+        <QuizPanel
+          quizComplete={quizComplete}
+          quiz={quiz}
+          currentQuiz={currentQuiz}
+          quizMode={quizMode}
+          quizState={quizState}
+          missedItemsList={missedItemsList}
+          onChangeQuizMode={changeQuizMode}
+          onAnswer={answerQuiz}
+          onNext={nextQuiz}
+          onRetryMissed={retryMissed}
+          onRestart={restartQuiz}
+          onPracticeFlashcards={() => { setMode("flashcards"); setCardIndex(0); setRevealed(false); }}
+        />
       ) : null}
 
       {/* ── Next-step panel (shown once the topic is learned or the quiz is done) ── */}

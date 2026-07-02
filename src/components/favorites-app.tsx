@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import type { MandarinData } from "@/lib/types";
 import { wordKey } from "@/lib/data";
 import { useProgress } from "./use-progress";
+import { LoadingScreen } from "./loading-screen";
 import { SpeakButton } from "./speak-button";
 
 export function FavoritesApp({ data }: { data: MandarinData }) {
@@ -31,11 +32,7 @@ export function FavoritesApp({ data }: { data: MandarinData }) {
   const isEmpty = favoriteTopics.length === 0 && favoriteWords.length === 0;
 
   if (!loaded) {
-    return (
-      <main className="mx-auto max-w-7xl px-6 py-8 md:px-10">
-        <p className="text-slate-400">Loading favorites…</p>
-      </main>
-    );
+    return <LoadingScreen message="Loading favorites…" />;
   }
 
   return (

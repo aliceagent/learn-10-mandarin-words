@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import type { MandarinData, VocabItem } from "@/lib/types";
 import { wordKey } from "@/lib/data";
 import { useProgress } from "./use-progress";
+import { LoadingScreen } from "./loading-screen";
 import { computeStats, computeWeakWords } from "@/lib/stats-logic";
 
 type WeakWordRow = VocabItem & {
@@ -57,11 +58,7 @@ export function StatsApp({
   }, [data.topics, progress.quizStats]);
 
   if (!loaded) {
-    return (
-      <main className="mx-auto max-w-7xl px-6 py-8 md:px-10">
-        <p className="text-slate-400">Loading progress…</p>
-      </main>
-    );
+    return <LoadingScreen />;
   }
 
   const hasActivity =

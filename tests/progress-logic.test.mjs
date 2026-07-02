@@ -8,14 +8,31 @@ import {
   computeStreak,
   computeWeakWords,
   defaultStat,
+  dueCards,
   emptyProgress,
   normalizeProgress,
   normalizeQuizStat,
   normalizeStat,
   scheduleReview,
+  topicProgress,
   updateQuizStats,
   uniqueToggle,
 } from "../src/lib/progress-logic.ts";
+
+// Minimal Topic/VocabItem fixtures for the dataset-shaped helpers. Only the
+// fields the helpers read need to be present; wordKey is `slug:hanzi`.
+function makeTopic(slug, hanziList, titleEn = slug) {
+  return {
+    slug,
+    titleEn,
+    items: hanziList.map((hanzi) => ({
+      hanzi,
+      pinyin: `${hanzi}-pinyin`,
+      english: `${hanzi}-english`,
+      sentences: [],
+    })),
+  };
+}
 
 test("normalizeProgress fills a full shape from empty input", () => {
   const p = normalizeProgress({});
@@ -201,6 +218,65 @@ test("computeWeakWords breaks accuracy ties toward more-attempted words", () => 
 test("computeWeakWords tolerates empty or missing quizStats", () => {
   assert.deepEqual(computeWeakWords({}), []);
   assert.deepEqual(computeWeakWords(undefined), []);
+});
+
+// ─── topicProgress ──────────────────────────────────────────────────────────────
+
+test("topicProgress counts studied and mastered against the thresholds", () => {
+  const topic = makeTopic("t", ["好", "坏", "空", "半"]);
+  const flashcardStats = {
+    // studied (reviewCount > 0) but not mastered (interval < 7).
+    "t:好": { reviewCount: 2, intervalDays: 3 },
+    // studied and mastered (interval == 7, the threshold).
+    "t:坏": { reviewCount: 5, intervalDays: 7 },
+    // not studied (reviewCount 0) but still mastered: mastery keys off the
+    // interval alone, independent of reviewCount — matching the original.
+    "t:空": { reviewCount: 0, intervalDays: 30 },
+    // no stat at all for "半".
+  };
+  assert.deepEqual(topicProgress(topic, flashcardStats), { studied: 2, mastered: 2, total: 4 });
+});
+
+test("topicProgress returns all-zero counts for an untouched topic", () => {
+  const topic = makeTopic("t", ["一", "二", "三"]);
+  assert.deepEqual(topicProgress(topic, {}), { studied: 0, mastered: 0, total: 3 });
+});
+
+// ─── dueCards ─────────────────────────────────────────────────────────────────
+
+test("dueCards returns only due words, sorted oldest-due first", () => {
+  const now = new Date("2026-07-02T00:00:00.000Z");
+  const topics = [makeTopic("a", ["好", "坏"], "Topic A"), makeTopic("b", ["空"], "Topic B")];
+  const flashcardStats = {
+    // Due yesterday → included, and oldest so it sorts first.
+    "a:好": { intervalDays: 2, ease: 2.5, dueAt: "2026-07-01T00:00:00.000Z", reviewCount: 1 },
+    // Due in the future → excluded.
+    "a:坏": { intervalDays: 4, ease: 2.5, dueAt: "2026-07-10T00:00:00.000Z", reviewCount: 1 },
+    // Due exactly at `now` → included (boundary is inclusive).
+    "b:空": { intervalDays: 3, ease: 2.5, dueAt: "2026-07-02T00:00:00.000Z", reviewCount: 1 },
+  };
+  const cards = dueCards(topics, flashcardStats, now);
+  assert.deepEqual(cards.map((c) => c.key), ["a:好", "b:空"]);
+  assert.deepEqual(cards[0], {
+    topicSlug: "a",
+    topicTitle: "Topic A",
+    hanzi: "好",
+    pinyin: "好-pinyin",
+    english: "好-english",
+    key: "a:好",
+    dueAt: "2026-07-01T00:00:00.000Z",
+    intervalDays: 2,
+  });
+});
+
+test("dueCards ignores words with no flashcard stat and returns [] when none are due", () => {
+  const now = new Date("2026-07-02T00:00:00.000Z");
+  const topics = [makeTopic("a", ["好", "坏"])];
+  // Only one word tracked, and it is not yet due.
+  const flashcardStats = {
+    "a:好": { intervalDays: 4, ease: 2.5, dueAt: "2026-08-01T00:00:00.000Z", reviewCount: 1 },
+  };
+  assert.deepEqual(dueCards(topics, flashcardStats, now), []);
 });
 
 test("uniqueToggle adds when absent and removes when present", () => {

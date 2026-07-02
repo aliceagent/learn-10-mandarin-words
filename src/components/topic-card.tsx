@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Topic } from "@/lib/types";
+import { wordKey } from "@/lib/data";
 import { hasPlayableVideo } from "@/lib/video";
 import { normalizePinyin } from "@/lib/highlight";
 import { HighlightedText } from "./highlighted-text";
@@ -22,10 +23,9 @@ export function TopicCard({
   flashcardStats: Record<string, { reviewCount: number }>;
   query?: string;
 }) {
-  const studiedCount = topic.items.filter((item) => {
-    const key = `${topic.slug}:${item.hanzi}`;
-    return (flashcardStats[key]?.reviewCount ?? 0) > 0;
-  }).length;
+  const studiedCount = topic.items.filter(
+    (item) => (flashcardStats[wordKey(topic, item)]?.reviewCount ?? 0) > 0,
+  ).length;
 
   const pct = (studiedCount / topic.items.length) * 100;
   const videoReady = hasPlayableVideo(topic);
