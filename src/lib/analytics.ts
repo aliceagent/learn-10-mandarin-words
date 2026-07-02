@@ -20,6 +20,7 @@ export type AnalyticsEvent =
   | "tone_practice_completed"
   | "review_completed"
   | "practice_session_completed"
+  | "typed_recall_completed"
   | "favorite_saved"
   | "install_prompt_shown"
   | "install_accepted"

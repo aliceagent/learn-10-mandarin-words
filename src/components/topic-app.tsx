@@ -17,6 +17,7 @@ import { SaveOfflineButton } from "./save-offline-button";
 import { WordsPanel } from "./topic/words-panel";
 import { FlashcardsPanel } from "./topic/flashcards-panel";
 import { QuizPanel } from "./topic/quiz-panel";
+import { TypingPanel } from "./topic/typing-panel";
 import { Toast } from "./toast";
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -27,7 +28,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
   // selected by default so they read like a practical phrasebook rather than a
   // vocabulary list. Words/Cards/Quiz stay available for every topic.
   const isPhrasebook = isUsefulPhraseTopic(topic);
-  const [mode, setMode] = useState<"phrasebook" | "words" | "flashcards" | "quiz">(
+  const [mode, setMode] = useState<"phrasebook" | "words" | "flashcards" | "quiz" | "typed">(
     isPhrasebook ? "phrasebook" : "words",
   );
   const [cardIndex, setCardIndex] = useState(0);
@@ -284,8 +285,10 @@ export function TopicApp({ topic }: { topic: Topic }) {
       </section>
 
       {/* ── Mode tabs ── */}
+      {/* Scrollable flex bar (not a fixed grid) so 4–5 tabs fit and scroll on a
+          360px screen; the scrollbar is hidden. */}
       <nav
-        className={`mt-10 grid gap-2 rounded-3xl border border-white/10 bg-slate-950/80 p-2 ${isPhrasebook ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3"}`}
+        className="mt-10 flex gap-2 overflow-x-auto snap-x rounded-3xl border border-white/10 bg-slate-950/80 p-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         aria-label="Practice modes"
       >
         {isPhrasebook ? (
@@ -294,6 +297,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
         <Tab active={mode === "words"} onClick={() => setMode("words")}>Words</Tab>
         <Tab active={mode === "flashcards"} onClick={() => setMode("flashcards")}>Cards</Tab>
         <Tab active={mode === "quiz"} onClick={() => setMode("quiz")}>Quiz</Tab>
+        <Tab active={mode === "typed"} onClick={() => setMode("typed")}>Type</Tab>
       </nav>
 
       {/* ── Phrasebook (Useful Phrases only) ── */}
@@ -361,6 +365,11 @@ export function TopicApp({ topic }: { topic: Topic }) {
         />
       ) : null}
 
+      {/* ── Typed recall ── */}
+      {mode === "typed" ? (
+        <TypingPanel topic={topic} onRecord={recordQuizAnswer} />
+      ) : null}
+
       {/* ── Next-step panel (shown once the topic is learned or the quiz is done) ── */}
       {showNextStep ? (
         <NextStepPanel
@@ -394,7 +403,7 @@ function Tab({ active, onClick, children }: { active: boolean; onClick: () => vo
       onClick={onClick}
       role="tab"
       aria-selected={active}
-      className={`min-h-[44px] min-w-0 rounded-2xl px-2 py-3 text-sm font-semibold transition sm:px-5 sm:text-base ${active ? "bg-emerald-400 text-slate-950" : "text-slate-300 hover:bg-white/[0.06] hover:text-white"}`}
+      className={`min-h-[44px] shrink-0 snap-start rounded-2xl px-4 py-3 text-sm font-semibold transition sm:px-5 sm:text-base ${active ? "bg-emerald-400 text-slate-950" : "text-slate-300 hover:bg-white/[0.06] hover:text-white"}`}
     >
       {children}
     </button>
