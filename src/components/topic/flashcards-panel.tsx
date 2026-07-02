@@ -1,7 +1,8 @@
 "use client";
 
-import type { Topic, VocabItem } from "@/lib/types";
+import type { FlashcardStat, Topic, VocabItem } from "@/lib/types";
 import type { Grade } from "@/lib/progress-logic";
+import { formatIntervalDays, previewIntervals } from "@/lib/progress-logic";
 import { SpeakButton } from "../speak-button";
 import { useSwipe } from "../use-swipe";
 
@@ -15,6 +16,7 @@ export function FlashcardsPanel({
   topic,
   cardIndex,
   current,
+  stat,
   revealed,
   onReveal,
   onGrade,
@@ -22,10 +24,17 @@ export function FlashcardsPanel({
   topic: Topic;
   cardIndex: number;
   current: VocabItem;
+  /** The current word's saved stat, so grade buttons can preview the next
+   *  interval (undefined for a never-graded word). */
+  stat: FlashcardStat | undefined;
   revealed: boolean;
   onReveal: () => void;
   onGrade: (grade: Grade) => void;
 }) {
+  // Projected next interval per grade — computed via previewIntervals so the
+  // labels always match what a real grade would schedule (never re-derived).
+  const previews = previewIntervals(stat, new Date());
+
   // Swipe: right = easy, left = again (when revealed); right also reveals first.
   const swipe = useSwipe(
     () => { if (revealed) onGrade("again"); },
@@ -77,10 +86,13 @@ export function FlashcardsPanel({
                 key={grade}
                 type="button"
                 onClick={() => onGrade(grade)}
-                className="min-h-[44px] rounded-full border border-white/15 px-5 py-3 font-semibold capitalize text-white transition hover:border-emerald-300"
-                aria-label={`Grade as ${grade}`}
+                className="flex min-h-[44px] flex-col items-center justify-center rounded-full border border-white/15 px-5 py-2 font-semibold text-white transition hover:border-emerald-300"
+                aria-label={`Grade as ${grade} — next review in ${previews[grade]} day${previews[grade] !== 1 ? "s" : ""}`}
               >
-                {grade}
+                <span className="capitalize">{grade}</span>
+                <span className="text-[11px] font-normal text-slate-500" aria-hidden="true">
+                  {formatIntervalDays(previews[grade])}
+                </span>
               </button>
             ))}
           </>

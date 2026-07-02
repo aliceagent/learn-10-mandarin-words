@@ -6,6 +6,7 @@ import type { MandarinData } from "@/lib/types";
 import { nextRecommendedTopic } from "@/lib/data";
 import { track } from "@/lib/analytics";
 import { useProgress, computeStreak } from "./use-progress";
+import { streakAtRisk } from "@/lib/progress-logic";
 import { OnboardingModal, ContinueLearningCard } from "./onboarding";
 import { TopicCard } from "./topic-card";
 // Shared diacritic-tolerant normalizer so "nǐ", "ni", "ní" all match — the same
@@ -36,6 +37,7 @@ export function HomeApp({ data }: { data: MandarinData }) {
   const learnedCount = progress.learnedTopics.length;
   const favoriteCount = progress.favoriteWords.length + progress.favoriteTopics.length;
   const streak = computeStreak(progress.studiedDates ?? []);
+  const atRisk = streakAtRisk(progress.studiedDates ?? []);
 
   const studiedWordsCount = Object.values(progress.flashcardStats).filter((s) => s.reviewCount > 0).length;
   const totalWords = data.topics.length * 10;
@@ -90,7 +92,14 @@ export function HomeApp({ data }: { data: MandarinData }) {
           <div className="rounded-[1.5rem] bg-slate-950 p-5">
             <div className="mb-5 flex items-center justify-between border-b border-white/10 pb-4">
               <span className="text-sm font-semibold text-slate-300">Today&apos;s snapshot</span>
-              {streak > 0 ? (
+              {atRisk ? (
+                <Link
+                  href="/review"
+                  className="rounded-full border border-amber-400/60 px-3 py-1.5 text-xs font-bold text-amber-300 transition hover:border-amber-300 hover:text-amber-200"
+                >
+                  🔥 {streak}-day streak — practice today to keep it
+                </Link>
+              ) : streak > 0 ? (
                 <div className="flex items-center gap-1.5 rounded-full bg-amber-400 px-3 py-1.5" aria-label={`${streak} day streak`}>
                   <span className="text-sm font-black text-slate-950">{streak}</span>
                   <span className="text-xs font-bold text-slate-950">day streak 🔥</span>

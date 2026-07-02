@@ -405,3 +405,41 @@ export function scheduleReview(existing: FlashcardStat, grade: Grade, now: Date)
   due.setDate(due.getDate() + intervalDays);
   return { intervalDays, ease, dueAt: due.toISOString(), reviewCount: stat.reviewCount + 1 };
 }
+
+// ─── Grading feedback previews ─────────────────────────────────────────────────
+
+// Every grade in scheduling order — shared so previews line up with the grade
+// buttons.
+const GRADES: Grade[] = ["again", "hard", "good", "easy"];
+
+// Projected next interval (whole days) per grade, WITHOUT persisting anything.
+// Calls `scheduleReview` (the single source of interval math) once per grade on
+// a defensive copy of the card, so the UI can label grade buttons with the exact
+// interval a real grade would produce. A brand-new card uses `defaultStat`, so
+// `previewIntervals(undefined, now)` yields `{again:1, hard:1, good:2, easy:4}`.
+export function previewIntervals(existing: FlashcardStat | undefined, now: Date): Record<Grade, number> {
+  const base = existing ?? defaultStat(now);
+  const out = {} as Record<Grade, number>;
+  for (const grade of GRADES) {
+    // scheduleReview normalizes its input and never mutates it, so `base` is
+    // untouched across the loop.
+    out[grade] = scheduleReview(base, grade, now).intervalDays;
+  }
+  return out;
+}
+
+// Compact human label for a whole-day interval: "1d" | "6d" | "2w" | "3mo".
+// < 7 days → days + "d"; < 60 days → round(days / 7) + "w"; else round(days / 30) + "mo".
+export function formatIntervalDays(days: number): string {
+  if (days < 7) return `${days}d`;
+  if (days < 60) return `${Math.round(days / 7)}w`;
+  return `${Math.round(days / 30)}mo`;
+}
+
+// True when there is a live streak that today's inactivity would break: the
+// streak is alive courtesy of yesterday and nothing has been logged today.
+// `computeStreak` already anchors on today-or-yesterday, so this is exactly
+// "streak > 0 AND today not yet studied". `today` is injectable for tests.
+export function streakAtRisk(studiedDates: string[], today: string = todayISO()): boolean {
+  return computeStreak(studiedDates, today) > 0 && !studiedDates.includes(today);
+}

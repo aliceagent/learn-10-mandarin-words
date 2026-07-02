@@ -10,10 +10,13 @@ import {
   defaultStat,
   dueCards,
   emptyProgress,
+  formatIntervalDays,
   normalizeProgress,
   normalizeQuizStat,
   normalizeStat,
+  previewIntervals,
   scheduleReview,
+  streakAtRisk,
   topicProgress,
   updateQuizStats,
   uniqueToggle,
@@ -310,6 +313,52 @@ test("computeStreak breaks on a gap and ignores older runs", () => {
 test("computeStreak returns 0 when the latest day is older than yesterday", () => {
   const today = "2026-07-01";
   assert.equal(computeStreak(["2026-06-01", "2026-06-02"], today), 0);
+});
+
+test("previewIntervals matches a brand-new card's per-grade intervals", () => {
+  const now = new Date("2026-07-01T00:00:00.000Z");
+  assert.deepEqual(previewIntervals(undefined, now), { again: 1, hard: 1, good: 2, easy: 4 });
+});
+
+test("previewIntervals projects intervals from an existing card without mutating it", () => {
+  const now = new Date("2026-07-01T00:00:00.000Z");
+  const existing = { intervalDays: 10, ease: 2.5, dueAt: now.toISOString(), reviewCount: 3 };
+  const before = { ...existing };
+  assert.deepEqual(previewIntervals(existing, now), { again: 1, hard: 11, good: 20, easy: 30 });
+  // The input stat is never mutated by the preview.
+  assert.deepEqual(existing, before);
+});
+
+test("previewIntervals equals scheduleReview's actual interval for each grade", () => {
+  const now = new Date("2026-07-01T00:00:00.000Z");
+  const existing = { intervalDays: 6, ease: 2.4, dueAt: now.toISOString(), reviewCount: 2 };
+  const preview = previewIntervals(existing, now);
+  for (const grade of ["again", "hard", "good", "easy"]) {
+    assert.equal(preview[grade], scheduleReview(existing, grade, now).intervalDays);
+  }
+});
+
+test("formatIntervalDays renders days, weeks, and months at the boundaries", () => {
+  assert.equal(formatIntervalDays(1), "1d");
+  assert.equal(formatIntervalDays(6), "6d");
+  assert.equal(formatIntervalDays(7), "1w");
+  assert.equal(formatIntervalDays(13), "2w");
+  assert.equal(formatIntervalDays(14), "2w");
+  assert.equal(formatIntervalDays(59), "8w");
+  assert.equal(formatIntervalDays(60), "2mo");
+  assert.equal(formatIntervalDays(90), "3mo");
+});
+
+test("streakAtRisk is true only when a live streak has nothing logged today", () => {
+  const today = "2026-07-01";
+  // Studied yesterday only: streak alive, today empty -> at risk.
+  assert.equal(streakAtRisk(["2026-06-30"], today), true);
+  // Today already studied -> not at risk.
+  assert.equal(streakAtRisk(["2026-06-30", "2026-07-01"], today), false);
+  // No streak at all -> not at risk.
+  assert.equal(streakAtRisk([], today), false);
+  // Dead streak (latest day older than yesterday) -> not at risk.
+  assert.equal(streakAtRisk(["2026-06-28", "2026-06-29"], today), false);
 });
 
 test("scheduleReview schedules a first review deterministically per grade", () => {

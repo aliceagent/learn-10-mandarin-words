@@ -94,6 +94,16 @@ textarea:focus-visible,
   animation: celebrate-in 0.48s ease-out both;
 }
 
+/* ── Toast (transient grading feedback) ─────────────────────────────────────── */
+@keyframes toast-in {
+  0%   { opacity: 0; transform: translate(-50%, 10px); }
+  100% { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.animate-toast-in {
+  animation: toast-in 0.24s ease-out both;
+}
+
 /* ── Reduced-motion safety ──────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .animate-quiz-wrong,
@@ -101,6 +111,10 @@ textarea:focus-visible,
     animation: none;
   }
   .animate-celebrate {
+    animation: none;
+    opacity: 1;
+  }
+  .animate-toast-in {
     animation: none;
     opacity: 1;
   }

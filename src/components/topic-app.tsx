@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Topic, VocabItem } from "@/lib/types";
 import { isUsefulPhraseTopic, nextTopicAfter, wordKey } from "@/lib/data";
 import { buildQuiz, itemsForKeys, type QuizMode } from "@/lib/quiz-logic";
-import { computeStats, topicProgress } from "@/lib/progress-logic";
+import { computeStats, formatIntervalDays, previewIntervals, topicProgress } from "@/lib/progress-logic";
 import { downloadableMp4Url, hasPlayableVideo } from "@/lib/video";
 import { track } from "@/lib/analytics";
 import { useProgress } from "./use-progress";
@@ -17,6 +17,7 @@ import { SaveOfflineButton } from "./save-offline-button";
 import { WordsPanel } from "./topic/words-panel";
 import { FlashcardsPanel } from "./topic/flashcards-panel";
 import { QuizPanel } from "./topic/quiz-panel";
+import { Toast } from "./toast";
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
@@ -40,6 +41,8 @@ export function TopicApp({ topic }: { topic: Topic }) {
   const [activeItems, setActiveItems] = useState<VocabItem[]>(topic.items);
   // Keys of words answered incorrectly during the current quiz run.
   const [missedKeys, setMissedKeys] = useState<string[]>([]);
+  // Transient confirmation shown after grading a flashcard.
+  const [toast, setToast] = useState<string | null>(null);
 
   const isLearned = progress.learnedTopics.includes(topic.slug);
   const isFavoriteTopic = progress.favoriteTopics.includes(topic.slug);
@@ -307,9 +310,18 @@ export function TopicApp({ topic }: { topic: Topic }) {
           topic={topic}
           cardIndex={cardIndex}
           current={current}
+          stat={progress.flashcardStats[currentKey]}
           revealed={revealed}
           onReveal={() => setRevealed(true)}
-          onGrade={(grade) => { gradeWord(currentKey, grade); setRevealed(false); setCardIndex((v) => (v + 1) % topic.items.length); }}
+          onGrade={(grade) => {
+            // Compute the projected interval BEFORE grading mutates the stat, so
+            // the toast reports exactly what this grade scheduled.
+            const days = previewIntervals(progress.flashcardStats[currentKey], new Date())[grade];
+            gradeWord(currentKey, grade);
+            setToast(`“${current.hanzi}” scheduled in ${formatIntervalDays(days)}`);
+            setRevealed(false);
+            setCardIndex((v) => (v + 1) % topic.items.length);
+          }}
         />
       ) : null}
 
@@ -349,6 +361,8 @@ export function TopicApp({ topic }: { topic: Topic }) {
         </p>
         <TonePractice topic={topic} />
       </div>
+
+      <Toast message={toast} onDone={() => setToast(null)} />
     </main>
   );
 }

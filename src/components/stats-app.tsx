@@ -7,6 +7,7 @@ import { wordKey } from "@/lib/data";
 import { useProgress } from "./use-progress";
 import { LoadingScreen } from "./loading-screen";
 import { computeStats, computeWeakWords } from "@/lib/stats-logic";
+import { streakAtRisk } from "@/lib/progress-logic";
 
 type WeakWordRow = VocabItem & {
   topicSlug: string;
@@ -80,7 +81,14 @@ export function StatsApp({
             progress — no account, no cloud.
           </p>
         </div>
-        {stats.streak > 0 ? (
+        {streakAtRisk(progress.studiedDates ?? []) ? (
+          <Link
+            href="/review"
+            className="rounded-full border border-amber-400/60 px-4 py-2 text-sm font-bold text-amber-300 transition hover:border-amber-300 hover:text-amber-200"
+          >
+            🔥 {stats.streak}-day streak — practice today to keep it
+          </Link>
+        ) : stats.streak > 0 ? (
           <div className="flex items-center gap-2 rounded-full bg-amber-400 px-4 py-2" aria-label={`${stats.streak} day streak`}>
             <span className="text-lg font-black text-slate-950">{stats.streak}</span>
             <span className="text-sm font-bold text-slate-950">day streak 🔥</span>

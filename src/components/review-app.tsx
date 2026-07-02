@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { MandarinData } from "@/lib/types";
-import { dueCards } from "@/lib/progress-logic";
+import { dueCards, formatIntervalDays, previewIntervals } from "@/lib/progress-logic";
 import { track } from "@/lib/analytics";
 import { useProgress } from "./use-progress";
 import { useSwipe } from "./use-swipe";
 import { LoadingScreen } from "./loading-screen";
 import { SpeakButton } from "./speak-button";
+import { Toast } from "./toast";
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
@@ -17,6 +18,8 @@ export function ReviewApp({ data }: { data: MandarinData }) {
   const [cardIndex, setCardIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [done, setDone] = useState(false);
+  // Transient confirmation shown after grading a card.
+  const [toast, setToast] = useState<string | null>(null);
 
   const cards = useMemo(
     () => dueCards(data.topics, progress.flashcardStats),
@@ -25,10 +28,17 @@ export function ReviewApp({ data }: { data: MandarinData }) {
 
   const totalDue = cards.length;
   const current = cards[cardIndex];
+  // Projected next interval per grade for the current card, so grade buttons can
+  // label what each grade would schedule (via previewIntervals — never re-derived).
+  const gradePreviews = previewIntervals(current ? progress.flashcardStats[current.key] : undefined, new Date());
 
   function handleGrade(grade: "again" | "hard" | "good" | "easy") {
     if (!current) return;
+    // Compute the projected interval BEFORE grading mutates the stat, so the
+    // toast reports exactly what this grade scheduled.
+    const days = previewIntervals(progress.flashcardStats[current.key], new Date())[grade];
     gradeWord(current.key, grade);
+    setToast(`“${current.hanzi}” scheduled in ${formatIntervalDays(days)}`);
     setRevealed(false);
     if (cardIndex + 1 >= totalDue) {
       setDone(true);
@@ -154,16 +164,21 @@ export function ReviewApp({ data }: { data: MandarinData }) {
                   key={grade}
                   type="button"
                   onClick={() => handleGrade(grade)}
-                  className="min-h-[44px] rounded-full border border-white/15 px-5 py-3 font-semibold capitalize text-white transition hover:border-emerald-300"
-                  aria-label={`Grade as ${grade}`}
+                  className="flex min-h-[44px] flex-col items-center justify-center rounded-full border border-white/15 px-5 py-2 font-semibold text-white transition hover:border-emerald-300"
+                  aria-label={`Grade as ${grade} — next review in ${gradePreviews[grade]} day${gradePreviews[grade] !== 1 ? "s" : ""}`}
                 >
-                  {grade}
+                  <span className="capitalize">{grade}</span>
+                  <span className="text-[11px] font-normal text-slate-500" aria-hidden="true">
+                    {formatIntervalDays(gradePreviews[grade])}
+                  </span>
                 </button>
               ))
             )}
           </div>
         </section>
       )}
+
+      <Toast message={toast} onDone={() => setToast(null)} />
     </main>
   );
 }
