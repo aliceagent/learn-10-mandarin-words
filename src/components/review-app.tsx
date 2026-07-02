@@ -1,9 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type { MandarinData } from "@/lib/types";
 import { dueCards, formatIntervalDays, previewIntervals } from "@/lib/progress-logic";
+import type { Grade } from "@/lib/progress-logic";
+import {
+  gradeCard,
+  isSessionComplete,
+  startSession,
+  toughestCards,
+  type ReviewSession,
+} from "@/lib/session-logic";
 import { track } from "@/lib/analytics";
 import { useProgress } from "./use-progress";
 import { useSwipe } from "./use-swipe";
@@ -11,41 +19,69 @@ import { LoadingScreen } from "./loading-screen";
 import { SpeakButton } from "./speak-button";
 import { Toast } from "./toast";
 
+// Grade tally chips shown on the completion summary, in scheduling order with a
+// color per grade (never color alone — each chip also carries its label text).
+const TALLY: { grade: Grade; label: string; className: string }[] = [
+  { grade: "again", label: "Again", className: "border-rose-400/40 text-rose-300" },
+  { grade: "hard", label: "Hard", className: "border-amber-400/40 text-amber-300" },
+  { grade: "good", label: "Good", className: "border-slate-400/40 text-slate-200" },
+  { grade: "easy", label: "Easy", className: "border-emerald-400/40 text-emerald-300" },
+];
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function ReviewApp({ data }: { data: MandarinData }) {
   const { progress, loaded, gradeWord } = useProgress();
-  const [cardIndex, setCardIndex] = useState(0);
+  // The session is an explicit, one-time SNAPSHOT of the due queue — never a
+  // live memo of `dueCards`. Grading a card mutates `flashcardStats`; a live
+  // memo would rebuild the queue mid-run while the position cursor marched on,
+  // desyncing the two (the latent bug this sprint replaces). We seed once below
+  // and only ever rebuild on an explicit "Review N more".
+  const [session, setSession] = useState<ReviewSession | null>(null);
   const [revealed, setRevealed] = useState(false);
-  const [done, setDone] = useState(false);
   // Transient confirmation shown after grading a card.
   const [toast, setToast] = useState<string | null>(null);
 
-  const cards = useMemo(
-    () => dueCards(data.topics, progress.flashcardStats),
-    [data.topics, progress.flashcardStats],
-  );
+  // Seed the session exactly once, the moment progress finishes loading — using
+  // the "adjust state while rendering" pattern so the queue is fixed before
+  // paint and never tracks live `flashcardStats`.
+  if (loaded && session === null) {
+    setSession(startSession(dueCards(data.topics, progress.flashcardStats)));
+  }
 
-  const totalDue = cards.length;
-  const current = cards[cardIndex];
+  const current = session ? session.queue[session.position] : undefined;
   // Projected next interval per grade for the current card, so grade buttons can
   // label what each grade would schedule (via previewIntervals — never re-derived).
-  const gradePreviews = previewIntervals(current ? progress.flashcardStats[current.key] : undefined, new Date());
+  const gradePreviews = previewIntervals(
+    current ? progress.flashcardStats[current.key] : undefined,
+    new Date(),
+  );
 
-  function handleGrade(grade: "again" | "hard" | "good" | "easy") {
-    if (!current) return;
+  function handleGrade(grade: Grade) {
+    if (!session || !current) return;
     // Compute the projected interval BEFORE grading mutates the stat, so the
     // toast reports exactly what this grade scheduled.
     const days = previewIntervals(progress.flashcardStats[current.key], new Date())[grade];
+    // Persistence is unchanged: exactly one `gradeWord` per grading event. An
+    // "Again" card therefore persists via scheduleReview now (interval 1d) AND
+    // is requeued in-session by gradeCard below; when it comes back around its
+    // regrade fires gradeWord again — a deliberate second persistence event
+    // (SM-2-style relearn: a later Good doubles from the relearned interval).
     gradeWord(current.key, grade);
     setToast(`“${current.hanzi}” scheduled in ${formatIntervalDays(days)}`);
     setRevealed(false);
-    if (cardIndex + 1 >= totalDue) {
-      setDone(true);
-      track("review_completed", { count: totalDue });
-    } else {
-      setCardIndex((v) => v + 1);
+    const next = gradeCard(session, grade);
+    setSession(next);
+    if (isSessionComplete(next)) {
+      track("review_completed", { count: next.queue.length });
     }
+  }
+
+  // Start a fresh session from the current (post-grading) due queue. Safe to
+  // recompute here because it's an explicit user action, not a mid-run memo.
+  function reviewMore() {
+    setSession(startSession(dueCards(data.topics, progress.flashcardStats)));
+    setRevealed(false);
   }
 
   // Swipe: right = easy, left = again (when revealed)
@@ -54,9 +90,19 @@ export function ReviewApp({ data }: { data: MandarinData }) {
     () => { if (revealed) handleGrade("easy"); else setRevealed(true); }
   );
 
-  if (!loaded) {
+  if (!loaded || !session) {
     return <LoadingScreen />;
   }
+
+  const isEmpty = session.queue.length === 0;
+  const complete = isSessionComplete(session);
+  const total = session.queue.length;
+  // Requeued cards still ahead of the cursor — the "to re-check" countdown.
+  const remaining = session.queue.slice(session.position);
+  const requeueCount = session.againKeys.filter((key) =>
+    remaining.some((card) => card.key === key),
+  ).length;
+  const tough = toughestCards(session);
 
   return (
     <main className="mx-auto max-w-7xl px-6 pb-24 pt-8 md:px-10 md:pb-12">
@@ -65,14 +111,16 @@ export function ReviewApp({ data }: { data: MandarinData }) {
       <div className="mt-8">
         <h1 className="text-4xl font-semibold tracking-tight text-white md:text-5xl">Daily Review</h1>
         <p className="mt-3 text-lg text-slate-300">
-          {totalDue > 0
-            ? `${totalDue} card${totalDue !== 1 ? "s" : ""} due for review today.`
-            : "No cards are due for review right now."}
+          {isEmpty
+            ? "No cards are due for review right now."
+            : session.remainingDue > 0
+              ? `${total} card session · ${session.remainingDue} more due later.`
+              : `${total} card${total !== 1 ? "s" : ""} due for review today.`}
         </p>
       </div>
 
       {/* ── Empty state: no cards due ── */}
-      {totalDue === 0 ? (
+      {isEmpty ? (
         <div className="mt-12 rounded-[2rem] border border-white/10 bg-white/[0.045] p-10 text-center">
           <p className="text-5xl">✓</p>
           <p className="mt-4 text-2xl font-semibold text-white">All caught up!</p>
@@ -88,28 +136,79 @@ export function ReviewApp({ data }: { data: MandarinData }) {
             </Link>
           </div>
         </div>
-      ) : done ? (
-        /* ── Session complete celebration ── */
-        <div className="animate-celebrate mt-12 rounded-[2rem] border border-white/10 bg-white/[0.045] p-10 text-center">
+      ) : complete ? (
+        /* ── Session complete summary ── */
+        <div className="animate-celebrate mt-12 rounded-[2rem] border border-white/10 bg-white/[0.045] p-8 text-center md:p-10">
           <p className="text-6xl">🎉</p>
           <p className="mt-4 text-2xl font-semibold text-white">Session complete!</p>
           <p className="mt-3 text-slate-400">
-            You reviewed {totalDue} card{totalDue !== 1 ? "s" : ""}. Great work — come back tomorrow for more.
+            You reviewed {total} card{total !== 1 ? "s" : ""}. Here&apos;s how it went.
           </p>
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <button
-              type="button"
-              onClick={() => { setCardIndex(0); setRevealed(false); setDone(false); }}
-              className="min-h-[44px] rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300"
-            >
-              Review again
-            </button>
-            <Link href="/" className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300">
-              Learn more words
+
+          {/* Grade tally */}
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {TALLY.map(({ grade, label, className }) => (
+              <div
+                key={grade}
+                className={`rounded-2xl border bg-white/[0.03] px-3 py-4 ${className}`}
+              >
+                <p className="text-2xl font-semibold">{session.counts[grade]}</p>
+                <p className="mt-1 text-xs font-medium uppercase tracking-wide">{label}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Toughest words (anything graded Again this session) */}
+          {tough.length > 0 ? (
+            <div className="mt-8 text-left">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+                Toughest this session
+              </h2>
+              <ul className="mt-3 space-y-2">
+                {tough.map((card) => (
+                  <li
+                    key={card.key}
+                    className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-hanzi text-lg text-white">
+                        {card.hanzi}{" "}
+                        <span className="text-sm text-emerald-300">{card.pinyin}</span>
+                      </p>
+                      <p className="truncate text-sm text-slate-400">{card.english}</p>
+                    </div>
+                    <Link
+                      href={`/topics/${card.topicSlug}`}
+                      className="shrink-0 text-sm text-emerald-300 hover:text-emerald-200"
+                    >
+                      {card.topicTitle}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            {session.remainingDue > 0 ? (
+              <button
+                type="button"
+                onClick={reviewMore}
+                className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+              >
+                Review {session.remainingDue} more
+              </button>
+            ) : (
+              <Link href="/" className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300">
+                Learn more words
+              </Link>
+            )}
+            <Link href="/stats" className="min-h-[44px] inline-flex items-center rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300">
+              Back to stats
             </Link>
           </div>
         </div>
-      ) : (
+      ) : current ? (
         /* ── Active review card ── */
         <section
           className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.045] p-6 text-center"
@@ -119,7 +218,15 @@ export function ReviewApp({ data }: { data: MandarinData }) {
         >
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 text-sm text-slate-400">
-              <span>Card {cardIndex + 1} of {totalDue}</span>
+              <span>Card {session.position + 1} of {total}</span>
+              {requeueCount > 0 ? (
+                <span
+                  className="rounded-full border border-amber-400/50 px-2 py-0.5 text-xs text-amber-300"
+                  aria-label={`${requeueCount} card${requeueCount !== 1 ? "s" : ""} will repeat this session`}
+                >
+                  {requeueCount} to re-check
+                </span>
+              ) : null}
               <div className="flex gap-2">
                 <span className="swipe-hint">← again</span>
                 <span className="swipe-hint">easy →</span>
@@ -132,7 +239,7 @@ export function ReviewApp({ data }: { data: MandarinData }) {
 
           {/* Progress bar through session */}
           <div className="progress-bar-track mt-3">
-            <div className="progress-bar-fill" style={{ width: `${(cardIndex / totalDue) * 100}%` }} />
+            <div className="progress-bar-fill" style={{ width: `${(session.position / total) * 100}%` }} />
           </div>
 
           <div className="mt-8 flex items-center justify-center gap-3">
@@ -176,7 +283,7 @@ export function ReviewApp({ data }: { data: MandarinData }) {
             )}
           </div>
         </section>
-      )}
+      ) : null}
 
       <Toast message={toast} onDone={() => setToast(null)} />
     </main>
