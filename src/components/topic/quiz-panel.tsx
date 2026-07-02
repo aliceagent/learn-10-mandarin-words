@@ -1,8 +1,24 @@
+"use client";
+
+import { useState } from "react";
 import type { VocabItem } from "@/lib/types";
 import type { QuizCard, QuizMode } from "@/lib/quiz-logic";
 import { SpeakButton } from "../speak-button";
 
 type QuizViewState = { index: number; score: number; picked: string | null };
+
+// Speak a word with the same voice params as SpeakButton: cancel any in-flight
+// utterance, then speak Mandarin (zh-CN) slightly slowed. Used by the listening
+// mode's large play button. Guarded so it's a no-op where speech is unavailable
+// (the listening chip is also gated on support, so this rarely fires blind).
+function speakWord(text: string) {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = "zh-CN";
+  utt.rate = 0.85;
+  window.speechSynthesis.speak(utt);
+}
 
 // The "Quiz" tab: either the multiple-choice quiz itself or, once every card is
 // answered, the completion screen with the missed-word summary and retry/restart
@@ -17,6 +33,7 @@ export function QuizPanel({
   quizMode,
   quizState,
   missedItemsList,
+  speechAvailable,
   onChangeQuizMode,
   onAnswer,
   onNext,
@@ -30,6 +47,7 @@ export function QuizPanel({
   quizMode: QuizMode;
   quizState: QuizViewState;
   missedItemsList: VocabItem[];
+  speechAvailable: boolean;
   onChangeQuizMode: (m: QuizMode) => void;
   onAnswer: (choice: string) => void;
   onNext: () => void;
@@ -37,6 +55,10 @@ export function QuizPanel({
   onRestart: () => void;
   onPracticeFlashcards: () => void;
 }) {
+  // Tracks the card whose audio has played, so the "Replay" affordance appears
+  // only after the learner first taps play on the current listening card.
+  const [playedKey, setPlayedKey] = useState<string | null>(null);
+
   if (quizComplete) {
     /* Celebration screen */
     return (
@@ -107,6 +129,10 @@ export function QuizPanel({
           { key: "hanzi-english", label: "Hanzi → English" },
           { key: "english-hanzi", label: "English → Hanzi" },
           { key: "hanzi-pinyin", label: "Hanzi → Pinyin" },
+          // Listening mode only appears once speech synthesis is confirmed
+          // available (detected post-hydration in topic-app), so there's never a
+          // dead mode on devices without a voice.
+          ...(speechAvailable ? [{ key: "listening", label: "Listen 🔊" } as const] : []),
         ] as const).map((m) => (
           <button
             key={m.key}
@@ -131,19 +157,64 @@ export function QuizPanel({
       </div>
 
       {/* Prompt */}
-      <div className="mt-8 text-center">
-        <div className="flex items-center justify-center gap-3">
-          <h2 className={`font-hanzi text-7xl font-semibold text-white ${quizMode === "english-hanzi" ? "font-sans text-4xl" : ""}`}>
-            {currentQuiz.prompt}
-          </h2>
-          {(quizMode === "hanzi-english" || quizMode === "hanzi-pinyin") ? (
-            <SpeakButton text={currentQuiz.prompt} label={`Pronounce: ${currentQuiz.prompt}`} />
+      {quizMode === "listening" ? (
+        quizState.picked === null ? (
+          // Before answering: no hanzi/pinyin (that would leak the answer). Just
+          // a big play button + helper text. No autoplay — the learner taps play.
+          <div className="mt-8 flex flex-col items-center text-center">
+            <button
+              type="button"
+              onClick={() => {
+                speakWord(currentQuiz.prompt);
+                setPlayedKey(currentQuiz.key);
+              }}
+              aria-label="Play the word"
+              className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-300"
+            >
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </button>
+            <p className="mt-4 text-sm text-slate-400">Listen, then pick the meaning</p>
+            {playedKey === currentQuiz.key ? (
+              <button
+                type="button"
+                onClick={() => speakWord(currentQuiz.prompt)}
+                className="mt-2 min-h-[44px] text-xs font-semibold text-emerald-300 transition hover:text-emerald-200"
+              >
+                Replay
+              </button>
+            ) : null}
+            <p className="mt-2 text-xs text-slate-600">No sound? Your device may lack a Chinese voice.</p>
+          </div>
+        ) : (
+          // After answering: reveal the ground-truth hanzi + pinyin. role="status"
+          // so the reveal is announced to screen readers.
+          <div className="mt-8 text-center" role="status">
+            <div className="flex items-center justify-center gap-3">
+              <h2 className="font-hanzi text-5xl font-semibold text-white">{currentQuiz.prompt}</h2>
+              <SpeakButton text={currentQuiz.prompt} label={`Pronounce: ${currentQuiz.prompt}`} />
+            </div>
+            {currentQuiz.promptPinyin ? (
+              <p className="font-hanzi mt-2 text-2xl text-emerald-300">{currentQuiz.promptPinyin}</p>
+            ) : null}
+          </div>
+        )
+      ) : (
+        <div className="mt-8 text-center">
+          <div className="flex items-center justify-center gap-3">
+            <h2 className={`font-hanzi text-7xl font-semibold text-white ${quizMode === "english-hanzi" ? "font-sans text-4xl" : ""}`}>
+              {currentQuiz.prompt}
+            </h2>
+            {(quizMode === "hanzi-english" || quizMode === "hanzi-pinyin") ? (
+              <SpeakButton text={currentQuiz.prompt} label={`Pronounce: ${currentQuiz.prompt}`} />
+            ) : null}
+          </div>
+          {currentQuiz.promptPinyin ? (
+            <p className="font-hanzi mt-2 text-2xl text-emerald-300">{currentQuiz.promptPinyin}</p>
           ) : null}
         </div>
-        {currentQuiz.promptPinyin ? (
-          <p className="font-hanzi mt-2 text-2xl text-emerald-300">{currentQuiz.promptPinyin}</p>
-        ) : null}
-      </div>
+      )}
 
       {/* Choices */}
       <div className="mt-8 grid gap-3 md:grid-cols-2" role="listbox" aria-label="Answer choices">

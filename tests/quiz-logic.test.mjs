@@ -156,6 +156,53 @@ test("buildQuizCard: choices are always unique across every mode", () => {
   }
 });
 
+// ─── Listening mode ─────────────────────────────────────────────────────────
+
+test("buildQuizCard: listening carries hanzi + pinyin but quizzes the English meaning", () => {
+  const card = buildQuizCard(ITEMS[0], ITEMS, "listening", keyFor, identity);
+  // The prompt is the hanzi (spoken aloud) with its pinyin carried for reveal,
+  // while the answer/choices are English — the learner hears, then picks meaning.
+  assert.equal(card.prompt, "狗");
+  assert.equal(card.promptPinyin, "gǒu");
+  assert.equal(card.answer, "dog");
+  assert.equal(card.key, "pets:狗");
+  assert.equal(card.choices.length, 4);
+  assert.equal(new Set(card.choices).size, 4);
+  assert.ok(card.choices.includes("dog"));
+});
+
+test("rankedDistractors: listening never returns the answer and dedupes identical English", () => {
+  const dupPool = [
+    { hanzi: "猫", pinyin: "māo", english: "cat", sentences: [] },
+    { hanzi: "貓", pinyin: "māo", english: "cat", sentences: [] }, // duplicate English label
+    { hanzi: "狗", pinyin: "gǒu", english: "dog", sentences: [] },
+  ];
+  const dog = dupPool[2];
+  const ranked = rankedDistractors(dog, dupPool, "listening", identity);
+  // "cat" appears once (dedup) and "dog" (the answer) never appears — same shape
+  // as the hanzi-english ranking, since listening shares the English-answer scoring.
+  assert.deepEqual(ranked, ["cat"]);
+});
+
+test("rankedDistractors: listening ranks the same as hanzi-english (shared English scoring)", () => {
+  const listen = rankedDistractors(ITEMS[0], ITEMS, "listening", identity);
+  const read = rankedDistractors(ITEMS[0], ITEMS, "hanzi-english", identity);
+  assert.deepEqual(listen, read);
+});
+
+test("buildQuizCard: every mode's answer matches its expected VocabItem field", () => {
+  const expected = {
+    "hanzi-english": "english",
+    "english-hanzi": "hanzi",
+    "hanzi-pinyin": "pinyin",
+    listening: "english",
+  };
+  for (const [mode, field] of Object.entries(expected)) {
+    const card = buildQuizCard(ITEMS[0], ITEMS, mode, keyFor, identity);
+    assert.equal(card.answer, ITEMS[0][field], `answer field for ${mode}`);
+  }
+});
+
 test("buildQuizCard: with an injected identity shuffle the answer stays first (determinism preserved)", () => {
   const card = buildQuizCard(target, [target, near, mid, far], "hanzi-pinyin", keyFor, identity);
   // identity shuffle => choices === [answer, ...rankedDistractors]

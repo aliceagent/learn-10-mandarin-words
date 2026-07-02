@@ -43,6 +43,23 @@ export function TopicApp({ topic }: { topic: Topic }) {
   const [missedKeys, setMissedKeys] = useState<string[]>([]);
   // Transient confirmation shown after grading a flashcard.
   const [toast, setToast] = useState<string | null>(null);
+  // Whether the browser can speak (Web Speech synthesis). Detected in an effect
+  // — never during SSR render — so the server and first client render agree
+  // (default false) and the listening-mode chip appears only after hydration
+  // confirms support, avoiding a hydration mismatch.
+  const [speechAvailable, setSpeechAvailable] = useState(false);
+  useEffect(() => {
+    // Detect on mount only (browser-only API). The update runs in a microtask so
+    // the effect body never triggers a synchronous cascading render — matching
+    // the feature-detection pattern in save-offline-button.tsx.
+    let active = true;
+    queueMicrotask(() => {
+      if (active) setSpeechAvailable("speechSynthesis" in window);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const isLearned = progress.learnedTopics.includes(topic.slug);
   const isFavoriteTopic = progress.favoriteTopics.includes(topic.slug);
@@ -334,6 +351,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
           quizMode={quizMode}
           quizState={quizState}
           missedItemsList={missedItemsList}
+          speechAvailable={speechAvailable}
           onChangeQuizMode={changeQuizMode}
           onAnswer={answerQuiz}
           onNext={nextQuiz}

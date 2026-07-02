@@ -10,7 +10,7 @@ import { stripToneMarks, tonesOf } from "./pinyin.ts";
 // imports these and layers component state (current index, score, picked
 // choice) on top. Nothing here touches the DOM, localStorage, or a backend.
 
-export type QuizMode = "hanzi-english" | "english-hanzi" | "hanzi-pinyin";
+export type QuizMode = "hanzi-english" | "english-hanzi" | "hanzi-pinyin" | "listening";
 
 export type QuizCard = {
   /** Stable identity for the quizzed word, used to collect missed items. */
@@ -27,6 +27,9 @@ const ANSWER_FIELD: Record<QuizMode, "english" | "hanzi" | "pinyin"> = {
   "hanzi-english": "english",
   "english-hanzi": "hanzi",
   "hanzi-pinyin": "pinyin",
+  // Listening: the learner hears the hanzi and picks its English meaning, so the
+  // answer (and distractors) come from the same field as the hanzi-english mode.
+  listening: "english",
 };
 
 // Default shuffle: a small Fisher–Yates-ish sort. Injectable so tests can pass a
@@ -109,6 +112,19 @@ function firstWord(s: string): string {
   return s.trim().split(/\s+/)[0] ?? "";
 }
 
+// Score a candidate as an English-answer distractor for `target`: prefer similar
+// overall length and a similar first word. Shared by the `hanzi-english` and
+// `listening` modes, which both quiz the English meaning.
+function englishAnswerScore(candidate: VocabItem, target: VocabItem): number {
+  const sim = diceSimilarity(candidate.english, target.english);
+  const lenDiff = Math.abs(
+    codePoints(candidate.english).length - codePoints(target.english).length,
+  );
+  const lenScore = 1 / (1 + lenDiff);
+  const firstWordSim = diceSimilarity(firstWord(candidate.english), firstWord(target.english));
+  return sim * 2 + firstWordSim + lenScore;
+}
+
 // Higher score → `candidate` is a more tempting distractor for `target` in the
 // given mode. Purely a function of the two words.
 function distractorScore(candidate: VocabItem, target: VocabItem, mode: QuizMode): number {
@@ -131,15 +147,10 @@ function distractorScore(candidate: VocabItem, target: VocabItem, mode: QuizMode
       return shared * 2 + sameLength;
     }
     // Answer is English: prefer similar overall length and a similar first word.
-    case "hanzi-english": {
-      const sim = diceSimilarity(candidate.english, target.english);
-      const lenDiff = Math.abs(
-        codePoints(candidate.english).length - codePoints(target.english).length,
-      );
-      const lenScore = 1 / (1 + lenDiff);
-      const firstWordSim = diceSimilarity(firstWord(candidate.english), firstWord(target.english));
-      return sim * 2 + firstWordSim + lenScore;
-    }
+    // Listening quizzes the English meaning too, so it shares the same scoring.
+    case "hanzi-english":
+    case "listening":
+      return englishAnswerScore(candidate, target);
   }
 }
 
@@ -202,7 +213,10 @@ export function buildQuizCard(
   return {
     key: keyFor(item),
     prompt: mode === "english-hanzi" ? item.english : item.hanzi,
-    promptPinyin: mode === "hanzi-english" ? item.pinyin : undefined,
+    // hanzi-english and listening both quiz English, so the hanzi prompt carries
+    // its pinyin — shown under the prompt for hanzi-english, and after answering
+    // for listening (the panel keeps it hidden until the learner responds).
+    promptPinyin: mode === "hanzi-english" || mode === "listening" ? item.pinyin : undefined,
     answer,
     choices: shuffle([answer, ...distractors]),
   };
