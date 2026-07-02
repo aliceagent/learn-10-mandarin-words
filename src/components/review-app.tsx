@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { MandarinData } from "@/lib/types";
 import { dueCards, formatIntervalDays, previewIntervals } from "@/lib/progress-logic";
 import type { Grade } from "@/lib/progress-logic";
@@ -12,12 +12,19 @@ import {
   toughestCards,
   type ReviewSession,
 } from "@/lib/session-logic";
+import { dragTransform, FLING_THRESHOLD_PX, type FlingIntent } from "@/lib/gesture-logic";
 import { track } from "@/lib/analytics";
 import { useProgress } from "./use-progress";
-import { useSwipe } from "./use-swipe";
+import { useCardDrag } from "./use-card-drag";
+import { useReducedMotion } from "./use-reduced-motion";
+import { DeckDots } from "./deck-dots";
 import { LoadingScreen } from "./loading-screen";
 import { SpeakButton } from "./speak-button";
 import { Toast } from "./toast";
+
+// Longest queue that still shows deck-position dots; beyond this the progress
+// bar alone conveys position (a row of 20+ dots is noise, not signal).
+const DECK_DOT_MAX = 12;
 
 // Grade tally chips shown on the completion summary, in scheduling order with a
 // color per grade (never color alone — each chip also carries its label text).
@@ -57,25 +64,28 @@ export function ReviewApp({ data }: { data: MandarinData }) {
     new Date(),
   );
 
-  function handleGrade(grade: Grade) {
-    if (!session || !current) return;
-    // Compute the projected interval BEFORE grading mutates the stat, so the
-    // toast reports exactly what this grade scheduled.
-    const days = previewIntervals(progress.flashcardStats[current.key], new Date())[grade];
-    // Persistence is unchanged: exactly one `gradeWord` per grading event. An
-    // "Again" card therefore persists via scheduleReview now (interval 1d) AND
-    // is requeued in-session by gradeCard below; when it comes back around its
-    // regrade fires gradeWord again — a deliberate second persistence event
-    // (SM-2-style relearn: a later Good doubles from the relearned interval).
-    gradeWord(current.key, grade);
-    setToast(`“${current.hanzi}” scheduled in ${formatIntervalDays(days)}`);
-    setRevealed(false);
-    const next = gradeCard(session, grade);
-    setSession(next);
-    if (isSessionComplete(next)) {
-      track("review_completed", { count: next.queue.length });
-    }
-  }
+  const handleGrade = useCallback(
+    (grade: Grade) => {
+      if (!session || !current) return;
+      // Compute the projected interval BEFORE grading mutates the stat, so the
+      // toast reports exactly what this grade scheduled.
+      const days = previewIntervals(progress.flashcardStats[current.key], new Date())[grade];
+      // Persistence is unchanged: exactly one `gradeWord` per grading event. An
+      // "Again" card therefore persists via scheduleReview now (interval 1d) AND
+      // is requeued in-session by gradeCard below; when it comes back around its
+      // regrade fires gradeWord again — a deliberate second persistence event
+      // (SM-2-style relearn: a later Good doubles from the relearned interval).
+      gradeWord(current.key, grade);
+      setToast(`“${current.hanzi}” scheduled in ${formatIntervalDays(days)}`);
+      setRevealed(false);
+      const next = gradeCard(session, grade);
+      setSession(next);
+      if (isSessionComplete(next)) {
+        track("review_completed", { count: next.queue.length });
+      }
+    },
+    [session, current, progress.flashcardStats, gradeWord],
+  );
 
   // Start a fresh session from the current (post-grading) due queue. Safe to
   // recompute here because it's an explicit user action, not a mid-run memo.
@@ -84,11 +94,66 @@ export function ReviewApp({ data }: { data: MandarinData }) {
     setRevealed(false);
   }
 
-  // Swipe: right = easy, left = again (when revealed)
-  const swipe = useSwipe(
-    () => { if (revealed) handleGrade("again"); },
-    () => { if (revealed) handleGrade("easy"); else setRevealed(true); }
+  // ── Deck flip/fling (Sprint 9) ──────────────────────────────────────────────
+  // Same physical-card treatment as the topic Cards tab: tap flips, drag follows
+  // the thumb, a fling grades. The flip/fling are purely presentational — the
+  // Reveal and grade buttons remain the real keyboard/AT controls.
+  const reducedMotion = useReducedMotion();
+  const [flingDir, setFlingDir] = useState<"left" | "right" | null>(null);
+  const flinging = useRef(false);
+  const flingGrade = useRef<Grade | null>(null);
+  const flingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const settleFling = useCallback(() => {
+    if (!flinging.current) return;
+    flinging.current = false;
+    if (flingTimer.current) {
+      clearTimeout(flingTimer.current);
+      flingTimer.current = null;
+    }
+    const grade = flingGrade.current;
+    flingGrade.current = null;
+    setFlingDir(null);
+    if (grade) handleGrade(grade);
+  }, [handleGrade]);
+
+  useEffect(() => () => {
+    if (flingTimer.current) clearTimeout(flingTimer.current);
+  }, []);
+
+  const startFling = useCallback(
+    (grade: Grade, dir: "left" | "right") => {
+      if (reducedMotion) {
+        handleGrade(grade);
+        return;
+      }
+      flinging.current = true;
+      flingGrade.current = grade;
+      setFlingDir(dir);
+      flingTimer.current = setTimeout(settleFling, 350);
+    },
+    [handleGrade, reducedMotion, settleFling],
   );
+
+  const handleTap = useCallback(() => {
+    if (flinging.current) return;
+    if (!revealed) setRevealed(true);
+  }, [revealed]);
+
+  const handleFling = useCallback(
+    (intent: FlingIntent) => {
+      if (flinging.current) return;
+      if (!revealed) {
+        if (intent === "easy") setRevealed(true);
+        return;
+      }
+      if (intent === "again") startFling("again", "left");
+      else if (intent === "easy") startFling("easy", "right");
+    },
+    [revealed, startFling],
+  );
+
+  const { dx, dragging, handlers } = useCardDrag({ onTap: handleTap, onFling: handleFling });
 
   if (!loaded || !session) {
     return <LoadingScreen />;
@@ -103,6 +168,15 @@ export function ReviewApp({ data }: { data: MandarinData }) {
     remaining.some((card) => card.key === key),
   ).length;
   const tough = toughestCards(session);
+
+  // Drag-follow only once revealed, and never under reduced motion.
+  const dragStyle =
+    dragging && revealed && !reducedMotion
+      ? { transform: dragTransform(dx), transition: "none" as const }
+      : undefined;
+  const hintStrength = Math.min(1, Math.abs(dx) / FLING_THRESHOLD_PX);
+  const flingClass =
+    flingDir === "left" ? "card-fling-left" : flingDir === "right" ? "card-fling-right" : "";
 
   return (
     <main className="mx-auto max-w-7xl px-6 pb-24 pt-8 md:px-10 md:pb-12">
@@ -212,7 +286,6 @@ export function ReviewApp({ data }: { data: MandarinData }) {
         /* ── Active review card ── */
         <section
           className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.045] p-6 text-center"
-          {...swipe}
           aria-label="Review flashcard"
           role="region"
         >
@@ -242,18 +315,51 @@ export function ReviewApp({ data }: { data: MandarinData }) {
             <div className="progress-bar-fill" style={{ width: `${(session.position / total) * 100}%` }} />
           </div>
 
-          <div className="mt-8 flex items-center justify-center gap-3">
-            <h2 className="font-hanzi text-7xl font-semibold text-white">{current.hanzi}</h2>
-            <SpeakButton text={current.hanzi} label={`Pronounce ${current.hanzi}`} />
+          {/* Draggable 3D card. The fling/drag transform rides this wrapper (2D);
+              the inner .card-3d handles the rotateY flip so they never fight. */}
+          <div
+            className={`relative mt-8 select-none touch-pan-y cursor-grab active:cursor-grabbing ${flingClass}`}
+            style={dragStyle}
+            onAnimationEnd={settleFling}
+            {...handlers}
+          >
+            <span
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg font-semibold text-rose-300"
+              style={{ opacity: dragging && revealed && dx < 0 ? hintStrength : 0 }}
+              aria-hidden="true"
+            >
+              ← again
+            </span>
+            <span
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-lg font-semibold text-emerald-300"
+              style={{ opacity: dragging && revealed && dx > 0 ? hintStrength : 0 }}
+              aria-hidden="true"
+            >
+              easy →
+            </span>
+
+            <div className="card-scene">
+              <div className={`card-3d flex min-h-[280px] items-center justify-center ${revealed ? "is-flipped" : ""}`}>
+                {/* Front face: hanzi + speak */}
+                <div className="card-face flex w-full flex-col items-center justify-center">
+                  <div className="flex items-center justify-center gap-3">
+                    <h2 className="font-hanzi text-7xl font-semibold text-white">{current.hanzi}</h2>
+                    <SpeakButton text={current.hanzi} label={`Pronounce ${current.hanzi}`} />
+                  </div>
+                </div>
+                {/* Back face: hanzi (smaller) + pinyin + english + interval */}
+                <div className="card-face card-face-back flex w-full flex-col items-center justify-center">
+                  <p className="font-hanzi text-4xl font-semibold text-white">{current.hanzi}</p>
+                  <p className="mt-3 font-hanzi text-2xl text-emerald-300">{current.pinyin}</p>
+                  <p className="mt-2 text-xl text-slate-200">{current.english}</p>
+                  <p className="mt-4 text-xs text-slate-500">Current interval: {current.intervalDays}d</p>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {revealed ? (
-            <div className="mt-6 animate-celebrate">
-              <p className="font-hanzi text-2xl text-emerald-300">{current.pinyin}</p>
-              <p className="mt-2 text-xl text-slate-200">{current.english}</p>
-              <p className="mt-4 text-xs text-slate-500">Current interval: {current.intervalDays}d</p>
-            </div>
-          ) : null}
+          {/* Deck dots only for short queues; long sessions rely on the bar. */}
+          {total <= DECK_DOT_MAX ? <DeckDots count={total} current={session.position} /> : null}
 
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             {!revealed ? (

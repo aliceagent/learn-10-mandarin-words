@@ -109,6 +109,56 @@ textarea:focus-visible,
   transition: stroke-dashoffset 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
+/* ── Flashcard deck: 3D flip + fling (Sprint 9) ─────────────────────────────── */
+.card-scene {
+  perspective: 1200px;
+}
+
+.card-3d {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.card-3d.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  /* translateZ nudge dodges Safari iOS backface flicker. */
+  transform: translateZ(0);
+}
+
+.card-face-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg) translateZ(0);
+}
+
+@keyframes card-fling-left {
+  to {
+    transform: translateX(-120%) rotate(-15deg);
+    opacity: 0;
+  }
+}
+
+@keyframes card-fling-right {
+  to {
+    transform: translateX(120%) rotate(15deg);
+    opacity: 0;
+  }
+}
+
+.card-fling-left {
+  animation: card-fling-left 0.3s ease-in both;
+}
+
+.card-fling-right {
+  animation: card-fling-right 0.3s ease-in both;
+}
+
 /* ── Reduced-motion safety ──────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .animate-quiz-wrong,
@@ -125,6 +175,14 @@ textarea:focus-visible,
   }
   .progress-ring-arc {
     transition: none;
+  }
+  /* Deck degrades to today's instant swap: no flip, no fling. */
+  .card-3d {
+    transition: none;
+  }
+  .card-fling-left,
+  .card-fling-right {
+    animation: none;
   }
 }
 
