@@ -19,6 +19,7 @@ import { FlashcardsPanel } from "./topic/flashcards-panel";
 import { QuizPanel } from "./topic/quiz-panel";
 import { TypingPanel } from "./topic/typing-panel";
 import { MatchPanel } from "./topic/match-panel";
+import { ClozePanel } from "./topic/cloze-panel";
 import { Toast } from "./toast";
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -29,7 +30,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
   // selected by default so they read like a practical phrasebook rather than a
   // vocabulary list. Words/Cards/Quiz stay available for every topic.
   const isPhrasebook = isUsefulPhraseTopic(topic);
-  const [mode, setMode] = useState<"phrasebook" | "words" | "flashcards" | "quiz" | "typed" | "match">(
+  const [mode, setMode] = useState<"phrasebook" | "words" | "flashcards" | "quiz" | "typed" | "match" | "cloze">(
     isPhrasebook ? "phrasebook" : "words",
   );
   const [cardIndex, setCardIndex] = useState(0);
@@ -300,6 +301,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
         <Tab active={mode === "quiz"} onClick={() => setMode("quiz")}>Quiz</Tab>
         <Tab active={mode === "typed"} onClick={() => setMode("typed")}>Type</Tab>
         <Tab active={mode === "match"} onClick={() => setMode("match")}>Match</Tab>
+        <Tab active={mode === "cloze"} onClick={() => setMode("cloze")}>Sentences</Tab>
       </nav>
 
       {/* ── Phrasebook (Useful Phrases only) ── */}
@@ -375,6 +377,11 @@ export function TopicApp({ topic }: { topic: Topic }) {
       {/* ── Matching pairs game ── */}
       {mode === "match" ? (
         <MatchPanel topic={topic} onRecord={recordQuizAnswer} onTakeQuiz={() => setMode("quiz")} />
+      ) : null}
+
+      {/* ── Sentence cloze (fill-in-the-blank from real example sentences) ── */}
+      {mode === "cloze" ? (
+        <ClozePanel topic={topic} onRecord={recordQuizAnswer} />
       ) : null}
 
       {/* ── Next-step panel (shown once the topic is learned or the quiz is done) ── */}
