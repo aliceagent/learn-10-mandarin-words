@@ -83,7 +83,7 @@ export function PracticeApp({ data }: { data: MandarinData }) {
           <h1 className="text-4xl font-semibold tracking-tight text-white md:text-5xl">Practice</h1>
           <p className="mt-3 text-lg text-slate-300">Your trickiest words from every topic, weakest first.</p>
         </div>
-        <div className="mt-12 rounded-[2rem] border border-white/10 bg-white/[0.045] p-10 text-center">
+        <div className="mt-12 rounded-[2rem] border border-white/10 bg-surface p-10 text-center">
           <p className="text-5xl">🎯</p>
           <p className="mt-4 text-2xl font-semibold text-white">Not enough quiz history yet</p>
           <p className="mt-3 mx-auto max-w-sm text-slate-400">
@@ -141,7 +141,7 @@ export function PracticeApp({ data }: { data: MandarinData }) {
 
       {done ? (
         /* ── Completion summary ── */
-        <div className="animate-celebrate mt-12 rounded-[2rem] border border-white/10 bg-white/[0.045] p-8 text-center">
+        <div className="animate-celebrate mt-12 rounded-[2rem] border border-white/10 bg-surface p-8 text-center">
           <p className="text-6xl">{missedEntries.length === 0 ? "🎉" : "💪"}</p>
           <p className="mt-4 text-2xl font-semibold text-white">Practice complete!</p>
           <p className="mt-3 text-5xl font-bold text-emerald-300">
@@ -189,7 +189,7 @@ export function PracticeApp({ data }: { data: MandarinData }) {
         </div>
       ) : (
         /* ── Active practice card ── */
-        <section className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.045] p-6" aria-label="Practice quiz">
+        <section className="mt-8 rounded-[2rem] border border-white/10 bg-surface p-6" aria-label="Practice quiz">
           <div className="flex items-center justify-between gap-4">
             <p className="text-sm text-slate-400">Word {index + 1} of {total}</p>
             <Link

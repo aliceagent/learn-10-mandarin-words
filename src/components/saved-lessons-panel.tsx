@@ -93,7 +93,7 @@ export function SavedLessonsPanel() {
   const totalBytes = lessons.reduce((sum, l) => sum + (l.size ?? 0), 0);
 
   return (
-    <section className="mt-10 w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.04] p-6 text-left">
+    <section className="mt-10 w-full max-w-md rounded-3xl border border-white/10 bg-surface p-6 text-left">
       <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
         Saved for offline{totalBytes > 0 ? ` · ${formatBytes(totalBytes)}` : ""}
       </h2>

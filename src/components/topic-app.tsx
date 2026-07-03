@@ -271,7 +271,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
           </div>
         </div>
 
-        <div className="rounded-[2rem] border border-white/10 bg-white/[0.05] p-4">
+        <div className="rounded-[2rem] border border-white/10 bg-surface p-4">
           <VideoPlayer src={topic.videoPath} title={`${topic.titleEn} video lesson`} video={topic.video} />
 
           {/* Availability badge + direct link + hosting note */}

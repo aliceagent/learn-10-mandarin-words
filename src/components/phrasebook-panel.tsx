@@ -31,7 +31,7 @@ export function PhrasebookPanel({ topic, favoriteWords, onToggleFavorite }: Phra
           return (
             <li
               key={item.hanzi}
-              className="rounded-2xl border border-white/10 bg-white/[0.045] p-4 md:p-5"
+              className="rounded-2xl border border-white/10 bg-surface p-4 md:p-5"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">

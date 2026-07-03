@@ -10,6 +10,16 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* ── Opaque content surfaces (Sprint 1: flat ground + opaque surfaces) ──── */
+  /* Solid dark card/panel fills that replace the old translucent            */
+  /* `bg-white/[0.04x]` surfaces. They match the previous tinted-over-#020617 */
+  /* look but never let anything behind the card show through, so nothing can */
+  /* band across a card the way the old body glow did.                        */
+  --color-surface: #0d1220;
+  --color-surface-hover: #161d2e;
+  /* Emerald-tinted opaque variant for the "what's next" accent panel.        */
+  --color-surface-accent: #08131e;
 }
 
 * {
@@ -17,10 +27,11 @@
 }
 
 body {
-  background:
-    radial-gradient(circle at 20% 0%, rgba(52, 211, 153, 0.12), transparent 28rem),
-    radial-gradient(circle at 85% 12%, rgba(56, 189, 248, 0.10), transparent 24rem),
-    var(--background);
+  /* Flat ground: a single solid fill, no radial glows. The two tinted glows */
+  /* that used to live here bled through translucent card surfaces and showed */
+  /* as diagonal tone bands on mobile flashcards — removed at the root here,  */
+  /* with content cards made opaque so nothing behind them can band again.    */
+  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }

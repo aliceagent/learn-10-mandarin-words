@@ -139,7 +139,7 @@ export function MatchPanel({
     const missedKeys = [...new Set([...finished.missedKeys, ...state.missedKeys])];
     return (
       <section
-        className="mt-6 rounded-[2rem] border border-white/10 bg-white/[0.045] p-8 text-center"
+        className="mt-6 rounded-[2rem] border border-white/10 bg-surface p-8 text-center"
         aria-label="Matching game"
       >
         {srStatus}
@@ -196,7 +196,7 @@ export function MatchPanel({
     const clean = round.pairs.length - state.missedKeys.length;
     return (
       <section
-        className="mt-6 rounded-[2rem] border border-white/10 bg-white/[0.045] p-8 text-center"
+        className="mt-6 rounded-[2rem] border border-white/10 bg-surface p-8 text-center"
         aria-label="Matching game"
       >
         {srStatus}
@@ -263,7 +263,7 @@ export function MatchPanel({
 
   return (
     <section
-      className="mt-6 rounded-[2rem] border border-white/10 bg-white/[0.045] p-6"
+      className="mt-6 rounded-[2rem] border border-white/10 bg-surface p-6"
       aria-label="Matching game"
     >
       {srStatus}

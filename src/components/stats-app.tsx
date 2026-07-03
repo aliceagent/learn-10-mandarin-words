@@ -115,7 +115,7 @@ export function StatsApp({
       </div>
 
       {!hasActivity ? (
-        <div className="mt-10 rounded-[2rem] border border-white/10 bg-white/[0.045] p-10 text-center">
+        <div className="mt-10 rounded-[2rem] border border-white/10 bg-surface p-10 text-center">
           <p className="text-5xl">📊</p>
           <p className="mt-4 text-2xl font-semibold text-white">No stats yet</p>
           <p className="mt-3 mx-auto max-w-sm text-slate-400">
@@ -210,7 +210,7 @@ export function StatsApp({
               <li key={`${word.topicSlug}:${word.hanzi}`}>
                 <Link
                   href={`/topics/${word.topicSlug}`}
-                  className="block rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition hover:-translate-y-0.5 hover:border-emerald-300/50 hover:bg-white/[0.07]"
+                  className="block rounded-2xl border border-white/10 bg-surface p-5 transition hover:-translate-y-0.5 hover:border-emerald-300/50 hover:bg-surface-hover"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -252,7 +252,7 @@ function CategoryMasteryCard({
   return (
     <Link
       href={`/categories/${slug}`}
-      className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition hover:-translate-y-0.5 hover:border-emerald-300/50 hover:bg-white/[0.07]"
+      className="flex items-center gap-4 rounded-2xl border border-white/10 bg-surface p-5 transition hover:-translate-y-0.5 hover:border-emerald-300/50 hover:bg-surface-hover"
     >
       <ProgressRing
         value={summary.mastered}
@@ -290,7 +290,7 @@ function GoalCard({
   const current = progress.onboarding.dailyGoal;
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 sm:col-span-2 lg:col-span-3">
+    <div className="rounded-2xl border border-white/10 bg-surface p-5 sm:col-span-2 lg:col-span-3">
       <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           {current > 0 ? (
@@ -404,11 +404,11 @@ function StatCard({
     return (
       <Link
         href={href}
-        className="block rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition hover:-translate-y-0.5 hover:border-emerald-300/50 hover:bg-white/[0.07]"
+        className="block rounded-2xl border border-white/10 bg-surface p-5 transition hover:-translate-y-0.5 hover:border-emerald-300/50 hover:bg-surface-hover"
       >
         {body}
       </Link>
     );
   }
-  return <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">{body}</div>;
+  return <div className="rounded-2xl border border-white/10 bg-surface p-5">{body}</div>;
 }

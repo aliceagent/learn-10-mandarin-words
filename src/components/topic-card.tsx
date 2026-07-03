@@ -53,7 +53,7 @@ export function TopicCard({
   return (
     <Link
       href={`/topics/${topic.slug}`}
-      className="group flex flex-col rounded-3xl border border-white/10 bg-white/[0.045] p-5 transition hover:-translate-y-1 hover:border-emerald-300/50 hover:bg-white/[0.07]"
+      className="group flex flex-col rounded-3xl border border-white/10 bg-surface p-5 transition hover:-translate-y-1 hover:border-emerald-300/50 hover:bg-surface-hover"
       aria-label={`${topic.titleEn} — ${topic.category}`}
     >
       {/* Row 1: category badge + status badges */}

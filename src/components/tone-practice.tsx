@@ -78,7 +78,7 @@ export function TonePractice({ topic }: { topic: Topic }) {
 
   return (
     <section
-      className="mt-6 rounded-[2rem] border border-white/10 bg-white/[0.045] p-6"
+      className="mt-6 rounded-[2rem] border border-white/10 bg-surface p-6"
       aria-label="Tone practice"
     >
       <div className="flex items-center justify-between gap-4">

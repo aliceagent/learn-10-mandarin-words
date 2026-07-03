@@ -26,7 +26,7 @@ export function WordsPanel({
         const favorite = favoriteWords.includes(key);
         const stat = flashcardStats[key];
         return (
-          <article key={item.hanzi} className="rounded-3xl border border-white/10 bg-white/[0.045] p-5">
+          <article key={item.hanzi} className="rounded-3xl border border-white/10 bg-surface p-5">
             <div className="flex items-start justify-between gap-4">
               <div className="flex min-w-0 items-start gap-3">
                 <div className="min-w-0">

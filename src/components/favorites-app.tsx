@@ -50,7 +50,7 @@ export function FavoritesApp({ data }: { data: MandarinData }) {
 
       {/* ── Empty state ── */}
       {isEmpty ? (
-        <div className="mt-12 rounded-[2rem] border border-white/10 bg-white/[0.045] p-10 text-center">
+        <div className="mt-12 rounded-[2rem] border border-white/10 bg-surface p-10 text-center">
           <p className="text-5xl">★</p>
           <p className="mt-4 text-xl font-semibold text-white">Nothing saved yet</p>
           <p className="mt-3 max-w-sm mx-auto text-slate-400">
@@ -74,7 +74,7 @@ export function FavoritesApp({ data }: { data: MandarinData }) {
           <h2 className="mb-4 text-xl font-semibold text-white">Saved Lists</h2>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {favoriteTopics.map((topic) => (
-              <div key={topic.slug} className="rounded-3xl border border-white/10 bg-white/[0.045] p-5">
+              <div key={topic.slug} className="rounded-3xl border border-white/10 bg-surface p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-xs text-slate-400">{topic.category}</p>
@@ -103,7 +103,7 @@ export function FavoritesApp({ data }: { data: MandarinData }) {
           <h2 className="mb-4 text-xl font-semibold text-white">Saved Words</h2>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {favoriteWords.map((word) => (
-              <div key={word.key} className="rounded-3xl border border-white/10 bg-white/[0.045] p-5">
+              <div key={word.key} className="rounded-3xl border border-white/10 bg-surface p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex min-w-0 items-start gap-2">
                     <div className="min-w-0">

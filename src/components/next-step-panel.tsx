@@ -22,7 +22,7 @@ export function NextStepPanel({
 }) {
   return (
     <section
-      className="mt-8 rounded-[2rem] border border-emerald-400/25 bg-emerald-400/[0.06] p-6 md:p-8"
+      className="mt-8 rounded-[2rem] border border-emerald-400/25 bg-surface-accent p-6 md:p-8"
       aria-label="What's next"
     >
       <h2 className="text-xl font-semibold text-white">Nice work — what&apos;s next?</h2>

@@ -117,7 +117,7 @@ export function OnboardingModal({
           </div>
         </fieldset>
 
-        <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+        <div className="mt-6 rounded-2xl border border-white/10 bg-surface p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Start here</p>
           <p className="mt-1 font-semibold text-white">{firstTopic.titleEn}</p>
           <p className="font-hanzi text-emerald-300">{firstTopic.titleCn}</p>

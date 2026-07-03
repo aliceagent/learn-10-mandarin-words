@@ -90,7 +90,7 @@ export function HomeApp({ data }: { data: MandarinData }) {
         </div>
 
         {/* ── Stats card ── */}
-        <div className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-5 shadow-2xl shadow-emerald-950/20 backdrop-blur">
+        <div className="rounded-[2rem] border border-white/10 bg-surface p-5 shadow-2xl shadow-emerald-950/20">
           <div className="rounded-[1.5rem] bg-slate-950 p-5">
             <div className="mb-5 flex items-center justify-between border-b border-white/10 pb-4">
               <span className="text-sm font-semibold text-slate-300">Today&apos;s snapshot</span>
@@ -225,7 +225,7 @@ export function HomeApp({ data }: { data: MandarinData }) {
               <Link
                 key={cat.slug}
                 href={`/categories/${cat.slug}`}
-                className="group flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.045] px-5 py-4 transition hover:-translate-y-0.5 hover:border-emerald-300/50 hover:bg-white/[0.07]"
+                className="group flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-surface px-5 py-4 transition hover:-translate-y-0.5 hover:border-emerald-300/50 hover:bg-surface-hover"
                 aria-label={`${cat.name} — ${topicCount} topic${topicCount !== 1 ? "s" : ""}`}
               >
                 <span className="font-semibold text-white transition group-hover:text-emerald-50">{cat.name}</span>
@@ -266,7 +266,7 @@ export function HomeApp({ data }: { data: MandarinData }) {
         </div>
 
         {filtered.length === 0 ? (
-          <div className="mt-10 rounded-[2rem] border border-white/10 bg-white/[0.03] p-12 text-center">
+          <div className="mt-10 rounded-[2rem] border border-white/10 bg-surface p-12 text-center">
             <p className="text-4xl">🔍</p>
             <p className="mt-4 text-xl font-semibold text-white">No topics found</p>
             <p className="mt-2 text-slate-400">
@@ -337,7 +337,7 @@ function Metric({
 }) {
   const pct = progress ? Math.min(100, progress.max > 0 ? (progress.current / progress.max) * 100 : 0) : 0;
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+    <div className="rounded-2xl border border-white/10 bg-surface p-4">
       <div className="text-2xl font-semibold text-white">{value}</div>
       <div className="mt-0.5 text-sm font-medium text-slate-300">{label}</div>
       {sublabel ? <div className="mt-0.5 text-xs text-slate-500">{sublabel}</div> : null}
@@ -354,7 +354,7 @@ function Metric({
 
 function Feature({ title, body }: { title: string; body: string }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
+    <div className="rounded-3xl border border-white/10 bg-surface p-5">
       <h3 className="font-semibold text-white">{title}</h3>
       <p className="mt-2 text-sm leading-6 text-slate-400">{body}</p>
     </div>

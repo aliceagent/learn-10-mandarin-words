@@ -19,7 +19,7 @@ export default function OfflinePage() {
 
       {/* Honest offline help: vocabulary data is local, but the walkthrough
           videos stream from GitHub Releases and need a connection. */}
-      <section className="mt-10 w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.04] p-6 text-left">
+      <section className="mt-10 w-full max-w-md rounded-3xl border border-white/10 bg-surface p-6 text-left">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
           What works offline
         </h2>
