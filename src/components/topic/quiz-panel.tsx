@@ -76,7 +76,7 @@ export function QuizPanel({
 
         {/* Missed-words summary + retry (only when there were mistakes) */}
         {missedItemsList.length > 0 ? (
-          <div className="mx-auto mt-6 max-w-md rounded-2xl border border-white/10 bg-slate-950/60 p-5 text-left">
+          <div className="mx-auto mt-6 max-w-md rounded-2xl border border-white/10 bg-surface-2 p-5 text-left">
             <p className="text-sm font-semibold text-slate-300">
               {missedItemsList.length} to review
             </p>
@@ -138,7 +138,9 @@ export function QuizPanel({
             key={m.key}
             type="button"
             onClick={() => onChangeQuizMode(m.key)}
-            className={`min-h-[44px] rounded-full border px-4 py-2 text-xs font-semibold transition ${quizMode === m.key ? "border-emerald-300 bg-emerald-300 text-slate-950" : "border-white/10 text-slate-400 hover:border-emerald-300 hover:text-white"}`}
+            // Quieter Level-2 selector (matches the topic mode tabs): the active
+            // mode is a subtle emerald wash + accent ink, not a full emerald fill.
+            className={`min-h-[44px] rounded-full border px-4 py-2 text-xs font-semibold transition ${quizMode === m.key ? "border-emerald-300/40 bg-emerald-400/10 text-emerald-200" : "border-white/10 text-slate-400 hover:border-white/25 hover:text-white"}`}
             aria-pressed={quizMode === m.key}
           >
             {m.label}
@@ -232,7 +234,7 @@ export function QuizPanel({
               className={`min-h-[52px] rounded-2xl border px-5 py-4 text-left font-semibold transition
                 ${right ? "animate-quiz-correct border-emerald-300 bg-emerald-300 text-slate-950" : ""}
                 ${wrong ? "animate-quiz-wrong border-rose-400 bg-rose-400/20 text-rose-200" : ""}
-                ${!right && !wrong ? "border-white/10 bg-slate-950 text-white hover:border-emerald-300" : ""}
+                ${!right && !wrong ? "border-white/10 bg-surface-2 text-white hover:border-emerald-300" : ""}
               `}
             >
               <span className={quizMode === "english-hanzi" || quizMode === "hanzi-pinyin" ? "font-hanzi" : ""}>

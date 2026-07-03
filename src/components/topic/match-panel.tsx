@@ -234,7 +234,7 @@ export function MatchPanel({
       styles =
         "border-emerald-300/40 bg-emerald-400/20 text-emerald-100 opacity-40 animate-quiz-correct";
     } else if (wrong) {
-      styles = "border-rose-400/70 bg-rose-400/15 text-rose-100 animate-quiz-wrong";
+      styles = "border-rose-400/70 bg-rose-400/15 text-rose-200 animate-quiz-wrong";
     } else if (selected) {
       styles = "border-emerald-300 bg-emerald-400/10 text-white";
     } else {

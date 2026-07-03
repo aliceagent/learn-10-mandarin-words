@@ -173,7 +173,7 @@ export function ClozePanel({
               className={`min-h-[52px] rounded-2xl border px-5 py-4 text-center transition
                 ${right ? "animate-quiz-correct border-emerald-300 bg-emerald-300 text-slate-950" : ""}
                 ${wrong ? "animate-quiz-wrong border-rose-400 bg-rose-400/20 text-rose-200" : ""}
-                ${!right && !wrong ? "border-white/10 bg-slate-950 text-white hover:border-emerald-300" : ""}
+                ${!right && !wrong ? "border-white/10 bg-surface-2 text-white hover:border-emerald-300" : ""}
               `}
             >
               <span className="font-hanzi text-2xl">{choice}</span>
@@ -186,7 +186,7 @@ export function ClozePanel({
       {answered ? (
         <div
           role="status"
-          className="mt-6 rounded-2xl border border-white/10 bg-slate-950/60 p-5"
+          className="mt-6 rounded-2xl border border-white/10 bg-surface-2 p-5"
         >
           <div className="flex flex-wrap items-baseline justify-center gap-3 text-center">
             <span className="font-hanzi text-2xl text-white">{current.hanzi}</span>

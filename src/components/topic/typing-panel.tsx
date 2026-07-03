@@ -142,7 +142,7 @@ export function TypingPanel({
           spellCheck={false}
           disabled={result !== null}
           placeholder="e.g. gǒu, gou3, or gou"
-          className="font-hanzi w-full rounded-2xl border border-white/10 bg-slate-950 px-5 py-3 text-center text-base text-white outline-none transition placeholder:text-slate-600 focus:border-emerald-300 disabled:opacity-60"
+          className="font-hanzi w-full rounded-2xl border border-white/10 bg-surface-2 px-5 py-3 text-center text-base text-white outline-none transition placeholder:text-slate-600 focus:border-emerald-300 disabled:opacity-60"
         />
         <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
           {result === null ? (
