@@ -66,7 +66,7 @@ export function BottomNav() {
             key={item.href}
             href={item.href}
             aria-current={active ? "page" : undefined}
-            className={`flex flex-col items-center gap-1 px-4 py-1 text-xs font-semibold transition ${active ? "text-emerald-400" : "text-slate-400 hover:text-white"}`}
+            className={`flex flex-col items-center gap-1 rounded-2xl px-4 py-1.5 text-xs font-semibold transition ${active ? "bg-emerald-400/10 text-emerald-300 ring-1 ring-inset ring-emerald-400/20" : "text-slate-400 hover:text-white"}`}
           >
             {item.icon}
             {item.label}

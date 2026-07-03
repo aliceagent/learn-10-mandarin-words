@@ -81,7 +81,7 @@ export function PracticeApp({ data }: { data: MandarinData }) {
         <Link href="/stats" className="text-sm font-semibold text-emerald-300 hover:text-emerald-200">← Stats</Link>
         <div className="mt-8">
           <h1 className="text-4xl font-semibold tracking-tight text-white md:text-5xl">Practice</h1>
-          <p className="mt-3 text-lg text-slate-300">Your trickiest words from every topic, weakest first.</p>
+          <p className="mt-3 max-w-2xl text-lg text-slate-300">Your trickiest words from every topic, weakest first.</p>
         </div>
         <div className="mt-12 rounded-3xl border border-white/10 bg-surface p-10 text-center">
           <p className="text-5xl">🎯</p>

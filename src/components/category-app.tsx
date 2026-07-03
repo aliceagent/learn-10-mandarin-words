@@ -26,7 +26,7 @@ export function CategoryApp({ category, topics }: { category: Category; topics: 
           Category
         </span>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-white md:text-5xl">{category.name}</h1>
-        <p className="mt-3 text-lg text-slate-300">
+        <p className="mt-3 max-w-2xl text-lg text-slate-300">
           {topics.length} topic{topics.length !== 1 ? "s" : ""} · {topics.length * 10} words
         </p>
         {summary.total > 0 ? (

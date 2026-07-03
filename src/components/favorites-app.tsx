@@ -41,7 +41,7 @@ export function FavoritesApp({ data }: { data: MandarinData }) {
 
       <div className="mt-8">
         <h1 className="text-4xl font-semibold tracking-tight text-white md:text-5xl">Favorites</h1>
-        <p className="mt-3 text-lg text-slate-300">
+        <p className="mt-3 max-w-2xl text-lg text-slate-300">
           {isEmpty
             ? "Your saved topics and words will appear here."
             : `${favoriteTopics.length} saved list${favoriteTopics.length !== 1 ? "s" : ""} · ${favoriteWords.length} saved word${favoriteWords.length !== 1 ? "s" : ""}`}
