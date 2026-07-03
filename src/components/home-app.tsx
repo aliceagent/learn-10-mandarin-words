@@ -75,120 +75,125 @@ export function HomeApp({ data }: { data: MandarinData }) {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a href="#library" className="rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300">
-              Browse library
+              Start learning
             </a>
-            <Link href="/path" className="rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300/70">
-              Learning path
-            </Link>
             <Link href="/review" className="rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300/70">
               Daily review
             </Link>
-            <Link href="/stats" className="rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300/70">
+          </div>
+          {/* Path & Stats stay one tap away in the mobile bottom nav; on desktop */}
+          {/* they drop to quiet text links so the hero leads with two clear CTAs. */}
+          <div className="mt-5 hidden gap-6 text-sm md:flex">
+            <Link href="/path" className="font-medium text-slate-400 transition hover:text-emerald-300">
+              Learning path
+            </Link>
+            <Link href="/stats" className="font-medium text-slate-400 transition hover:text-emerald-300">
               Your stats
             </Link>
           </div>
         </div>
 
-        {/* ── Stats card ── */}
-        <div className="rounded-3xl border border-white/10 bg-surface p-5 shadow-2xl shadow-emerald-950/20">
-          <div className="rounded-2xl bg-surface-2 p-5">
-            <div className="mb-5 flex items-center justify-between border-b border-white/10 pb-4">
-              <span className="text-sm font-semibold text-slate-300">Today&apos;s snapshot</span>
-              {atRisk ? (
-                <Link
-                  href="/review"
-                  className="rounded-full border border-amber-400/60 px-3 py-1.5 text-xs font-bold text-amber-300 transition hover:border-amber-300 hover:text-amber-200"
-                >
-                  🔥 {streak}-day streak — practice today to keep it
-                </Link>
-              ) : streak > 0 ? (
-                <div className="flex items-center gap-1.5 rounded-full bg-amber-400 px-3 py-1.5" aria-label={`${streak} day streak`}>
-                  <span className="text-sm font-black text-slate-950">{streak}</span>
-                  <span className="text-xs font-bold text-slate-950">day streak 🔥</span>
-                </div>
-              ) : (
-                <span className="rounded-full bg-emerald-400 px-3 py-1 text-xs font-bold text-slate-950">Local first</span>
-              )}
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Metric
-                value={`${data.categories.length}`}
-                label="categories"
-                sublabel="topic sections"
-              />
-              <Metric
-                value={`${data.topics.length}`}
-                label="lessons"
-                sublabel="ten-word topics"
-              />
-              <Metric
-                value={`${studiedWordsCount}`}
-                label={`of ${totalWords} words`}
-                sublabel="flashcard studied"
-                progress={{ current: studiedWordsCount, max: totalWords }}
-              />
-              <Metric
-                value={`${learnedCount}`}
-                label={`of ${data.topics.length} learned`}
-                sublabel={`${favoriteCount} favorite${favoriteCount !== 1 ? "s" : ""}`}
-                progress={{ current: learnedCount, max: data.topics.length }}
-              />
-            </div>
-            {/* ── Today's goal ── */}
-            {loaded && goal.goal > 0 ? (
-              <div className="mt-4 flex items-center gap-4 border-t border-white/10 pt-4">
-                <ProgressRing
-                  value={goal.practiced}
-                  max={goal.goal}
-                  size={64}
-                  label={`Daily goal: ${goal.practiced} of ${goal.goal} words practiced today`}
-                >
-                  {goal.practiced}/{goal.goal}
-                </ProgressRing>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-white">
-                    {goal.met ? "Goal met 🎉" : "words practiced today"}
-                  </p>
-                  <p className="mt-0.5 text-xs text-slate-500">
-                    {goal.met
-                      ? `${goal.practiced} distinct word${goal.practiced !== 1 ? "s" : ""} today`
-                      : `${goal.practiced} of ${goal.goal} distinct words today`}
-                  </p>
-                </div>
+        {/* ── Today snapshot ── */}
+        {/* One flat Level-1 card (post flat-background sprint: no shadow/backdrop */}
+        {/* blur). Quiet Level-2 stat tiles sit inset on it; the amber streak chip */}
+        {/* stays as the single semantic warm element. */}
+        <div className="rounded-3xl border border-white/10 bg-surface p-5 md:p-6">
+          <div className="mb-5 flex items-center justify-between border-b border-white/10 pb-4">
+            <span className="text-sm font-semibold text-slate-300">Today&apos;s snapshot</span>
+            {atRisk ? (
+              <Link
+                href="/review"
+                className="rounded-full border border-amber-400/60 px-3 py-1.5 text-xs font-bold text-amber-300 transition hover:border-amber-300 hover:text-amber-200"
+              >
+                🔥 {streak}-day streak — practice today to keep it
+              </Link>
+            ) : streak > 0 ? (
+              <div className="flex items-center gap-1.5 rounded-full bg-amber-400 px-3 py-1.5" aria-label={`${streak} day streak`}>
+                <span className="text-sm font-black text-slate-950">{streak}</span>
+                <span className="text-xs font-bold text-slate-950">day streak 🔥</span>
               </div>
-            ) : loaded ? (
-              <div className="mt-4 border-t border-white/10 pt-4 text-sm text-slate-400">
-                <Link href="/stats" className="font-semibold text-emerald-300 transition hover:text-emerald-200">
-                  Set a daily goal
-                </Link>{" "}
-                on the stats page to track today&apos;s practice.
+            ) : (
+              <span className="rounded-full bg-emerald-400 px-3 py-1 text-xs font-bold text-slate-950">Local first</span>
+            )}
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Metric
+              value={`${data.categories.length}`}
+              label="categories"
+              sublabel="topic sections"
+            />
+            <Metric
+              value={`${data.topics.length}`}
+              label="lessons"
+              sublabel="ten-word topics"
+            />
+            <Metric
+              value={`${studiedWordsCount}`}
+              label={`of ${totalWords} words`}
+              sublabel="flashcard studied"
+              progress={{ current: studiedWordsCount, max: totalWords }}
+            />
+            <Metric
+              value={`${learnedCount}`}
+              label={`of ${data.topics.length} learned`}
+              sublabel={`${favoriteCount} favorite${favoriteCount !== 1 ? "s" : ""}`}
+              progress={{ current: learnedCount, max: data.topics.length }}
+            />
+          </div>
+          {/* ── Today's goal ── */}
+          {loaded && goal.goal > 0 ? (
+            <div className="mt-4 flex items-center gap-4 border-t border-white/10 pt-4">
+              <ProgressRing
+                value={goal.practiced}
+                max={goal.goal}
+                size={64}
+                label={`Daily goal: ${goal.practiced} of ${goal.goal} words practiced today`}
+              >
+                {goal.practiced}/{goal.goal}
+              </ProgressRing>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-white">
+                  {goal.met ? "Goal met 🎉" : "words practiced today"}
+                </p>
+                <p className="mt-0.5 text-xs text-slate-500">
+                  {goal.met
+                    ? `${goal.practiced} distinct word${goal.practiced !== 1 ? "s" : ""} today`
+                    : `${goal.practiced} of ${goal.goal} distinct words today`}
+                </p>
               </div>
-            ) : null}
+            </div>
+          ) : loaded ? (
+            <div className="mt-4 border-t border-white/10 pt-4 text-sm text-slate-400">
+              <Link href="/stats" className="font-semibold text-emerald-300 transition hover:text-emerald-200">
+                Set a daily goal
+              </Link>{" "}
+              on the stats page to track today&apos;s practice.
+            </div>
+          ) : null}
 
-            <div className="mt-4 flex gap-2 border-t border-white/10 pt-4">
-              <button
-                onClick={exportProgress}
-                className="flex-1 rounded-2xl border border-white/10 py-2.5 text-xs font-semibold text-slate-300 transition hover:border-emerald-300 hover:text-white"
-                aria-label="Export progress as JSON"
-              >
-                Export progress
-              </button>
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="flex-1 rounded-2xl border border-white/10 py-2.5 text-xs font-semibold text-slate-300 transition hover:border-emerald-300 hover:text-white"
-                aria-label="Import progress from JSON file"
-              >
-                Import progress
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".json,application/json"
-                onChange={handleImport}
-                className="sr-only"
-                aria-hidden="true"
-              />
-            </div>
+          <div className="mt-4 flex gap-2 border-t border-white/10 pt-4">
+            <button
+              onClick={exportProgress}
+              className="flex-1 rounded-2xl border border-white/10 py-2.5 text-xs font-semibold text-slate-300 transition hover:border-emerald-300 hover:text-white"
+              aria-label="Export progress as JSON"
+            >
+              Export progress
+            </button>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="flex-1 rounded-2xl border border-white/10 py-2.5 text-xs font-semibold text-slate-300 transition hover:border-emerald-300 hover:text-white"
+              aria-label="Import progress from JSON file"
+            >
+              Import progress
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".json,application/json"
+              onChange={handleImport}
+              className="sr-only"
+              aria-hidden="true"
+            />
           </div>
         </div>
       </section>
@@ -337,7 +342,7 @@ function Metric({
 }) {
   const pct = progress ? Math.min(100, progress.max > 0 ? (progress.current / progress.max) * 100 : 0) : 0;
   return (
-    <div className="rounded-2xl border border-white/10 bg-surface p-4">
+    <div className="rounded-2xl border border-white/10 bg-surface-2 p-4">
       <div className="text-2xl font-semibold text-white">{value}</div>
       <div className="mt-0.5 text-sm font-medium text-slate-300">{label}</div>
       {sublabel ? <div className="mt-0.5 text-xs text-slate-500">{sublabel}</div> : null}
