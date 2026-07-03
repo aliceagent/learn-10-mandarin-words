@@ -250,6 +250,25 @@ textarea:focus-visible,
   transition: width 0.4s ease;
 }
 
+/* ── Mode tab bar: right-edge scroll fade (Sprint 4) ────────────────────────── */
+/* The mode tabs scroll horizontally on narrow screens. A gentle fade over the   */
+/* right edge hints that more tabs sit off-screen. It's a pointer-transparent     */
+/* overlay tinted to the strip fill (--color-surface) so it reads as the strip    */
+/* dissolving, never as a control. Sits inside the 1px border and matches the     */
+/* strip's rounded-2xl right corners.                                             */
+.tab-scroll::after {
+  content: "";
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  bottom: 1px;
+  width: 2.5rem;
+  border-top-right-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+  background: linear-gradient(to left, var(--color-surface), transparent);
+  pointer-events: none;
+}
+
 /* ── Swipe gesture hints ─────────────────────────────────────────────────────── */
 /* Sprint 3: quieter than the old bordered chips — plain low-ink text with no    */
 /* pill/border, and (in the components) only shown on the first card of a deck / */

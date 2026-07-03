@@ -167,6 +167,9 @@ export function TopicApp({ topic }: { topic: Topic }) {
   return (
     <main className="mx-auto max-w-7xl px-6 pb-24 pt-0 md:px-10 md:pb-12">
       {/* ── Sticky header ── */}
+      {/* Chrome only: a back affordance + the current topic title. The Save /
+          Mark-learned actions live in the hero below (see the lesson-actions row)
+          — duplicating them here made the sticky bar loud, so it stays quiet. */}
       <div className="sticky top-0 z-30 -mx-6 border-b border-white/10 bg-slate-950/92 px-6 py-3 backdrop-blur md:-mx-10 md:px-10">
         <div className="flex items-center gap-3">
           <Link
@@ -174,42 +177,27 @@ export function TopicApp({ topic }: { topic: Topic }) {
             className="shrink-0 text-sm font-semibold text-emerald-300 hover:text-emerald-200"
             aria-label="Back to library"
           >
-            ← Library
+            {/* Compact on mobile (just the chevron); full label from sm up. Same
+                route/target — purely a visual narrowing of the nav. */}
+            <span aria-hidden="true">←</span>
+            <span className="ml-1 hidden sm:inline">Library</span>
           </Link>
           <p className="min-w-0 flex-1 truncate text-center text-sm font-semibold text-slate-300">
             {topic.titleEn}
             <span className="font-hanzi ml-2 text-emerald-300/70">{topic.titleCn}</span>
           </p>
-          <div className="flex shrink-0 items-center gap-2">
-            <button
-              type="button"
-              onClick={() => toggleFavoriteTopic(topic.slug)}
-              className="rounded-full border border-white/15 px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-amber-300 hover:text-white"
-              aria-pressed={isFavoriteTopic}
-              aria-label={isFavoriteTopic ? "Remove from saved lists" : "Save this list"}
-            >
-              {isFavoriteTopic ? "Saved ★" : "Save"}
-            </button>
-            <button
-              type="button"
-              onClick={() => toggleLearnedTopic(topic.slug)}
-              className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${isLearned ? "bg-emerald-400 text-slate-950" : "border border-emerald-400/40 text-emerald-300 hover:bg-emerald-400/15"}`}
-              aria-pressed={isLearned}
-              aria-label={isLearned ? "Unmark as learned" : "Mark as learned"}
-            >
-              {isLearned ? "Learned ✓" : "Mark learned"}
-            </button>
-          </div>
         </div>
       </div>
 
       {/* ── Hero section ── */}
       <section className="mt-8 grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
         <div>
-          <p className="text-sm text-slate-400">{topic.category}</p>
-          <h1 className="mt-2 text-4xl font-semibold tracking-tight text-white md:text-6xl">{topic.titleEn}</h1>
-          <p className="font-hanzi mt-2 text-3xl font-semibold text-emerald-300">{topic.titleCn}</p>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300">
+          <p className="text-xs text-slate-500 md:text-sm md:text-slate-400">{topic.category}</p>
+          {/* Dialed back a step on mobile (3xl title / 2xl hanzi) so the hero reads
+              as a calm heading on a phone; the desktop scale is unchanged. */}
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white md:text-6xl">{topic.titleEn}</h1>
+          <p className="font-hanzi mt-2 text-2xl font-semibold text-emerald-300 md:text-3xl">{topic.titleCn}</p>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 md:text-base">
             Watch the lesson, practice the ten words, then mark the list learned when it feels easy.
           </p>
 
@@ -224,31 +212,41 @@ export function TopicApp({ topic }: { topic: Topic }) {
                 <div className="progress-bar-fill" style={{ width: `${studiedPct}%` }} />
               </div>
             ) : null}
-            {/* Per-word mastery dots + a legend naming each color (color is never
-                the only channel). Legend renders only here, on the topic page. */}
+            {/* Per-word mastery dots stay visible; the color legend (color is never
+                the only channel — the dots carry a count aria-label) is tucked
+                behind a small "Legend" disclosure so the hero isn't crowded by a
+                four-item key. Native <details>, so it needs no extra state. */}
             <div className="mt-3">
               <MasteryDots statuses={wordStatuses} size="md" label={masteryCountsLabel(wordStatuses)} />
-              <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500">
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden="true" />
-                  mastered
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400/40" aria-hidden="true" />
-                  learning
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-rose-400" aria-hidden="true" />
-                  tricky
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full border border-white/15" aria-hidden="true" />
-                  new
-                </span>
-              </div>
+              <details className="group mt-2">
+                <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-xs text-slate-500 transition hover:text-slate-400 [&::-webkit-details-marker]:hidden">
+                  Legend
+                  <span aria-hidden="true" className="text-[0.65rem] transition group-open:rotate-180">▾</span>
+                </summary>
+                <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500">
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden="true" />
+                    mastered
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400/40" aria-hidden="true" />
+                    learning
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full bg-rose-400" aria-hidden="true" />
+                    tricky
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full border border-white/15" aria-hidden="true" />
+                    new
+                  </span>
+                </div>
+              </details>
             </div>
           </div>
 
+          {/* Lesson-actions row: the single home for Save / Mark-learned (the
+              sticky header no longer duplicates these). */}
           <div className="mt-5 flex flex-wrap gap-3">
             <button
               type="button"
@@ -312,22 +310,26 @@ export function TopicApp({ topic }: { topic: Topic }) {
       </section>
 
       {/* ── Mode tabs ── */}
-      {/* Scrollable flex bar (not a fixed grid) so 4–5 tabs fit and scroll on a
-          360px screen; the scrollbar is hidden. */}
-      <nav
-        className="mt-10 flex gap-2 overflow-x-auto snap-x rounded-3xl border border-white/10 bg-slate-950/80 p-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        aria-label="Practice modes"
-      >
-        {isPhrasebook ? (
-          <Tab active={mode === "phrasebook"} onClick={() => setMode("phrasebook")}>Phrasebook</Tab>
-        ) : null}
-        <Tab active={mode === "words"} onClick={() => setMode("words")}>Words</Tab>
-        <Tab active={mode === "flashcards"} onClick={() => setMode("flashcards")}>Cards</Tab>
-        <Tab active={mode === "quiz"} onClick={() => setMode("quiz")}>Quiz</Tab>
-        <Tab active={mode === "typed"} onClick={() => setMode("typed")}>Type</Tab>
-        <Tab active={mode === "match"} onClick={() => setMode("match")}>Match</Tab>
-        <Tab active={mode === "cloze"} onClick={() => setMode("cloze")}>Sentences</Tab>
-      </nav>
+      {/* Level-2 segmented control: a quiet surface strip, not a loud pill bar.
+          Still a scrollable flex row (not a fixed grid) so 4–5 tabs fit and scroll
+          on a 360px screen; the scrollbar is hidden. The `tab-scroll` wrapper
+          lays a gentle right-edge fade over the strip to hint at more tabs. */}
+      <div className="tab-scroll relative mt-10">
+        <nav
+          className="flex gap-1 overflow-x-auto snap-x rounded-2xl border border-white/10 bg-surface p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          aria-label="Practice modes"
+        >
+          {isPhrasebook ? (
+            <Tab active={mode === "phrasebook"} onClick={() => setMode("phrasebook")}>Phrasebook</Tab>
+          ) : null}
+          <Tab active={mode === "words"} onClick={() => setMode("words")}>Words</Tab>
+          <Tab active={mode === "flashcards"} onClick={() => setMode("flashcards")}>Cards</Tab>
+          <Tab active={mode === "quiz"} onClick={() => setMode("quiz")}>Quiz</Tab>
+          <Tab active={mode === "typed"} onClick={() => setMode("typed")}>Type</Tab>
+          <Tab active={mode === "match"} onClick={() => setMode("match")}>Match</Tab>
+          <Tab active={mode === "cloze"} onClick={() => setMode("cloze")}>Sentences</Tab>
+        </nav>
+      </div>
 
       {/* ── Phrasebook (Useful Phrases only) ── */}
       {mode === "phrasebook" ? (
@@ -436,13 +438,16 @@ export function TopicApp({ topic }: { topic: Topic }) {
 // ── Tab button ────────────────────────────────────────────────────────────────
 
 function Tab({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  // Quieter Level-2 look: the active tab is a subtle emerald wash + accent text
+  // with a hairline inset ring, not a full emerald fill. Inactive tabs are muted
+  // ink that lift slightly on hover. Tap target stays ≥44px.
   return (
     <button
       type="button"
       onClick={onClick}
       role="tab"
       aria-selected={active}
-      className={`min-h-[44px] shrink-0 snap-start rounded-2xl px-4 py-3 text-sm font-semibold transition sm:px-5 sm:text-base ${active ? "bg-emerald-400 text-slate-950" : "text-slate-300 hover:bg-white/[0.06] hover:text-white"}`}
+      className={`min-h-[44px] shrink-0 snap-start rounded-xl px-4 py-2.5 text-sm font-semibold transition sm:px-5 sm:text-base ${active ? "bg-emerald-400/12 text-emerald-200 ring-1 ring-inset ring-emerald-400/25" : "text-slate-400 hover:bg-white/[0.04] hover:text-white"}`}
     >
       {children}
     </button>
