@@ -51,7 +51,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${notoSansSC.variable} h-full scroll-smooth antialiased`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${notoSansSC.variable} h-full antialiased`}>
       <body className="min-h-full bg-slate-950 text-white">
         {children}
         <BottomNav />
