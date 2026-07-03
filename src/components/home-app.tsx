@@ -225,7 +225,7 @@ export function HomeApp({ data }: { data: MandarinData }) {
               <Link
                 key={cat.slug}
                 href={`/categories/${cat.slug}`}
-                className="group flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-surface px-5 py-4 transition hover:-translate-y-0.5 hover:border-emerald-300/50 hover:bg-surface-hover"
+                className="group flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-surface px-5 py-4 transition hover:-translate-y-0.5 hover:bg-surface-hover"
                 aria-label={`${cat.name} — ${topicCount} topic${topicCount !== 1 ? "s" : ""}`}
               >
                 <span className="font-semibold text-white transition group-hover:text-emerald-50">{cat.name}</span>

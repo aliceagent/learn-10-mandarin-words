@@ -53,7 +53,7 @@ export function TopicCard({
   return (
     <Link
       href={`/topics/${topic.slug}`}
-      className="group flex flex-col rounded-3xl border border-white/10 bg-surface p-5 transition hover:-translate-y-1 hover:border-emerald-300/50 hover:bg-surface-hover"
+      className="group flex flex-col rounded-3xl border border-white/10 bg-surface p-5 transition hover:-translate-y-1 hover:bg-surface-hover"
       aria-label={`${topic.titleEn} — ${topic.category}`}
     >
       {/* Row 1: category badge + status badges */}
@@ -61,27 +61,27 @@ export function TopicCard({
         <span className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-xs font-medium text-slate-400">
           <HighlightedText text={topic.category} query={query} />
         </span>
-        <div className="flex flex-wrap justify-end gap-1.5 text-xs font-bold">
+        {/* Keep at most one loud/filled badge (Learned). Video and Saved read as
+            quiet neutral chips; the low-value "Video soon" state is omitted. */}
+        <div className="flex flex-wrap justify-end gap-1.5 text-xs">
           {videoReady ? (
             <span
-              className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 font-semibold text-slate-300"
+              className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 font-medium text-slate-400"
               title="Video available"
             >
               ▶ Video
             </span>
-          ) : (
-            <span
-              className="rounded-full border border-white/15 px-2.5 py-1 font-semibold text-slate-400"
-              title="Video coming soon"
-            >
-              Video soon
-            </span>
-          )}
+          ) : null}
           {favorite ? (
-            <span className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 font-semibold text-slate-300">Saved</span>
+            <span
+              className="rounded-full border border-white/10 px-2.5 py-1 font-medium text-slate-400"
+              title="Saved"
+            >
+              ★ Saved
+            </span>
           ) : null}
           {learned ? (
-            <span className="rounded-full bg-emerald-300/90 px-2.5 py-1 text-slate-950">Learned</span>
+            <span className="rounded-full bg-emerald-300/90 px-2.5 py-1 font-semibold text-slate-950">Learned</span>
           ) : null}
         </div>
       </div>
@@ -96,8 +96,10 @@ export function TopicCard({
             <HighlightedText text={topic.titleCn} query={query} />
           </p>
         </div>
+        {/* Quiet watermark hanzi. Hidden below ~380px so it never collides with
+            the title on very narrow screens. */}
         <div
-          className="font-hanzi shrink-0 select-none text-5xl font-bold leading-none text-white/15 transition group-hover:text-white/30"
+          className="font-hanzi hidden shrink-0 select-none text-5xl font-bold leading-none text-white/10 transition group-hover:text-white/20 min-[380px]:block"
           aria-hidden="true"
         >
           {topic.items[0]?.hanzi}
@@ -135,7 +137,7 @@ export function TopicCard({
         {topic.items.slice(0, 5).map((item) => (
           <span
             key={item.hanzi}
-            className="font-hanzi rounded-full bg-slate-900 px-2.5 py-1 text-sm text-slate-300"
+            className="font-hanzi rounded-full bg-white/[0.04] px-2.5 py-1 text-sm text-slate-400"
           >
             <HighlightedText text={item.hanzi} query={query} />
           </span>
@@ -162,7 +164,7 @@ export function TopicCard({
         </div>
       ) : null}
 
-      <p className="mt-auto pt-4 text-sm font-semibold text-emerald-300 group-hover:underline">
+      <p className="mt-auto pt-4 text-sm font-semibold text-slate-400 transition group-hover:text-emerald-300">
         Open lesson →
       </p>
     </Link>
