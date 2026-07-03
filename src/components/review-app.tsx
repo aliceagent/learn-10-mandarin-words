@@ -195,7 +195,7 @@ export function ReviewApp({ data }: { data: MandarinData }) {
 
       {/* ── Empty state: no cards due ── */}
       {isEmpty ? (
-        <div className="mt-12 rounded-[2rem] border border-white/10 bg-surface p-10 text-center">
+        <div className="mt-12 rounded-3xl border border-white/10 bg-surface p-10 text-center">
           <p className="text-5xl">✓</p>
           <p className="mt-4 text-2xl font-semibold text-white">All caught up!</p>
           <p className="mt-3 max-w-sm mx-auto text-slate-400">
@@ -212,7 +212,7 @@ export function ReviewApp({ data }: { data: MandarinData }) {
         </div>
       ) : complete ? (
         /* ── Session complete summary ── */
-        <div className="animate-celebrate mt-12 rounded-[2rem] border border-white/10 bg-surface p-8 text-center md:p-10">
+        <div className="animate-celebrate mt-12 rounded-3xl border border-white/10 bg-surface p-8 text-center md:p-10">
           <p className="text-6xl">🎉</p>
           <p className="mt-4 text-2xl font-semibold text-white">Session complete!</p>
           <p className="mt-3 text-slate-400">
@@ -285,7 +285,7 @@ export function ReviewApp({ data }: { data: MandarinData }) {
       ) : current ? (
         /* ── Active review card ── */
         <section
-          className="mt-8 rounded-[2rem] border border-white/10 bg-surface p-6 text-center"
+          className="mt-8 rounded-3xl border border-white/10 bg-surface p-6 text-center"
           aria-label="Review flashcard"
           role="region"
         >

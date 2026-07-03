@@ -37,7 +37,7 @@ export function CategoryApp({ category, topics }: { category: Category; topics: 
       </div>
 
       {topics.length === 0 ? (
-        <div className="mt-12 rounded-[2rem] border border-white/10 bg-surface p-10 text-center">
+        <div className="mt-12 rounded-3xl border border-white/10 bg-surface p-10 text-center">
           <p className="text-4xl">📭</p>
           <p className="mt-4 text-xl font-semibold text-white">No topics in this category yet</p>
           <Link

@@ -50,7 +50,7 @@ export function FavoritesApp({ data }: { data: MandarinData }) {
 
       {/* ── Empty state ── */}
       {isEmpty ? (
-        <div className="mt-12 rounded-[2rem] border border-white/10 bg-surface p-10 text-center">
+        <div className="mt-12 rounded-3xl border border-white/10 bg-surface p-10 text-center">
           <p className="text-5xl">★</p>
           <p className="mt-4 text-xl font-semibold text-white">Nothing saved yet</p>
           <p className="mt-3 max-w-sm mx-auto text-slate-400">

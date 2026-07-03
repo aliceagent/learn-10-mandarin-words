@@ -56,7 +56,7 @@ export function ClozePanel({
   if (done) {
     return (
       <section
-        className="mt-6 rounded-[2rem] border border-white/10 bg-surface p-8 text-center"
+        className="mt-6 rounded-3xl border border-white/10 bg-surface p-8 text-center"
         aria-label="Sentence cloze practice"
       >
         <p className="text-6xl">{score === total ? "🎉" : "💪"}</p>
@@ -110,7 +110,7 @@ export function ClozePanel({
 
   return (
     <section
-      className="mt-6 rounded-[2rem] border border-white/10 bg-surface p-6"
+      className="mt-6 rounded-3xl border border-white/10 bg-surface p-6"
       aria-label="Sentence cloze practice"
     >
       <div className="flex items-center justify-between gap-4">

@@ -64,7 +64,7 @@ export function TopicCard({
         <div className="flex flex-wrap justify-end gap-1.5 text-xs font-bold">
           {videoReady ? (
             <span
-              className="rounded-full bg-sky-300/90 px-2.5 py-1 text-slate-950"
+              className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 font-semibold text-slate-300"
               title="Video available"
             >
               ▶ Video
@@ -78,7 +78,7 @@ export function TopicCard({
             </span>
           )}
           {favorite ? (
-            <span className="rounded-full bg-amber-300/90 px-2.5 py-1 text-slate-950">Saved</span>
+            <span className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 font-semibold text-slate-300">Saved</span>
           ) : null}
           {learned ? (
             <span className="rounded-full bg-emerald-300/90 px-2.5 py-1 text-slate-950">Learned</span>

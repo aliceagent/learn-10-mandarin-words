@@ -115,7 +115,7 @@ export function StatsApp({
       </div>
 
       {!hasActivity ? (
-        <div className="mt-10 rounded-[2rem] border border-white/10 bg-surface p-10 text-center">
+        <div className="mt-10 rounded-3xl border border-white/10 bg-surface p-10 text-center">
           <p className="text-5xl">📊</p>
           <p className="mt-4 text-2xl font-semibold text-white">No stats yet</p>
           <p className="mt-3 mx-auto max-w-sm text-slate-400">

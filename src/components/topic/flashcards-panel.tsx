@@ -113,7 +113,7 @@ export function FlashcardsPanel({
 
   return (
     <section
-      className="mt-6 rounded-[2rem] border border-white/10 bg-surface p-6 text-center"
+      className="mt-6 rounded-3xl border border-white/10 bg-surface p-6 text-center"
       aria-label="Flashcard practice"
       role="region"
     >

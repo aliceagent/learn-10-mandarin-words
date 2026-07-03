@@ -271,13 +271,13 @@ export function TopicApp({ topic }: { topic: Topic }) {
           </div>
         </div>
 
-        <div className="rounded-[2rem] border border-white/10 bg-surface p-4">
+        <div className="rounded-3xl border border-white/10 bg-surface p-4">
           <VideoPlayer src={topic.videoPath} title={`${topic.titleEn} video lesson`} video={topic.video} />
 
           {/* Availability badge + direct link + hosting note */}
           <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
             {videoReady ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-300/90 px-3 py-1 text-xs font-bold text-slate-950">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-xs font-semibold text-slate-300">
                 ▶ Video available
               </span>
             ) : (

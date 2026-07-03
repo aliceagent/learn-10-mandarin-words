@@ -54,7 +54,7 @@ export function PathApp({ sections }: { sections: PathSection[] }) {
       {loaded ? (
         <Link
           href={`/topics/${nextTopic.slug}`}
-          className="mt-8 flex flex-col gap-1 rounded-[2rem] border border-emerald-300/30 bg-emerald-300/[0.06] p-6 transition hover:border-emerald-300/60 hover:bg-emerald-300/[0.1]"
+          className="mt-8 flex flex-col gap-1 rounded-3xl border border-emerald-300/30 bg-emerald-300/[0.06] p-6 transition hover:border-emerald-300/60 hover:bg-emerald-300/[0.1]"
         >
           <span className="text-xs font-semibold uppercase tracking-wide text-emerald-300">
             {learnedInPath > 0 ? "Continue where you left off" : "Start here"}

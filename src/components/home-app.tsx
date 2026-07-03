@@ -90,8 +90,8 @@ export function HomeApp({ data }: { data: MandarinData }) {
         </div>
 
         {/* ── Stats card ── */}
-        <div className="rounded-[2rem] border border-white/10 bg-surface p-5 shadow-2xl shadow-emerald-950/20">
-          <div className="rounded-[1.5rem] bg-slate-950 p-5">
+        <div className="rounded-3xl border border-white/10 bg-surface p-5 shadow-2xl shadow-emerald-950/20">
+          <div className="rounded-2xl bg-surface-2 p-5">
             <div className="mb-5 flex items-center justify-between border-b border-white/10 pb-4">
               <span className="text-sm font-semibold text-slate-300">Today&apos;s snapshot</span>
               {atRisk ? (
@@ -266,7 +266,7 @@ export function HomeApp({ data }: { data: MandarinData }) {
         </div>
 
         {filtered.length === 0 ? (
-          <div className="mt-10 rounded-[2rem] border border-white/10 bg-surface p-12 text-center">
+          <div className="mt-10 rounded-3xl border border-white/10 bg-surface p-12 text-center">
             <p className="text-4xl">🔍</p>
             <p className="mt-4 text-xl font-semibold text-white">No topics found</p>
             <p className="mt-2 text-slate-400">

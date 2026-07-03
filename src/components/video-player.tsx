@@ -94,7 +94,7 @@ function Mp4Player({
         playsInline
         preload="metadata"
         poster={resolved.poster}
-        className="w-full rounded-[1.5rem] bg-slate-950"
+        className="w-full rounded-2xl bg-slate-950"
         aria-label={title}
       >
         <source src={resolved.src} type="video/mp4" />
@@ -146,7 +146,7 @@ export function VideoPlayer({ src, title, video }: VideoPlayerProps) {
     return (
       <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
         <iframe
-          className="absolute inset-0 h-full w-full rounded-[1.5rem]"
+          className="absolute inset-0 h-full w-full rounded-2xl"
           src={`https://www.youtube.com/embed/${resolved.id}`}
           title={title}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -164,7 +164,7 @@ export function VideoPlayer({ src, title, video }: VideoPlayerProps) {
   // The only lists without a generated video today are the Useful Phrases topics,
   // so the copy is written to feel deliberate rather than broken.
   return (
-    <div className="flex aspect-video items-center justify-center rounded-[1.5rem] border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 text-center">
+    <div className="flex aspect-video items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 text-center">
       <div className="px-8">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-400/15">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">

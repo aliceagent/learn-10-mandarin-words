@@ -83,7 +83,7 @@ export function OnboardingModal({
       aria-describedby="onboarding-desc"
       ref={dialogRef}
     >
-      <div className="animate-celebrate w-full max-w-lg rounded-[2rem] border border-white/10 bg-slate-900 p-7 shadow-2xl">
+      <div className="animate-celebrate w-full max-w-lg rounded-3xl border border-white/10 bg-slate-900 p-7 shadow-2xl">
         <p className="inline-flex rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-300">
           Welcome 你好
         </p>
@@ -165,7 +165,7 @@ export function ContinueLearningCard({
   const started = learnedCount > 0;
   return (
     <section className="mx-auto max-w-7xl px-6 md:px-10">
-      <div className="flex flex-col gap-4 rounded-[2rem] border border-emerald-400/25 bg-emerald-400/[0.06] p-6 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 rounded-3xl border border-emerald-400/25 bg-emerald-400/[0.06] p-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-wide text-emerald-300">
             {started ? "Continue learning" : "Start here"}

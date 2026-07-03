@@ -62,7 +62,7 @@ export function QuizPanel({
   if (quizComplete) {
     /* Celebration screen */
     return (
-      <div className="animate-celebrate mt-6 rounded-[2rem] border border-white/10 bg-surface p-8 text-center">
+      <div className="animate-celebrate mt-6 rounded-3xl border border-white/10 bg-surface p-8 text-center">
         <p className="text-6xl">{missedItemsList.length === 0 ? "🎉" : "💪"}</p>
         <p className="mt-4 text-2xl font-semibold text-white">Quiz complete!</p>
         <p className="mt-3 text-5xl font-bold text-emerald-300">{quizState.score}<span className="text-2xl text-slate-400">/{quiz.length}</span></p>
@@ -122,7 +122,7 @@ export function QuizPanel({
   }
 
   return (
-    <section className="mt-6 rounded-[2rem] border border-white/10 bg-surface p-6" aria-label="Quiz practice">
+    <section className="mt-6 rounded-3xl border border-white/10 bg-surface p-6" aria-label="Quiz practice">
       {/* Quiz mode selector */}
       <div className="mb-5 flex flex-wrap gap-2" role="group" aria-label="Quiz mode">
         {([

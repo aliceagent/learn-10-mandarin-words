@@ -11,15 +11,42 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  /* ── Opaque content surfaces (Sprint 1: flat ground + opaque surfaces) ──── */
-  /* Solid dark card/panel fills that replace the old translucent            */
-  /* `bg-white/[0.04x]` surfaces. They match the previous tinted-over-#020617 */
-  /* look but never let anything behind the card show through, so nothing can */
-  /* band across a card the way the old body glow did.                        */
+  /* ── Surface elevation ladder (Sprint 1 opaque surfaces → Sprint 2 tokens) ─ */
+  /* Solid dark card/panel fills that replace the old translucent             */
+  /* `bg-white/[0.04x]` surfaces. They match the previous tinted-over-#020617  */
+  /* look but never let anything behind the card show through, so nothing can  */
+  /* band across a card the way the old body glow did.                         */
+  /*   background  → flat ground (see :root --background, #020617)             */
+  /*   surface     → surface-1: the default card / panel fill                  */
+  /*   surface-2   → inset "well" sitting on top of a card (== slate-950)      */
+  /*   surface-hover→ interactive raise on hover                              */
   --color-surface: #0d1220;
+  --color-surface-2: #020617;
   --color-surface-hover: #161d2e;
   /* Emerald-tinted opaque variant for the "what's next" accent panel.        */
   --color-surface-accent: #08131e;
+
+  /* ── Border tokens ─────────────────────────────────────────────────────── */
+  /* Hairline borders on surfaces. `border` is the default card hairline;     */
+  /* `border-strong` is the slightly brighter outline used on chips/controls. */
+  /* These mirror the pervasive border-white/10 and border-white/15 literals. */
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border-strong: rgba(255, 255, 255, 0.15);
+
+  /* ── Text "quiet ink" ladder ───────────────────────────────────────────── */
+  /* One near-white for primary text, then two muted slate steps. Maps to the */
+  /* existing slate-400 / slate-500 usage so adoption can be incremental.     */
+  --color-ink-high: #f8fafc;
+  --color-ink-mid: #94a3b8;
+  --color-ink-low: #64748b;
+
+  /* ── One accent + semantics only ("Quiet ink, one accent") ─────────────── */
+  /* emerald is THE brand accent (primary / active / positive). amber and     */
+  /* rose are semantic only — amber = streak / hard / warning, rose = again / */
+  /* error. Sky-blue is intentionally absent as a decorative accent.          */
+  --color-accent: #34d399;
+  --color-warn: #fbbf24;
+  --color-danger: #fb7185;
 }
 
 * {

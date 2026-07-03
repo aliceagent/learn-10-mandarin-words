@@ -48,7 +48,7 @@ export function TypingPanel({
   if (done) {
     return (
       <section
-        className="mt-6 rounded-[2rem] border border-white/10 bg-surface p-8 text-center"
+        className="mt-6 rounded-3xl border border-white/10 bg-surface p-8 text-center"
         aria-label="Typed recall practice"
       >
         <p className="text-6xl">{correct === total ? "🎉" : "💪"}</p>
@@ -107,7 +107,7 @@ export function TypingPanel({
 
   return (
     <section
-      className="mt-6 rounded-[2rem] border border-white/10 bg-surface p-6"
+      className="mt-6 rounded-3xl border border-white/10 bg-surface p-6"
       aria-label="Typed recall practice"
     >
       <div className="flex items-center justify-between gap-4">
