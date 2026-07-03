@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import rawData from "../src/data/topics.json" with { type: "json" };
 import {
   allWords,
+  datasetSummary,
   getCategory,
   getTopic,
   isUsefulPhraseTopic,
@@ -23,6 +24,15 @@ const categories = rawData.categories;
 test("dataset has exactly 102 topics and 1020 words", () => {
   assert.equal(topics.length, 102);
   assert.equal(allWords(topics).length, 1020);
+});
+
+test("datasetSummary derives hero counts from the real topic list", () => {
+  assert.deepEqual(datasetSummary(topics), {
+    listCount: 102,
+    wordCount: 1020,
+    formattedListCount: "102",
+    formattedWordCount: "1,020",
+  });
 });
 
 test("Useful Phrases category has 2 topics and 20 items, all well-formed", () => {

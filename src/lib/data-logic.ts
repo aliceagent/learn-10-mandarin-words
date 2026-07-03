@@ -44,6 +44,18 @@ export function allWords(topics: Topic[]) {
   );
 }
 
+export function datasetSummary(topics: Topic[]) {
+  const listCount = topics.length;
+  const wordCount = topics.reduce((total, topic) => total + topic.items.length, 0);
+
+  return {
+    listCount,
+    wordCount,
+    formattedListCount: new Intl.NumberFormat("en-US").format(listCount),
+    formattedWordCount: new Intl.NumberFormat("en-US").format(wordCount),
+  };
+}
+
 // A hand-picked starter sequence of concrete, high-frequency topics that read
 // well as a first path. These are real slugs from topics.json; any that go
 // missing are silently skipped, and the path always falls back to data order.

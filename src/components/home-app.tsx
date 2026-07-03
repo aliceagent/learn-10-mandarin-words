@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRef, useMemo, useState } from "react";
 import type { MandarinData } from "@/lib/types";
-import { nextRecommendedTopic } from "@/lib/data";
+import { datasetSummary, nextRecommendedTopic } from "@/lib/data";
 import { track } from "@/lib/analytics";
 import { useProgress, computeStreak } from "./use-progress";
 import { goalProgress, streakAtRisk } from "@/lib/progress-logic";
@@ -41,7 +41,8 @@ export function HomeApp({ data }: { data: MandarinData }) {
   const atRisk = streakAtRisk(progress.studiedDates ?? []);
 
   const studiedWordsCount = Object.values(progress.flashcardStats).filter((s) => s.reviewCount > 0).length;
-  const totalWords = data.topics.length * 10;
+  const summary = datasetSummary(data.topics);
+  const totalWords = summary.wordCount;
   const goal = goalProgress(progress);
 
   function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
@@ -65,7 +66,7 @@ export function HomeApp({ data }: { data: MandarinData }) {
       <section className="mx-auto grid min-h-[88dvh] max-w-7xl items-center gap-10 px-6 py-12 pb-24 md:grid-cols-[1.05fr_0.95fr] md:px-10 md:pb-12">
         <div>
           <p className="mb-5 inline-flex rounded-full border border-emerald-500/25 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-300">
-            100 Mandarin vocab lists · 1,000 words · one clean habit
+            {summary.formattedListCount} Mandarin vocab lists · {summary.formattedWordCount} words · one clean habit
           </p>
           <h1 className="max-w-3xl text-5xl font-semibold tracking-tight text-white md:text-7xl">
             Learn 10 Mandarin Words

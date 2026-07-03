@@ -33,6 +33,10 @@ export function allWords() {
   return logic.allWords(data.topics);
 }
 
+export function datasetSummary(topics: Topic[] = data.topics) {
+  return logic.datasetSummary(topics);
+}
+
 /** Ordered list of recommended starter topics, drawn only from existing data. */
 export function recommendedPath(): Topic[] {
   return logic.recommendedPath(data.topics);
