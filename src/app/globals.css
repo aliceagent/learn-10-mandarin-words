@@ -167,6 +167,16 @@ textarea:focus-visible,
   -webkit-backface-visibility: hidden;
   /* translateZ nudge dodges Safari iOS backface flicker. */
   transform: translateZ(0);
+  /* Sprint 3: each face is a real, elevated card — a raised opaque surface with
+     matched radius and a soft "hero" drop shadow so the deck reads as a physical
+     card floating above the panel rather than flat text on the panel fill. Both
+     faces fill the flip box (min-height) so front/back read identically. */
+  min-height: 280px;
+  border-radius: 1.5rem;
+  background: var(--color-surface-hover);
+  box-shadow:
+    0 26px 50px -30px rgba(2, 6, 23, 0.9),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 .card-face-back {
@@ -240,17 +250,17 @@ textarea:focus-visible,
   transition: width 0.4s ease;
 }
 
-/* ── Swipe gesture hint chips ───────────────────────────────────────────────── */
+/* ── Swipe gesture hints ─────────────────────────────────────────────────────── */
+/* Sprint 3: quieter than the old bordered chips — plain low-ink text with no    */
+/* pill/border, and (in the components) only shown on the first card of a deck / */
+/* session so the affordance teaches once instead of nagging on every card.      */
 .swipe-hint {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  padding: 0.25rem 0.625rem;
-  border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
   font-size: 0.7rem;
-  font-weight: 600;
-  color: #64748b;
+  font-weight: 500;
+  color: var(--color-ink-low);
   user-select: none;
   pointer-events: none;
 }

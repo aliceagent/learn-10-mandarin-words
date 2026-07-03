@@ -10,6 +10,18 @@ import { useCardDrag } from "../use-card-drag";
 import { useReducedMotion } from "../use-reduced-motion";
 import { DeckDots } from "../deck-dots";
 
+// Segments for the calmer segmented grade bar (Sprint 3): scheduling order with
+// a semantic accent shown as a subtle 2px top rule (rose = again, amber = hard,
+// slate = good/neutral, emerald = easy) rather than a loud full border on every
+// button. Grade actions, labels, intervals, aria labels, and touch targets are
+// all unchanged from the old pill buttons — only the container/skin differs.
+const GRADE_SEGMENTS = [
+  { grade: "again", rule: "border-rose-400/60" },
+  { grade: "hard", rule: "border-amber-400/60" },
+  { grade: "good", rule: "border-slate-400/50" },
+  { grade: "easy", rule: "border-emerald-400/60" },
+] as const;
+
 // The "Cards" tab: a single flashcard rendered as a physical-feeling deck
 // (Sprint 9) — a 3D flip on reveal, drag-to-follow, fling-to-grade, and deck
 // dots — layered on top of the same reveal/grade intents the parent owns. Card
@@ -119,11 +131,13 @@ export function FlashcardsPanel({
     >
       <div className="flex items-center justify-between gap-2 text-sm text-slate-400">
         <span>Card {cardIndex + 1} of {topic.items.length}</span>
-        {/* Swipe gesture hints */}
-        <div className="flex gap-2">
-          <span className="swipe-hint">← again</span>
-          <span className="swipe-hint">easy →</span>
-        </div>
+        {/* Swipe gesture hints — taught once, on the first card of the deck. */}
+        {cardIndex === 0 ? (
+          <div className="flex gap-3">
+            <span className="swipe-hint">← again</span>
+            <span className="swipe-hint">easy →</span>
+          </div>
+        ) : null}
       </div>
 
       {/* Draggable 3D card. Touch handlers live on this wrapper; the fling
@@ -173,8 +187,8 @@ export function FlashcardsPanel({
       {/* Deck-position dots (decorative; the "Card N of M" text carries it for AT) */}
       <DeckDots count={topic.items.length} current={cardIndex} />
 
-      <div className="mt-8 flex flex-wrap justify-center gap-3">
-        {!revealed ? (
+      {!revealed ? (
+        <div className="mt-8 flex justify-center">
           <button
             type="button"
             onClick={onReveal}
@@ -183,25 +197,32 @@ export function FlashcardsPanel({
           >
             Reveal
           </button>
-        ) : (
-          <>
-            {(["again", "hard", "good", "easy"] as const).map((grade) => (
-              <button
-                key={grade}
-                type="button"
-                onClick={() => onGrade(grade)}
-                className="flex min-h-[44px] flex-col items-center justify-center rounded-full border border-white/15 px-5 py-2 font-semibold text-white transition hover:border-emerald-300"
-                aria-label={`Grade as ${grade} — next review in ${previews[grade]} day${previews[grade] !== 1 ? "s" : ""}`}
-              >
-                <span className="capitalize">{grade}</span>
-                <span className="text-[11px] font-normal text-slate-500" aria-hidden="true">
-                  {formatIntervalDays(previews[grade])}
-                </span>
-              </button>
-            ))}
-          </>
-        )}
-      </div>
+        </div>
+      ) : (
+        // Calmer segmented grade bar: one quiet surface well holding four
+        // equal-width segments, each stacking label + interval, with a subtle
+        // semantic top rule instead of a loud pill border.
+        <div
+          className="mt-8 mx-auto flex max-w-md gap-1 rounded-2xl border border-white/10 bg-surface-2 p-1"
+          role="group"
+          aria-label="Grade your recall"
+        >
+          {GRADE_SEGMENTS.map(({ grade, rule }) => (
+            <button
+              key={grade}
+              type="button"
+              onClick={() => onGrade(grade)}
+              className={`flex min-h-[44px] flex-1 flex-col items-center justify-center gap-0.5 rounded-xl border-t-2 ${rule} px-2 py-2 text-center font-semibold text-white transition hover:bg-surface-hover`}
+              aria-label={`Grade as ${grade} — next review in ${previews[grade]} day${previews[grade] !== 1 ? "s" : ""}`}
+            >
+              <span className="text-sm capitalize">{grade}</span>
+              <span className="text-[11px] font-normal text-slate-500" aria-hidden="true">
+                {formatIntervalDays(previews[grade])}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Tip on first card */}
       {!revealed && cardIndex === 0 ? (

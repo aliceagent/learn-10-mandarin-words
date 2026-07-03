@@ -35,6 +35,18 @@ const TALLY: { grade: Grade; label: string; className: string }[] = [
   { grade: "easy", label: "Easy", className: "border-emerald-400/40 text-emerald-300" },
 ];
 
+// Segments for the calmer segmented grade bar (Sprint 3): scheduling order with
+// a semantic accent shown as a subtle 2px top rule (rose = again, amber = hard,
+// slate = good/neutral, emerald = easy) rather than a loud full border on every
+// button. Grade actions, labels, intervals, aria labels, and touch targets are
+// all unchanged from the old pill buttons — only the container/skin differs.
+const GRADE_SEGMENTS: { grade: Grade; rule: string }[] = [
+  { grade: "again", rule: "border-rose-400/60" },
+  { grade: "hard", rule: "border-amber-400/60" },
+  { grade: "good", rule: "border-slate-400/50" },
+  { grade: "easy", rule: "border-emerald-400/60" },
+];
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function ReviewApp({ data }: { data: MandarinData }) {
@@ -300,10 +312,13 @@ export function ReviewApp({ data }: { data: MandarinData }) {
                   {requeueCount} to re-check
                 </span>
               ) : null}
-              <div className="flex gap-2">
-                <span className="swipe-hint">← again</span>
-                <span className="swipe-hint">easy →</span>
-              </div>
+              {/* Swipe hints — taught once, on the first card of the session. */}
+              {session.position === 0 ? (
+                <div className="flex gap-3">
+                  <span className="swipe-hint">← again</span>
+                  <span className="swipe-hint">easy →</span>
+                </div>
+              ) : null}
             </div>
             <Link href={`/topics/${current.topicSlug}`} className="text-sm text-emerald-300 hover:text-emerald-200 truncate max-w-32">
               {current.topicTitle}
@@ -361,8 +376,8 @@ export function ReviewApp({ data }: { data: MandarinData }) {
           {/* Deck dots only for short queues; long sessions rely on the bar. */}
           {total <= DECK_DOT_MAX ? <DeckDots count={total} current={session.position} /> : null}
 
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            {!revealed ? (
+          {!revealed ? (
+            <div className="mt-8 flex justify-center">
               <button
                 type="button"
                 onClick={() => setRevealed(true)}
@@ -371,23 +386,32 @@ export function ReviewApp({ data }: { data: MandarinData }) {
               >
                 Reveal
               </button>
-            ) : (
-              (["again", "hard", "good", "easy"] as const).map((grade) => (
+            </div>
+          ) : (
+            // Calmer segmented grade bar: one quiet surface well holding four
+            // equal-width segments, each stacking label + interval, with a subtle
+            // semantic top rule instead of a loud pill border.
+            <div
+              className="mt-8 mx-auto flex max-w-md gap-1 rounded-2xl border border-white/10 bg-surface-2 p-1"
+              role="group"
+              aria-label="Grade your recall"
+            >
+              {GRADE_SEGMENTS.map(({ grade, rule }) => (
                 <button
                   key={grade}
                   type="button"
                   onClick={() => handleGrade(grade)}
-                  className="flex min-h-[44px] flex-col items-center justify-center rounded-full border border-white/15 px-5 py-2 font-semibold text-white transition hover:border-emerald-300"
+                  className={`flex min-h-[44px] flex-1 flex-col items-center justify-center gap-0.5 rounded-xl border-t-2 ${rule} px-2 py-2 text-center font-semibold text-white transition hover:bg-surface-hover`}
                   aria-label={`Grade as ${grade} — next review in ${gradePreviews[grade]} day${gradePreviews[grade] !== 1 ? "s" : ""}`}
                 >
-                  <span className="capitalize">{grade}</span>
+                  <span className="text-sm capitalize">{grade}</span>
                   <span className="text-[11px] font-normal text-slate-500" aria-hidden="true">
                     {formatIntervalDays(gradePreviews[grade])}
                   </span>
                 </button>
-              ))
-            )}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
       ) : null}
 
