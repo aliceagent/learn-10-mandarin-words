@@ -5,21 +5,9 @@ import type { VocabItem } from "@/lib/types";
 import type { QuizCard, QuizMode } from "@/lib/quiz-logic";
 import { HANZI_LANG, PINYIN_LANG, quizChoiceLang, quizPromptLang } from "@/lib/lang";
 import { SpeakButton } from "../speak-button";
+import { useSpeech } from "../use-speech";
 
 type QuizViewState = { index: number; score: number; picked: string | null };
-
-// Speak a word with the same voice params as SpeakButton: cancel any in-flight
-// utterance, then speak Mandarin (zh-CN) slightly slowed. Used by the listening
-// mode's large play button. Guarded so it's a no-op where speech is unavailable
-// (the listening chip is also gated on support, so this rarely fires blind).
-function speakWord(text: string) {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-  window.speechSynthesis.cancel();
-  const utt = new SpeechSynthesisUtterance(text);
-  utt.lang = "zh-CN";
-  utt.rate = 0.85;
-  window.speechSynthesis.speak(utt);
-}
 
 // The "Quiz" tab: either the multiple-choice quiz itself or, once every card is
 // answered, the completion screen with the missed-word summary and retry/restart
@@ -59,6 +47,10 @@ export function QuizPanel({
   // Tracks the card whose audio has played, so the "Replay" affordance appears
   // only after the learner first taps play on the current listening card.
   const [playedKey, setPlayedKey] = useState<string | null>(null);
+  // Hardened speech for the listening-mode play/replay buttons (voice selection,
+  // stuck-pause recovery, cancel-race workaround). `status` also drives the
+  // stronger no-voice microcopy below.
+  const { speak, status } = useSpeech();
 
   if (quizComplete) {
     /* Celebration screen */
@@ -168,7 +160,7 @@ export function QuizPanel({
             <button
               type="button"
               onClick={() => {
-                speakWord(currentQuiz.prompt);
+                speak(currentQuiz.prompt);
                 setPlayedKey(currentQuiz.key);
               }}
               aria-label="Play the word"
@@ -182,13 +174,17 @@ export function QuizPanel({
             {playedKey === currentQuiz.key ? (
               <button
                 type="button"
-                onClick={() => speakWord(currentQuiz.prompt)}
+                onClick={() => speak(currentQuiz.prompt)}
                 className="mt-2 min-h-[44px] text-xs font-semibold text-emerald-300 transition hover:text-emerald-200"
               >
                 Replay
               </button>
             ) : null}
-            <p className="mt-2 text-xs text-slate-600">No sound? Your device may lack a Chinese voice.</p>
+            <p className="mt-2 text-xs text-slate-600">
+              {status === "no-chinese-voice"
+                ? "Your device has no Chinese voice installed, so listening mode may be silent."
+                : "No sound? Your device may lack a Chinese voice."}
+            </p>
           </div>
         ) : (
           // After answering: reveal the ground-truth hanzi + pinyin. role="status"

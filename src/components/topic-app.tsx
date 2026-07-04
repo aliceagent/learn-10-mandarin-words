@@ -7,8 +7,10 @@ import { isUsefulPhraseTopic, nextTopicAfter, wordKey } from "@/lib/data";
 import { buildQuiz, itemsForKeys, type QuizMode } from "@/lib/quiz-logic";
 import { computeStats, formatIntervalDays, previewIntervals, topicProgress, topicWordStatuses } from "@/lib/progress-logic";
 import { downloadableMp4Url, hasPlayableVideo } from "@/lib/video";
+import { canAttemptSpeech } from "@/lib/speech";
 import { track } from "@/lib/analytics";
 import { useProgress } from "./use-progress";
+import { useSpeech } from "./use-speech";
 import { VideoPlayer } from "./video-player";
 import { TonePractice } from "./tone-practice";
 import { PhrasebookPanel } from "./phrasebook-panel";
@@ -47,23 +49,14 @@ export function TopicApp({ topic }: { topic: Topic }) {
   const [missedKeys, setMissedKeys] = useState<string[]>([]);
   // Transient confirmation shown after grading a flashcard.
   const [toast, setToast] = useState<string | null>(null);
-  // Whether the browser can speak (Web Speech synthesis). Detected in an effect
-  // — never during SSR render — so the server and first client render agree
-  // (default false) and the listening-mode chip appears only after hydration
-  // confirms support, avoiding a hydration mismatch.
-  const [speechAvailable, setSpeechAvailable] = useState(false);
-  useEffect(() => {
-    // Detect on mount only (browser-only API). The update runs in a microtask so
-    // the effect body never triggers a synchronous cascading render — matching
-    // the feature-detection pattern in save-offline-button.tsx.
-    let active = true;
-    queueMicrotask(() => {
-      if (active) setSpeechAvailable("speechSynthesis" in window);
-    });
-    return () => {
-      active = false;
-    };
-  }, []);
+  // Whether the browser can plausibly speak Mandarin, driven by the shared
+  // useSpeech() hook. Its status starts as "loading" (canAttemptSpeech → true),
+  // so SSR and first client render agree and the listening-mode chip shows
+  // optimistically; post-hydration it hides only once a populated voice list
+  // confirms no Chinese voice — or the API is absent — never in the ambiguous
+  // empty-list case (some engines report `[]` yet speak).
+  const { status: speechStatus } = useSpeech();
+  const speechAvailable = canAttemptSpeech(speechStatus);
 
   const isLearned = progress.learnedTopics.includes(topic.slug);
   const isFavoriteTopic = progress.favoriteTopics.includes(topic.slug);
