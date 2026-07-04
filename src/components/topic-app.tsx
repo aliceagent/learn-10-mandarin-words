@@ -17,6 +17,7 @@ import { PhrasebookPanel } from "./phrasebook-panel";
 import { NextStepPanel } from "./next-step-panel";
 import { SaveOfflineButton } from "./save-offline-button";
 import { MasteryDots, masteryCountsLabel } from "./mastery-dots";
+import { ToneColorsToggle } from "./tone-colors-toggle";
 import { WordsPanel } from "./topic/words-panel";
 import { FlashcardsPanel } from "./topic/flashcards-panel";
 import { QuizPanel } from "./topic/quiz-panel";
@@ -322,6 +323,12 @@ export function TopicApp({ topic }: { topic: Topic }) {
           <Tab active={mode === "match"} onClick={() => setMode("match")}>Match</Tab>
           <Tab active={mode === "cloze"} onClick={() => setMode("cloze")}>Sentences</Tab>
         </nav>
+      </div>
+
+      {/* Tone-colors preference: a quiet, right-aligned control that recolors
+          every pinyin line on this device when enabled (off by default). */}
+      <div className="mt-3 flex justify-end">
+        <ToneColorsToggle />
       </div>
 
       {/* ── Phrasebook (Useful Phrases only) ── */}

@@ -7,6 +7,7 @@ import { wordKey } from "@/lib/data-logic";
 import { useProgress } from "./use-progress";
 import { LoadingScreen } from "./loading-screen";
 import { SpeakButton } from "./speak-button";
+import { TonePinyin } from "./tone-pinyin";
 
 export function FavoritesApp({ data }: { data: MandarinData }) {
   const { progress, loaded, toggleFavoriteWord, toggleFavoriteTopic } = useProgress();
@@ -108,7 +109,7 @@ export function FavoritesApp({ data }: { data: MandarinData }) {
                   <div className="flex min-w-0 items-start gap-2">
                     <div className="min-w-0">
                       <p className="font-hanzi text-3xl font-semibold text-white">{word.hanzi}</p>
-                      <p className="font-hanzi mt-1 text-base text-emerald-300">{word.pinyin}</p>
+                      <p className="font-hanzi mt-1 text-base text-emerald-300"><TonePinyin pinyin={word.pinyin} /></p>
                       <p className="mt-1 font-semibold text-slate-200">{word.english}</p>
                       <Link href={`/topics/${word.topicSlug}`} className="mt-1 block text-xs text-slate-500 hover:text-emerald-300 transition">
                         {word.topicTitle}

@@ -47,6 +47,19 @@
   --color-accent: #34d399;
   --color-warn: #fbbf24;
   --color-danger: #fb7185;
+
+  /* ── Tone colors (Sprint 10 — opt-in pedagogical channel) ──────────────── */
+  /* The conventional Mandarin tone palette: 1 red, 2 green, 3 blue, 4 purple, */
+  /* 5/neutral gray. A DELIBERATE exemption from the "quiet ink, one accent"   */
+  /* rule above — this color teaches tone. It only ever paints pinyin glyphs   */
+  /* (never controls), only when the learner opts in, and never replaces the   */
+  /* tone marks, so color is an extra channel and never the only one. Generates */
+  /* the text-tone-1 … text-tone-5 utilities; all clear ≥4.5:1 on #020617.     */
+  --color-tone-1: #f87171;
+  --color-tone-2: #4ade80;
+  --color-tone-3: #60a5fa;
+  --color-tone-4: #c084fc;
+  --color-tone-5: #94a3b8;
 }
 
 * {

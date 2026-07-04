@@ -21,6 +21,8 @@ import { useReducedMotion } from "./use-reduced-motion";
 import { DeckDots } from "./deck-dots";
 import { LoadingScreen } from "./loading-screen";
 import { SpeakButton } from "./speak-button";
+import { ToneColorsToggle } from "./tone-colors-toggle";
+import { TonePinyin } from "./tone-pinyin";
 import { Toast } from "./toast";
 
 // Longest queue that still shows deck-position dots; beyond this the progress
@@ -206,6 +208,12 @@ export function ReviewApp({ data }: { data: MandarinData }) {
         </p>
       </div>
 
+      {/* Tone-colors preference for the pinyin on review card backs (and the
+          toughest-words summary). Device-local, off by default. */}
+      <div className="mt-6 flex justify-end">
+        <ToneColorsToggle />
+      </div>
+
       {/* ── Empty state: no cards due ── */}
       {isEmpty ? (
         <div className="mt-12 rounded-3xl border border-white/10 bg-surface p-10 text-center">
@@ -260,7 +268,7 @@ export function ReviewApp({ data }: { data: MandarinData }) {
                     <div className="min-w-0">
                       <p lang={HANZI_LANG} className="font-hanzi text-lg text-white">
                         {card.hanzi}{" "}
-                        <span lang={PINYIN_LANG} className="text-sm text-emerald-300">{card.pinyin}</span>
+                        <span lang={PINYIN_LANG} className="text-sm text-emerald-300"><TonePinyin pinyin={card.pinyin} /></span>
                       </p>
                       <p className="truncate text-sm text-slate-400">{card.english}</p>
                     </div>
@@ -366,7 +374,7 @@ export function ReviewApp({ data }: { data: MandarinData }) {
                 {/* Back face: hanzi (smaller) + pinyin + english + interval */}
                 <div className="card-face card-face-back flex w-full flex-col items-center justify-center">
                   <p lang={HANZI_LANG} className="font-hanzi text-4xl font-semibold text-white">{current.hanzi}</p>
-                  <p lang={PINYIN_LANG} className="mt-3 font-hanzi text-2xl text-emerald-300">{current.pinyin}</p>
+                  <p lang={PINYIN_LANG} className="mt-3 font-hanzi text-2xl text-emerald-300"><TonePinyin pinyin={current.pinyin} /></p>
                   <p className="mt-2 text-xl text-slate-200">{current.english}</p>
                   <p className="mt-4 text-xs text-slate-500">Current interval: {current.intervalDays}d</p>
                 </div>

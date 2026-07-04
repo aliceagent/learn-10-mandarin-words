@@ -7,6 +7,7 @@ import { track } from "@/lib/analytics";
 import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
 import { buildListenSteps } from "@/lib/listen-logic";
 import { SpeakButton } from "../speak-button";
+import { TonePinyin } from "../tone-pinyin";
 import { useListenAll } from "../use-listen-all";
 import { useReducedMotion } from "../use-reduced-motion";
 import { ListenAllBar } from "./listen-all-bar";
@@ -81,7 +82,7 @@ export function WordsPanel({
                 <div className="flex min-w-0 items-start gap-3">
                   <div className="min-w-0">
                     <h2 lang={HANZI_LANG} className="font-hanzi text-4xl font-semibold text-white">{item.hanzi}</h2>
-                    <p lang={PINYIN_LANG} className="font-hanzi mt-2 text-xl text-emerald-300">{item.pinyin}</p>
+                    <p lang={PINYIN_LANG} className="font-hanzi mt-2 text-xl text-emerald-300"><TonePinyin pinyin={item.pinyin} /></p>
                     <p className="mt-1 text-lg font-semibold text-slate-200">{item.english}</p>
                     {stat && stat.reviewCount > 0 ? (
                       <p className="mt-1 text-xs text-slate-500">

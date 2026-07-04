@@ -78,3 +78,84 @@ export function tonesOf(pinyin: string): Tone[] {
   if (inCluster) tones.push(clusterTone);
   return tones;
 }
+
+// ── Syllable segmentation for tone coloring (Sprint 10) ──────────────────────
+
+/**
+ * One piece of a pinyin string: either a syllable (carrying its `tone`) or a
+ * separator/punctuation run (`tone: null`). See `pinyinSegments`.
+ */
+export type PinyinSegment = { text: string; tone: Tone | null };
+
+// A character that is part of a pinyin syllable — any vowel (including ü / ê /
+// tone-marked forms) or an ASCII consonant. Everything else (spaces, hyphens,
+// middots, apostrophes, punctuation) sits between syllables.
+function isPinyinLetter(ch: string): boolean {
+  return VOWEL.test(ch) || /[a-z]/i.test(ch);
+}
+
+// Split a separator-free letter chunk into one substring per vowel cluster,
+// mirroring `segmentChunk` in typing-logic.ts but keeping the ORIGINAL
+// tone-marked characters. Onset consonants attach to the following cluster;
+// trailing consonants attach to the preceding syllable, so each returned
+// substring holds exactly one vowel cluster (and therefore at most one tone
+// mark). A vowel-less chunk (no cluster) is returned whole.
+function segmentLetterChunk(chunk: string): string[] {
+  const clusters: [number, number][] = [];
+  let start = -1;
+  for (let i = 0; i < chunk.length; i++) {
+    if (VOWEL.test(chunk[i])) {
+      if (start < 0) start = i;
+    } else if (start >= 0) {
+      clusters.push([start, i]);
+      start = -1;
+    }
+  }
+  if (start >= 0) clusters.push([start, chunk.length]);
+  if (clusters.length === 0) return [chunk];
+  const out: string[] = [];
+  let from = 0;
+  for (let k = 0; k < clusters.length; k++) {
+    const to = k === clusters.length - 1 ? chunk.length : clusters[k][1];
+    out.push(chunk.slice(from, to));
+    from = to;
+  }
+  return out;
+}
+
+/**
+ * Split tone-marked pinyin into ordered segments so each syllable can be colored
+ * by its tone while the separators between them stay untouched. Syllable
+ * segments carry a tone (1–5); separator/punctuation segments carry `tone: null`.
+ *
+ * Two invariants hold (and are dataset-tested):
+ *   • `segments.map(s => s.text).join("") === pinyin` — nothing is added,
+ *     dropped, or reordered, so rendering can never mangle the source string.
+ *   • the non-null tones deep-equal `tonesOf(pinyin)` — color always lands on the
+ *     same syllable the tone belongs to.
+ *
+ * An empty string yields `[]`.
+ */
+export function pinyinSegments(pinyin: string): PinyinSegment[] {
+  const segments: PinyinSegment[] = [];
+  let i = 0;
+  while (i < pinyin.length) {
+    const letter = isPinyinLetter(pinyin[i]);
+    let j = i + 1;
+    while (j < pinyin.length && isPinyinLetter(pinyin[j]) === letter) j++;
+    const run = pinyin.slice(i, j);
+    if (letter) {
+      for (const syllable of segmentLetterChunk(run)) {
+        // A real syllable always contains a vowel cluster; a vowel-less run
+        // (never seen in the dataset) is treated as a separator so it doesn't
+        // add a phantom tone that tonesOf never counted.
+        const tone = VOWEL.test(syllable) ? toneOfSyllable(syllable) : null;
+        segments.push({ text: syllable, tone });
+      }
+    } else {
+      segments.push({ text: run, tone: null });
+    }
+    i = j;
+  }
+  return segments;
+}

@@ -7,6 +7,7 @@ import { formatIntervalDays, previewIntervals } from "@/lib/progress-logic";
 import { dragTransform, FLING_THRESHOLD_PX, type FlingIntent } from "@/lib/gesture-logic";
 import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
 import { SpeakButton } from "../speak-button";
+import { TonePinyin } from "../tone-pinyin";
 import { useCardDrag } from "../use-card-drag";
 import { useReducedMotion } from "../use-reduced-motion";
 import { DeckDots } from "../deck-dots";
@@ -178,7 +179,7 @@ export function FlashcardsPanel({
             {/* Back face: hanzi (smaller) + pinyin + english */}
             <div className="card-face card-face-back flex w-full flex-col items-center justify-center">
               <p lang={HANZI_LANG} className="font-hanzi text-4xl font-semibold text-white">{current.hanzi}</p>
-              <p lang={PINYIN_LANG} className="mt-3 font-hanzi text-2xl text-emerald-300">{current.pinyin}</p>
+              <p lang={PINYIN_LANG} className="mt-3 font-hanzi text-2xl text-emerald-300"><TonePinyin pinyin={current.pinyin} /></p>
               <p className="mt-2 text-xl text-slate-200">{current.english}</p>
             </div>
           </div>

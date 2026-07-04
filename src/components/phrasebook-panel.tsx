@@ -4,6 +4,7 @@ import type { Topic } from "@/lib/types";
 import { wordKey } from "@/lib/data-logic";
 import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
 import { SpeakButton } from "./speak-button";
+import { TonePinyin } from "./tone-pinyin";
 import { CopyButton } from "./copy-button";
 
 interface PhrasebookPanelProps {
@@ -42,7 +43,7 @@ export function PhrasebookPanel({ topic, favoriteWords, onToggleFavorite }: Phra
                     </span>
                     {item.hanzi}
                   </p>
-                  <p lang={PINYIN_LANG} className="font-hanzi mt-1 text-base text-emerald-300 md:text-lg">{item.pinyin}</p>
+                  <p lang={PINYIN_LANG} className="font-hanzi mt-1 text-base text-emerald-300 md:text-lg"><TonePinyin pinyin={item.pinyin} /></p>
                   <p className="mt-0.5 text-sm font-semibold text-slate-200 md:text-base">{item.english}</p>
                 </div>
                 <div className="flex shrink-0 items-center gap-1.5">
