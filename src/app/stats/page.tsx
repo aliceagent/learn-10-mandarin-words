@@ -3,9 +3,10 @@ import { StatsApp } from "@/components/stats-app";
 import { data } from "@/lib/data";
 
 export const metadata: Metadata = {
-  title: "Your Stats | Learn 10 Mandarin Words",
+  title: "Your Stats",
   description:
     "A local snapshot of your Mandarin progress — learned topics, favorite words, due reviews, and study streak. Computed on your device, no account required.",
+  alternates: { canonical: "/stats" },
 };
 
 export default function StatsPage() {

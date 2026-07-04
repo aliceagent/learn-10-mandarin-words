@@ -3,8 +3,11 @@ import type { Metadata } from "next";
 import { SavedLessonsPanel } from "@/components/saved-lessons-panel";
 
 export const metadata: Metadata = {
-  title: "Offline | Learn 10 Mandarin Words",
+  title: "Offline",
   description: "You are offline. Recently visited lessons are still available.",
+  alternates: { canonical: "/offline" },
+  // SW fallback shell — keep it out of search results.
+  robots: { index: false, follow: false },
 };
 
 export default function OfflinePage() {

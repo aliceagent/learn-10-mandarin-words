@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Noto_Sans_SC } from "next/font/google";
 import "./globals.css";
 import { BottomNav } from "@/components/bottom-nav";
 import { PwaRegister } from "@/components/pwa-register";
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,10 +23,23 @@ const notoSansSC = Noto_Sans_SC({
 });
 
 export const metadata: Metadata = {
-  title: "Learn 10 Mandarin Words",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`,
+  },
   description: "A Mandarin vocabulary learning app with video lessons, quizzes, flashcards, favorites, and local progress tracking.",
-  applicationName: "Learn 10 Mandarin Words",
+  applicationName: SITE_NAME,
   manifest: "/manifest.webmanifest",
+  openGraph: {
+    siteName: SITE_NAME,
+    type: "website",
+    locale: "en_US",
+    url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

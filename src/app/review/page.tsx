@@ -3,8 +3,9 @@ import { ReviewApp } from "@/components/review-app";
 import { data } from "@/lib/data";
 
 export const metadata: Metadata = {
-  title: "Daily Review | Learn 10 Mandarin Words",
+  title: "Daily Review",
   description: "Review your spaced-repetition flashcard queue for today.",
+  alternates: { canonical: "/review" },
 };
 
 export default function ReviewPage() {

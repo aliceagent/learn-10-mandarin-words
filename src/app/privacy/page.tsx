@@ -2,8 +2,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy | Learn 10 Mandarin Words",
+  title: "Privacy",
   description: "How Learn 10 Mandarin Words handles your data: everything stays on your device.",
+  alternates: { canonical: "/privacy" },
 };
 
 export default function PrivacyPage() {

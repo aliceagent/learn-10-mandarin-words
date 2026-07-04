@@ -3,8 +3,9 @@ import { FavoritesApp } from "@/components/favorites-app";
 import { data } from "@/lib/data";
 
 export const metadata: Metadata = {
-  title: "Favorites | Learn 10 Mandarin Words",
+  title: "Favorites",
   description: "Your saved Mandarin words and topic lists.",
+  alternates: { canonical: "/favorites" },
 };
 
 export default function FavoritesPage() {
