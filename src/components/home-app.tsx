@@ -10,14 +10,16 @@ import { goalProgress, streakAtRisk } from "@/lib/progress-logic";
 import { OnboardingModal, ContinueLearningCard } from "./onboarding";
 import { ProgressRing } from "./progress-ring";
 import { TopicCard } from "./topic-card";
+import { WordSearchResults } from "./word-search-results";
 // Shared diacritic-tolerant normalizer so "nǐ", "ni", "ní" all match — the same
 // helper the highlighter uses, keeping search and highlight in lockstep.
 import { normalizePinyin } from "@/lib/highlight";
+import { searchWords } from "@/lib/search-logic";
 
 export function HomeApp({ data }: { data: MandarinData }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
-  const { progress, loaded, exportProgress, importProgress, completeOnboarding, skipOnboarding } = useProgress();
+  const { progress, loaded, exportProgress, importProgress, completeOnboarding, skipOnboarding, toggleFavoriteWord } = useProgress();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const nextTopic = useMemo(() => nextRecommendedTopic(progress.learnedTopics), [progress.learnedTopics]);
@@ -34,6 +36,14 @@ export function HomeApp({ data }: { data: MandarinData }) {
       return matchesCategory && haystack.includes(q);
     });
   }, [category, data.topics, query]);
+
+  // Flat, ranked word-level matches shown above the topic grid while searching.
+  // Same normalizer as `filtered`, so any word here implies its topic is in
+  // `filtered` too — the panel never shows beside the "No topics found" state.
+  const wordResults = useMemo(
+    () => searchWords(data.topics, query, { categorySlug: category === "all" ? undefined : category }),
+    [category, data.topics, query],
+  );
 
   const learnedCount = progress.learnedTopics.length;
   const favoriteCount = progress.favoriteWords.length + progress.favoriteTopics.length;
@@ -249,7 +259,7 @@ export function HomeApp({ data }: { data: MandarinData }) {
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <h2 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">Vocabulary library</h2>
-            <p className="mt-3 max-w-2xl text-slate-400">Filter by category, search any Chinese word or pinyin, and jump into a topic lesson.</p>
+            <p className="mt-3 max-w-2xl text-slate-400">Filter by category, search any word — results show both matching words and topics.</p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
             <input
@@ -270,6 +280,20 @@ export function HomeApp({ data }: { data: MandarinData }) {
             </select>
           </div>
         </div>
+
+        {query.trim() ? (
+          <WordSearchResults
+            results={wordResults}
+            query={query}
+            favoriteWords={progress.favoriteWords}
+            onToggleFavorite={(key) => {
+              // Mirror topic-app: only count a genuine save (not an un-save).
+              if (!progress.favoriteWords.includes(key)) track("favorite_saved", { topic: key.split(":")[0], kind: "word" });
+              toggleFavoriteWord(key);
+            }}
+            onOpenResult={(result) => track("search_result_opened", { topic: result.topicSlug, rank: result.rank })}
+          />
+        ) : null}
 
         {filtered.length === 0 ? (
           <div className="mt-10 rounded-3xl border border-white/10 bg-surface p-12 text-center">

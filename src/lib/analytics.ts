@@ -24,6 +24,7 @@ export type AnalyticsEvent =
   | "matching_completed"
   | "daily_goal_met"
   | "favorite_saved"
+  | "search_result_opened"
   | "install_prompt_shown"
   | "install_accepted"
   | "lesson_saved_offline"
