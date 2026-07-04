@@ -11,6 +11,8 @@ import {
 import { defaultShuffle, type QuizCard } from "@/lib/quiz-logic";
 import { track } from "@/lib/analytics";
 import { useProgress } from "./use-progress";
+import { useSpeech } from "./use-speech";
+import { usePracticeShortcuts } from "./use-practice-shortcuts";
 import { LoadingScreen } from "./loading-screen";
 import { SpeakButton } from "./speak-button";
 
@@ -67,12 +69,65 @@ export function PracticeApp({ data }: { data: MandarinData }) {
     resetRun();
   }
 
+  // Hardened Web Speech entry point for the "P" shortcut (Sprint 5). The visible
+  // SpeakButton owns its own instance; this drives the keyboard path.
+  const { speak } = useSpeech();
+
+  // ── Deck derivations, hoisted ABOVE the early returns ──
+  // usePracticeShortcuts is a hook, so it must be called unconditionally before
+  // any return. Its inputs (current card, choice count, handlers) are derived
+  // here with null-safe defaults; session may still be null while loading. The
+  // real card UI only renders after the two early returns below confirm a full,
+  // playable session, so these defaults are never user-visible.
+  const entries = session?.entries ?? [];
+  const deck = session?.deck ?? [];
+  const total = deck.length;
+  const current = deck[index];
+  const currentEntry = entries[index];
+
+  function handleAnswer(choice: string) {
+    if (!current || picked !== null) return;
+    setPicked(choice);
+    const correct = choice === current.answer;
+    recordQuizAnswer(current.key, correct);
+    if (correct) {
+      setScore((v) => v + 1);
+    } else {
+      setMissedKeys((keys) => (keys.includes(current.key) ? keys : [...keys, current.key]));
+    }
+  }
+
+  function handleNext() {
+    if (index + 1 >= total) {
+      setDone(true);
+      track("practice_session_completed", { count: total, score });
+    } else {
+      setIndex((v) => v + 1);
+      setPicked(null);
+    }
+  }
+
+  // Keyboard shortcuts: 1–4 answer, Enter/→ advance, P pronounce, R restart.
+  // Enabled only for a real, playable session — the listener is a no-op during
+  // loading and the not-enough-history empty state.
+  usePracticeShortcuts({
+    enabled: loaded && !!session && entries.length >= MIN_DECK,
+    phase: done ? "done" : picked !== null ? "answered" : "question",
+    choiceCount: current?.choices.length ?? 0,
+    onChoose: (i) => {
+      const c = current?.choices[i];
+      if (c) handleAnswer(c);
+    },
+    onNext: handleNext,
+    onSpeak: () => {
+      if (current) speak(current.prompt);
+    },
+    onAgain: practiceAgain,
+  });
+
   if (!loaded || !session) {
     return <LoadingScreen message="Building your practice deck…" />;
   }
-
-  const { entries, deck } = session;
-  const total = deck.length;
 
   // ── Empty state: not enough quiz history to build a worthwhile deck ──
   if (entries.length < MIN_DECK) {
@@ -100,31 +155,6 @@ export function PracticeApp({ data }: { data: MandarinData }) {
         </div>
       </main>
     );
-  }
-
-  const current = deck[index];
-  const currentEntry = entries[index];
-
-  function handleAnswer(choice: string) {
-    if (picked !== null) return;
-    setPicked(choice);
-    const correct = choice === current.answer;
-    recordQuizAnswer(current.key, correct);
-    if (correct) {
-      setScore((v) => v + 1);
-    } else {
-      setMissedKeys((keys) => (keys.includes(current.key) ? keys : [...keys, current.key]));
-    }
-  }
-
-  function handleNext() {
-    if (index + 1 >= total) {
-      setDone(true);
-      track("practice_session_completed", { count: total, score });
-    } else {
-      setIndex((v) => v + 1);
-      setPicked(null);
-    }
   }
 
   // Missed entries, resolved for the completion summary (hanzi/pinyin/english + topic).
@@ -176,6 +206,7 @@ export function PracticeApp({ data }: { data: MandarinData }) {
               type="button"
               onClick={practiceAgain}
               className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+              aria-keyshortcuts="r"
             >
               Practice again
             </button>
@@ -186,6 +217,11 @@ export function PracticeApp({ data }: { data: MandarinData }) {
               Back to stats
             </Link>
           </div>
+
+          {/* Desktop-only shortcut hint; screen readers use aria-keyshortcuts above. */}
+          <p className="mt-6 hidden text-xs font-medium text-slate-500 md:block" aria-hidden="true">
+            Press R to practice again
+          </p>
         </div>
       ) : (
         /* ── Active practice card ── */
@@ -217,7 +253,7 @@ export function PracticeApp({ data }: { data: MandarinData }) {
 
           {/* Choices */}
           <div className="mt-8 grid gap-3 md:grid-cols-2" role="listbox" aria-label="Answer choices">
-            {current.choices.map((choice) => {
+            {current.choices.map((choice, i) => {
               const right = picked !== null && choice === current.answer;
               const wrong = picked === choice && choice !== current.answer;
               return (
@@ -228,17 +264,26 @@ export function PracticeApp({ data }: { data: MandarinData }) {
                   role="option"
                   aria-selected={picked === choice}
                   aria-disabled={picked !== null && picked !== choice}
-                  className={`min-h-[52px] rounded-2xl border px-5 py-4 text-left font-semibold transition
+                  aria-keyshortcuts={i < 9 ? `${i + 1}` : undefined}
+                  className={`flex min-h-[52px] items-center gap-3 rounded-2xl border px-5 py-4 text-left font-semibold transition
                     ${right ? "animate-quiz-correct border-emerald-300 bg-emerald-300 text-slate-950" : ""}
                     ${wrong ? "animate-quiz-wrong border-rose-400 bg-rose-400/20 text-rose-200" : ""}
                     ${!right && !wrong ? "border-white/10 bg-slate-950 text-white hover:border-emerald-300" : ""}
                   `}
                 >
-                  {choice}
+                  {i < 9 ? (
+                    <kbd className="kbd hidden md:inline-flex" aria-hidden="true">{i + 1}</kbd>
+                  ) : null}
+                  <span>{choice}</span>
                 </button>
               );
             })}
           </div>
+
+          {/* Desktop-only shortcut hint; screen readers use aria-keyshortcuts above. */}
+          <p className="mt-4 hidden text-xs font-medium text-slate-500 md:block" aria-hidden="true">
+            {picked ? "Enter next · P pronounce" : "1–4 choose · P pronounce"}
+          </p>
 
           {picked ? (
             <div className="mt-6">
@@ -247,6 +292,7 @@ export function PracticeApp({ data }: { data: MandarinData }) {
                 onClick={handleNext}
                 className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
                 aria-label={index + 1 >= total ? "See results" : "Next word"}
+                aria-keyshortcuts="Enter"
               >
                 {index + 1 >= total ? "See results" : "Next word"}
               </button>

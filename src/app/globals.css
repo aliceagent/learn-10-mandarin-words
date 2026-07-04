@@ -283,3 +283,24 @@ textarea:focus-visible,
   user-select: none;
   pointer-events: none;
 }
+
+/* ── Keyboard shortcut keycaps ───────────────────────────────────────────────── */
+/* Sprint 5: tiny low-ink keycap for the /practice desktop shortcut hints — same  */
+/* quiet register as .swipe-hint, only rendered on md+ so touch users never see   */
+/* it. Purely decorative; the real controls carry aria-keyshortcuts for a11y.     */
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  padding: 0.05rem 0.35rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 0.35rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.7rem;
+  line-height: 1.2;
+  font-weight: 600;
+  color: var(--color-ink-low);
+  user-select: none;
+  pointer-events: none;
+}
