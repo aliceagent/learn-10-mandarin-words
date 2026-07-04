@@ -5,6 +5,7 @@ import type { FlashcardStat, Topic, VocabItem } from "@/lib/types";
 import type { Grade } from "@/lib/progress-logic";
 import { formatIntervalDays, previewIntervals } from "@/lib/progress-logic";
 import { dragTransform, FLING_THRESHOLD_PX, type FlingIntent } from "@/lib/gesture-logic";
+import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
 import { SpeakButton } from "../speak-button";
 import { useCardDrag } from "../use-card-drag";
 import { useReducedMotion } from "../use-reduced-motion";
@@ -170,14 +171,14 @@ export function FlashcardsPanel({
             {/* Front face: hanzi + speak */}
             <div className="card-face flex w-full flex-col items-center justify-center">
               <div className="flex items-center justify-center gap-3">
-                <h2 className="font-hanzi text-7xl font-semibold text-white">{current.hanzi}</h2>
+                <h2 lang={HANZI_LANG} className="font-hanzi text-7xl font-semibold text-white">{current.hanzi}</h2>
                 <SpeakButton text={current.hanzi} label={`Pronounce ${current.hanzi}`} />
               </div>
             </div>
             {/* Back face: hanzi (smaller) + pinyin + english */}
             <div className="card-face card-face-back flex w-full flex-col items-center justify-center">
-              <p className="font-hanzi text-4xl font-semibold text-white">{current.hanzi}</p>
-              <p className="mt-3 font-hanzi text-2xl text-emerald-300">{current.pinyin}</p>
+              <p lang={HANZI_LANG} className="font-hanzi text-4xl font-semibold text-white">{current.hanzi}</p>
+              <p lang={PINYIN_LANG} className="mt-3 font-hanzi text-2xl text-emerald-300">{current.pinyin}</p>
               <p className="mt-2 text-xl text-slate-200">{current.english}</p>
             </div>
           </div>

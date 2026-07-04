@@ -2,6 +2,7 @@
 
 import type { Topic } from "@/lib/types";
 import { wordKey } from "@/lib/data";
+import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
 import { SpeakButton } from "./speak-button";
 import { CopyButton } from "./copy-button";
 
@@ -35,13 +36,13 @@ export function PhrasebookPanel({ topic, favoriteWords, onToggleFavorite }: Phra
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="font-hanzi text-2xl font-semibold leading-snug text-white md:text-3xl">
+                  <p lang={HANZI_LANG} className="font-hanzi text-2xl font-semibold leading-snug text-white md:text-3xl">
                     <span className="mr-2 align-middle text-sm font-normal text-slate-500">
                       {index + 1}.
                     </span>
                     {item.hanzi}
                   </p>
-                  <p className="font-hanzi mt-1 text-base text-emerald-300 md:text-lg">{item.pinyin}</p>
+                  <p lang={PINYIN_LANG} className="font-hanzi mt-1 text-base text-emerald-300 md:text-lg">{item.pinyin}</p>
                   <p className="mt-0.5 text-sm font-semibold text-slate-200 md:text-base">{item.english}</p>
                 </div>
                 <div className="flex shrink-0 items-center gap-1.5">
@@ -64,7 +65,7 @@ export function PhrasebookPanel({ topic, favoriteWords, onToggleFavorite }: Phra
                   {item.sentences.map((sentence) => (
                     <li key={sentence.cn} className="flex items-start gap-2">
                       <div className="min-w-0 flex-1">
-                        <p className="font-hanzi text-sm leading-6 text-slate-100">{sentence.cn}</p>
+                        <p lang={HANZI_LANG} className="font-hanzi text-sm leading-6 text-slate-100">{sentence.cn}</p>
                         <p className="text-sm leading-6 text-slate-400">{sentence.en}</p>
                       </div>
                       <div className="flex shrink-0 items-center gap-1.5">

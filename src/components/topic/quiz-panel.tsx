@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { VocabItem } from "@/lib/types";
 import type { QuizCard, QuizMode } from "@/lib/quiz-logic";
+import { HANZI_LANG, PINYIN_LANG, quizChoiceLang, quizPromptLang } from "@/lib/lang";
 import { SpeakButton } from "../speak-button";
 
 type QuizViewState = { index: number; score: number; picked: string | null };
@@ -83,8 +84,8 @@ export function QuizPanel({
             <ul className="mt-3 space-y-2">
               {missedItemsList.map((item) => (
                 <li key={item.hanzi} className="flex items-baseline gap-3">
-                  <span className="font-hanzi text-xl text-white">{item.hanzi}</span>
-                  <span className="font-hanzi text-sm text-emerald-300">{item.pinyin}</span>
+                  <span lang={HANZI_LANG} className="font-hanzi text-xl text-white">{item.hanzi}</span>
+                  <span lang={PINYIN_LANG} className="font-hanzi text-sm text-emerald-300">{item.pinyin}</span>
                   <span className="text-sm text-slate-400">{item.english}</span>
                 </li>
               ))}
@@ -194,18 +195,18 @@ export function QuizPanel({
           // so the reveal is announced to screen readers.
           <div className="mt-8 text-center" role="status">
             <div className="flex items-center justify-center gap-3">
-              <h2 className="font-hanzi text-5xl font-semibold text-white">{currentQuiz.prompt}</h2>
+              <h2 lang={HANZI_LANG} className="font-hanzi text-5xl font-semibold text-white">{currentQuiz.prompt}</h2>
               <SpeakButton text={currentQuiz.prompt} label={`Pronounce: ${currentQuiz.prompt}`} />
             </div>
             {currentQuiz.promptPinyin ? (
-              <p className="font-hanzi mt-2 text-2xl text-emerald-300">{currentQuiz.promptPinyin}</p>
+              <p lang={PINYIN_LANG} className="font-hanzi mt-2 text-2xl text-emerald-300">{currentQuiz.promptPinyin}</p>
             ) : null}
           </div>
         )
       ) : (
         <div className="mt-8 text-center">
           <div className="flex items-center justify-center gap-3">
-            <h2 className={`font-hanzi text-7xl font-semibold text-white ${quizMode === "english-hanzi" ? "font-sans text-4xl" : ""}`}>
+            <h2 lang={quizPromptLang(quizMode)} className={`font-hanzi text-7xl font-semibold text-white ${quizMode === "english-hanzi" ? "font-sans text-4xl" : ""}`}>
               {currentQuiz.prompt}
             </h2>
             {(quizMode === "hanzi-english" || quizMode === "hanzi-pinyin") ? (
@@ -213,7 +214,7 @@ export function QuizPanel({
             ) : null}
           </div>
           {currentQuiz.promptPinyin ? (
-            <p className="font-hanzi mt-2 text-2xl text-emerald-300">{currentQuiz.promptPinyin}</p>
+            <p lang={PINYIN_LANG} className="font-hanzi mt-2 text-2xl text-emerald-300">{currentQuiz.promptPinyin}</p>
           ) : null}
         </div>
       )}
@@ -237,7 +238,7 @@ export function QuizPanel({
                 ${!right && !wrong ? "border-white/10 bg-surface-2 text-white hover:border-emerald-300" : ""}
               `}
             >
-              <span className={quizMode === "english-hanzi" || quizMode === "hanzi-pinyin" ? "font-hanzi" : ""}>
+              <span lang={quizChoiceLang(quizMode)} className={quizMode === "english-hanzi" || quizMode === "hanzi-pinyin" ? "font-hanzi" : ""}>
                 {choice}
               </span>
             </button>

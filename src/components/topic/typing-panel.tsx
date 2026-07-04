@@ -6,6 +6,7 @@ import { wordKey } from "@/lib/data";
 import { defaultShuffle } from "@/lib/quiz-logic";
 import { gradeTypedPinyin, parseTypedPinyin, toneNumberForm, type TypedGrade } from "@/lib/typing-logic";
 import { track } from "@/lib/analytics";
+import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
 import { SpeakButton } from "../speak-button";
 
 // The "Type" tab: show a hanzi word and have the learner type its pinyin. All
@@ -120,7 +121,7 @@ export function TypingPanel({
       {/* Prompt: hanzi + meaning (this drill targets pronunciation recall). */}
       <div className="mt-6 text-center">
         <div className="flex items-center justify-center gap-3">
-          <h3 className="font-hanzi text-7xl font-semibold text-white">{current.hanzi}</h3>
+          <h3 lang={HANZI_LANG} className="font-hanzi text-7xl font-semibold text-white">{current.hanzi}</h3>
           <SpeakButton text={current.hanzi} label={`Pronounce ${current.hanzi}`} />
         </div>
         <p className="mt-2 text-sm text-slate-500">{current.english}</p>
@@ -134,6 +135,7 @@ export function TypingPanel({
         <input
           id="typing-input"
           type="text"
+          lang={PINYIN_LANG}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           autoCapitalize="none"
@@ -187,17 +189,17 @@ export function TypingPanel({
         >
           {result === "correct" ? (
             <>
-              Correct — <span className="font-hanzi">{marked}</span>.
+              Correct — <span lang={PINYIN_LANG} className="font-hanzi">{marked}</span>.
             </>
           ) : result === "tones-off" ? (
             <>
-              Letters right, tones off — it&apos;s <span className="font-hanzi">{marked}</span> (
-              <span className="font-hanzi">{numbered}</span>).
+              Letters right, tones off — it&apos;s <span lang={PINYIN_LANG} className="font-hanzi">{marked}</span> (
+              <span lang={PINYIN_LANG} className="font-hanzi">{numbered}</span>).
             </>
           ) : (
             <>
-              It&apos;s <span className="font-hanzi">{marked}</span> (
-              <span className="font-hanzi">{numbered}</span>).
+              It&apos;s <span lang={PINYIN_LANG} className="font-hanzi">{marked}</span> (
+              <span lang={PINYIN_LANG} className="font-hanzi">{numbered}</span>).
             </>
           )}
         </div>

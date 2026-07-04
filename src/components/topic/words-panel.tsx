@@ -1,5 +1,6 @@
 import type { FlashcardStat, Topic } from "@/lib/types";
 import { wordKey } from "@/lib/data";
+import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
 import { SpeakButton } from "../speak-button";
 
 // The "Words" tab of a topic: the full vocabulary list with example sentences,
@@ -30,8 +31,8 @@ export function WordsPanel({
             <div className="flex items-start justify-between gap-4">
               <div className="flex min-w-0 items-start gap-3">
                 <div className="min-w-0">
-                  <h2 className="font-hanzi text-4xl font-semibold text-white">{item.hanzi}</h2>
-                  <p className="font-hanzi mt-2 text-xl text-emerald-300">{item.pinyin}</p>
+                  <h2 lang={HANZI_LANG} className="font-hanzi text-4xl font-semibold text-white">{item.hanzi}</h2>
+                  <p lang={PINYIN_LANG} className="font-hanzi mt-2 text-xl text-emerald-300">{item.pinyin}</p>
                   <p className="mt-1 text-lg font-semibold text-slate-200">{item.english}</p>
                   {stat && stat.reviewCount > 0 ? (
                     <p className="mt-1 text-xs text-slate-500">
@@ -56,7 +57,7 @@ export function WordsPanel({
                 <div key={sentence.cn} className="flex items-start gap-2">
                   <div className="min-w-0 flex-1">
                     <p className="text-sm leading-6 text-slate-300">
-                      <span className="font-hanzi text-white">{sentence.cn}</span>
+                      <span lang={HANZI_LANG} className="font-hanzi text-white">{sentence.cn}</span>
                       <br />{sentence.en}
                     </p>
                   </div>

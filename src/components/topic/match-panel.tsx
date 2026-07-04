@@ -11,6 +11,7 @@ import {
   type MatchTile,
 } from "@/lib/match-logic";
 import { track } from "@/lib/analytics";
+import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
 
 // The "Match" tab: a tap-to-match game. Hanzi tiles on the left, English on the
 // right, five pairs a round, two rounds per (10-word) topic. All selection rules
@@ -161,8 +162,8 @@ export function MatchPanel({
                     key={key}
                     className="flex items-baseline justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-2"
                   >
-                    <span className="font-hanzi text-lg text-white">{item.hanzi}</span>
-                    <span className="font-hanzi text-sm text-emerald-300/80">{item.pinyin}</span>
+                    <span lang={HANZI_LANG} className="font-hanzi text-lg text-white">{item.hanzi}</span>
+                    <span lang={PINYIN_LANG} className="font-hanzi text-sm text-emerald-300/80">{item.pinyin}</span>
                     <span className="text-sm text-slate-400">{item.english}</span>
                   </li>
                 );
@@ -254,6 +255,10 @@ export function MatchPanel({
         disabled={matched || busy}
         aria-pressed={selected}
         aria-label={matched ? `${tile.label}, matched` : tile.label}
+        // Hanzi tiles carry the Chinese lang tag; English tiles inherit the root
+        // lang="en". The `font-hanzi` marker lives in the `face` variable above,
+        // so the lang-attribute guard test allowlists this call site.
+        lang={tile.side === "hanzi" ? HANZI_LANG : undefined}
         className={`flex min-h-[56px] min-w-0 items-center justify-center rounded-2xl border px-3 py-3 text-center transition-opacity ${face} ${styles}`}
       >
         {tile.label}

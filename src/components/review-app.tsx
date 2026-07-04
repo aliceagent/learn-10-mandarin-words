@@ -14,6 +14,7 @@ import {
 } from "@/lib/session-logic";
 import { dragTransform, FLING_THRESHOLD_PX, type FlingIntent } from "@/lib/gesture-logic";
 import { track } from "@/lib/analytics";
+import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
 import { useProgress } from "./use-progress";
 import { useCardDrag } from "./use-card-drag";
 import { useReducedMotion } from "./use-reduced-motion";
@@ -257,9 +258,9 @@ export function ReviewApp({ data }: { data: MandarinData }) {
                     className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3"
                   >
                     <div className="min-w-0">
-                      <p className="font-hanzi text-lg text-white">
+                      <p lang={HANZI_LANG} className="font-hanzi text-lg text-white">
                         {card.hanzi}{" "}
-                        <span className="text-sm text-emerald-300">{card.pinyin}</span>
+                        <span lang={PINYIN_LANG} className="text-sm text-emerald-300">{card.pinyin}</span>
                       </p>
                       <p className="truncate text-sm text-slate-400">{card.english}</p>
                     </div>
@@ -358,14 +359,14 @@ export function ReviewApp({ data }: { data: MandarinData }) {
                 {/* Front face: hanzi + speak */}
                 <div className="card-face flex w-full flex-col items-center justify-center">
                   <div className="flex items-center justify-center gap-3">
-                    <h2 className="font-hanzi text-7xl font-semibold text-white">{current.hanzi}</h2>
+                    <h2 lang={HANZI_LANG} className="font-hanzi text-7xl font-semibold text-white">{current.hanzi}</h2>
                     <SpeakButton text={current.hanzi} label={`Pronounce ${current.hanzi}`} />
                   </div>
                 </div>
                 {/* Back face: hanzi (smaller) + pinyin + english + interval */}
                 <div className="card-face card-face-back flex w-full flex-col items-center justify-center">
-                  <p className="font-hanzi text-4xl font-semibold text-white">{current.hanzi}</p>
-                  <p className="mt-3 font-hanzi text-2xl text-emerald-300">{current.pinyin}</p>
+                  <p lang={HANZI_LANG} className="font-hanzi text-4xl font-semibold text-white">{current.hanzi}</p>
+                  <p lang={PINYIN_LANG} className="mt-3 font-hanzi text-2xl text-emerald-300">{current.pinyin}</p>
                   <p className="mt-2 text-xl text-slate-200">{current.english}</p>
                   <p className="mt-4 text-xs text-slate-500">Current interval: {current.intervalDays}d</p>
                 </div>
