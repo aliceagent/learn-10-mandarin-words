@@ -194,7 +194,7 @@
       "titleEn": "Ten Types of Pets",
       "category": "Animals & Living Things",
       "categorySlug": "animals-and-living-things",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-pets-rewritten.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-pets.mp4",
       "items": [
         {
           "hanzi": "狗",
@@ -349,7 +349,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-pets-rewritten.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-pets.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -358,7 +359,7 @@
       "titleEn": "Ten Types of Farm Animals",
       "category": "Animals & Living Things",
       "categorySlug": "animals-and-living-things",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-farm-animals-rewritten-chunk01.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-farm-animals.mp4",
       "items": [
         {
           "hanzi": "牛",
@@ -513,7 +514,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-farm-animals-rewritten-chunk01.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-farm-animals.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -522,7 +524,7 @@
       "titleEn": "Ten Types of Wild Animals",
       "category": "Animals & Living Things",
       "categorySlug": "animals-and-living-things",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-wild-animals-rewritten-chunk01.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-wild-animals.mp4",
       "items": [
         {
           "hanzi": "老虎",
@@ -677,7 +679,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-wild-animals-rewritten-chunk01.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-wild-animals.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -686,7 +689,7 @@
       "titleEn": "Ten Types of Sea Animals",
       "category": "Animals & Living Things",
       "categorySlug": "animals-and-living-things",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-sea-animals-rewritten-chunk01.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-sea-animals.mp4",
       "items": [
         {
           "hanzi": "鱼",
@@ -841,7 +844,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-sea-animals-rewritten-chunk01.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-sea-animals.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -850,7 +854,7 @@
       "titleEn": "Ten Types of Birds",
       "category": "Animals & Living Things",
       "categorySlug": "animals-and-living-things",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-birds-rewritten-chunk01.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-birds.mp4",
       "items": [
         {
           "hanzi": "麻雀",
@@ -1005,7 +1009,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-birds-rewritten-chunk01.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-birds.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -1014,7 +1019,7 @@
       "titleEn": "Ten Types of Fish",
       "category": "Animals & Living Things",
       "categorySlug": "animals-and-living-things",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-fish-rewritten-chunk01.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-fish.mp4",
       "items": [
         {
           "hanzi": "金鱼",
@@ -1169,7 +1174,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-fish-rewritten-chunk01.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-fish.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -1178,7 +1184,7 @@
       "titleEn": "Ten Types of Insects",
       "category": "Animals & Living Things",
       "categorySlug": "animals-and-living-things",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-insects-rewritten-chunk01.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-insects.mp4",
       "items": [
         {
           "hanzi": "蚂蚁",
@@ -1333,7 +1339,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-insects-rewritten-chunk01.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-insects.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -1342,7 +1349,7 @@
       "titleEn": "Ten Types of Flowers",
       "category": "Plants & Nature",
       "categorySlug": "plants-and-nature",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-flowers-rewritten-chunk01.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-flowers.mp4",
       "items": [
         {
           "hanzi": "玫瑰",
@@ -1497,7 +1504,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-flowers-rewritten-chunk01.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-flowers.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -1506,7 +1514,7 @@
       "titleEn": "Ten Types of Vegetables",
       "category": "Plants & Nature",
       "categorySlug": "plants-and-nature",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-vegetables-rewritten-chunk01.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-vegetables.mp4",
       "items": [
         {
           "hanzi": "白菜",
@@ -1661,7 +1669,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-vegetables-rewritten-chunk01.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-vegetables.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -1670,7 +1679,7 @@
       "titleEn": "Ten Types of Tropical Fruit",
       "category": "Plants & Nature",
       "categorySlug": "plants-and-nature",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-tropical-fruit-rewritten-chunk01.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-tropical-fruit.mp4",
       "items": [
         {
           "hanzi": "芒果",
@@ -1825,7 +1834,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-tropical-fruit-rewritten-chunk01.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-tropical-fruit.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -1834,7 +1844,7 @@
       "titleEn": "Ten Types of Landscapes",
       "category": "Plants & Nature",
       "categorySlug": "plants-and-nature",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-landscapes-rewritten-chunk01.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-landscapes.mp4",
       "items": [
         {
           "hanzi": "山",
@@ -1989,7 +1999,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-landscapes-rewritten-chunk01.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-landscapes.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -1998,7 +2009,7 @@
       "titleEn": "Ten Types of Things in the Sky",
       "category": "Plants & Nature",
       "categorySlug": "plants-and-nature",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-things-in-the-sky-rewritten-chunk02.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-things-in-the-sky.mp4",
       "items": [
         {
           "hanzi": "太阳",
@@ -2153,7 +2164,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-things-in-the-sky-rewritten-chunk02.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-things-in-the-sky.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -2162,7 +2174,7 @@
       "titleEn": "Ten Types of Weather",
       "category": "Plants & Nature",
       "categorySlug": "plants-and-nature",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-weather-rewritten-chunk02.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-weather.mp4",
       "items": [
         {
           "hanzi": "晴天",
@@ -2317,7 +2329,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-weather-rewritten-chunk02.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-weather.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -2326,7 +2339,7 @@
       "titleEn": "Ten Types of Stones / Gems",
       "category": "Plants & Nature",
       "categorySlug": "plants-and-nature",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-stones-gems-rewritten-chunk02.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-stones-gems.mp4",
       "items": [
         {
           "hanzi": "钻石",
@@ -2481,7 +2494,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-stones-gems-rewritten-chunk02.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-stones-gems.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -2490,7 +2504,7 @@
       "titleEn": "Ten Types of Seasonal Things",
       "category": "Plants & Nature",
       "categorySlug": "plants-and-nature",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-seasonal-things-rewritten-chunk02.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-seasonal-things.mp4",
       "items": [
         {
           "hanzi": "雪人",
@@ -2645,7 +2659,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-seasonal-things-rewritten-chunk02.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-seasonal-things.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -2654,7 +2669,7 @@
       "titleEn": "Ten Types of Drinks",
       "category": "Food & Drink",
       "categorySlug": "food-and-drink",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-drinks-rewritten-chunk02.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-drinks.mp4",
       "items": [
         {
           "hanzi": "水",
@@ -2809,7 +2824,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-drinks-rewritten-chunk02.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-drinks.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -2818,7 +2834,7 @@
       "titleEn": "Ten Types of Desserts",
       "category": "Food & Drink",
       "categorySlug": "food-and-drink",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-desserts-rewritten-chunk02.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-desserts.mp4",
       "items": [
         {
           "hanzi": "蛋糕",
@@ -2973,7 +2989,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-desserts-rewritten-chunk02.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-desserts.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -2982,7 +2999,7 @@
       "titleEn": "Ten Types of Breakfast Foods",
       "category": "Food & Drink",
       "categorySlug": "food-and-drink",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-breakfast-foods-rewritten-chunk02.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-breakfast-foods.mp4",
       "items": [
         {
           "hanzi": "包子",
@@ -3137,7 +3154,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-breakfast-foods-rewritten-chunk02.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-breakfast-foods.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -3146,7 +3164,7 @@
       "titleEn": "Ten Types of Meat",
       "category": "Food & Drink",
       "categorySlug": "food-and-drink",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-meat-rewritten-chunk02.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-meat.mp4",
       "items": [
         {
           "hanzi": "猪肉",
@@ -3301,7 +3319,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-meat-rewritten-chunk02.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-meat.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -3310,7 +3329,7 @@
       "titleEn": "Ten Types of Seasonings",
       "category": "Food & Drink",
       "categorySlug": "food-and-drink",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-seasonings-rewritten-chunk02.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-seasonings.mp4",
       "items": [
         {
           "hanzi": "盐",
@@ -3465,7 +3484,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-seasonings-rewritten-chunk02.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-seasonings.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -3474,7 +3494,7 @@
       "titleEn": "Ten Types of Fast Food",
       "category": "Food & Drink",
       "categorySlug": "food-and-drink",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-fast-food-rewritten-chunk02.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-fast-food.mp4",
       "items": [
         {
           "hanzi": "汉堡",
@@ -3629,7 +3649,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-fast-food-rewritten-chunk02.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-fast-food.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -3638,7 +3659,7 @@
       "titleEn": "Ten Types of Snacks",
       "category": "Food & Drink",
       "categorySlug": "food-and-drink",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-snacks-rewritten-chunk03.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-snacks.mp4",
       "items": [
         {
           "hanzi": "薯片",
@@ -3793,7 +3814,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-snacks-rewritten-chunk03.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-snacks.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -3802,7 +3824,7 @@
       "titleEn": "Ten Types of Noodles",
       "category": "Food & Drink",
       "categorySlug": "food-and-drink",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-noodles-rewritten-chunk03.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-noodles.mp4",
       "items": [
         {
           "hanzi": "拉面",
@@ -3957,7 +3979,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-noodles-rewritten-chunk03.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-noodles.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -3966,7 +3989,7 @@
       "titleEn": "Ten Types of Soup",
       "category": "Food & Drink",
       "categorySlug": "food-and-drink",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-soup-rewritten-chunk03.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-soup.mp4",
       "items": [
         {
           "hanzi": "鸡汤",
@@ -4121,7 +4144,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-soup-rewritten-chunk03.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-soup.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -4130,7 +4154,7 @@
       "titleEn": "Ten Types of Chinese Dishes",
       "category": "Food & Drink",
       "categorySlug": "food-and-drink",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-chinese-dishes-rewritten-chunk03.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-chinese-dishes.mp4",
       "items": [
         {
           "hanzi": "宫保鸡丁",
@@ -4285,7 +4309,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-chinese-dishes-rewritten-chunk03.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-chinese-dishes.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -4294,7 +4319,7 @@
       "titleEn": "Ten Types of Foreign Dishes",
       "category": "Food & Drink",
       "categorySlug": "food-and-drink",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-foreign-dishes-rewritten-chunk03.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-foreign-dishes.mp4",
       "items": [
         {
           "hanzi": "披萨",
@@ -4449,7 +4474,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-foreign-dishes-rewritten-chunk03.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-foreign-dishes.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -4458,7 +4484,7 @@
       "titleEn": "Ten Types of Alcoholic Drinks",
       "category": "Food & Drink",
       "categorySlug": "food-and-drink",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-alcoholic-drinks-rewritten-chunk03.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-alcoholic-drinks.mp4",
       "items": [
         {
           "hanzi": "啤酒",
@@ -4613,7 +4639,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-alcoholic-drinks-rewritten-chunk03.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-alcoholic-drinks.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -4622,7 +4649,7 @@
       "titleEn": "Ten Types of Tea",
       "category": "Food & Drink",
       "categorySlug": "food-and-drink",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-tea-rewritten-chunk03.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-tea.mp4",
       "items": [
         {
           "hanzi": "绿茶",
@@ -4777,7 +4804,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-tea-rewritten-chunk03.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-tea.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -4786,7 +4814,7 @@
       "titleEn": "Ten Types of Nuts",
       "category": "Food & Drink",
       "categorySlug": "food-and-drink",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-nuts-rewritten-chunk03.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-nuts.mp4",
       "items": [
         {
           "hanzi": "花生",
@@ -4941,7 +4969,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-nuts-rewritten-chunk03.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-nuts.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -4950,7 +4979,7 @@
       "titleEn": "Ten Types of Candy",
       "category": "Food & Drink",
       "categorySlug": "food-and-drink",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-candy-rewritten-chunk03.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-candy.mp4",
       "items": [
         {
           "hanzi": "巧克力",
@@ -5105,7 +5134,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-candy-rewritten-chunk03.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-candy.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -5114,7 +5144,7 @@
       "titleEn": "Ten Types of Shoes",
       "category": "Clothing & Accessories",
       "categorySlug": "clothing-and-accessories",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-shoes-rewritten-chunk03.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-shoes.mp4",
       "items": [
         {
           "hanzi": "运动鞋",
@@ -5269,7 +5299,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-shoes-rewritten-chunk03.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-shoes.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -5278,7 +5309,7 @@
       "titleEn": "Ten Types of Hats",
       "category": "Clothing & Accessories",
       "categorySlug": "clothing-and-accessories",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-hats-rewritten-chunk04.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-hats.mp4",
       "items": [
         {
           "hanzi": "棒球帽",
@@ -5433,7 +5464,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-hats-rewritten-chunk04.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-hats.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -5442,7 +5474,7 @@
       "titleEn": "Ten Types of Jewelry",
       "category": "Clothing & Accessories",
       "categorySlug": "clothing-and-accessories",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-jewelry-rewritten-chunk04.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-jewelry.mp4",
       "items": [
         {
           "hanzi": "项链",
@@ -5597,7 +5629,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-jewelry-rewritten-chunk04.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-jewelry.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -5606,7 +5639,7 @@
       "titleEn": "Ten Types of Bags",
       "category": "Clothing & Accessories",
       "categorySlug": "clothing-and-accessories",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-bags-rewritten-chunk04.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-bags.mp4",
       "items": [
         {
           "hanzi": "书包",
@@ -5761,7 +5794,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-bags-rewritten-chunk04.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-bags.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -5770,7 +5804,7 @@
       "titleEn": "Ten Types of Cosmetics",
       "category": "Clothing & Accessories",
       "categorySlug": "clothing-and-accessories",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-cosmetics-rewritten-chunk04.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-cosmetics.mp4",
       "items": [
         {
           "hanzi": "口红",
@@ -5925,7 +5959,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-cosmetics-rewritten-chunk04.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-cosmetics.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -5934,7 +5969,7 @@
       "titleEn": "Ten Types of Furniture",
       "category": "Home & Objects",
       "categorySlug": "home-and-objects",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-furniture-rewritten-chunk04.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-furniture.mp4",
       "items": [
         {
           "hanzi": "床",
@@ -6089,7 +6124,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-furniture-rewritten-chunk04.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-furniture.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -6098,7 +6134,7 @@
       "titleEn": "Ten Types of Appliances",
       "category": "Home & Objects",
       "categorySlug": "home-and-objects",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-appliances-rewritten-chunk04.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-appliances.mp4",
       "items": [
         {
           "hanzi": "电视",
@@ -6253,7 +6289,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-appliances-rewritten-chunk04.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-appliances.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -6262,7 +6299,7 @@
       "titleEn": "Ten Types of Kitchen Items",
       "category": "Home & Objects",
       "categorySlug": "home-and-objects",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-kitchen-items-rewritten-chunk04.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-kitchen-items.mp4",
       "items": [
         {
           "hanzi": "锅",
@@ -6417,7 +6454,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-kitchen-items-rewritten-chunk04.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-kitchen-items.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -6426,7 +6464,7 @@
       "titleEn": "Ten Types of Tableware",
       "category": "Home & Objects",
       "categorySlug": "home-and-objects",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-tableware-rewritten-chunk04.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-tableware.mp4",
       "items": [
         {
           "hanzi": "筷子",
@@ -6581,7 +6619,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-tableware-rewritten-chunk04.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-tableware.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -6590,7 +6629,7 @@
       "titleEn": "Ten Types of Tools",
       "category": "Home & Objects",
       "categorySlug": "home-and-objects",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-tools-rewritten-chunk04.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-tools.mp4",
       "items": [
         {
           "hanzi": "锤子",
@@ -6745,7 +6784,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-tools-rewritten-chunk04.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-tools.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -6754,7 +6794,7 @@
       "titleEn": "Ten Types of Electronics",
       "category": "Home & Objects",
       "categorySlug": "home-and-objects",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-electronics-rewritten-chunk04.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-electronics.mp4",
       "items": [
         {
           "hanzi": "手机",
@@ -6909,7 +6949,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-electronics-rewritten-chunk04.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-electronics.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -6918,7 +6959,7 @@
       "titleEn": "Ten Types of Musical Instruments",
       "category": "Home & Objects",
       "categorySlug": "home-and-objects",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-musical-instruments-rewritten-chunk05.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-musical-instruments.mp4",
       "items": [
         {
           "hanzi": "钢琴",
@@ -7073,7 +7114,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-musical-instruments-rewritten-chunk05.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-musical-instruments.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -7082,7 +7124,7 @@
       "titleEn": "Ten Types of Toys",
       "category": "Home & Objects",
       "categorySlug": "home-and-objects",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-toys-rewritten-chunk05.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-toys.mp4",
       "items": [
         {
           "hanzi": "积木",
@@ -7237,7 +7279,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-toys-rewritten-chunk05.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-toys.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -7246,7 +7289,7 @@
       "titleEn": "Ten Types of Cleaning Supplies",
       "category": "Home & Objects",
       "categorySlug": "home-and-objects",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-cleaning-supplies-rewritten-chunk05.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-cleaning-supplies.mp4",
       "items": [
         {
           "hanzi": "扫把",
@@ -7401,7 +7444,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-cleaning-supplies-rewritten-chunk05.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-cleaning-supplies.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -7410,7 +7454,7 @@
       "titleEn": "Ten Types of Bedding",
       "category": "Home & Objects",
       "categorySlug": "home-and-objects",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-bedding-rewritten-chunk05.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-bedding.mp4",
       "items": [
         {
           "hanzi": "被子",
@@ -7565,7 +7609,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-bedding-rewritten-chunk05.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-bedding.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -7574,7 +7619,7 @@
       "titleEn": "Ten Types of Rooms",
       "category": "Home & Objects",
       "categorySlug": "home-and-objects",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-rooms-rewritten-chunk05.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-rooms.mp4",
       "items": [
         {
           "hanzi": "卧室",
@@ -7729,7 +7774,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-rooms-rewritten-chunk05.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-rooms.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -7738,7 +7784,7 @@
       "titleEn": "Ten Types of Restaurants",
       "category": "Places & Buildings",
       "categorySlug": "places-and-buildings",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-restaurants-rewritten-chunk05.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-restaurants.mp4",
       "items": [
         {
           "hanzi": "火锅店",
@@ -7893,7 +7939,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-restaurants-rewritten-chunk05.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-restaurants.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -7902,7 +7949,7 @@
       "titleEn": "Ten Types of Shops",
       "category": "Places & Buildings",
       "categorySlug": "places-and-buildings",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-shops-rewritten-chunk05.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-shops.mp4",
       "items": [
         {
           "hanzi": "超市",
@@ -8057,7 +8104,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-shops-rewritten-chunk05.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-shops.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -8066,7 +8114,7 @@
       "titleEn": "Ten Types of Buildings",
       "category": "Places & Buildings",
       "categorySlug": "places-and-buildings",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-buildings-rewritten-chunk05.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-buildings.mp4",
       "items": [
         {
           "hanzi": "学校",
@@ -8221,7 +8269,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-buildings-rewritten-chunk05.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-buildings.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -8230,7 +8279,7 @@
       "titleEn": "Ten Types of Public Places",
       "category": "Places & Buildings",
       "categorySlug": "places-and-buildings",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-public-places-rewritten-chunk05.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-public-places.mp4",
       "items": [
         {
           "hanzi": "公园",
@@ -8385,7 +8434,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-public-places-rewritten-chunk05.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-public-places.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -8394,7 +8444,7 @@
       "titleEn": "Ten Types of City Facilities",
       "category": "Places & Buildings",
       "categorySlug": "places-and-buildings",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-city-facilities-rewritten-chunk05.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-city-facilities.mp4",
       "items": [
         {
           "hanzi": "红绿灯",
@@ -8549,7 +8599,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-city-facilities-rewritten-chunk05.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-city-facilities.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -8558,7 +8609,7 @@
       "titleEn": "Ten Types of Homes",
       "category": "Places & Buildings",
       "categorySlug": "places-and-buildings",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-homes-rewritten-chunk06.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-homes.mp4",
       "items": [
         {
           "hanzi": "公寓",
@@ -8713,7 +8764,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-homes-rewritten-chunk06.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-homes.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -8722,7 +8774,7 @@
       "titleEn": "Ten Types of Vehicles",
       "category": "Transportation",
       "categorySlug": "transportation",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-vehicles-rewritten-chunk06.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-vehicles.mp4",
       "items": [
         {
           "hanzi": "汽车",
@@ -8877,7 +8929,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-vehicles-rewritten-chunk06.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-vehicles.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -8886,7 +8939,7 @@
       "titleEn": "Ten Types of Traffic Signs",
       "category": "Transportation",
       "categorySlug": "transportation",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-traffic-signs-rewritten-chunk06.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-traffic-signs.mp4",
       "items": [
         {
           "hanzi": "停",
@@ -9041,7 +9094,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-traffic-signs-rewritten-chunk06.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-traffic-signs.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -9050,7 +9104,7 @@
       "titleEn": "Ten Types of Water Transport",
       "category": "Transportation",
       "categorySlug": "transportation",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-water-transport-rewritten-chunk06.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-water-transport.mp4",
       "items": [
         {
           "hanzi": "船",
@@ -9205,7 +9259,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-water-transport-rewritten-chunk06.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-water-transport.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -9214,7 +9269,7 @@
       "titleEn": "Ten Types of Air Transport",
       "category": "Transportation",
       "categorySlug": "transportation",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-air-transport-rewritten-chunk06.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-air-transport.mp4",
       "items": [
         {
           "hanzi": "飞机",
@@ -9369,7 +9424,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-air-transport-rewritten-chunk06.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-air-transport.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -9378,7 +9434,7 @@
       "titleEn": "Ten Types of Ball Sports",
       "category": "Sports & Activities",
       "categorySlug": "sports-and-activities",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-ball-sports-rewritten-chunk06.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-ball-sports.mp4",
       "items": [
         {
           "hanzi": "篮球",
@@ -9533,7 +9589,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-ball-sports-rewritten-chunk06.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-ball-sports.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -9542,7 +9599,7 @@
       "titleEn": "Ten Types of Outdoor Activities",
       "category": "Sports & Activities",
       "categorySlug": "sports-and-activities",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-outdoor-activities-rewritten-chunk06.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-outdoor-activities.mp4",
       "items": [
         {
           "hanzi": "爬山",
@@ -9697,7 +9754,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-outdoor-activities-rewritten-chunk06.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-outdoor-activities.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -9706,7 +9764,7 @@
       "titleEn": "Ten Types of Board Games",
       "category": "Sports & Activities",
       "categorySlug": "sports-and-activities",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-board-games-rewritten-chunk06.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-board-games.mp4",
       "items": [
         {
           "hanzi": "象棋",
@@ -9861,7 +9919,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-board-games-rewritten-chunk06.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-board-games.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -9870,7 +9929,7 @@
       "titleEn": "Ten Types of Doctors",
       "category": "People & Jobs",
       "categorySlug": "people-and-jobs",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-doctors-rewritten-chunk06.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-doctors.mp4",
       "items": [
         {
           "hanzi": "牙医",
@@ -10025,7 +10084,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-doctors-rewritten-chunk06.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-doctors.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -10034,7 +10094,7 @@
       "titleEn": "Ten Types of Body Parts",
       "category": "Body & Health",
       "categorySlug": "body-and-health",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-body-parts-rewritten-chunk06.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-body-parts.mp4",
       "items": [
         {
           "hanzi": "头",
@@ -10189,7 +10249,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-body-parts-rewritten-chunk06.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-body-parts.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -10198,7 +10259,7 @@
       "titleEn": "Ten Types of Medicine",
       "category": "Body & Health",
       "categorySlug": "body-and-health",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-medicine-rewritten-chunk07.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-medicine.mp4",
       "items": [
         {
           "hanzi": "感冒药",
@@ -10353,7 +10414,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-medicine-rewritten-chunk07.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-medicine.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -10362,7 +10424,7 @@
       "titleEn": "Ten Types of Illnesses",
       "category": "Body & Health",
       "categorySlug": "body-and-health",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-illnesses-rewritten-chunk07.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-illnesses.mp4",
       "items": [
         {
           "hanzi": "感冒",
@@ -10517,7 +10579,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-illnesses-rewritten-chunk07.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-illnesses.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -10526,7 +10589,7 @@
       "titleEn": "Ten Types of Senses",
       "category": "Body & Health",
       "categorySlug": "body-and-health",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-senses-rewritten-chunk07.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-senses.mp4",
       "items": [
         {
           "hanzi": "看",
@@ -10681,7 +10744,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-senses-rewritten-chunk07.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-senses.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -10690,7 +10754,7 @@
       "titleEn": "Ten Types of Shapes",
       "category": "Abstract but Picturable",
       "categorySlug": "abstract-but-picturable",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-shapes-rewritten-chunk07.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-shapes.mp4",
       "items": [
         {
           "hanzi": "圆形",
@@ -10845,7 +10909,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-shapes-rewritten-chunk07.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-shapes.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -10854,7 +10919,7 @@
       "titleEn": "Ten Types of Holidays",
       "category": "Abstract but Picturable",
       "categorySlug": "abstract-but-picturable",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-holidays-rewritten-chunk07.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-holidays.mp4",
       "items": [
         {
           "hanzi": "春节",
@@ -11009,7 +11074,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-holidays-rewritten-chunk07.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-holidays.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -11018,7 +11084,7 @@
       "titleEn": "Ten Types of Currencies",
       "category": "Abstract but Picturable",
       "categorySlug": "abstract-but-picturable",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-currencies-rewritten-chunk07.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-currencies.mp4",
       "items": [
         {
           "hanzi": "人民币",
@@ -11173,7 +11239,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-currencies-rewritten-chunk07.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-currencies.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -11182,7 +11249,7 @@
       "titleEn": "Ten Types of Directions",
       "category": "Abstract but Picturable",
       "categorySlug": "abstract-but-picturable",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-directions-rewritten-chunk07.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-directions.mp4",
       "items": [
         {
           "hanzi": "东",
@@ -11337,7 +11404,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-directions-rewritten-chunk07.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-directions.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -11346,7 +11414,7 @@
       "titleEn": "Ten Types of Facial Expressions",
       "category": "Abstract but Picturable",
       "categorySlug": "abstract-but-picturable",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-facial-expressions-rewritten-chunk07.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-facial-expressions.mp4",
       "items": [
         {
           "hanzi": "笑",
@@ -11501,7 +11569,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-facial-expressions-rewritten-chunk07.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-facial-expressions.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -11510,7 +11579,7 @@
       "titleEn": "Ten Types of Round Things",
       "category": "Themed Sub-Categories",
       "categorySlug": "themed-sub-categories",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-round-things-rewritten-chunk07.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-round-things.mp4",
       "items": [
         {
           "hanzi": "球",
@@ -11665,7 +11734,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-round-things-rewritten-chunk07.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-round-things.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -11674,7 +11744,7 @@
       "titleEn": "Ten Types of Big Animals",
       "category": "Themed Sub-Categories",
       "categorySlug": "themed-sub-categories",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-big-animals-rewritten-chunk07.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-big-animals.mp4",
       "items": [
         {
           "hanzi": "大象",
@@ -11829,7 +11899,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-big-animals-rewritten-chunk07.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-big-animals.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -11838,7 +11909,7 @@
       "titleEn": "Ten Types of Small Animals",
       "category": "Themed Sub-Categories",
       "categorySlug": "themed-sub-categories",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-small-animals-rewritten-chunk08.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-small-animals.mp4",
       "items": [
         {
           "hanzi": "蚂蚁",
@@ -11993,7 +12064,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-small-animals-rewritten-chunk08.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-small-animals.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -12002,7 +12074,7 @@
       "titleEn": "Ten Types of Fast Things",
       "category": "Themed Sub-Categories",
       "categorySlug": "themed-sub-categories",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-fast-things-rewritten-chunk08.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-fast-things.mp4",
       "items": [
         {
           "hanzi": "飞机",
@@ -12157,7 +12229,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-fast-things-rewritten-chunk08.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-fast-things.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -12166,7 +12239,7 @@
       "titleEn": "Ten Types of Dangerous Animals",
       "category": "Themed Sub-Categories",
       "categorySlug": "themed-sub-categories",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-dangerous-animals-rewritten-chunk08.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-dangerous-animals.mp4",
       "items": [
         {
           "hanzi": "老虎",
@@ -12321,7 +12394,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-dangerous-animals-rewritten-chunk08.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-dangerous-animals.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -12330,7 +12404,7 @@
       "titleEn": "Ten Types of Things That Fly",
       "category": "Themed Sub-Categories",
       "categorySlug": "themed-sub-categories",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-things-that-fly-rewritten-chunk08.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-things-that-fly.mp4",
       "items": [
         {
           "hanzi": "鸟",
@@ -12485,7 +12559,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-things-that-fly-rewritten-chunk08.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-things-that-fly.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -12494,7 +12569,7 @@
       "titleEn": "Ten Types of Things in the Kitchen",
       "category": "Themed Sub-Categories",
       "categorySlug": "themed-sub-categories",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-things-in-the-kitchen-rewritten-chunk08.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-things-in-the-kitchen.mp4",
       "items": [
         {
           "hanzi": "冰箱",
@@ -12649,7 +12724,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-things-in-the-kitchen-rewritten-chunk08.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-things-in-the-kitchen.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -12658,7 +12734,7 @@
       "titleEn": "Ten Types of Things at School",
       "category": "Themed Sub-Categories",
       "categorySlug": "themed-sub-categories",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-things-at-school-rewritten-chunk08.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-things-at-school.mp4",
       "items": [
         {
           "hanzi": "黑板",
@@ -12813,7 +12889,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-things-at-school-rewritten-chunk08.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-things-at-school.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -12822,7 +12899,7 @@
       "titleEn": "Ten Types of Things in the Park",
       "category": "Themed Sub-Categories",
       "categorySlug": "themed-sub-categories",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-things-in-the-park-rewritten-chunk08.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-things-in-the-park.mp4",
       "items": [
         {
           "hanzi": "树",
@@ -12977,7 +13054,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-things-in-the-park-rewritten-chunk08.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-things-in-the-park.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -12986,7 +13064,7 @@
       "titleEn": "Ten Types of Things at the Beach",
       "category": "Themed Sub-Categories",
       "categorySlug": "themed-sub-categories",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-things-at-the-beach-rewritten-chunk08.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-things-at-the-beach.mp4",
       "items": [
         {
           "hanzi": "沙子",
@@ -13141,7 +13219,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-things-at-the-beach-rewritten-chunk08.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-things-at-the-beach.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -13150,7 +13229,7 @@
       "titleEn": "Ten Types of Birthday Party Things",
       "category": "Themed Sub-Categories",
       "categorySlug": "themed-sub-categories",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-birthday-party-things-rewritten-chunk08.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-birthday-party-things.mp4",
       "items": [
         {
           "hanzi": "蛋糕",
@@ -13305,7 +13384,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-birthday-party-things-rewritten-chunk08.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-birthday-party-things.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -13314,7 +13394,7 @@
       "titleEn": "Ten Types of Winter Things",
       "category": "Themed Sub-Categories",
       "categorySlug": "themed-sub-categories",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-winter-things-rewritten-chunk08.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-winter-things.mp4",
       "items": [
         {
           "hanzi": "雪",
@@ -13469,7 +13549,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-winter-things-rewritten-chunk08.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-winter-things.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -13478,7 +13559,7 @@
       "titleEn": "Ten Types of Summer Things",
       "category": "Themed Sub-Categories",
       "categorySlug": "themed-sub-categories",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-summer-things-rewritten-chunk09.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-summer-things.mp4",
       "items": [
         {
           "hanzi": "西瓜",
@@ -13633,7 +13714,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-summer-things-rewritten-chunk09.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-summer-things.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -13642,7 +13724,7 @@
       "titleEn": "Ten Types of Travel Packing Items",
       "category": "Themed Sub-Categories",
       "categorySlug": "themed-sub-categories",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-travel-packing-items-rewritten-chunk09.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-travel-packing-items.mp4",
       "items": [
         {
           "hanzi": "行李箱",
@@ -13797,7 +13879,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-travel-packing-items-rewritten-chunk09.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-travel-packing-items.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -13806,7 +13889,7 @@
       "titleEn": "Ten Types of Iconic Chinese Things",
       "category": "Themed Sub-Categories",
       "categorySlug": "themed-sub-categories",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-iconic-chinese-things-rewritten-chunk09.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-iconic-chinese-things.mp4",
       "items": [
         {
           "hanzi": "长城",
@@ -13961,7 +14044,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-iconic-chinese-things-rewritten-chunk09.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-iconic-chinese-things.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -13970,7 +14054,7 @@
       "titleEn": "Ten Types of Hotel Facilities",
       "category": "Travel & Tourism",
       "categorySlug": "travel-and-tourism",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-hotel-facilities-rewritten-chunk09.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-hotel-facilities.mp4",
       "items": [
         {
           "hanzi": "前台",
@@ -14125,7 +14209,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-hotel-facilities-rewritten-chunk09.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-hotel-facilities.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -14134,7 +14219,7 @@
       "titleEn": "Ten Types of Hotel Room Items",
       "category": "Travel & Tourism",
       "categorySlug": "travel-and-tourism",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-hotel-room-items-rewritten-chunk09.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-hotel-room-items.mp4",
       "items": [
         {
           "hanzi": "床",
@@ -14289,7 +14374,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-hotel-room-items-rewritten-chunk09.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-hotel-room-items.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -14298,7 +14384,7 @@
       "titleEn": "Ten Types of Subway Things",
       "category": "Travel & Tourism",
       "categorySlug": "travel-and-tourism",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-subway-things-rewritten-chunk09.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-subway-things.mp4",
       "items": [
         {
           "hanzi": "站台",
@@ -14453,7 +14539,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-subway-things-rewritten-chunk09.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-subway-things.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -14462,7 +14549,7 @@
       "titleEn": "Ten Types of Airport Things",
       "category": "Travel & Tourism",
       "categorySlug": "travel-and-tourism",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-airport-things-rewritten-chunk09.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-airport-things.mp4",
       "items": [
         {
           "hanzi": "登机牌",
@@ -14617,7 +14704,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-airport-things-rewritten-chunk09.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-airport-things.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -14626,7 +14714,7 @@
       "titleEn": "Ten Types of Tourist Attractions",
       "category": "Travel & Tourism",
       "categorySlug": "travel-and-tourism",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-tourist-attractions-rewritten-chunk09.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-tourist-attractions.mp4",
       "items": [
         {
           "hanzi": "长城",
@@ -14781,7 +14869,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-tourist-attractions-rewritten-chunk09.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-tourist-attractions.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -14790,7 +14879,7 @@
       "titleEn": "Ten Types of Asking-Directions Words",
       "category": "Travel & Tourism",
       "categorySlug": "travel-and-tourism",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-asking-directions-words-rewritten-chunk09.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-asking-directions-words.mp4",
       "items": [
         {
           "hanzi": "左转",
@@ -14945,7 +15034,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-asking-directions-words-rewritten-chunk09.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-asking-directions-words.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -14954,7 +15044,7 @@
       "titleEn": "Ten Types of Ways to Get Around",
       "category": "Travel & Tourism",
       "categorySlug": "travel-and-tourism",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-ways-to-get-around-rewritten-chunk09.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-ways-to-get-around.mp4",
       "items": [
         {
           "hanzi": "出租车",
@@ -15109,7 +15199,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-ways-to-get-around-rewritten-chunk09.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-ways-to-get-around.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -15118,7 +15209,7 @@
       "titleEn": "Ten Types of Restaurant Words",
       "category": "Travel & Tourism",
       "categorySlug": "travel-and-tourism",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-restaurant-words-rewritten-chunk10.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-restaurant-words.mp4",
       "items": [
         {
           "hanzi": "菜单",
@@ -15273,7 +15364,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-restaurant-words-rewritten-chunk10.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-restaurant-words.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -15282,7 +15374,7 @@
       "titleEn": "Ten Types of Money & Payment Words",
       "category": "Travel & Tourism",
       "categorySlug": "travel-and-tourism",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-money-and-payment-words-rewritten-chunk10.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-money-and-payment-words.mp4",
       "items": [
         {
           "hanzi": "现金",
@@ -15437,7 +15529,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-money-and-payment-words-rewritten-chunk10.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-money-and-payment-words.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -15446,7 +15539,7 @@
       "titleEn": "Ten Types of Things on the Street",
       "category": "Travel & Tourism",
       "categorySlug": "travel-and-tourism",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-things-on-the-street-rewritten-chunk10.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-things-on-the-street.mp4",
       "items": [
         {
           "hanzi": "红绿灯",
@@ -15601,7 +15694,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-things-on-the-street-rewritten-chunk10.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-things-on-the-street.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -15610,7 +15704,7 @@
       "titleEn": "Ten Types of Shopping Words",
       "category": "Travel & Tourism",
       "categorySlug": "travel-and-tourism",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-shopping-words-rewritten-chunk10.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-shopping-words.mp4",
       "items": [
         {
           "hanzi": "多少钱",
@@ -15765,7 +15859,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-shopping-words-rewritten-chunk10.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-shopping-words.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -15774,7 +15869,7 @@
       "titleEn": "Ten Types of Emergency Words",
       "category": "Travel & Tourism",
       "categorySlug": "travel-and-tourism",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-emergency-words-rewritten-chunk10.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-emergency-words.mp4",
       "items": [
         {
           "hanzi": "警察",
@@ -15929,7 +16024,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-emergency-words-rewritten-chunk10.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-emergency-words.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -15938,7 +16034,7 @@
       "titleEn": "Ten Types of Weather & Packing Items",
       "category": "Travel & Tourism",
       "categorySlug": "travel-and-tourism",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-weather-and-packing-items-rewritten-chunk10.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-weather-and-packing-items.mp4",
       "items": [
         {
           "hanzi": "雨伞",
@@ -16093,7 +16189,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-weather-and-packing-items-rewritten-chunk10.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-weather-and-packing-items.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -16102,7 +16199,7 @@
       "titleEn": "Ten Types of Lodging",
       "category": "Travel & Tourism",
       "categorySlug": "travel-and-tourism",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-lodging-rewritten-chunk10.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-lodging.mp4",
       "items": [
         {
           "hanzi": "酒店",
@@ -16257,7 +16354,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-lodging-rewritten-chunk10.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-lodging.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -16266,7 +16364,7 @@
       "titleEn": "Ten Types of Documents & IDs",
       "category": "Travel & Tourism",
       "categorySlug": "travel-and-tourism",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-documents-and-ids-rewritten-chunk10.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-documents-and-ids.mp4",
       "items": [
         {
           "hanzi": "护照",
@@ -16421,7 +16519,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-documents-and-ids-rewritten-chunk10.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-documents-and-ids.mp4",
+        "kind": "mp4"
       }
     },
     {
@@ -16430,7 +16529,7 @@
       "titleEn": "Ten Types of Things at a Scenic Spot",
       "category": "Travel & Tourism",
       "categorySlug": "travel-and-tourism",
-      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-things-at-a-scenic-spot-rewritten-chunk10.mp4",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-things-at-a-scenic-spot.mp4",
       "items": [
         {
           "hanzi": "门票",
@@ -16585,7 +16684,8 @@
       ],
       "video": {
         "provider": "mp4",
-        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-01/ten-types-of-things-at-a-scenic-spot-rewritten-chunk10.mp4"
+        "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-things-at-a-scenic-spot.mp4",
+        "kind": "mp4"
       }
     },
     {
