@@ -3,6 +3,12 @@
  *
  * Strategy (conservative on purpose):
  *   - Navigations: network-first, fall back to cached page, then /offline.
+ *   - RSC payloads (App Router client-side <Link> navigations — same-origin GETs
+ *     carrying an `_rsc` search param or an `RSC` header): network-first, cached
+ *     into the app shell on success, served from cache offline. On a total miss
+ *     we REJECT rather than synthesize a response, so Next's own hard-navigation
+ *     fallback kicks in and the cached HTML (from the navigation handler) serves
+ *     the page. Without this branch, offline in-app navigation silently fails.
  *   - Static build assets (/_next/static, icons, svg): stale-while-revalidate.
  *   - Media (videos/audio) and cross-origin requests: passthrough, never cached
  *     AUTOMATICALLY (keeps the cache small and avoids storing large future MP4s).
@@ -62,6 +68,37 @@ function isMedia(url) {
 
 function isStaticAsset(url) {
   return url.pathname.startsWith("/_next/static") || /\.(svg|png|ico|webmanifest|css|js|woff2?)(\?|$)/i.test(url.pathname);
+}
+
+// React Server Component payloads: the App Router fetches these on client-side
+// <Link> navigations. They're same-origin GETs that carry either the `_rsc`
+// cache-busting search param or an `RSC` request header — neither a navigation
+// nor a static asset, so they'd otherwise slip through uncached and fail offline.
+function isRscRequest(request, url) {
+  if (request.method !== "GET") return false;
+  if (url.origin !== self.location.origin) return false;
+  if (url.searchParams.has("_rsc")) return true;
+  return Boolean(request.headers.get("RSC") || request.headers.get("rsc"));
+}
+
+// Network-first so fresh payloads win when online; cache each success keyed by the
+// FULL URL (the `_rsc` value is build-specific, so the search string matters).
+// Offline, serve a cached payload if we have one; on a total miss REJECT — never a
+// synthetic 200 — so Next's hard-navigation fallback takes over and the cached
+// HTML from the navigation handler renders the page.
+async function serveRsc(request) {
+  try {
+    const res = await fetch(request);
+    if (isCacheable(res)) {
+      const copy = res.clone();
+      caches.open(CACHE).then((cache) => cache.put(request.url, copy)).catch(() => {});
+    }
+    return res;
+  } catch (err) {
+    const cached = await caches.match(request.url);
+    if (cached) return cached;
+    throw err; // no cache entry → let Next fall back to a hard navigation
+  }
 }
 
 // Only cache real, successful, same-origin responses. Guards against storing
@@ -168,6 +205,12 @@ self.addEventListener("fetch", (event) => {
         })
         .catch(() => caches.match(request).then((cached) => cached || caches.match("/offline")))
     );
+    return;
+  }
+
+  // RSC payloads (client-side <Link> navigations) → network-first, cache fallback.
+  if (isRscRequest(request, url)) {
+    event.respondWith(serveRsc(request));
     return;
   }
 

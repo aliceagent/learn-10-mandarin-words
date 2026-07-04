@@ -83,6 +83,30 @@ export function formatBytes(bytes: number): string {
   return `${rounded} ${units[unit]}`;
 }
 
+// ── Shell asset extraction ────────────────────────────────────────────────────
+
+/**
+ * Pull the same-origin build-asset URLs a page needs to hydrate out of its HTML —
+ * `/_next/static/…` scripts/links and any `.css` file referenced from a `src`/
+ * `href` attribute. Regex-based (no DOM) so it runs unchanged in `node --test`.
+ *
+ * Cross-origin (`https://…`, `//…`), `data:` URIs, and inline sources are ignored;
+ * duplicates are collapsed. Root-relative and relative paths are same-origin by
+ * definition and kept as-is so they can be fetched against the current origin.
+ */
+export function extractShellAssetUrls(html: string): string[] {
+  const urls = new Set<string>();
+  const attr = /(?:src|href)\s*=\s*["']([^"']+)["']/gi;
+  let m: RegExpExecArray | null;
+  while ((m = attr.exec(html)) !== null) {
+    const raw = m[1].trim();
+    if (!raw || raw.startsWith("data:")) continue;
+    if (/^https?:\/\//i.test(raw) || raw.startsWith("//")) continue; // cross-origin
+    if (raw.startsWith("/_next/static") || /\.css(\?|$)/i.test(raw)) urls.add(raw);
+  }
+  return [...urls];
+}
+
 // ── Internal helpers ──────────────────────────────────────────────────────────
 
 function resolveCaches(deps: OfflineDeps): CacheStorageLike {
@@ -161,7 +185,36 @@ async function cachePageShell(pageUrl: string, deps: Required<OfflineDeps>): Pro
   const res = await deps.fetch(pageUrl);
   if (!res.ok || res.type === "opaque") return;
   const cache = await deps.caches.open(APP_CACHE);
+  // Read the HTML before caching (put() consumes the body stream) so we can also
+  // co-cache the /_next/static chunks the page needs to actually hydrate offline
+  // — otherwise a saved lesson can render as dead, un-interactive HTML.
+  let html = "";
+  try {
+    html = await res.clone().text();
+  } catch {
+    html = ""; // can't read the body → cache the doc alone, still best-effort
+  }
   await cache.put(pageUrl, res);
+  await cacheShellAssets(html, deps.fetch, cache);
+}
+
+// Co-cache the build assets referenced by a page's HTML into the app-shell cache.
+// Every asset is independent and best-effort: already-cached ones are skipped, and
+// any fetch/put failure is swallowed so it can never fail the video save (nor the
+// other assets). Only real, successful, same-origin (basic) responses are stored.
+async function cacheShellAssets(html: string, doFetch: FetchLike, cache: CacheLike): Promise<void> {
+  const assets = extractShellAssetUrls(html);
+  await Promise.all(
+    assets.map(async (assetUrl) => {
+      try {
+        if (await cache.match(assetUrl)) return; // already cached — don't re-fetch
+        const res = await doFetch(assetUrl);
+        if (res.ok && res.type === "basic") await cache.put(assetUrl, res);
+      } catch {
+        // Non-fatal — one missing chunk must not fail the save or its siblings.
+      }
+    })
+  );
 }
 
 /** Remove a previously saved lesson from the video cache. Returns whether an
