@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import type { MandarinData } from "@/lib/types";
-import { wordKey } from "@/lib/data";
+import { wordKey } from "@/lib/data-logic";
 import { useProgress } from "./use-progress";
 import { LoadingScreen } from "./loading-screen";
 import { SpeakButton } from "./speak-button";

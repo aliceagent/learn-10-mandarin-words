@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { Topic, VocabItem } from "@/lib/types";
-import { wordKey } from "@/lib/data";
+import { wordKey } from "@/lib/data-logic";
 import { defaultShuffle } from "@/lib/quiz-logic";
 import { gradeTypedPinyin, parseTypedPinyin, toneNumberForm, type TypedGrade } from "@/lib/typing-logic";
 import { track } from "@/lib/analytics";

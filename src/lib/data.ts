@@ -1,10 +1,24 @@
 import rawData from "@/data/topics.json";
-import type { Category, MandarinData, Topic, VocabItem } from "./types";
+import type { Category, HomeData, MandarinData, Topic, VocabItem } from "./types";
 import * as logic from "./data-logic";
 
 export type { PathSection } from "./data-logic";
 
 export const data = rawData as MandarinData;
+
+// Slimmed dataset for the home route: the full topic list minus per-item example
+// sentences. Built once at module scope so `homeData()` is a cheap accessor. See
+// toTopicSummary — this is what keeps the home page's serialized payload small.
+const home: HomeData = {
+  categories: data.categories,
+  topics: data.topics.map(logic.toTopicSummary),
+};
+
+/** The slimmed home dataset (no example sentences). Safe to pass across the
+ *  `"use client"` boundary without bloating the RSC payload / client chunk. */
+export function homeData(): HomeData {
+  return home;
+}
 
 export function getTopic(slug: string): Topic | undefined {
   return logic.getTopic(data.topics, slug);

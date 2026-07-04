@@ -1,11 +1,29 @@
-import type { Category, Topic, VocabItem } from "./types";
+import type { Category, Topic, TopicSummary, VocabItem } from "./types";
 
 // Pure data helpers parameterized by the topics array, extracted from data.ts
 // so they can be unit-tested against topics.json without the "@/" path alias.
 // data.ts binds these to the real dataset and keeps the same public API.
 
-export function getTopic(topics: Topic[], slug: string): Topic | undefined {
+export function getTopic<T extends Pick<Topic, "slug">>(topics: T[], slug: string): T | undefined {
   return topics.find((topic) => topic.slug === slug);
+}
+
+/**
+ * Slim a full `Topic` down to the fields the home route actually uses: every
+ * topic-level field is kept (including `videoPath`/`video`, so `hasPlayableVideo`
+ * keeps working), but each item is reduced to `hanzi`/`pinyin`/`english` —
+ * example `sentences` are dropped. This is what lets the home page ship ~118KB
+ * instead of ~350KB. Pure and dataset-agnostic; data.ts binds it to topics.json.
+ */
+export function toTopicSummary(topic: Topic): TopicSummary {
+  return {
+    ...topic,
+    items: topic.items.map((item) => ({
+      hanzi: item.hanzi,
+      pinyin: item.pinyin,
+      english: item.english,
+    })),
+  };
 }
 
 /** Look up a category by its slug. */
@@ -22,7 +40,7 @@ export function topicsForCategory(topics: Topic[], slug: string): Topic[] {
   return topics.filter((topic) => topic.categorySlug === slug);
 }
 
-export function wordKey(topic: Topic, item: VocabItem): string {
+export function wordKey(topic: Pick<Topic, "slug">, item: Pick<VocabItem, "hanzi">): string {
   return `${topic.slug}:${item.hanzi}`;
 }
 
@@ -44,7 +62,7 @@ export function allWords(topics: Topic[]) {
   );
 }
 
-export function datasetSummary(topics: Topic[]) {
+export function datasetSummary(topics: Pick<TopicSummary, "items">[]) {
   const listCount = topics.length;
   const wordCount = topics.reduce((total, topic) => total + topic.items.length, 0);
 
@@ -69,8 +87,8 @@ export const STARTER_SLUGS = [
 ];
 
 /** Ordered list of recommended starter topics, drawn only from existing data. */
-export function recommendedPath(topics: Topic[]): Topic[] {
-  const picked = STARTER_SLUGS.map((slug) => getTopic(topics, slug)).filter((t): t is Topic => Boolean(t));
+export function recommendedPath<T extends Pick<Topic, "slug">>(topics: T[]): T[] {
+  const picked = STARTER_SLUGS.map((slug) => getTopic(topics, slug)).filter((t): t is T => Boolean(t));
   if (picked.length >= 3) return picked;
   // Fallback: first few topics in natural data order.
   return topics.slice(0, 6);
@@ -80,7 +98,7 @@ export function recommendedPath(topics: Topic[]): Topic[] {
  * The next topic to nudge the user toward: the first recommended topic they
  * have not marked learned, then the first unlearned topic overall, then topic 1.
  */
-export function nextRecommendedTopic(topics: Topic[], learnedTopics: string[]): Topic {
+export function nextRecommendedTopic<T extends Pick<Topic, "slug">>(topics: T[], learnedTopics: string[]): T {
   const learned = new Set(learnedTopics);
   const path = recommendedPath(topics);
   return (
@@ -97,11 +115,11 @@ export function nextRecommendedTopic(topics: Topic[], learnedTopics: string[]): 
  * and returns `null` when there is genuinely no other topic to suggest. Order:
  * first unfinished recommended topic, then first unfinished topic overall.
  */
-export function nextTopicAfter(
-  topics: Topic[],
+export function nextTopicAfter<T extends Pick<Topic, "slug">>(
+  topics: T[],
   learnedTopics: string[],
   currentSlug: string,
-): Topic | null {
+): T | null {
   const done = new Set([...learnedTopics, currentSlug]);
   const path = recommendedPath(topics);
   return (

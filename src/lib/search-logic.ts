@@ -1,4 +1,4 @@
-import type { Topic } from "./types";
+import type { TopicSummary } from "./types";
 import { normalizePinyin } from "./highlight.ts";
 
 // Pure, dataset-parameterized word search, extracted so it can be unit-tested
@@ -49,7 +49,7 @@ function rankMatch(
  * in that category are considered.
  */
 export function searchWords(
-  topics: Topic[],
+  topics: TopicSummary[],
   query: string,
   opts?: { categorySlug?: string },
 ): WordSearchResult[] {

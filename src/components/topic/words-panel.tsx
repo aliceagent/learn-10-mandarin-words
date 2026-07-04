@@ -1,5 +1,5 @@
 import type { FlashcardStat, Topic } from "@/lib/types";
-import { wordKey } from "@/lib/data";
+import { wordKey } from "@/lib/data-logic";
 import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
 import { SpeakButton } from "../speak-button";
 

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { Topic, VocabItem } from "@/lib/types";
-import { wordKey } from "@/lib/data";
+import { wordKey } from "@/lib/data-logic";
 import { defaultShuffle } from "@/lib/quiz-logic";
 import { CLOZE_BLANK, buildClozeDeck, type ClozeCard } from "@/lib/cloze-logic";
 import { SpeakButton } from "../speak-button";

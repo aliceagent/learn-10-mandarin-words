@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Topic, VocabItem } from "@/lib/types";
-import { wordKey } from "@/lib/data";
+import { wordKey } from "@/lib/data-logic";
 import { defaultShuffle } from "@/lib/quiz-logic";
 import {
   buildMatchingRounds,

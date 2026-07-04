@@ -52,6 +52,16 @@ export type Category = {
   topics: string[];
 };
 
+// Slimmed shapes for the home route. The home page never renders or searches
+// example sentences, so serializing them into the RSC payload (and bundling
+// topics.json into the client chunk) is pure waste. `TopicSummary` drops
+// per-item `sentences` while keeping every topic-level field, so a full `Topic`
+// stays structurally assignable to it — shared consumers (category/path cards)
+// need no changes. See toTopicSummary / homeData.
+export type VocabItemSummary = Pick<VocabItem, "hanzi" | "pinyin" | "english">;
+export type TopicSummary = Omit<Topic, "items"> & { items: VocabItemSummary[] };
+export type HomeData = { categories: Category[]; topics: TopicSummary[] };
+
 export type MandarinData = {
   categories: Category[];
   topics: Topic[];

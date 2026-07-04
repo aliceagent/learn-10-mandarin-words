@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import type { MandarinData, ProgressState, Topic, VocabItem } from "@/lib/types";
-import { wordKey } from "@/lib/data";
+import { wordKey } from "@/lib/data-logic";
 import { useProgress } from "./use-progress";
 import { LoadingScreen } from "./loading-screen";
 import { ProgressRing } from "./progress-ring";

@@ -1,6 +1,6 @@
 import Link from "next/link";
-import type { FlashcardStat, QuizStat, Topic } from "@/lib/types";
-import { wordKey } from "@/lib/data";
+import type { FlashcardStat, QuizStat, TopicSummary } from "@/lib/types";
+import { wordKey } from "@/lib/data-logic";
 import { topicWordStatuses } from "@/lib/progress-logic";
 import { hasPlayableVideo } from "@/lib/video";
 import { normalizePinyin } from "@/lib/highlight";
@@ -20,7 +20,7 @@ export function TopicCard({
   quizStats,
   query,
 }: {
-  topic: Topic;
+  topic: TopicSummary;
   learned: boolean;
   favorite: boolean;
   flashcardStats: Record<string, FlashcardStat>;

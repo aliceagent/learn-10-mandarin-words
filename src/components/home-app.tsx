@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useRef, useMemo, useState } from "react";
-import type { MandarinData } from "@/lib/types";
-import { datasetSummary, nextRecommendedTopic } from "@/lib/data";
+import type { HomeData } from "@/lib/types";
+import { datasetSummary, nextRecommendedTopic } from "@/lib/data-logic";
 import { track } from "@/lib/analytics";
 import { useProgress, computeStreak } from "./use-progress";
 import { goalProgress, streakAtRisk } from "@/lib/progress-logic";
@@ -16,13 +16,16 @@ import { WordSearchResults } from "./word-search-results";
 import { normalizePinyin } from "@/lib/highlight";
 import { searchWords } from "@/lib/search-logic";
 
-export function HomeApp({ data }: { data: MandarinData }) {
+export function HomeApp({ data }: { data: HomeData }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
   const { progress, loaded, exportProgress, importProgress, completeOnboarding, skipOnboarding, toggleFavoriteWord } = useProgress();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const nextTopic = useMemo(() => nextRecommendedTopic(progress.learnedTopics), [progress.learnedTopics]);
+  const nextTopic = useMemo(
+    () => nextRecommendedTopic(data.topics, progress.learnedTopics),
+    [data.topics, progress.learnedTopics],
+  );
   const showOnboarding = loaded && !progress.onboarding.completed;
 
   const filtered = useMemo(() => {

@@ -4,6 +4,11 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { Topic } from "@/lib/types";
 
+// The home CTAs only render a topic's slug + titles, so accept any object with
+// those fields. This keeps the slimmed `TopicSummary` (see toTopicSummary)
+// assignable without dragging the full item/sentence payload into these props.
+type TopicCta = Pick<Topic, "slug" | "titleEn" | "titleCn">;
+
 // Shared daily-goal presets. Exported so the stats-page goal editor reuses the
 // exact same options and copy as first-run onboarding.
 export const GOAL_OPTIONS = [
@@ -24,7 +29,7 @@ export function OnboardingModal({
   onComplete,
   onSkip,
 }: {
-  firstTopic: Topic;
+  firstTopic: TopicCta;
   onComplete: (dailyGoal: number) => void;
   onSkip: () => void;
 }) {
@@ -158,7 +163,7 @@ export function ContinueLearningCard({
   learnedCount,
   dailyGoal,
 }: {
-  nextTopic: Topic;
+  nextTopic: TopicCta;
   learnedCount: number;
   dailyGoal: number;
 }) {

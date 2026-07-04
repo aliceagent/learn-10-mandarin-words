@@ -1,4 +1,4 @@
-import type { FlashcardStat, ProgressState, QuizStat, Topic } from "./types";
+import type { FlashcardStat, ProgressState, QuizStat, Topic, TopicSummary } from "./types";
 // Value import needs the explicit `.ts` extension so it resolves under
 // `node --test` (Node's native TS runner does not add extensions); `next build`
 // and tsc accept it via `allowImportingTsExtensions`. Mirrors quiz-logic.ts.
@@ -572,7 +572,7 @@ export function wordStatus(
 
 // Per-item statuses for a topic, in `topic.items` order, keyed by `wordKey`.
 export function topicWordStatuses(
-  topic: Topic,
+  topic: Pick<TopicSummary, "slug" | "items">,
   flashcardStats: Record<string, FlashcardStat>,
   quizStats: Record<string, QuizStat>,
 ): WordStatus[] {
@@ -585,7 +585,7 @@ export function topicWordStatuses(
 // Aggregate word-status counts across a set of topics. `total` always equals the
 // sum of the four buckets (one status per word).
 export function masterySummary(
-  topics: Topic[],
+  topics: Pick<TopicSummary, "slug" | "items">[],
   flashcardStats: Record<string, FlashcardStat>,
   quizStats: Record<string, QuizStat>,
 ): MasterySummary {
