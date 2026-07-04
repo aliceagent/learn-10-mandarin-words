@@ -342,6 +342,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
           topic={topic}
           favoriteWords={progress.favoriteWords}
           flashcardStats={progress.flashcardStats}
+          speechAvailable={speechAvailable}
           onToggleFavorite={(key) => {
             if (!progress.favoriteWords.includes(key)) track("favorite_saved", { topic: topic.slug, kind: "word" });
             toggleFavoriteWord(key);
