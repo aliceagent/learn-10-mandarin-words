@@ -14,6 +14,7 @@ import { useProgress } from "./use-progress";
 import { useSpeech } from "./use-speech";
 import { VideoPlayer } from "./video-player";
 import { TonePractice } from "./tone-practice";
+import { ToneListenTrainer } from "./tone-listen-trainer";
 import { PhrasebookPanel } from "./phrasebook-panel";
 import { NextStepPanel } from "./next-step-panel";
 import { SaveOfflineButton } from "./save-offline-button";
@@ -42,6 +43,9 @@ export function TopicApp({ topic }: { topic: Topic }) {
   const [cardIndex, setCardIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [quizMode, setQuizMode] = useState<QuizMode>("hanzi-english");
+  // Tone-practice section sub-mode: the eyes-first per-syllable drill ("read")
+  // or the ears-first listening trainer ("listen", speech-gated).
+  const [toneMode, setToneMode] = useState<"read" | "listen">("read");
   // `combo` is the current consecutive-correct streak in this run; `runBestCombo`
   // the longest streak reached this run; `brokenCombo` the streak just lost on the
   // most recent wrong answer (0 otherwise, so the "combo broken" note can show the
@@ -464,9 +468,37 @@ export function TopicApp({ topic }: { topic: Topic }) {
       <div className="mt-10">
         <h2 className="text-lg font-semibold text-white">Tone practice</h2>
         <p className="mt-1 text-sm text-slate-400">
-          Train your ear for tones — derived from each word&apos;s pinyin.
+          Train your ear for tones — read the word, or just listen.
         </p>
-        <TonePractice topic={topic} />
+        {/* Read/Listen sub-mode switch. Listen only appears once speech is
+            confirmed available (same gate as the quiz's listening chip), so
+            there is never a dead control on voiceless devices. */}
+        <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Tone practice mode">
+          {([
+            { key: "read", label: "Read" },
+            ...(speechAvailable ? [{ key: "listen", label: "Listen 🔊" } as const] : []),
+          ] as const).map((m) => (
+            <button
+              key={m.key}
+              type="button"
+              onClick={() => setToneMode(m.key)}
+              aria-pressed={toneMode === m.key}
+              className={`min-h-[44px] rounded-full border px-4 py-2 text-xs font-semibold transition ${toneMode === m.key ? "border-emerald-300/40 bg-emerald-400/10 text-emerald-200" : "border-white/10 text-slate-400 hover:border-white/25 hover:text-white"}`}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
+        {toneMode === "listen" && speechAvailable ? (
+          <ToneListenTrainer
+            topic={topic}
+            keyFor={keyFor}
+            onRecord={recordQuizAnswer}
+            onPracticeReading={() => setToneMode("read")}
+          />
+        ) : (
+          <TonePractice topic={topic} />
+        )}
       </div>
 
       <Toast message={toast} onDone={() => setToast(null)} />
