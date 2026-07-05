@@ -4,10 +4,35 @@ import { useState } from "react";
 import type { VocabItem } from "@/lib/types";
 import type { QuizCard, QuizMode } from "@/lib/quiz-logic";
 import { HANZI_LANG, PINYIN_LANG, quizChoiceLang, quizPromptLang } from "@/lib/lang";
+import { comboMilestoneLabel, comboTier } from "@/lib/combo-logic";
 import { SpeakButton } from "../speak-button";
 import { useSpeech } from "../use-speech";
 
-type QuizViewState = { index: number; score: number; picked: string | null };
+type QuizViewState = {
+  index: number;
+  score: number;
+  picked: string | null;
+  /** Current consecutive-correct streak this run. */
+  combo: number;
+  /** Longest streak reached this run (for the completion summary). */
+  runBestCombo: number;
+  /** Streak just lost on the most recent wrong answer (0 otherwise). */
+  brokenCombo: number;
+};
+
+// Chip styling escalates with the combo tier: emerald (≥2), amber (≥5), rose
+// (≥10). The ×N label and this color carry the meaning; the pop animation is a
+// secondary cue (removed under prefers-reduced-motion).
+function comboChipClass(combo: number): string {
+  switch (comboTier(combo)) {
+    case 3:
+      return "border-rose-300/40 bg-rose-400/15 text-rose-200";
+    case 2:
+      return "border-amber-300/40 bg-amber-400/15 text-amber-200";
+    default:
+      return "border-emerald-300/40 bg-emerald-400/10 text-emerald-200";
+  }
+}
 
 // The "Quiz" tab: either the multiple-choice quiz itself or, once every card is
 // answered, the completion screen with the missed-word summary and retry/restart
@@ -21,6 +46,8 @@ export function QuizPanel({
   currentQuiz,
   quizMode,
   quizState,
+  bestCombo,
+  isNewBest,
   missedItemsList,
   speechAvailable,
   onChangeQuizMode,
@@ -35,6 +62,10 @@ export function QuizPanel({
   currentQuiz: QuizCard;
   quizMode: QuizMode;
   quizState: QuizViewState;
+  /** All-time persisted best combo, shown quietly once it's worth bragging (≥3). */
+  bestCombo: number;
+  /** Whether this run set a new all-time best combo (drives the completion moment). */
+  isNewBest: boolean;
   missedItemsList: VocabItem[];
   speechAvailable: boolean;
   onChangeQuizMode: (m: QuizMode) => void;
@@ -59,6 +90,13 @@ export function QuizPanel({
         <p className="text-6xl">{missedItemsList.length === 0 ? "🎉" : "💪"}</p>
         <p className="mt-4 text-2xl font-semibold text-white">Quiz complete!</p>
         <p className="mt-3 text-5xl font-bold text-emerald-300">{quizState.score}<span className="text-2xl text-slate-400">/{quiz.length}</span></p>
+        {quizState.runBestCombo > 0 ? (
+          isNewBest ? (
+            <p className="mt-3 text-lg font-bold text-amber-300">🏆 New best combo: ×{quizState.runBestCombo}!</p>
+          ) : (
+            <p className="mt-3 text-sm text-slate-400">Longest combo this run: ×{quizState.runBestCombo}</p>
+          )
+        ) : null}
         <p className="mt-2 text-slate-400">
           {missedItemsList.length === 0
             ? "Perfect score! Every answer correct."
@@ -141,8 +179,27 @@ export function QuizPanel({
         ))}
       </div>
 
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <p className="text-sm text-slate-400">Question {(quizState.index % quiz.length) + 1} of {quiz.length}</p>
+        {/* Combo meter: hidden below ×2, then a tiered chip that pops on each
+            increment (re-keyed on the combo value so the animation re-fires). The
+            milestone flash lives in a persistent aria-live span so streak
+            milestones are announced once, not on every answer. `Best ×N` is a
+            quiet all-time marker shown once it's worth bragging about. */}
+        <div className="flex items-center gap-2">
+          {quizState.combo >= 2 ? (
+            <span
+              key={quizState.combo}
+              className={`animate-combo-pop rounded-full border px-3 py-1 text-xs font-bold ${comboChipClass(quizState.combo)}`}
+            >
+              ×{quizState.combo}{comboTier(quizState.combo) >= 1 ? " 🔥" : ""}
+            </span>
+          ) : null}
+          <span aria-live="polite" className="text-xs font-semibold text-emerald-300">
+            {comboMilestoneLabel(quizState.combo) ?? ""}
+          </span>
+          {bestCombo >= 3 ? <span className="text-xs text-slate-500">Best ×{bestCombo}</span> : null}
+        </div>
         <p className="text-sm font-semibold text-emerald-300">Score {quizState.score}</p>
       </div>
 

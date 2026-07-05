@@ -126,6 +126,11 @@ export type ProgressState = {
    * recent DAILY_CHALLENGE_RETENTION_DAYS days on every write. Added in schema v5.
    */
   dailyChallenge: Record<string, DailyChallengeResult>;
+  /**
+   * All-time best consecutive-correct quiz streak (the longest combo ever reached
+   * in the Quiz tab). Monotonic — only ever raised. Added in schema v6.
+   */
+  bestQuizCombo: number;
   studiedDates: string[];
   onboarding: OnboardingState;
 };

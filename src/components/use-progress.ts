@@ -7,6 +7,7 @@ import {
   defaultStat,
   emptyProgress,
   goalProgress,
+  normalizeBestCombo,
   normalizeProgress,
   practicedCountOn,
   recordDailyChallenge,
@@ -129,6 +130,15 @@ export function useProgress() {
         completedAt: new Date().toISOString(),
       }),
     })),
+    // Raise the all-time best quiz combo to `combo` (monotonic max), so calling
+    // it on every combo increment is idempotent-safe. Returns the state unchanged
+    // when it wouldn't raise the best, avoiding a needless write. NOT routed
+    // through withPractice — a combo isn't a distinctly practiced word; the
+    // per-answer recordQuizAnswer already stamps study/goal state.
+    recordBestCombo: (combo: number) => setProgress((current) => {
+      const next = Math.max(current.bestQuizCombo, normalizeBestCombo(combo));
+      return next === current.bestQuizCombo ? current : { ...current, bestQuizCombo: next };
+    }),
     gradeWord: (key: string, grade: "again" | "hard" | "good" | "easy") => setProgress((current) => {
       const now = new Date();
       const existing = current.flashcardStats[key] ?? defaultStat(now);

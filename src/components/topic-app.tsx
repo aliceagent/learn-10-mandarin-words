@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Topic, VocabItem } from "@/lib/types";
 import { isUsefulPhraseTopic, nextTopicAfter, wordKey } from "@/lib/data";
 import { buildQuiz, itemsForKeys, type QuizMode } from "@/lib/quiz-logic";
+import { isNewBestCombo, nextCombo } from "@/lib/combo-logic";
 import { computeStats, formatIntervalDays, previewIntervals, topicProgress, topicWordStatuses } from "@/lib/progress-logic";
 import { downloadableMp4Url, hasPlayableVideo } from "@/lib/video";
 import { canAttemptSpeech } from "@/lib/speech";
@@ -29,7 +30,7 @@ import { Toast } from "./toast";
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function TopicApp({ topic }: { topic: Topic }) {
-  const { progress, toggleFavoriteTopic, toggleFavoriteWord, toggleLearnedTopic, gradeWord, recordQuizAnswer } = useProgress();
+  const { progress, toggleFavoriteTopic, toggleFavoriteWord, toggleLearnedTopic, gradeWord, recordQuizAnswer, recordBestCombo } = useProgress();
   // Useful Phrases topics get an extra "Phrasebook" mode, shown first and
   // selected by default so they read like a practical phrasebook rather than a
   // vocabulary list. Words/Cards/Quiz stay available for every topic.
@@ -40,7 +41,19 @@ export function TopicApp({ topic }: { topic: Topic }) {
   const [cardIndex, setCardIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [quizMode, setQuizMode] = useState<QuizMode>("hanzi-english");
-  const [quizState, setQuizState] = useState({ index: 0, score: 0, picked: null as string | null });
+  // `combo` is the current consecutive-correct streak in this run; `runBestCombo`
+  // the longest streak reached this run; `brokenCombo` the streak just lost on the
+  // most recent wrong answer (0 otherwise, so the "combo broken" note can show the
+  // right ×N); `newBest` flags that this run set a new all-time best combo.
+  const [quizState, setQuizState] = useState({
+    index: 0,
+    score: 0,
+    picked: null as string | null,
+    combo: 0,
+    runBestCombo: 0,
+    brokenCombo: 0,
+    newBest: false,
+  });
   const [quizComplete, setQuizComplete] = useState(false);
   // The words currently being quizzed. Starts as the whole topic; a "Retry
   // missed" run narrows it to just the missed words. Distractors still come from
@@ -103,7 +116,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
     setQuizTopicSlug(topic.slug);
     setActiveItems(topic.items);
     setMissedKeys([]);
-    setQuizState({ index: 0, score: 0, picked: null });
+    setQuizState({ index: 0, score: 0, picked: null, combo: 0, runBestCombo: 0, brokenCombo: 0, newBest: false });
     setQuizComplete(false);
     // Land on the mode that fits the newly shown topic (phrasebook vs. words),
     // so a mode that no longer has a tab is never left selected.
@@ -114,7 +127,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
     setQuizMode(m);
     setActiveItems(topic.items);
     setMissedKeys([]);
-    setQuizState({ index: 0, score: 0, picked: null });
+    setQuizState({ index: 0, score: 0, picked: null, combo: 0, runBestCombo: 0, brokenCombo: 0, newBest: false });
     setQuizComplete(false);
   }
 
@@ -124,7 +137,23 @@ export function TopicApp({ topic }: { topic: Topic }) {
     // The `picked` guard above means this runs exactly once per card — the first
     // answer — so per-word quiz accuracy is recorded once per attempt.
     recordQuizAnswer(currentQuiz.key, correct);
-    setQuizState((s) => ({ ...s, picked: choice, score: correct ? s.score + 1 : s.score }));
+    // Combo: +1 on a correct answer, reset to 0 on a miss. When the new streak
+    // beats the persisted all-time best, raise it (monotonic max in the hook) and
+    // flag the run as a record so the completion screen can celebrate it. This is
+    // an event handler, not render, so calling recordBestCombo here is safe.
+    const combo = nextCombo(quizState.combo, correct);
+    const beatsBest = isNewBestCombo(combo, progress.bestQuizCombo);
+    if (beatsBest) recordBestCombo(combo);
+    setQuizState((s) => ({
+      ...s,
+      picked: choice,
+      score: correct ? s.score + 1 : s.score,
+      combo,
+      runBestCombo: Math.max(s.runBestCombo, combo),
+      // Remember the streak just lost, so the "combo broken" note can name it.
+      brokenCombo: correct ? 0 : s.combo,
+      newBest: s.newBest || beatsBest,
+    }));
     if (!correct) {
       setMissedKeys((keys) => (keys.includes(currentQuiz.key) ? keys : [...keys, currentQuiz.key]));
     }
@@ -134,7 +163,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
     const nextIndex = quizState.index + 1;
     if (nextIndex >= quiz.length) {
       setQuizComplete(true);
-      track("quiz_completed", { topic: topic.slug, mode: quizMode, score: quizState.score, total: quiz.length });
+      track("quiz_completed", { topic: topic.slug, mode: quizMode, score: quizState.score, total: quiz.length, bestCombo: quizState.runBestCombo });
     } else {
       setQuizState((s) => ({ ...s, picked: null, index: nextIndex }));
     }
@@ -144,7 +173,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
   function restartQuiz() {
     setActiveItems(topic.items);
     setMissedKeys([]);
-    setQuizState({ index: 0, score: 0, picked: null });
+    setQuizState({ index: 0, score: 0, picked: null, combo: 0, runBestCombo: 0, brokenCombo: 0, newBest: false });
     setQuizComplete(false);
   }
 
@@ -154,7 +183,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
     if (missed.length === 0) return;
     setActiveItems(missed);
     setMissedKeys([]);
-    setQuizState({ index: 0, score: 0, picked: null });
+    setQuizState({ index: 0, score: 0, picked: null, combo: 0, runBestCombo: 0, brokenCombo: 0, newBest: false });
     setQuizComplete(false);
   }
 
@@ -386,6 +415,8 @@ export function TopicApp({ topic }: { topic: Topic }) {
           currentQuiz={currentQuiz}
           quizMode={quizMode}
           quizState={quizState}
+          bestCombo={progress.bestQuizCombo}
+          isNewBest={quizState.newBest}
           missedItemsList={missedItemsList}
           speechAvailable={speechAvailable}
           onChangeQuizMode={changeQuizMode}

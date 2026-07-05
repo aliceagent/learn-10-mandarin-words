@@ -24,7 +24,9 @@ import { wordKey } from "./data-logic.ts";
 //   Older saves lack the field and migrate to an empty `{}`, losing nothing else.
 //   v4 → v5: added `dailyChallenge` (one Daily Challenge result per ISO day).
 //   Older saves lack the field and migrate to an empty `{}`, losing nothing else.
-export const CURRENT_PROGRESS_SCHEMA_VERSION = 5;
+//   v5 → v6: added `bestQuizCombo` (all-time best consecutive-correct quiz streak).
+//   Older saves lack the field and backfill to 0, losing nothing else.
+export const CURRENT_PROGRESS_SCHEMA_VERSION = 6;
 
 export const emptyProgress: ProgressState = {
   schemaVersion: CURRENT_PROGRESS_SCHEMA_VERSION,
@@ -35,6 +37,7 @@ export const emptyProgress: ProgressState = {
   quizStats: {},
   dailyActivity: {},
   dailyChallenge: {},
+  bestQuizCombo: 0,
   studiedDates: [],
   onboarding: { completed: false, dailyGoal: 0, completedAt: null },
 };
@@ -181,6 +184,14 @@ function normalizeDailyChallenge(raw: unknown): Record<string, DailyChallengeRes
   return out;
 }
 
+// Repair a persisted/imported `bestQuizCombo`: any non-number, non-finite, or
+// negative value collapses to 0; a valid number is rounded to a whole streak
+// count. Never throws. Added in schema v6.
+export function normalizeBestCombo(raw: unknown): number {
+  if (typeof raw !== "number" || !Number.isFinite(raw) || raw < 0) return 0;
+  return Math.round(raw);
+}
+
 // Record one quiz answer against `key`, returning a NEW quizStats map (pure).
 // The existing entry is normalized first so a corrupt stat can't corrupt the
 // increment. Used by the useProgress hook's `recordQuizAnswer`.
@@ -220,6 +231,7 @@ export function normalizeProgress(
     quizStats: normalizeQuizStats(p.quizStats),
     dailyActivity: normalizeDailyActivity(p.dailyActivity),
     dailyChallenge: normalizeDailyChallenge(p.dailyChallenge),
+    bestQuizCombo: normalizeBestCombo(p.bestQuizCombo),
     studiedDates: asStringArray(p.studiedDates) ?? [],
     onboarding: { ...emptyProgress.onboarding, ...onboarding },
   };
