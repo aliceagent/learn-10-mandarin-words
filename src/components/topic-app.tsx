@@ -25,6 +25,7 @@ import { QuizPanel } from "./topic/quiz-panel";
 import { TypingPanel } from "./topic/typing-panel";
 import { MatchPanel } from "./topic/match-panel";
 import { ClozePanel } from "./topic/cloze-panel";
+import { ScramblePanel } from "./topic/scramble-panel";
 import { Toast } from "./toast";
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -35,7 +36,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
   // selected by default so they read like a practical phrasebook rather than a
   // vocabulary list. Words/Cards/Quiz stay available for every topic.
   const isPhrasebook = isUsefulPhraseTopic(topic);
-  const [mode, setMode] = useState<"phrasebook" | "words" | "flashcards" | "quiz" | "typed" | "match" | "cloze">(
+  const [mode, setMode] = useState<"phrasebook" | "words" | "flashcards" | "quiz" | "typed" | "match" | "cloze" | "scramble">(
     isPhrasebook ? "phrasebook" : "words",
   );
   const [cardIndex, setCardIndex] = useState(0);
@@ -351,6 +352,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
           <Tab active={mode === "typed"} onClick={() => setMode("typed")}>Type</Tab>
           <Tab active={mode === "match"} onClick={() => setMode("match")}>Match</Tab>
           <Tab active={mode === "cloze"} onClick={() => setMode("cloze")}>Sentences</Tab>
+          <Tab active={mode === "scramble"} onClick={() => setMode("scramble")}>Scramble</Tab>
         </nav>
       </div>
 
@@ -441,6 +443,11 @@ export function TopicApp({ topic }: { topic: Topic }) {
       {/* ── Sentence cloze (fill-in-the-blank from real example sentences) ── */}
       {mode === "cloze" ? (
         <ClozePanel topic={topic} onRecord={recordQuizAnswer} />
+      ) : null}
+
+      {/* ── Sentence scramble (rebuild the sentence from shuffled hanzi tiles) ── */}
+      {mode === "scramble" ? (
+        <ScramblePanel topic={topic} onRecord={recordQuizAnswer} />
       ) : null}
 
       {/* ── Next-step panel (shown once the topic is learned or the quiz is done) ── */}
