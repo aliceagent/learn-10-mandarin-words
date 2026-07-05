@@ -11,6 +11,8 @@ import { ProgressRing } from "./progress-ring";
 import { GOAL_OPTIONS } from "./onboarding";
 import { computeStats, computeWeakWords } from "@/lib/stats-logic";
 import { goalProgress, masterySummary, streakAtRisk, type MasterySummary } from "@/lib/progress-logic";
+import { computeAchievements } from "@/lib/achievements-logic";
+import { AchievementShelf } from "./achievement-shelf";
 
 type WeakWordRow = VocabItem & {
   topicSlug: string;
@@ -62,6 +64,14 @@ export function StatsApp({
     }
     return rows;
   }, [data.topics, progress.quizStats]);
+
+  // Achievement badges derived purely from the persisted progress + dataset.
+  // Same cost class as masterySummary (one pass over all words) and memoized so
+  // it only recomputes when progress or the topic set changes.
+  const achievements = useMemo(
+    () => computeAchievements(progress, data.topics),
+    [progress, data.topics],
+  );
 
   // Per-category mastery, derived from existing flashcard + quiz stats. One row
   // per category (14 total); topics are resolved from the category's slug list.
@@ -180,6 +190,9 @@ export function StatsApp({
           href="/lightning"
         />
       </div>
+
+      {/* ── Achievement shelf (always rendered; locked badges are informative) ── */}
+      <AchievementShelf achievements={achievements} />
 
       {/* ── Mastery by category (always rendered; zeros are informative) ── */}
       <section className="mt-10" aria-label="Mastery by category">
