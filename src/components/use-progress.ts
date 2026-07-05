@@ -9,6 +9,7 @@ import {
   goalProgress,
   normalizeProgress,
   practicedCountOn,
+  recordDailyChallenge,
   recordDailyPractice,
   scheduleReview,
   todayISO,
@@ -116,6 +117,18 @@ export function useProgress() {
       ...current,
       quizStats: updateQuizStats(current.quizStats, key, correct),
     }, key)),
+    // Persist the official Daily Challenge result for `day` (first completion
+    // wins). NOT routed through withPractice: each answer already flows through
+    // recordQuizAnswer above, which stamps studiedDates + dailyActivity — this
+    // only records the once-a-day challenge outcome.
+    recordDailyChallengeResult: (day: string, score: number, total: number) => setProgress((current) => ({
+      ...current,
+      dailyChallenge: recordDailyChallenge(current.dailyChallenge, day, {
+        score,
+        total,
+        completedAt: new Date().toISOString(),
+      }),
+    })),
     gradeWord: (key: string, grade: "again" | "hard" | "good" | "easy") => setProgress((current) => {
       const now = new Date();
       const existing = current.flashcardStats[key] ?? defaultStat(now);

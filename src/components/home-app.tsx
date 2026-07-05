@@ -6,7 +6,7 @@ import type { HomeData } from "@/lib/types";
 import { datasetSummary, nextRecommendedTopic } from "@/lib/data-logic";
 import { track } from "@/lib/analytics";
 import { useProgress, computeStreak } from "./use-progress";
-import { goalProgress, streakAtRisk } from "@/lib/progress-logic";
+import { goalProgress, streakAtRisk, todayISO } from "@/lib/progress-logic";
 import { OnboardingModal, ContinueLearningCard } from "./onboarding";
 import { ProgressRing } from "./progress-ring";
 import { TopicCard } from "./topic-card";
@@ -212,6 +212,9 @@ export function HomeApp({ data }: { data: HomeData }) {
         </div>
       </section>
 
+      {/* ── Daily Challenge banner ── */}
+      {loaded ? <DailyChallengeBanner result={progress.dailyChallenge[todayISO()]} /> : null}
+
       {/* ── Continue learning / Start here CTA ── */}
       {loaded ? (
         <ContinueLearningCard
@@ -334,6 +337,7 @@ export function HomeApp({ data }: { data: HomeData }) {
         <div className="flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-sm text-slate-500 sm:flex-row">
           <p>Local-first · your progress never leaves your device.</p>
           <div className="flex gap-4">
+            <Link href="/daily" className="transition hover:text-slate-300">Daily</Link>
             <Link href="/path" className="transition hover:text-slate-300">Path</Link>
             <Link href="/review" className="transition hover:text-slate-300">Review</Link>
             <Link href="/favorites" className="transition hover:text-slate-300">Favorites</Link>
@@ -352,6 +356,42 @@ export function HomeApp({ data }: { data: HomeData }) {
         />
       ) : null}
     </main>
+  );
+}
+
+// ── Daily Challenge banner ────────────────────────────────────────────────────
+
+// A one-tap entry point to /daily, sitting just above the continue-learning CTA.
+// Shows the done state (with today's score) once the official challenge is
+// complete, otherwise an undone "Play" prompt. `result` is today's stored
+// DailyChallengeResult, or undefined when it hasn't been played yet.
+function DailyChallengeBanner({ result }: { result?: { score: number; total: number } }) {
+  const done = Boolean(result);
+  return (
+    <section className="mx-auto max-w-7xl px-6 md:px-10">
+      <Link
+        href="/daily"
+        className="group flex items-center justify-between gap-4 rounded-3xl border border-emerald-500/25 bg-emerald-500/10 px-5 py-4 transition hover:border-emerald-300/50 hover:bg-emerald-500/15 md:px-6"
+        aria-label="Open today's Daily Challenge"
+      >
+        <div className="min-w-0">
+          {done ? (
+            <>
+              <p className="font-semibold text-white">✅ Today&apos;s Challenge — {result!.score}/{result!.total}</p>
+              <p className="mt-0.5 text-sm text-slate-300">New one tomorrow — keep the streak alive.</p>
+            </>
+          ) : (
+            <>
+              <p className="font-semibold text-white">🀄 Today&apos;s Challenge · 10 questions from your topics</p>
+              <p className="mt-0.5 text-sm text-slate-300">A fresh mixed quiz, same for everyone. Keep the streak alive.</p>
+            </>
+          )}
+        </div>
+        <span className="shrink-0 rounded-full bg-emerald-400 px-5 py-2.5 text-sm font-semibold text-slate-950 transition group-hover:bg-emerald-300">
+          {done ? "Review" : "Play"}
+        </span>
+      </Link>
+    </section>
   );
 }
 

@@ -26,7 +26,7 @@
  *
  * Bump CACHE_VERSION to invalidate old caches on the next activate.
  */
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v2";
 const CACHE = `learn10-${CACHE_VERSION}`;
 
 // Dedicated bucket for user-saved lesson videos. Kept separate from the app
@@ -35,7 +35,7 @@ const CACHE = `learn10-${CACHE_VERSION}`;
 const VIDEO_CACHE = "learn10-videos-v1";
 
 // App shell pages worth precaching so a cold offline launch still renders.
-const PRECACHE_URLS = ["/", "/review", "/favorites", "/privacy", "/offline", "/icon.svg"];
+const PRECACHE_URLS = ["/", "/daily", "/review", "/favorites", "/privacy", "/offline", "/icon.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

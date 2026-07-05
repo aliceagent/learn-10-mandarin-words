@@ -82,6 +82,16 @@ export type QuizStat = {
   attempts: number;
 };
 
+// One official Daily Challenge result for a given ISO day. `score` is always
+// ≤ `total`; both are non-negative integers. Keyed by the `YYYY-MM-DD` day the
+// run was started on. Added in schema v5.
+export type DailyChallengeResult = {
+  score: number;
+  total: number;
+  /** ISO timestamp the challenge was completed. */
+  completedAt: string;
+};
+
 export type OnboardingState = {
   /** Whether the user has completed or skipped first-run onboarding. */
   completed: boolean;
@@ -110,6 +120,12 @@ export type ProgressState = {
    * on every write so storage stays bounded. Added in schema v4.
    */
   dailyActivity: Record<string, string[]>;
+  /**
+   * One official Daily Challenge result per ISO day (`YYYY-MM-DD` →
+   * DailyChallengeResult). First completion of a day wins; pruned to the most
+   * recent DAILY_CHALLENGE_RETENTION_DAYS days on every write. Added in schema v5.
+   */
+  dailyChallenge: Record<string, DailyChallengeResult>;
   studiedDates: string[];
   onboarding: OnboardingState;
 };

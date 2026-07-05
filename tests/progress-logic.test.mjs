@@ -4,8 +4,10 @@ import assert from "node:assert/strict";
 import {
   CURRENT_PROGRESS_SCHEMA_VERSION,
   DAILY_ACTIVITY_RETENTION_DAYS,
+  DAILY_CHALLENGE_RETENTION_DAYS,
   EASE_CEIL,
   EASE_FLOOR,
+  challengeStreak,
   computeStreak,
   computeWeakWords,
   defaultStat,
@@ -19,6 +21,7 @@ import {
   normalizeStat,
   practicedCountOn,
   previewIntervals,
+  recordDailyChallenge,
   recordDailyPractice,
   scheduleReview,
   streakAtRisk,
@@ -658,4 +661,82 @@ test("masterySummary on empty progress is all-new", () => {
   const topics = [makeTopic("a", ["好", "坏"]), makeTopic("b", ["空"])];
   const summary = masterySummary(topics, {}, {});
   assert.deepEqual(summary, { mastered: 0, learning: 0, tricky: 0, new: 3, total: 3 });
+});
+
+// ─── dailyChallenge: migration, normalization, first-wins, prune, streak (v5) ───
+
+function challengeResult(day, score, total) {
+  return { score, total, completedAt: `${day}T12:00:00.000Z` };
+}
+
+test("normalizeProgress migrates a v4 save to v5 and backfills empty dailyChallenge", () => {
+  const v4 = {
+    schemaVersion: 4, // pre-dailyChallenge save
+    learnedTopics: ["ten-types-of-pets"],
+    dailyActivity: { "2026-07-01": ["t:好"] },
+  };
+  const p = normalizeProgress(v4);
+  assert.equal(p.schemaVersion, CURRENT_PROGRESS_SCHEMA_VERSION); // 5
+  assert.deepEqual(p.dailyChallenge, {}); // backfilled, lossless
+  assert.deepEqual(p.learnedTopics, ["ten-types-of-pets"]); // nothing else lost
+  assert.deepEqual(p.dailyActivity, { "2026-07-01": ["t:好"] });
+});
+
+test("normalizeProgress sanitizes corrupt dailyChallenge shapes without throwing", () => {
+  assert.deepEqual(normalizeProgress({ dailyChallenge: 42 }).dailyChallenge, {});
+  const p = normalizeProgress({
+    dailyChallenge: {
+      "2026-07-01": { score: 8, total: 10, completedAt: "2026-07-01T09:00:00.000Z" },
+      "not-a-day": { score: 5, total: 10, completedAt: "x" }, // junk key → dropped
+      "2026-07-02": "nope", // non-object → dropped
+      "2026-07-03": { score: 99, total: 10 }, // score clamped to total; completedAt repaired
+      "2026-07-04": { score: -3, total: -1 }, // negatives coerced to 0
+    },
+  });
+  assert.deepEqual(new Set(Object.keys(p.dailyChallenge)), new Set(["2026-07-01", "2026-07-03", "2026-07-04"]));
+  assert.deepEqual(p.dailyChallenge["2026-07-01"], { score: 8, total: 10, completedAt: "2026-07-01T09:00:00.000Z" });
+  assert.equal(p.dailyChallenge["2026-07-03"].score, 10); // clamped to total
+  assert.ok(Number.isFinite(new Date(p.dailyChallenge["2026-07-03"].completedAt).getTime())); // repaired ISO
+  assert.deepEqual(p.dailyChallenge["2026-07-04"], { score: 0, total: 0, completedAt: p.dailyChallenge["2026-07-04"].completedAt });
+});
+
+test("normalizeProgress prunes dailyChallenge to the newest retention window", () => {
+  const map = {};
+  for (let i = 0; i < DAILY_CHALLENGE_RETENTION_DAYS + 10; i++) {
+    const day = `2026-${String(1 + Math.floor(i / 28)).padStart(2, "0")}-${String(1 + (i % 28)).padStart(2, "0")}`;
+    map[day] = challengeResult(day, 5, 10);
+  }
+  const p = normalizeProgress({ dailyChallenge: map });
+  assert.equal(Object.keys(p.dailyChallenge).length, DAILY_CHALLENGE_RETENTION_DAYS);
+});
+
+test("recordDailyChallenge keeps the FIRST completion for a day and leaves input untouched", () => {
+  const before = { "2026-07-05": challengeResult("2026-07-05", 6, 10) };
+  const frozen = JSON.parse(JSON.stringify(before));
+  const after = recordDailyChallenge(before, "2026-07-05", challengeResult("2026-07-05", 10, 10));
+  assert.deepEqual(after["2026-07-05"], challengeResult("2026-07-05", 6, 10)); // first wins
+  assert.deepEqual(before, frozen); // pure — input not mutated
+  assert.notEqual(after, before); // returns a new object
+});
+
+test("recordDailyChallenge adds a new day and prunes past the retention window", () => {
+  let map = {};
+  for (let i = 0; i < DAILY_CHALLENGE_RETENTION_DAYS + 5; i++) {
+    const day = `2025-${String(1 + Math.floor(i / 28)).padStart(2, "0")}-${String(1 + (i % 28)).padStart(2, "0")}`;
+    map = recordDailyChallenge(map, day, challengeResult(day, 7, 10));
+  }
+  assert.equal(Object.keys(map).length, DAILY_CHALLENGE_RETENTION_DAYS);
+});
+
+test("challengeStreak counts consecutive completed days ending today (mirrors computeStreak)", () => {
+  const map = {
+    "2026-07-03": challengeResult("2026-07-03", 8, 10),
+    "2026-07-04": challengeResult("2026-07-04", 9, 10),
+    "2026-07-05": challengeResult("2026-07-05", 10, 10),
+  };
+  assert.equal(challengeStreak(map, "2026-07-05"), 3);
+  // Yesterday-anchored streaks still count (mirrors computeStreak): with today
+  // 07-06 absent, 07-05 is yesterday and 07-04/07-03 chain back from it → 3.
+  assert.equal(challengeStreak(map, "2026-07-06"), 3);
+  assert.equal(challengeStreak({}, "2026-07-05"), 0);
 });

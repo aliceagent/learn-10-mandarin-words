@@ -168,7 +168,7 @@ test("activate cleanup deletes stale caches but preserves app + video caches", a
   const deleted = [];
   const cachesObj = {
     open: async () => ({}),
-    keys: async () => ["learn10-v1", "learn10-videos-v1", "learn10-old", "misc-cache"],
+    keys: async () => ["learn10-v2", "learn10-v1", "learn10-videos-v1", "learn10-old", "misc-cache"],
     delete: async (k) => {
       deleted.push(k);
       return true;
@@ -180,7 +180,7 @@ test("activate cleanup deletes stale caches but preserves app + video caches", a
   handlers.activate({ waitUntil: (p) => (waited = p) });
   await waited;
 
-  assert.deepEqual(deleted.sort(), ["learn10-old", "misc-cache"]);
+  assert.deepEqual(deleted.sort(), ["learn10-old", "learn10-v1", "misc-cache"]);
 });
 
 // ── parseRange unit tests ────────────────────────────────────────────────────

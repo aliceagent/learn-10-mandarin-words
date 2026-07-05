@@ -36,9 +36,9 @@ test("absoluteUrl joins with or without a leading slash and never double-slashes
   assert.ok(!absoluteUrl("/path").slice("https://".length).includes("//"));
 });
 
-test("sitemapEntries covers exactly 7 + categories + topics routes, all absolute and unique", () => {
+test("sitemapEntries covers exactly 8 + categories + topics routes, all absolute and unique", () => {
   const entries = sitemapEntries(rawData);
-  assert.equal(entries.length, 7 + categories.length + topics.length);
+  assert.equal(entries.length, 8 + categories.length + topics.length);
 
   const urls = entries.map((e) => e.url);
   assert.equal(new Set(urls).size, urls.length, "urls must be unique");
@@ -49,6 +49,12 @@ test("sitemapEntries covers exactly 7 + categories + topics routes, all absolute
   // /offline is excluded; home has priority 1.
   assert.ok(!urls.some((u) => u.endsWith("/offline")));
   assert.equal(entries.find((e) => e.url === absoluteUrl("/"))?.priority, 1);
+
+  // /daily (Sprint 1) is present at priority 0.8, weekly.
+  const daily = entries.find((e) => e.url === absoluteUrl("/daily"));
+  assert.ok(daily, "/daily is in the sitemap");
+  assert.equal(daily.priority, 0.8);
+  assert.equal(daily.changeFrequency, "weekly");
 
   // Every topic and category is present.
   for (const topic of topics) assert.ok(urls.includes(absoluteUrl(`/topics/${topic.slug}`)));

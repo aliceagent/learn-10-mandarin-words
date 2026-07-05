@@ -1,4 +1,11 @@
-import type { FlashcardStat, ProgressState, QuizStat, Topic, TopicSummary } from "./types";
+import type {
+  DailyChallengeResult,
+  FlashcardStat,
+  ProgressState,
+  QuizStat,
+  Topic,
+  TopicSummary,
+} from "./types";
 // Value import needs the explicit `.ts` extension so it resolves under
 // `node --test` (Node's native TS runner does not add extensions); `next build`
 // and tsc accept it via `allowImportingTsExtensions`. Mirrors quiz-logic.ts.
@@ -15,7 +22,9 @@ import { wordKey } from "./data-logic.ts";
 //   the field and migrate to an empty `{}`, losing nothing else.
 //   v3 → v4: added `dailyActivity` (distinct wordKeys practiced per ISO day).
 //   Older saves lack the field and migrate to an empty `{}`, losing nothing else.
-export const CURRENT_PROGRESS_SCHEMA_VERSION = 4;
+//   v4 → v5: added `dailyChallenge` (one Daily Challenge result per ISO day).
+//   Older saves lack the field and migrate to an empty `{}`, losing nothing else.
+export const CURRENT_PROGRESS_SCHEMA_VERSION = 5;
 
 export const emptyProgress: ProgressState = {
   schemaVersion: CURRENT_PROGRESS_SCHEMA_VERSION,
@@ -25,6 +34,7 @@ export const emptyProgress: ProgressState = {
   flashcardStats: {},
   quizStats: {},
   dailyActivity: {},
+  dailyChallenge: {},
   studiedDates: [],
   onboarding: { completed: false, dailyGoal: 0, completedAt: null },
 };
@@ -32,6 +42,10 @@ export const emptyProgress: ProgressState = {
 // How many days of per-day practice history to retain. Bounds storage growth:
 // ~14 days of short wordKey strings. Older days are pruned on every write.
 export const DAILY_ACTIVITY_RETENTION_DAYS = 14;
+
+// How many days of Daily Challenge results to retain. Older days are pruned on
+// every write so storage stays bounded; ISO keys sort chronologically.
+export const DAILY_CHALLENGE_RETENTION_DAYS = 60;
 
 // ─── SM-2-ish scheduling constants ────────────────────────────────────────────
 // The scheduler below is a simplified SuperMemo-2 variant. `ease` behaves like
@@ -139,6 +153,34 @@ function normalizeDailyActivity(raw: unknown): Record<string, string[]> {
   return out;
 }
 
+// Sanitize a persisted/imported `dailyChallenge` map: drop invalid day keys and
+// non-object values; coerce score/total to non-negative integers with the
+// `score ≤ total` invariant; repair a missing/invalid `completedAt` to the day's
+// UTC midnight (deterministic, DOM-free); and keep at most the newest
+// DAILY_CHALLENGE_RETENTION_DAYS day-keys. Never throws. Added in schema v5.
+// Mirrors normalizeDailyActivity.
+function normalizeDailyChallenge(raw: unknown): Record<string, DailyChallengeResult> {
+  if (!raw || typeof raw !== "object") return {};
+  const kept: [string, DailyChallengeResult][] = [];
+  for (const [day, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (!isISODayKey(day)) continue;
+    if (!value || typeof value !== "object") continue; // non-object → drop
+    const v = value as Partial<DailyChallengeResult>;
+    const total =
+      Number.isFinite(v.total) && (v.total as number) >= 0 ? Math.round(v.total as number) : 0;
+    const rawScore =
+      Number.isFinite(v.score) && (v.score as number) >= 0 ? Math.round(v.score as number) : 0;
+    const score = Math.min(rawScore, total);
+    const completedAt = isValidISO(v.completedAt) ? (v.completedAt as string) : new Date(day).toISOString();
+    kept.push([day, { score, total, completedAt }]);
+  }
+  kept.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
+  const trimmed = kept.slice(Math.max(0, kept.length - DAILY_CHALLENGE_RETENTION_DAYS));
+  const out: Record<string, DailyChallengeResult> = {};
+  for (const [day, result] of trimmed) out[day] = result;
+  return out;
+}
+
 // Record one quiz answer against `key`, returning a NEW quizStats map (pure).
 // The existing entry is normalized first so a corrupt stat can't corrupt the
 // increment. Used by the useProgress hook's `recordQuizAnswer`.
@@ -177,6 +219,7 @@ export function normalizeProgress(
     flashcardStats: normalizeFlashcardStats(p.flashcardStats, now),
     quizStats: normalizeQuizStats(p.quizStats),
     dailyActivity: normalizeDailyActivity(p.dailyActivity),
+    dailyChallenge: normalizeDailyChallenge(p.dailyChallenge),
     studiedDates: asStringArray(p.studiedDates) ?? [],
     onboarding: { ...emptyProgress.onboarding, ...onboarding },
   };
@@ -520,6 +563,42 @@ export function goalProgress(
   const goal = progress.onboarding?.dailyGoal ?? 0;
   const practiced = practicedCountOn(progress.dailyActivity, today);
   return { practiced, goal, met: goal > 0 && practiced >= goal };
+}
+
+// ─── Daily Challenge (schema v5) ───────────────────────────────────────────────
+
+// Record one Daily Challenge result for `day`, returning a NEW map (pure). FIRST
+// completion wins: if an entry for `day` already exists it is preserved untouched
+// (a challenge is one official run per day, Wordle-style). The result is pruned
+// to the newest DAILY_CHALLENGE_RETENTION_DAYS day-keys so storage stays bounded;
+// ISO day keys sort chronologically. The input map is never mutated.
+export function recordDailyChallenge(
+  map: Record<string, DailyChallengeResult> | undefined,
+  day: string,
+  result: DailyChallengeResult,
+): Record<string, DailyChallengeResult> {
+  const base = map && typeof map === "object" ? map : {};
+  // First completion wins — only add when the day has no result yet.
+  const next: Record<string, DailyChallengeResult> = base[day]
+    ? { ...base }
+    : { ...base, [day]: result };
+  const days = Object.keys(next).sort();
+  if (days.length <= DAILY_CHALLENGE_RETENTION_DAYS) return next;
+  const keep = new Set(days.slice(days.length - DAILY_CHALLENGE_RETENTION_DAYS));
+  const pruned: Record<string, DailyChallengeResult> = {};
+  for (const day2 of days) if (keep.has(day2)) pruned[day2] = next[day2];
+  return pruned;
+}
+
+// Consecutive-day streak of completed Daily Challenges, ending today (or
+// yesterday, so an in-progress day isn't punished). Reuses computeStreak over the
+// map's day keys — the same semantics as the study-day streak. `today` is
+// injectable for tests.
+export function challengeStreak(
+  map: Record<string, DailyChallengeResult> | undefined,
+  today: string = todayISO(),
+): number {
+  return computeStreak(Object.keys(map ?? {}), today);
 }
 
 // ─── Word / topic mastery status (Sprint 10) ───────────────────────────────────

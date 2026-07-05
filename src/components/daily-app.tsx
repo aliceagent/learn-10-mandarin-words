@@ -1,0 +1,348 @@
+"use client";
+
+import Link from "next/link";
+import { useCallback, useState } from "react";
+import type { MandarinData } from "@/lib/types";
+import type { QuizMode } from "@/lib/quiz-logic";
+import {
+  buildDailyChallenge,
+  shareText,
+  usesStarterFallback,
+  type DailyQuestion,
+} from "@/lib/daily-logic";
+import { challengeStreak, todayISO } from "@/lib/progress-logic";
+import { HANZI_LANG, PINYIN_LANG, quizChoiceLang, quizPromptLang } from "@/lib/lang";
+import { track } from "@/lib/analytics";
+import { useProgress } from "./use-progress";
+import { useSpeech } from "./use-speech";
+import { usePracticeShortcuts } from "./use-practice-shortcuts";
+import { LoadingScreen } from "./loading-screen";
+import { SpeakButton } from "./speak-button";
+
+// A snapshot of today's challenge: the day it was built for (snapshotted at
+// session start so a run straddling midnight UTC records against its start day),
+// the deterministic questions, and whether the deck fell back to the starter
+// path (drives the new-user subline).
+type Session = { day: string; questions: DailyQuestion[]; isFallback: boolean };
+
+// Human labels for each mode's chip — matching quiz-panel.tsx's selector labels.
+const MODE_LABELS: Record<QuizMode, string> = {
+  "hanzi-english": "Hanzi → English",
+  "english-hanzi": "English → Hanzi",
+  "hanzi-pinyin": "Hanzi → Pinyin",
+  listening: "Listen 🔊",
+};
+
+// The /daily route: a deterministic, date-seeded 10-question mixed quiz drawn
+// from the topics the learner has studied. Structure mirrors practice-app.tsx —
+// a once-snapshotted session, per-answer recording through recordQuizAnswer, and
+// a completion screen — with a Wordle-style share block and a challenge streak.
+export function DailyApp({ data }: { data: MandarinData }) {
+  const { progress, loaded, recordQuizAnswer, recordDailyChallengeResult } = useProgress();
+  const { speak } = useSpeech();
+
+  // Session-snapshot the challenge. Building it reads progress, but every answer
+  // mutates quizStats — so recomputing live would reshuffle the deck mid-run.
+  // Snapshot once when progress first loads (the "adjust state during render"
+  // pattern, not a memo/effect); there is no replay, so it's never rebuilt.
+  const [session, setSession] = useState<Session | null>(null);
+  const [index, setIndex] = useState(0);
+  const [picked, setPicked] = useState<string | null>(null);
+  const [score, setScore] = useState(0);
+  const [outcomes, setOutcomes] = useState<boolean[]>([]);
+  const [done, setDone] = useState(false);
+
+  if (loaded && session === null) {
+    const day = todayISO();
+    setSession({
+      day,
+      questions: buildDailyChallenge(data.topics, progress, day),
+      isFallback: usesStarterFallback(data.topics, progress),
+    });
+  }
+
+  // ── Deck derivations, hoisted ABOVE the early returns (hooks run first) ──
+  const questions = session?.questions ?? [];
+  const total = questions.length;
+  const current = questions[index];
+  const day = session?.day ?? todayISO();
+
+  // The stored official result for today, if any. When present from a PRIOR
+  // session (not the run we just finished), we show the completed state instead
+  // of a replay — one official challenge per day.
+  const storedResult = session ? progress.dailyChallenge[session.day] : undefined;
+  const completed = done || Boolean(storedResult);
+
+  const handleAnswer = useCallback(
+    (choice: string) => {
+      if (!current || picked !== null) return;
+      setPicked(choice);
+      const correct = choice === current.card.answer;
+      recordQuizAnswer(current.card.key, correct);
+      setOutcomes((prev) => [...prev, correct]);
+      if (correct) setScore((v) => v + 1);
+    },
+    [current, picked, recordQuizAnswer],
+  );
+
+  const handleNext = useCallback(() => {
+    if (index + 1 >= total) {
+      setDone(true);
+      recordDailyChallengeResult(day, score, total);
+      track("daily_challenge_completed", { score, total });
+    } else {
+      setIndex((v) => v + 1);
+      setPicked(null);
+    }
+  }, [index, total, day, score, recordDailyChallengeResult]);
+
+  // Keyboard: 1–4 answer, Enter next, P pronounce. No R — there is no replay.
+  usePracticeShortcuts({
+    enabled: loaded && !!session && !completed,
+    phase: picked !== null ? "answered" : "question",
+    choiceCount: current?.card.choices.length ?? 0,
+    onChoose: (i) => {
+      const c = current?.card.choices[i];
+      if (c) handleAnswer(c);
+    },
+    onNext: handleNext,
+    onSpeak: () => {
+      // Only the hanzi-prompt modes have something Chinese to pronounce.
+      if (current && current.mode !== "english-hanzi") speak(current.item.hanzi);
+    },
+    onAgain: () => {},
+  });
+
+  if (!loaded || !session) {
+    return <LoadingScreen message="Building today's challenge…" />;
+  }
+
+  const streak = challengeStreak(progress.dailyChallenge, session.day);
+
+  // Outcomes for the completed screen: the live run when we just finished,
+  // otherwise a representative strip reconstructed from the stored score (order
+  // is not persisted, only the count of greens).
+  const displayOutcomes = done
+    ? outcomes
+    : storedResult
+    ? [
+        ...Array(storedResult.score).fill(true),
+        ...Array(Math.max(0, storedResult.total - storedResult.score)).fill(false),
+      ]
+    : [];
+  const displayScore = done ? score : storedResult?.score ?? 0;
+  const displayTotal = done ? total : storedResult?.total ?? total;
+
+  return (
+    <main className="mx-auto max-w-7xl px-6 pb-24 pt-8 md:px-10 md:pb-12">
+      <Link href="/" className="text-sm font-semibold text-emerald-300 hover:text-emerald-200">
+        ← Home
+      </Link>
+
+      <div className="mt-8">
+        <h1 className="text-4xl font-semibold tracking-tight text-white md:text-5xl">Daily Challenge</h1>
+        <p className="mt-3 max-w-2xl text-lg text-slate-300">
+          {session.isFallback
+            ? "You're new here — today's challenge uses the starter topics."
+            : "Ten questions, fresh every day, drawn from the topics you've studied."}
+        </p>
+      </div>
+
+      {completed ? (
+        /* ── Completed state ── */
+        <div className="animate-celebrate mt-12 rounded-3xl border border-white/10 bg-surface p-8 text-center">
+          {done ? (
+            <>
+              <p className="text-6xl">{displayScore === displayTotal ? "🏆" : displayScore >= 8 ? "🎉" : "💪"}</p>
+              <p className="mt-4 text-2xl font-semibold text-white">
+                {displayScore === displayTotal
+                  ? "Perfect ten!"
+                  : displayScore >= 8
+                  ? "Challenge complete!"
+                  : "Challenge complete — tomorrow's a fresh ten."}
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-6xl">✅</p>
+              <p className="mt-4 text-2xl font-semibold text-white">
+                You&apos;ve done today&apos;s challenge. A new one lands at midnight UTC.
+              </p>
+            </>
+          )}
+
+          <p className="mt-3 text-5xl font-bold text-emerald-300">
+            {displayScore}
+            <span className="text-2xl text-slate-400">/{displayTotal}</span>
+          </p>
+
+          {streak > 0 ? <p className="mt-3 text-lg font-semibold text-amber-300">🔥 {streak}-day challenge streak</p> : null}
+
+          <DailyShare day={session.day} outcomes={displayOutcomes} />
+
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Link
+              href="/review"
+              className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+            >
+              Daily review
+            </Link>
+            <Link
+              href="/practice"
+              className="min-h-[44px] inline-flex items-center rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300"
+            >
+              Practice weak words
+            </Link>
+          </div>
+        </div>
+      ) : (
+        /* ── Active run ── */
+        <section className="mt-8 rounded-3xl border border-white/10 bg-surface p-6" aria-label="Daily challenge quiz">
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-sm text-slate-400">
+              Question {index + 1} of {total}
+            </p>
+            <span className="rounded-full border border-emerald-300/40 bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-200">
+              {MODE_LABELS[current.mode]}
+            </span>
+          </div>
+
+          {/* Progress bar through the deck */}
+          <div className="progress-bar-track mt-2">
+            <div className="progress-bar-fill" style={{ width: `${(index / total) * 100}%` }} />
+          </div>
+
+          <p className="mt-4 text-right text-sm font-semibold text-emerald-300">Score {score}</p>
+
+          {/* Prompt */}
+          <div className="mt-6 text-center">
+            <div className="flex items-center justify-center gap-3">
+              <h2
+                lang={quizPromptLang(current.mode)}
+                className={`font-hanzi text-7xl font-semibold text-white ${current.mode === "english-hanzi" ? "font-sans text-4xl" : ""}`}
+              >
+                {current.card.prompt}
+              </h2>
+              {current.mode !== "english-hanzi" ? (
+                <SpeakButton text={current.item.hanzi} label={`Pronounce: ${current.item.hanzi}`} />
+              ) : null}
+            </div>
+            {current.card.promptPinyin ? (
+              <p lang={PINYIN_LANG} className="font-hanzi mt-2 text-2xl text-emerald-300">
+                {current.card.promptPinyin}
+              </p>
+            ) : null}
+          </div>
+
+          {/* Choices */}
+          <div className="mt-8 grid gap-3 md:grid-cols-2" role="listbox" aria-label="Answer choices">
+            {current.card.choices.map((choice, i) => {
+              const right = picked !== null && choice === current.card.answer;
+              const wrong = picked === choice && choice !== current.card.answer;
+              return (
+                <button
+                  key={`${index}:${choice}`}
+                  type="button"
+                  onClick={() => handleAnswer(choice)}
+                  role="option"
+                  aria-selected={picked === choice}
+                  aria-disabled={picked !== null && picked !== choice}
+                  aria-keyshortcuts={i < 9 ? `${i + 1}` : undefined}
+                  className={`flex min-h-[52px] items-center gap-3 rounded-2xl border px-5 py-4 text-left font-semibold transition
+                    ${right ? "animate-quiz-correct border-emerald-300 bg-emerald-300 text-slate-950" : ""}
+                    ${wrong ? "animate-quiz-wrong border-rose-400 bg-rose-400/20 text-rose-200" : ""}
+                    ${!right && !wrong ? "border-white/10 bg-slate-950 text-white hover:border-emerald-300" : ""}
+                  `}
+                >
+                  {i < 9 ? (
+                    <kbd className="kbd hidden md:inline-flex" aria-hidden="true">
+                      {i + 1}
+                    </kbd>
+                  ) : null}
+                  <span
+                    lang={quizChoiceLang(current.mode)}
+                    className={current.mode === "english-hanzi" || current.mode === "hanzi-pinyin" ? "font-hanzi" : ""}
+                  >
+                    {choice}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Reveal line — pinyin ALWAYS accompanies the hanzi (project rule). */}
+          {picked !== null ? (
+            <div className="mt-6 text-center" role="status">
+              <p className="inline-flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1">
+                <span lang={HANZI_LANG} className="font-hanzi text-2xl text-white">
+                  {current.item.hanzi}
+                </span>
+                <span lang={PINYIN_LANG} className="font-hanzi text-lg text-emerald-300">
+                  {current.item.pinyin}
+                </span>
+                <span className="text-lg text-slate-400">· {current.item.english}</span>
+              </p>
+            </div>
+          ) : null}
+
+          {/* Desktop-only shortcut hint; screen readers use aria-keyshortcuts above. */}
+          <p className="mt-4 hidden text-xs font-medium text-slate-500 md:block" aria-hidden="true">
+            {picked ? "Enter next · P pronounce" : "1–4 choose · P pronounce"}
+          </p>
+
+          {picked ? (
+            <div className="mt-6">
+              <button
+                type="button"
+                onClick={handleNext}
+                className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+                aria-label={index + 1 >= total ? "See results" : "Next question"}
+                aria-keyshortcuts="Enter"
+              >
+                {index + 1 >= total ? "See results" : "Next question"}
+              </button>
+            </div>
+          ) : null}
+        </section>
+      )}
+    </main>
+  );
+}
+
+// The Wordle-style emoji strip plus a "Share score" button that copies the
+// plain-text block to the clipboard, flashing "Copied!" on success. Mirrors
+// copy-button.tsx: renders nothing where the Clipboard API is unavailable.
+function DailyShare({ day, outcomes }: { day: string; outcomes: boolean[] }) {
+  const [copied, setCopied] = useState(false);
+
+  const copy = useCallback(() => {
+    if (typeof navigator === "undefined" || !navigator.clipboard) return;
+    navigator.clipboard.writeText(shareText(day, outcomes)).then(
+      () => {
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 1500);
+      },
+      () => {},
+    );
+  }, [day, outcomes]);
+
+  const clipboardAvailable = typeof navigator === "undefined" || Boolean(navigator.clipboard);
+
+  return (
+    <div className="mt-6">
+      <p className="text-2xl tracking-wide" aria-hidden="true">
+        {outcomes.map((ok) => (ok ? "🟩" : "🟥")).join("")}
+      </p>
+      {clipboardAvailable ? (
+        <button
+          type="button"
+          onClick={copy}
+          className="mt-4 min-h-[44px] rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300"
+          aria-label="Copy your score to share"
+        >
+          {copied ? "Copied!" : "Share score"}
+        </button>
+      ) : null}
+    </div>
+  );
+}
