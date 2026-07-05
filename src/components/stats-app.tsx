@@ -14,6 +14,7 @@ import { goalProgress, masterySummary, streakAtRisk, type MasterySummary } from 
 import { computeAchievements } from "@/lib/achievements-logic";
 import { AchievementShelf } from "./achievement-shelf";
 import { StudyHeatmap } from "./study-heatmap";
+import { ShareScoreButton } from "./share-score-button";
 
 type WeakWordRow = VocabItem & {
   topicSlug: string;
@@ -113,19 +114,32 @@ export function StatsApp({
             progress — no account, no cloud.
           </p>
         </div>
-        {streakAtRisk(progress.studiedDates ?? []) ? (
-          <Link
-            href="/review"
-            className="rounded-full border border-amber-400/60 px-4 py-2 text-sm font-bold text-amber-300 transition hover:border-amber-300 hover:text-amber-200"
-          >
-            🔥 {stats.streak}-day streak — practice today to keep it
-          </Link>
-        ) : stats.streak > 0 ? (
-          <div className="flex items-center gap-2 rounded-full bg-amber-400 px-4 py-2" aria-label={`${stats.streak} day streak`}>
-            <span className="text-lg font-black text-slate-950">{stats.streak}</span>
-            <span className="text-sm font-bold text-slate-950">day streak 🔥</span>
-          </div>
-        ) : null}
+        <div className="flex flex-wrap items-center gap-3">
+          {streakAtRisk(progress.studiedDates ?? []) ? (
+            <Link
+              href="/review"
+              className="rounded-full border border-amber-400/60 px-4 py-2 text-sm font-bold text-amber-300 transition hover:border-amber-300 hover:text-amber-200"
+            >
+              🔥 {stats.streak}-day streak — practice today to keep it
+            </Link>
+          ) : stats.streak > 0 ? (
+            <div className="flex items-center gap-2 rounded-full bg-amber-400 px-4 py-2" aria-label={`${stats.streak} day streak`}>
+              <span className="text-lg font-black text-slate-950">{stats.streak}</span>
+              <span className="text-sm font-bold text-slate-950">day streak 🔥</span>
+            </div>
+          ) : null}
+          <ShareScoreButton
+            surface="stats"
+            data={{
+              kind: "stats",
+              streak: stats.streak,
+              reviewedWords: stats.reviewedWords,
+              totalWords,
+              learnedTopics: stats.learnedTopics,
+              daysStudied: stats.daysStudied,
+            }}
+          />
+        </div>
       </div>
 
       {!hasActivity ? (

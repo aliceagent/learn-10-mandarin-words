@@ -24,6 +24,7 @@ import { SpeakButton } from "./speak-button";
 import { ToneColorsToggle } from "./tone-colors-toggle";
 import { TonePinyin } from "./tone-pinyin";
 import { Toast } from "./toast";
+import { ShareScoreButton } from "./share-score-button";
 
 // Longest queue that still shows deck-position dots; beyond this the progress
 // bar alone conveys position (a row of 20+ dots is noise, not signal).
@@ -298,6 +299,19 @@ export function ReviewApp({ data }: { data: MandarinData }) {
                 Learn more words
               </Link>
             )}
+            <ShareScoreButton
+              surface="review"
+              data={{
+                kind: "review",
+                total,
+                counts: session.counts,
+                toughest: tough.map((card) => ({
+                  hanzi: card.hanzi,
+                  pinyin: card.pinyin,
+                  english: card.english,
+                })),
+              }}
+            />
             <Link href="/stats" className="min-h-[44px] inline-flex items-center rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300">
               Back to stats
             </Link>

@@ -15,6 +15,7 @@ import { useSpeech } from "./use-speech";
 import { usePracticeShortcuts } from "./use-practice-shortcuts";
 import { LoadingScreen } from "./loading-screen";
 import { SpeakButton } from "./speak-button";
+import { ShareScoreButton } from "./share-score-button";
 
 // A snapshot of one practice run: the resolved weak-word entries and the quiz
 // cards built from them, kept in lockstep (entries[i] ↔ deck[i]).
@@ -210,6 +211,19 @@ export function PracticeApp({ data }: { data: MandarinData }) {
             >
               Practice again
             </button>
+            <ShareScoreButton
+              surface="practice"
+              data={{
+                kind: "practice",
+                score,
+                total,
+                missed: missedEntries.map((e) => ({
+                  hanzi: e.item.hanzi,
+                  pinyin: e.item.pinyin,
+                  english: e.item.english,
+                })),
+              }}
+            />
             <Link
               href="/lightning"
               className="min-h-[44px] inline-flex items-center rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300"

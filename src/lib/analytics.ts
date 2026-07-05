@@ -26,6 +26,7 @@ export type AnalyticsEvent =
   | "typed_recall_completed"
   | "matching_completed"
   | "daily_goal_met"
+  | "score_card_shared"
   | "favorite_saved"
   | "tone_colors_toggled"
   | "search_result_opened"
