@@ -12,6 +12,12 @@ import { stripToneMarks, tonesOf } from "./pinyin.ts";
 
 export type QuizMode = "hanzi-english" | "english-hanzi" | "hanzi-pinyin" | "listening";
 
+// The only VocabItem fields the quiz builder ever reads. Widening the helpers
+// below to this structural subset lets callers quiz slimmed items (e.g. the
+// home route's `TopicSummary`, which drops `sentences`) with zero runtime change:
+// `VocabItem` is assignable to `QuizWord`, so every existing caller compiles as-is.
+export type QuizWord = Pick<VocabItem, "hanzi" | "pinyin" | "english">;
+
 export type QuizCard = {
   /** Stable identity for the quizzed word, used to collect missed items. */
   key: string;
@@ -115,7 +121,7 @@ function firstWord(s: string): string {
 // Score a candidate as an English-answer distractor for `target`: prefer similar
 // overall length and a similar first word. Shared by the `hanzi-english` and
 // `listening` modes, which both quiz the English meaning.
-function englishAnswerScore(candidate: VocabItem, target: VocabItem): number {
+function englishAnswerScore(candidate: QuizWord, target: QuizWord): number {
   const sim = diceSimilarity(candidate.english, target.english);
   const lenDiff = Math.abs(
     codePoints(candidate.english).length - codePoints(target.english).length,
@@ -127,7 +133,7 @@ function englishAnswerScore(candidate: VocabItem, target: VocabItem): number {
 
 // Higher score → `candidate` is a more tempting distractor for `target` in the
 // given mode. Purely a function of the two words.
-function distractorScore(candidate: VocabItem, target: VocabItem, mode: QuizMode): number {
+function distractorScore(candidate: QuizWord, target: QuizWord, mode: QuizMode): number {
   switch (mode) {
     // Answer is pinyin: prefer tone-stripped pinyin that looks/sounds alike and
     // shares the same syllable count and tones.
@@ -157,13 +163,13 @@ function distractorScore(candidate: VocabItem, target: VocabItem, mode: QuizMode
 // Drop items whose answer-field value repeats (or equals `exclude`), keeping the
 // first occurrence. This is what stops two words with the same English label —
 // or the answer itself — from both appearing as choices.
-function dedupeByField(
-  items: VocabItem[],
+function dedupeByField<T extends QuizWord>(
+  items: T[],
   field: "english" | "hanzi" | "pinyin",
   exclude: string,
-): VocabItem[] {
+): T[] {
   const seen = new Set<string>([exclude]);
-  const out: VocabItem[] = [];
+  const out: T[] = [];
   for (const item of items) {
     const value = item[field];
     if (seen.has(value)) continue;
@@ -179,11 +185,11 @@ function dedupeByField(
 // so equally-similar candidates appear in a varied — but, under a deterministic
 // injected shuffle, reproducible — order. Callers slice however many they need,
 // so a tiny pool simply yields fewer distractors.
-export function rankedDistractors(
-  item: VocabItem,
-  pool: VocabItem[],
+export function rankedDistractors<T extends QuizWord>(
+  item: T,
+  pool: T[],
   mode: QuizMode,
-  shuffle: <T>(items: T[]) => T[] = defaultShuffle,
+  shuffle: <U>(items: U[]) => U[] = defaultShuffle,
 ): string[] {
   const field = ANSWER_FIELD[mode];
   const answer = item[field];
@@ -197,12 +203,12 @@ export function rankedDistractors(
 // Build one quiz card for `item`, drawing up to three distractors from `pool`
 // (the full topic word list) so a retry over a single missed word still gets a
 // full set of choices. `keyFor` produces the card's stable identity.
-export function buildQuizCard(
-  item: VocabItem,
-  pool: VocabItem[],
+export function buildQuizCard<T extends QuizWord>(
+  item: T,
+  pool: T[],
   mode: QuizMode,
-  keyFor: (item: VocabItem) => string,
-  shuffle: <T>(items: T[]) => T[] = defaultShuffle,
+  keyFor: (item: T) => string,
+  shuffle: <U>(items: U[]) => U[] = defaultShuffle,
 ): QuizCard {
   const field = ANSWER_FIELD[mode];
   const answer = item[field];
@@ -226,23 +232,23 @@ export function buildQuizCard(
 // drawn from `pool` (usually the whole topic). On a normal run `items === pool`;
 // on a "retry missed" run `items` is the missed subset while `pool` stays the
 // full topic so choices remain plausible.
-export function buildQuiz(
-  items: VocabItem[],
-  pool: VocabItem[],
+export function buildQuiz<T extends QuizWord>(
+  items: T[],
+  pool: T[],
   mode: QuizMode,
-  keyFor: (item: VocabItem) => string,
-  shuffle: <T>(items: T[]) => T[] = defaultShuffle,
+  keyFor: (item: T) => string,
+  shuffle: <U>(items: U[]) => U[] = defaultShuffle,
 ): QuizCard[] {
   return items.map((item) => buildQuizCard(item, pool, mode, keyFor, shuffle));
 }
 
 // Return the subset of `items` whose key is in `keys`, preserving `items` order.
 // Used to rebuild the quiz from the words the learner missed.
-export function itemsForKeys(
-  items: VocabItem[],
-  keyFor: (item: VocabItem) => string,
+export function itemsForKeys<T extends QuizWord>(
+  items: T[],
+  keyFor: (item: T) => string,
   keys: Iterable<string>,
-): VocabItem[] {
+): T[] {
   const set = new Set(keys);
   return items.filter((item) => set.has(keyFor(item)));
 }

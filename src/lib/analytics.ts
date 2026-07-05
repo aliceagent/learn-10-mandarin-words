@@ -24,6 +24,7 @@ export type AnalyticsEvent =
   | "practice_session_completed"
   | "daily_challenge_completed"
   | "boss_round_completed"
+  | "duel_completed"
   | "lightning_completed"
   | "typed_recall_completed"
   | "matching_completed"

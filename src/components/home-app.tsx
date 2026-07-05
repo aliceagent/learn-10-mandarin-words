@@ -232,6 +232,25 @@ export function HomeApp({ data }: { data: HomeData }) {
           <Feature title="Flashcards" body="Reveal answers, grade difficulty, and build a spaced-repetition review queue." />
           <Feature title="Progress tracking" body="Favorite words, save lists, streak tracking, and export your progress as JSON." />
         </div>
+
+        {/* Pass-and-play duel entry (Sprint 10). */}
+        <div className="mx-auto mt-4 max-w-7xl">
+          <Link
+            href="/duel"
+            className="group flex items-center justify-between gap-4 rounded-3xl border border-emerald-500/25 bg-emerald-500/10 px-5 py-4 transition hover:border-emerald-300/50 hover:bg-emerald-500/15 md:px-6"
+            aria-label="Start a pass-and-play duel"
+          >
+            <div className="min-w-0">
+              <p className="font-semibold text-white">⚔️ Pass &amp; Play Duel</p>
+              <p className="mt-0.5 text-sm text-slate-300">
+                Two learners, one device — take turns and see who wins. No account needed.
+              </p>
+            </div>
+            <span className="shrink-0 rounded-full bg-emerald-400 px-5 py-2.5 text-sm font-semibold text-slate-950 transition group-hover:bg-emerald-300">
+              Play
+            </span>
+          </Link>
+        </div>
       </section>
 
       {/* ── Browse by category ── */}
@@ -339,6 +358,7 @@ export function HomeApp({ data }: { data: HomeData }) {
           <p>Local-first · your progress never leaves your device.</p>
           <div className="flex gap-4">
             <Link href="/daily" className="transition hover:text-slate-300">Daily</Link>
+            <Link href="/duel" className="transition hover:text-slate-300">Duel</Link>
             <Link href="/path" className="transition hover:text-slate-300">Path</Link>
             <Link href="/review" className="transition hover:text-slate-300">Review</Link>
             <Link href="/favorites" className="transition hover:text-slate-300">Favorites</Link>
