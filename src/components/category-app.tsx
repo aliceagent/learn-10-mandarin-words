@@ -55,6 +55,7 @@ export function CategoryApp({ category, topics }: { category: Category; topics: 
               topic={topic}
               learned={progress.learnedTopics.includes(topic.slug)}
               favorite={progress.favoriteTopics.includes(topic.slug)}
+              crowned={Boolean(progress.bossStats[topic.slug]?.crownedAt)}
               flashcardStats={progress.flashcardStats}
               quizStats={progress.quizStats}
             />

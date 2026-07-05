@@ -10,6 +10,7 @@ import {
   normalizeBestCombo,
   normalizeProgress,
   practicedCountOn,
+  recordBossResult,
   recordDailyChallenge,
   recordDailyPractice,
   scheduleReview,
@@ -139,6 +140,14 @@ export function useProgress() {
       const next = Math.max(current.bestQuizCombo, normalizeBestCombo(combo));
       return next === current.bestQuizCombo ? current : { ...current, bestQuizCombo: next };
     }),
+    // Persist a completed Boss Round for `slug` (raises bestScore, bumps
+    // attempts, crowns on a flawless run). NOT routed through withPractice: every
+    // stage answer already flows through recordQuizAnswer, which stamps
+    // studiedDates + dailyActivity — this only records the once-per-run outcome.
+    recordBossResult: (slug: string, score: number, total: number) => setProgress((current) => ({
+      ...current,
+      bossStats: recordBossResult(current.bossStats, slug, score, total),
+    })),
     gradeWord: (key: string, grade: "again" | "hard" | "good" | "easy") => setProgress((current) => {
       const now = new Date();
       const existing = current.flashcardStats[key] ?? defaultStat(now);

@@ -1,4 +1,5 @@
 import type {
+  BossStat,
   DailyChallengeResult,
   FlashcardStat,
   ProgressState,
@@ -6,10 +7,13 @@ import type {
   Topic,
   TopicSummary,
 } from "./types";
-// Value import needs the explicit `.ts` extension so it resolves under
+// Value imports need the explicit `.ts` extension so they resolve under
 // `node --test` (Node's native TS runner does not add extensions); `next build`
 // and tsc accept it via `allowImportingTsExtensions`. Mirrors quiz-logic.ts.
+// BOSS_STAGE_COUNT is the single source of truth for the boss round's stage
+// count, reused here to cap a persisted bestScore.
 import { wordKey } from "./data-logic.ts";
+import { BOSS_STAGE_COUNT } from "./boss-logic.ts";
 
 // Pure progress helpers, extracted from use-progress.ts so they can be
 // unit-tested without React. The hook imports these and layers persistence /
@@ -26,7 +30,10 @@ import { wordKey } from "./data-logic.ts";
 //   Older saves lack the field and migrate to an empty `{}`, losing nothing else.
 //   v5 → v6: added `bestQuizCombo` (all-time best consecutive-correct quiz streak).
 //   Older saves lack the field and backfill to 0, losing nothing else.
-export const CURRENT_PROGRESS_SCHEMA_VERSION = 6;
+//   v6 → v7: added `bossStats` (per-topic Boss Round best score, attempts, and
+//   crown date). Older saves lack the field and migrate to an empty `{}`, losing
+//   nothing else.
+export const CURRENT_PROGRESS_SCHEMA_VERSION = 7;
 
 export const emptyProgress: ProgressState = {
   schemaVersion: CURRENT_PROGRESS_SCHEMA_VERSION,
@@ -38,6 +45,7 @@ export const emptyProgress: ProgressState = {
   dailyActivity: {},
   dailyChallenge: {},
   bestQuizCombo: 0,
+  bossStats: {},
   studiedDates: [],
   onboarding: { completed: false, dailyGoal: 0, completedAt: null },
 };
@@ -192,6 +200,34 @@ export function normalizeBestCombo(raw: unknown): number {
   return Math.round(raw);
 }
 
+// Repair a single Boss Round stat: coerce counts to non-negative integers, cap
+// `bestScore` at BOSS_STAGE_COUNT (a run can't pass more stages than exist), and
+// reduce an invalid `crownedAt` to null. Never throws. Added in schema v7.
+export function normalizeBossStat(stat: unknown): BossStat {
+  const base: BossStat = { bestScore: 0, attempts: 0, crownedAt: null };
+  if (!stat || typeof stat !== "object") return base;
+  const s = stat as Partial<BossStat>;
+  const attempts =
+    Number.isFinite(s.attempts) && (s.attempts as number) >= 0 ? Math.round(s.attempts as number) : 0;
+  const rawBest =
+    Number.isFinite(s.bestScore) && (s.bestScore as number) >= 0 ? Math.round(s.bestScore as number) : 0;
+  const bestScore = Math.min(rawBest, BOSS_STAGE_COUNT);
+  const crownedAt = isValidISO(s.crownedAt) ? (s.crownedAt as string) : null;
+  return { bestScore, attempts, crownedAt };
+}
+
+// Sanitize a persisted/imported `bossStats` map (topic slug → BossStat): drop
+// non-object values and repair each surviving entry. Never throws. Added in
+// schema v7. Mirrors normalizeQuizStats.
+export function normalizeBossStats(raw: unknown): Record<string, BossStat> {
+  if (!raw || typeof raw !== "object") return {};
+  const out: Record<string, BossStat> = {};
+  for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
+    out[key] = normalizeBossStat(value);
+  }
+  return out;
+}
+
 // Record one quiz answer against `key`, returning a NEW quizStats map (pure).
 // The existing entry is normalized first so a corrupt stat can't corrupt the
 // increment. Used by the useProgress hook's `recordQuizAnswer`.
@@ -232,6 +268,7 @@ export function normalizeProgress(
     dailyActivity: normalizeDailyActivity(p.dailyActivity),
     dailyChallenge: normalizeDailyChallenge(p.dailyChallenge),
     bestQuizCombo: normalizeBestCombo(p.bestQuizCombo),
+    bossStats: normalizeBossStats(p.bossStats),
     studiedDates: asStringArray(p.studiedDates) ?? [],
     onboarding: { ...emptyProgress.onboarding, ...onboarding },
   };
@@ -633,6 +670,40 @@ export function challengeStreak(
   today: string = todayISO(),
 ): number {
   return computeStreak(Object.keys(map ?? {}), today);
+}
+
+// ─── Topic Boss Round (schema v7) ──────────────────────────────────────────────
+
+// Record one completed Boss Round for topic `slug`, returning a NEW map (pure).
+// `attempts` always increments; `bestScore` only ever rises (clamped to
+// `total`); `crownedAt` is stamped the FIRST time a run passes every stage
+// (`score === total`) and is never overwritten afterwards, so the original crown
+// date is preserved even on later worse runs. The input map is never mutated.
+export function recordBossResult(
+  bossStats: Record<string, BossStat> | undefined,
+  slug: string,
+  score: number,
+  total: number,
+  now: Date = new Date(),
+): Record<string, BossStat> {
+  const base = bossStats && typeof bossStats === "object" ? bossStats : {};
+  const prev = normalizeBossStat(base[slug]);
+  const cappedScore = Math.max(0, Math.min(Math.round(score), Math.round(total)));
+  const crowned = cappedScore === Math.round(total) && total > 0;
+  return {
+    ...base,
+    [slug]: {
+      bestScore: Math.max(prev.bestScore, cappedScore),
+      attempts: prev.attempts + 1,
+      // First crown wins: keep the earliest crown date once set.
+      crownedAt: prev.crownedAt ?? (crowned ? now.toISOString() : null),
+    },
+  };
+}
+
+// True when topic `slug` has been crowned (a flawless Boss Round on record).
+export function isCrowned(bossStats: Record<string, BossStat> | undefined, slug: string): boolean {
+  return Boolean(bossStats?.[slug]?.crownedAt);
 }
 
 // ─── Word / topic mastery status (Sprint 10) ───────────────────────────────────

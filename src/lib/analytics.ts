@@ -23,6 +23,7 @@ export type AnalyticsEvent =
   | "review_completed"
   | "practice_session_completed"
   | "daily_challenge_completed"
+  | "boss_round_completed"
   | "lightning_completed"
   | "typed_recall_completed"
   | "matching_completed"

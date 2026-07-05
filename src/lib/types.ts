@@ -92,6 +92,16 @@ export type DailyChallengeResult = {
   completedAt: string;
 };
 
+// Per-topic Boss Round record, keyed by topic slug. `bestScore` is the best
+// number of stages passed in one run (0–BOSS_STAGE_COUNT); `attempts` counts
+// every completed run; `crownedAt` is the ISO timestamp of the FIRST flawless
+// run (all stages passed), or null until the topic is crowned. Added in schema v7.
+export type BossStat = {
+  bestScore: number;
+  attempts: number;
+  crownedAt: string | null;
+};
+
 export type OnboardingState = {
   /** Whether the user has completed or skipped first-run onboarding. */
   completed: boolean;
@@ -131,6 +141,12 @@ export type ProgressState = {
    * in the Quiz tab). Monotonic — only ever raised. Added in schema v6.
    */
   bestQuizCombo: number;
+  /**
+   * Per-topic Boss Round records (topic slug → BossStat). A flawless run crowns
+   * the topic (👑); best score and attempt count persist for the intro screen.
+   * Added in schema v7.
+   */
+  bossStats: Record<string, BossStat>;
   studiedDates: string[];
   onboarding: OnboardingState;
 };

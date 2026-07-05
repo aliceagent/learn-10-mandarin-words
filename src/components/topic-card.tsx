@@ -16,6 +16,7 @@ export function TopicCard({
   topic,
   learned,
   favorite,
+  crowned,
   flashcardStats,
   quizStats,
   query,
@@ -23,6 +24,8 @@ export function TopicCard({
   topic: TopicSummary;
   learned: boolean;
   favorite: boolean;
+  // Whether this topic has been crowned via a flawless Boss Round (schema v7).
+  crowned?: boolean;
   flashcardStats: Record<string, FlashcardStat>;
   // Optional per-word quiz accuracy. When supplied (home + category grids) the
   // card shows mastery dots; callers that omit it (path page) render as before.
@@ -78,6 +81,14 @@ export function TopicCard({
               title="Saved"
             >
               ★ Saved
+            </span>
+          ) : null}
+          {crowned ? (
+            <span
+              className="rounded-full border border-amber-300/30 px-2.5 py-1 font-medium text-amber-200/90"
+              title="Crowned — a flawless Boss Round"
+            >
+              👑 Crowned
             </span>
           ) : null}
           {learned ? (

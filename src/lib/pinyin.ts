@@ -79,6 +79,23 @@ export function tonesOf(pinyin: string): Tone[] {
   return tones;
 }
 
+/**
+ * Split (tone-marked) pinyin into `count` bare per-syllable chunks for display,
+ * aligned to the same separator split TonePractice uses. Tone marks are stripped,
+ * then the word is split on the syllable separators (space, hyphen, middot,
+ * apostrophe — straight or curly). Falls back to the whole tone-stripped word as
+ * a single chunk when the split count disagrees with `count`, so a display label
+ * never misaligns with its tone row. Extracted verbatim from tone-practice.tsx's
+ * private `displaySyllables` so the Tone panel and the Boss Round share one
+ * source of truth and it can be unit-tested.
+ */
+export function bareSyllables(pinyin: string, count: number): string[] {
+  const bare = stripToneMarks(pinyin);
+  const chunks = bare.split(/[\s\-·'’]+/).filter(Boolean);
+  if (chunks.length === count) return chunks;
+  return [bare];
+}
+
 // ── Syllable segmentation for tone coloring (Sprint 10) ──────────────────────
 
 /**

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { Topic } from "@/lib/types";
-import { tonesOf, stripToneMarks, type Tone } from "@/lib/pinyin";
+import { bareSyllables, tonesOf, type Tone } from "@/lib/pinyin";
 import { track } from "@/lib/analytics";
 import { SpeakButton } from "./speak-button";
 
@@ -16,16 +16,6 @@ const TONE_LABELS: Record<Tone, string> = {
   4: "4 ˋ",
   5: "5 ·",
 };
-
-// Split concatenated pinyin into per-syllable chunks for display, aligning to
-// the same vowel-cluster segmentation used by tonesOf. Falls back to the whole
-// (tone-stripped) word if the counts disagree, so display never misleads.
-function displaySyllables(pinyin: string, count: number): string[] {
-  const bare = stripToneMarks(pinyin);
-  const chunks = bare.split(/[\s\-·'’]+/).filter(Boolean);
-  if (chunks.length === count) return chunks;
-  return [bare];
-}
 
 export function TonePractice({ topic }: { topic: Topic }) {
   // Only words whose tone sequence is derivable (all real vocab qualifies).
@@ -43,7 +33,7 @@ export function TonePractice({ topic }: { topic: Topic }) {
 
   const current = words[index % words.length];
   const answer = current.tones;
-  const syllables = displaySyllables(current.item.pinyin, answer.length);
+  const syllables = bareSyllables(current.item.pinyin, answer.length);
   const complete = picks.length === answer.length && picks.every((p) => p !== null);
   const allCorrect = checked && picks.every((p, i) => p === answer[i]);
 

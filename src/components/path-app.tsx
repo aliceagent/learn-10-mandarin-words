@@ -99,6 +99,7 @@ export function PathApp({ sections }: { sections: PathSection[] }) {
                     topic={topic}
                     learned={learned.has(topic.slug)}
                     favorite={progress.favoriteTopics.includes(topic.slug)}
+                    crowned={Boolean(progress.bossStats[topic.slug]?.crownedAt)}
                     flashcardStats={progress.flashcardStats}
                   />
                 ))}

@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import rawData from "../src/data/topics.json" with { type: "json" };
-import { toneOfSyllable, tonesOf, stripToneMarks } from "../src/lib/pinyin.ts";
+import { bareSyllables, toneOfSyllable, tonesOf, stripToneMarks } from "../src/lib/pinyin.ts";
 
 test("tone-marked vowels map to their tone number", () => {
   assert.equal(toneOfSyllable("mā"), 1);
@@ -53,6 +53,29 @@ test("stripToneMarks removes marks but keeps base letters and ü", () => {
   assert.equal(stripToneMarks("nǐ hǎo"), "ni hao");
   assert.equal(stripToneMarks("lǜsè"), "lüse");
   assert.equal(stripToneMarks("tùzi"), "tuzi");
+});
+
+test("bareSyllables: single syllable strips its tone mark", () => {
+  assert.deepEqual(bareSyllables("gǒu", 1), ["gou"]);
+  assert.deepEqual(bareSyllables("mā", 1), ["ma"]);
+});
+
+test("bareSyllables: splits a separated multi-syllable word into bare chunks", () => {
+  assert.deepEqual(bareSyllables("nǐ hǎo", 2), ["ni", "hao"]);
+  assert.deepEqual(bareSyllables("duì bu qǐ", 3), ["dui", "bu", "qi"]);
+  // Hyphen / middot / apostrophe separators split too.
+  assert.deepEqual(bareSyllables("xī-ān", 2), ["xi", "an"]);
+});
+
+test("bareSyllables: ü is preserved (as ü) when stripping tones", () => {
+  assert.deepEqual(bareSyllables("lǜ", 1), ["lü"]);
+});
+
+test("bareSyllables: falls back to the whole bare word when the split count disagrees", () => {
+  // Concatenated (no separators) → one chunk, but count says 2 → whole word.
+  assert.deepEqual(bareSyllables("tùzi", 2), ["tuzi"]);
+  // Too many separated chunks for the requested count → whole word.
+  assert.deepEqual(bareSyllables("nǐ hǎo", 3), ["ni hao"]);
 });
 
 test("tone count matches syllable count for real dataset pinyin", () => {

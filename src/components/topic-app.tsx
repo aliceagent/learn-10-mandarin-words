@@ -6,7 +6,7 @@ import type { Topic, VocabItem } from "@/lib/types";
 import { isUsefulPhraseTopic, nextTopicAfter, wordKey } from "@/lib/data";
 import { buildQuiz, itemsForKeys, type QuizMode } from "@/lib/quiz-logic";
 import { isNewBestCombo, nextCombo } from "@/lib/combo-logic";
-import { computeStats, formatIntervalDays, previewIntervals, topicProgress, topicWordStatuses } from "@/lib/progress-logic";
+import { computeStats, formatIntervalDays, isCrowned, previewIntervals, topicProgress, topicWordStatuses } from "@/lib/progress-logic";
 import { downloadableMp4Url, hasPlayableVideo } from "@/lib/video";
 import { canAttemptSpeech } from "@/lib/speech";
 import { track } from "@/lib/analytics";
@@ -27,17 +27,19 @@ import { TypingPanel } from "./topic/typing-panel";
 import { MatchPanel } from "./topic/match-panel";
 import { ClozePanel } from "./topic/cloze-panel";
 import { ScramblePanel } from "./topic/scramble-panel";
+import { BossPanel } from "./topic/boss-panel";
+import { BOSS_STAGE_COUNT } from "@/lib/boss-logic";
 import { Toast } from "./toast";
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function TopicApp({ topic }: { topic: Topic }) {
-  const { progress, toggleFavoriteTopic, toggleFavoriteWord, toggleLearnedTopic, gradeWord, recordQuizAnswer, recordBestCombo } = useProgress();
+  const { progress, toggleFavoriteTopic, toggleFavoriteWord, toggleLearnedTopic, gradeWord, recordQuizAnswer, recordBestCombo, recordBossResult } = useProgress();
   // Useful Phrases topics get an extra "Phrasebook" mode, shown first and
   // selected by default so they read like a practical phrasebook rather than a
   // vocabulary list. Words/Cards/Quiz stay available for every topic.
   const isPhrasebook = isUsefulPhraseTopic(topic);
-  const [mode, setMode] = useState<"phrasebook" | "words" | "flashcards" | "quiz" | "typed" | "match" | "cloze" | "scramble">(
+  const [mode, setMode] = useState<"phrasebook" | "words" | "flashcards" | "quiz" | "typed" | "match" | "cloze" | "scramble" | "boss">(
     isPhrasebook ? "phrasebook" : "words",
   );
   const [cardIndex, setCardIndex] = useState(0);
@@ -79,6 +81,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
 
   const isLearned = progress.learnedTopics.includes(topic.slug);
   const isFavoriteTopic = progress.favoriteTopics.includes(topic.slug);
+  const topicCrowned = isCrowned(progress.bossStats, topic.slug);
   const current = topic.items[cardIndex % topic.items.length];
   const currentKey = wordKey(topic, current);
   const { studied, mastered, total } = topicProgress(topic, progress.flashcardStats);
@@ -231,9 +234,14 @@ export function TopicApp({ topic }: { topic: Topic }) {
 
           {/* Progress */}
           <div className="mt-4" aria-label="Topic progress">
-            <div className="flex gap-4 text-sm text-slate-400">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-400">
               <span>{studied}/{total} studied</span>
               <span>{mastered}/{total} mastered</span>
+              {topicCrowned ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/40 bg-amber-300/10 px-3 py-0.5 text-xs font-semibold text-amber-200">
+                  👑 Crowned
+                </span>
+              ) : null}
             </div>
             {studied > 0 ? (
               <div className="progress-bar-track mt-2">
@@ -357,6 +365,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
           <Tab active={mode === "match"} onClick={() => setMode("match")}>Match</Tab>
           <Tab active={mode === "cloze"} onClick={() => setMode("cloze")}>Sentences</Tab>
           <Tab active={mode === "scramble"} onClick={() => setMode("scramble")}>Scramble</Tab>
+          <Tab active={mode === "boss"} onClick={() => setMode("boss")}>{topicCrowned ? "Boss 👑" : "Boss"}</Tab>
         </nav>
       </div>
 
@@ -452,6 +461,17 @@ export function TopicApp({ topic }: { topic: Topic }) {
       {/* ── Sentence scramble (rebuild the sentence from shuffled hanzi tiles) ── */}
       {mode === "scramble" ? (
         <ScramblePanel topic={topic} onRecord={recordQuizAnswer} />
+      ) : null}
+
+      {/* ── Topic Boss Round (mixed-skill capstone; crowns the topic on 4/4) ── */}
+      {mode === "boss" ? (
+        <BossPanel
+          topic={topic}
+          bossStat={progress.bossStats[topic.slug]}
+          speechAvailable={speechAvailable}
+          onRecord={recordQuizAnswer}
+          onComplete={(score) => recordBossResult(topic.slug, score, BOSS_STAGE_COUNT)}
+        />
       ) : null}
 
       {/* ── Next-step panel (shown once the topic is learned or the quiz is done) ── */}

@@ -15,13 +15,17 @@ import {
   emptyProgress,
   formatIntervalDays,
   goalProgress,
+  isCrowned,
   longestStreak,
   masterySummary,
+  normalizeBossStat,
+  normalizeBossStats,
   normalizeProgress,
   normalizeQuizStat,
   normalizeStat,
   practicedCountOn,
   previewIntervals,
+  recordBossResult,
   recordDailyChallenge,
   recordDailyPractice,
   scheduleReview,
@@ -777,4 +781,117 @@ test("longestStreak finds the longest consecutive run anywhere in history", () =
   );
   // Malformed entries are dropped without throwing.
   assert.equal(longestStreak(["junk", "2026-05-05", "2026-05-06"]), 2);
+});
+
+// ─── Boss Round (schema v7) ─────────────────────────────────────────────────
+
+test("normalizeBossStat: repairs counts, caps bestScore, nulls a bad crownedAt", () => {
+  assert.deepEqual(normalizeBossStat(undefined), { bestScore: 0, attempts: 0, crownedAt: null });
+  assert.deepEqual(normalizeBossStat("junk"), { bestScore: 0, attempts: 0, crownedAt: null });
+  // Negative / non-finite counts collapse to 0; a score above the stage count caps.
+  assert.deepEqual(
+    normalizeBossStat({ bestScore: 99, attempts: -2, crownedAt: "nope" }),
+    { bestScore: 4, attempts: 0, crownedAt: null },
+  );
+  // Fractional counts round; a valid ISO crownedAt is kept.
+  const iso = "2026-07-05T10:00:00.000Z";
+  assert.deepEqual(
+    normalizeBossStat({ bestScore: 2.6, attempts: 3.2, crownedAt: iso }),
+    { bestScore: 3, attempts: 3, crownedAt: iso },
+  );
+});
+
+test("normalizeBossStats: drops non-object entries, repairs the rest", () => {
+  const out = normalizeBossStats({
+    "a": { bestScore: 4, attempts: 1, crownedAt: "2026-07-05T00:00:00.000Z" },
+    "b": null,
+    "c": { bestScore: -1, attempts: "x" },
+  });
+  assert.equal(out.a.bestScore, 4);
+  assert.deepEqual(out.b, { bestScore: 0, attempts: 0, crownedAt: null });
+  assert.deepEqual(out.c, { bestScore: 0, attempts: 0, crownedAt: null });
+  // Non-object input → empty map, never throws.
+  assert.deepEqual(normalizeBossStats(null), {});
+  assert.deepEqual(normalizeBossStats(42), {});
+});
+
+test("recordBossResult: first run sets attempts + bestScore, no crown below total", () => {
+  const now = new Date("2026-07-05T12:00:00.000Z");
+  const out = recordBossResult({}, "pets", 3, 4, now);
+  assert.deepEqual(out.pets, { bestScore: 3, attempts: 1, crownedAt: null });
+});
+
+test("recordBossResult: a flawless run crowns with the injected timestamp", () => {
+  const now = new Date("2026-07-05T12:00:00.000Z");
+  const out = recordBossResult({}, "pets", 4, 4, now);
+  assert.deepEqual(out.pets, { bestScore: 4, attempts: 1, crownedAt: now.toISOString() });
+  assert.ok(isCrowned(out, "pets"));
+});
+
+test("recordBossResult: later worse runs keep the crown + bestScore, bump attempts", () => {
+  const crownTime = new Date("2026-07-05T12:00:00.000Z");
+  const crowned = recordBossResult({}, "pets", 4, 4, crownTime);
+  // A later 2/4 run: attempts++ but crownedAt and bestScore are preserved.
+  const later = recordBossResult(crowned, "pets", 2, 4, new Date("2026-07-06T09:00:00.000Z"));
+  assert.equal(later.pets.attempts, 2);
+  assert.equal(later.pets.bestScore, 4);
+  assert.equal(later.pets.crownedAt, crownTime.toISOString());
+});
+
+test("recordBossResult: score is clamped into [0, total] and the input map is untouched", () => {
+  const base = {};
+  const out = recordBossResult(base, "pets", 9, 4, new Date("2026-07-05T00:00:00.000Z"));
+  assert.equal(out.pets.bestScore, 4);
+  assert.equal(out.pets.crownedAt !== null, true); // 9 clamps to 4 === total → crown
+  assert.deepEqual(base, {}, "input map is not mutated");
+});
+
+test("isCrowned: true only once a crown date is on record", () => {
+  assert.equal(isCrowned(undefined, "pets"), false);
+  assert.equal(isCrowned({}, "pets"), false);
+  assert.equal(isCrowned({ pets: { bestScore: 3, attempts: 5, crownedAt: null } }, "pets"), false);
+  assert.equal(
+    isCrowned({ pets: { bestScore: 4, attempts: 1, crownedAt: "2026-07-05T00:00:00.000Z" } }, "pets"),
+    true,
+  );
+});
+
+test("normalizeProgress: a v6 save (no bossStats) migrates to an empty map, v7 stamped", () => {
+  const legacy = {
+    schemaVersion: 6,
+    learnedTopics: ["pets"],
+    favoriteTopics: [],
+    favoriteWords: [],
+    flashcardStats: {},
+    quizStats: {},
+    dailyActivity: {},
+    dailyChallenge: {},
+    bestQuizCombo: 5,
+    studiedDates: ["2026-07-05"],
+    onboarding: { completed: true, dailyGoal: 10, completedAt: "2026-07-05" },
+  };
+  const migrated = normalizeProgress(legacy);
+  assert.equal(migrated.schemaVersion, CURRENT_PROGRESS_SCHEMA_VERSION);
+  assert.deepEqual(migrated.bossStats, {});
+  // Everything else survives the migration untouched.
+  assert.deepEqual(migrated.learnedTopics, ["pets"]);
+  assert.equal(migrated.bestQuizCombo, 5);
+});
+
+test("normalizeProgress: corrupt bossStats entries normalize safely and round-trip", () => {
+  const dirty = {
+    ...emptyProgress,
+    bossStats: { pets: { bestScore: 99, attempts: -1, crownedAt: "junk" }, bad: null },
+  };
+  const once = normalizeProgress(dirty);
+  assert.deepEqual(once.bossStats.pets, { bestScore: 4, attempts: 0, crownedAt: null });
+  assert.deepEqual(once.bossStats.bad, { bestScore: 0, attempts: 0, crownedAt: null });
+  // Idempotent: normalizing the cleaned state changes nothing.
+  const twice = normalizeProgress(once);
+  assert.deepEqual(twice.bossStats, once.bossStats);
+});
+
+test("emptyProgress carries a bossStats map at the current schema version", () => {
+  assert.deepEqual(emptyProgress.bossStats, {});
+  assert.equal(emptyProgress.schemaVersion, CURRENT_PROGRESS_SCHEMA_VERSION);
 });
