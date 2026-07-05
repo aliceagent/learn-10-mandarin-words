@@ -147,6 +147,19 @@ textarea:focus-visible,
   animation: lightning-pulse 1s ease-in-out infinite;
 }
 
+/* ── Study heatmap: today-cell pulse (Sprint 5) ─────────────────────────────── */
+/* A gentle breathing glow on the current day's square. Purely additive: today is  */
+/* already marked by the emerald ring, so this animation is a secondary cue and is  */
+/* fully removed under prefers-reduced-motion below.                                */
+@keyframes heat-today {
+  0%,  100% { opacity: 1; }
+  50%       { opacity: 0.55; }
+}
+
+.animate-heat-today {
+  animation: heat-today 1.8s ease-in-out infinite;
+}
+
 /* ── Lesson / quiz celebration ──────────────────────────────────────────────── */
 @keyframes celebrate-in {
   0%  { opacity: 0; transform: scale(0.84) translateY(18px); }
@@ -240,6 +253,9 @@ textarea:focus-visible,
     animation: none;
   }
   .animate-lightning-pulse {
+    animation: none;
+  }
+  .animate-heat-today {
     animation: none;
   }
   .animate-celebrate {

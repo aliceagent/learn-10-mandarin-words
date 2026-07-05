@@ -268,6 +268,28 @@ export function computeStreak(studiedDates: string[], today: string = todayISO()
   return streak;
 }
 
+// Longest run of consecutive UTC days ever studied, anywhere in the history —
+// unlike computeStreak, which only counts the run ending today/yesterday. A cheap
+// companion stat for the heatmap header ("Best: N days"). Sorts + dedupes the day
+// strings and walks gaps with the same 86400000-ms arithmetic as computeStreak;
+// malformed date strings are dropped defensively so a corrupt entry can't throw.
+export function longestStreak(studiedDates: string[]): number {
+  const days = Array.from(
+    new Set(studiedDates.filter((d) => typeof d === "string" && isValidISO(d))),
+  ).sort();
+  if (!days.length) return 0;
+  let best = 1;
+  let run = 1;
+  for (let i = 1; i < days.length; i++) {
+    const diff = Math.round((new Date(days[i]).getTime() - new Date(days[i - 1]).getTime()) / 86400000);
+    if (diff === 1) run++;
+    else if (diff === 0) continue; // duplicate (Set already dedupes) — ignore
+    else run = 1;
+    if (run > best) best = run;
+  }
+  return best;
+}
+
 // ─── Derived dashboard stats ──────────────────────────────────────────────────
 
 // Pure, dataset-independent stats derived from a ProgressState, used by the

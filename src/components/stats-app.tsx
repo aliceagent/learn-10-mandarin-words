@@ -13,6 +13,7 @@ import { computeStats, computeWeakWords } from "@/lib/stats-logic";
 import { goalProgress, masterySummary, streakAtRisk, type MasterySummary } from "@/lib/progress-logic";
 import { computeAchievements } from "@/lib/achievements-logic";
 import { AchievementShelf } from "./achievement-shelf";
+import { StudyHeatmap } from "./study-heatmap";
 
 type WeakWordRow = VocabItem & {
   topicSlug: string;
@@ -190,6 +191,26 @@ export function StatsApp({
           href="/lightning"
         />
       </div>
+
+      {/* ── Study activity heatmap (always rendered; a blank year is informative) ── */}
+      <section className="mt-10" aria-label="Study activity">
+        <h2 className="text-xl font-semibold text-white">Study activity</h2>
+        <p className="mt-1 text-sm text-slate-400">
+          {stats.daysStudied > 0
+            ? "Every square is a day. Study anything — one flashcard counts — to light it up."
+            : "A whole year of blank squares, and the first green one is a single flashcard away."}
+        </p>
+        <div className="mt-4 rounded-2xl border border-white/10 bg-surface p-5">
+          <StudyHeatmap
+            studiedDates={progress.studiedDates}
+            dailyActivity={progress.dailyActivity}
+            streak={stats.streak}
+          />
+          <p className="mt-4 text-xs text-slate-500">
+            Word counts are kept for the last 14 days; older days show a single shade of green.
+          </p>
+        </div>
+      </section>
 
       {/* ── Achievement shelf (always rendered; locked badges are informative) ── */}
       <AchievementShelf achievements={achievements} />

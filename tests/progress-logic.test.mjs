@@ -15,6 +15,7 @@ import {
   emptyProgress,
   formatIntervalDays,
   goalProgress,
+  longestStreak,
   masterySummary,
   normalizeProgress,
   normalizeQuizStat,
@@ -739,4 +740,41 @@ test("challengeStreak counts consecutive completed days ending today (mirrors co
   // 07-06 absent, 07-05 is yesterday and 07-04/07-03 chain back from it → 3.
   assert.equal(challengeStreak(map, "2026-07-06"), 3);
   assert.equal(challengeStreak({}, "2026-07-05"), 0);
+});
+
+test("longestStreak finds the longest consecutive run anywhere in history", () => {
+  assert.equal(longestStreak([]), 0);
+  assert.equal(longestStreak(["2026-07-05"]), 1);
+  // A 4-day run in the past, a gap, then a 2-day run → 4.
+  assert.equal(
+    longestStreak([
+      "2026-01-01",
+      "2026-01-02",
+      "2026-01-03",
+      "2026-01-04",
+      "2026-06-10",
+      "2026-06-11",
+    ]),
+    4,
+  );
+  // Unsorted input and duplicates are handled.
+  assert.equal(
+    longestStreak(["2026-03-03", "2026-03-01", "2026-03-02", "2026-03-02"]),
+    3,
+  );
+  // Unlike computeStreak, the best run can be entirely in the past: a 5-day run
+  // long ago beats the 1-day "current" run.
+  assert.equal(
+    longestStreak([
+      "2025-02-01",
+      "2025-02-02",
+      "2025-02-03",
+      "2025-02-04",
+      "2025-02-05",
+      "2026-07-05",
+    ]),
+    5,
+  );
+  // Malformed entries are dropped without throwing.
+  assert.equal(longestStreak(["junk", "2026-05-05", "2026-05-06"]), 2);
 });
