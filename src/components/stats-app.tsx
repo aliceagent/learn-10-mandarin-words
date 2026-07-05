@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import type { MandarinData, ProgressState, Topic, VocabItem } from "@/lib/types";
 import { wordKey } from "@/lib/data-logic";
 import { useProgress } from "./use-progress";
+import { useLightningBest } from "./use-lightning-best";
 import { LoadingScreen } from "./loading-screen";
 import { ProgressRing } from "./progress-ring";
 import { GOAL_OPTIONS } from "./onboarding";
@@ -31,6 +32,8 @@ export function StatsApp({
   totalWords: number;
 }) {
   const { progress, loaded, setDailyGoal } = useProgress();
+  // Device-local Lightning Round personal best, surfaced as a live stat card.
+  const { best: lightningBest } = useLightningBest();
 
   // computeStats defaults `now` to the real clock; recompute when progress changes.
   const stats = useMemo(() => computeStats(progress), [progress]);
@@ -169,6 +172,12 @@ export function StatsApp({
           value={`${stats.daysStudied}`}
           label={`day${stats.daysStudied !== 1 ? "s" : ""} studied`}
           sublabel={stats.streak > 0 ? `${stats.streak}-day current streak` : "build a streak by studying daily"}
+        />
+        <StatCard
+          value={lightningBest.bestScore > 0 ? lightningBest.bestScore.toLocaleString() : "⚡"}
+          label="lightning best"
+          sublabel={lightningBest.bestScore > 0 ? "60-second challenge" : "try your first round"}
+          href="/lightning"
         />
       </div>
 

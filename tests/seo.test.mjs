@@ -36,9 +36,9 @@ test("absoluteUrl joins with or without a leading slash and never double-slashes
   assert.ok(!absoluteUrl("/path").slice("https://".length).includes("//"));
 });
 
-test("sitemapEntries covers exactly 8 + categories + topics routes, all absolute and unique", () => {
+test("sitemapEntries covers exactly 9 + categories + topics routes, all absolute and unique", () => {
   const entries = sitemapEntries(rawData);
-  assert.equal(entries.length, 8 + categories.length + topics.length);
+  assert.equal(entries.length, 9 + categories.length + topics.length);
 
   const urls = entries.map((e) => e.url);
   assert.equal(new Set(urls).size, urls.length, "urls must be unique");
@@ -55,6 +55,12 @@ test("sitemapEntries covers exactly 8 + categories + topics routes, all absolute
   assert.ok(daily, "/daily is in the sitemap");
   assert.equal(daily.priority, 0.8);
   assert.equal(daily.changeFrequency, "weekly");
+
+  // /lightning (Sprint 2) is present at priority 0.8, monthly.
+  const lightning = entries.find((e) => e.url === absoluteUrl("/lightning"));
+  assert.ok(lightning, "/lightning is in the sitemap");
+  assert.equal(lightning.priority, 0.8);
+  assert.equal(lightning.changeFrequency, "monthly");
 
   // Every topic and category is present.
   for (const topic of topics) assert.ok(urls.includes(absoluteUrl(`/topics/${topic.slug}`)));

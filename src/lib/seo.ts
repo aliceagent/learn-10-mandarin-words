@@ -101,6 +101,7 @@ export function sitemapEntries(data: MandarinData): SitemapEntry[] {
     { url: absoluteUrl("/"), priority: 1, changeFrequency: "weekly" },
     { url: absoluteUrl("/path"), priority: 0.8, changeFrequency: "monthly" },
     { url: absoluteUrl("/practice"), priority: 0.8, changeFrequency: "monthly" },
+    { url: absoluteUrl("/lightning"), priority: 0.8, changeFrequency: "monthly" },
     { url: absoluteUrl("/daily"), priority: 0.8, changeFrequency: "weekly" },
   ];
 

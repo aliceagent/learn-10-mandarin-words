@@ -134,6 +134,19 @@ textarea:focus-visible,
   animation: quiz-pop 0.32s ease-out;
 }
 
+/* ── Lightning Round: low-time timer pulse (Sprint 2) ───────────────────────── */
+/* A subtle pulse on the countdown digits in the final seconds. Purely additive:  */
+/* urgency is carried by color (emerald → amber → rose), so this animation is a    */
+/* secondary cue and is fully removed under prefers-reduced-motion below.          */
+@keyframes lightning-pulse {
+  0%,  100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.08); opacity: 0.75; }
+}
+
+.animate-lightning-pulse {
+  animation: lightning-pulse 1s ease-in-out infinite;
+}
+
 /* ── Lesson / quiz celebration ──────────────────────────────────────────────── */
 @keyframes celebrate-in {
   0%  { opacity: 0; transform: scale(0.84) translateY(18px); }
@@ -224,6 +237,9 @@ textarea:focus-visible,
 @media (prefers-reduced-motion: reduce) {
   .animate-quiz-wrong,
   .animate-quiz-correct {
+    animation: none;
+  }
+  .animate-lightning-pulse {
     animation: none;
   }
   .animate-celebrate {

@@ -211,6 +211,12 @@ export function PracticeApp({ data }: { data: MandarinData }) {
               Practice again
             </button>
             <Link
+              href="/lightning"
+              className="min-h-[44px] inline-flex items-center rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300"
+            >
+              Try a Lightning Round ⚡
+            </Link>
+            <Link
               href="/stats"
               className="min-h-[44px] inline-flex items-center rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300"
             >
