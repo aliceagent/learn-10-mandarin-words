@@ -10,6 +10,7 @@ import {
   supportsCacheStorage,
 } from "@/lib/offline";
 import { track } from "@/lib/analytics";
+import { notifySavedLessonsChanged } from "./use-saved-lessons";
 
 type Status = "idle" | "saving" | "saved" | "removing";
 
@@ -66,6 +67,7 @@ export function SaveOfflineButton({ source, slug, pageUrl }: SaveOfflineButtonPr
       await saveLessonOffline(source, { pageUrl });
       setStatus("saved");
       setSize(await savedLessonSize(source));
+      notifySavedLessonsChanged();
       track("lesson_saved_offline", { topic: slug });
     } catch (err) {
       setStatus("idle");
@@ -80,6 +82,7 @@ export function SaveOfflineButton({ source, slug, pageUrl }: SaveOfflineButtonPr
       await removeLessonOffline(source);
       setStatus("idle");
       setSize(null);
+      notifySavedLessonsChanged();
       track("lesson_removed_offline", { topic: slug });
     } catch {
       setStatus("saved");

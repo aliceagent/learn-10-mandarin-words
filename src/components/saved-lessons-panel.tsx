@@ -10,6 +10,7 @@ import {
   savedLessonSize,
   supportsCacheStorage,
 } from "@/lib/offline";
+import { notifySavedLessonsChanged } from "./use-saved-lessons";
 
 type SavedLesson = {
   url: string;
@@ -79,6 +80,7 @@ export function SavedLessonsPanel() {
   async function onRemove(url: string) {
     try {
       await removeLessonOffline(url);
+      notifySavedLessonsChanged();
     } finally {
       try {
         setLessons(await loadSavedRows());

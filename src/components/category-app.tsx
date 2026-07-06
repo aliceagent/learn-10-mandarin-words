@@ -3,14 +3,19 @@
 import Link from "next/link";
 import type { Category, Topic } from "@/lib/types";
 import { masterySummary } from "@/lib/progress-logic";
+import { downloadableMp4Url } from "@/lib/video";
 import { useProgress } from "./use-progress";
+import { useSavedLessons } from "./use-saved-lessons";
 import { TopicCard } from "./topic-card";
+import { SaveCategoryOfflineButton } from "./save-category-offline-button";
 
 // Per-category browsing page: shows just the topics in one category using the
 // same topic-card styling as the home library grid. Additive to the home page's
 // search/filter — this is a standalone, focused view of a single category.
 export function CategoryApp({ category, topics }: { category: Category; topics: Topic[] }) {
   const { progress, loaded } = useProgress();
+  // Videos already in the offline cache — drives the card "✓ Offline" chips.
+  const savedOffline = useSavedLessons();
 
   // Words-mastered summary across this category, derived from existing progress.
   const summary = masterySummary(topics, progress.flashcardStats, progress.quizStats);
@@ -34,6 +39,11 @@ export function CategoryApp({ category, topics }: { category: Category; topics: 
             {summary.mastered} of {summary.total} words mastered
           </span>
         ) : null}
+        <SaveCategoryOfflineButton
+          categorySlug={category.slug}
+          categoryName={category.name}
+          topics={topics}
+        />
       </div>
 
       {topics.length === 0 ? (
@@ -56,6 +66,7 @@ export function CategoryApp({ category, topics }: { category: Category; topics: 
               learned={progress.learnedTopics.includes(topic.slug)}
               favorite={progress.favoriteTopics.includes(topic.slug)}
               crowned={Boolean(progress.bossStats[topic.slug]?.crownedAt)}
+              savedOffline={savedOffline.has(downloadableMp4Url(topic) ?? "")}
               flashcardStats={progress.flashcardStats}
               quizStats={progress.quizStats}
             />

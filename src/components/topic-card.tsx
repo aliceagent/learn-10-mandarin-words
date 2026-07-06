@@ -17,6 +17,7 @@ export function TopicCard({
   learned,
   favorite,
   crowned,
+  savedOffline,
   flashcardStats,
   quizStats,
   query,
@@ -26,6 +27,9 @@ export function TopicCard({
   favorite: boolean;
   // Whether this topic has been crowned via a flawless Boss Round (schema v7).
   crowned?: boolean;
+  // Whether this topic's video is saved in the offline cache. Browser-only, so it
+  // stays false during SSR/first paint and the chip pops in after mount.
+  savedOffline?: boolean;
   flashcardStats: Record<string, FlashcardStat>;
   // Optional per-word quiz accuracy. When supplied (home + category grids) the
   // card shows mastery dots; callers that omit it (path page) render as before.
@@ -73,6 +77,14 @@ export function TopicCard({
               title="Video available"
             >
               ▶ Video
+            </span>
+          ) : null}
+          {savedOffline ? (
+            <span
+              className="rounded-full border border-white/10 px-2.5 py-1 font-medium text-slate-400"
+              title="Video saved — plays without internet"
+            >
+              ✓ Offline
             </span>
           ) : null}
           {favorite ? (

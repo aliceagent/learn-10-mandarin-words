@@ -51,6 +51,7 @@ export type AnalyticsEvent =
   | "install_accepted"
   | "lesson_saved_offline"
   | "lesson_removed_offline"
+  | "category_saved_offline"
   | "cheat_sheet_print";
 
 // Props are intentionally constrained to non-identifying primitives.

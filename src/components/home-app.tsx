@@ -12,6 +12,8 @@ import { OnboardingModal, ContinueLearningCard } from "./onboarding";
 import { RecentTopicsShelf } from "./recent-topics-shelf";
 import { ProgressRing } from "./progress-ring";
 import { TopicCard } from "./topic-card";
+import { useSavedLessons } from "./use-saved-lessons";
+import { downloadableMp4Url } from "@/lib/video";
 import { WordSearchResults } from "./word-search-results";
 import { ThemeToggle } from "./theme-toggle";
 // Shared diacritic-tolerant normalizer so "nǐ", "ni", "ní" all match — the same
@@ -23,6 +25,9 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
   const { progress, loaded, completeOnboarding, skipOnboarding, toggleFavoriteWord } = useProgress();
+  // Which lesson videos are already in the offline cache — drives the "✓ Offline"
+  // card chip. Empty until mount, so it never causes a hydration mismatch.
+  const savedOffline = useSavedLessons();
 
   // The home page ships a hanzi-only topic index (Sprint 24); the pinyin/english
   // for all 1,020 words load lazily from /search-index.json the first time the
@@ -400,6 +405,7 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
                 learned={progress.learnedTopics.includes(topic.slug)}
                 favorite={progress.favoriteTopics.includes(topic.slug)}
                 crowned={Boolean(progress.bossStats[topic.slug]?.crownedAt)}
+                savedOffline={savedOffline.has(downloadableMp4Url(topic) ?? "")}
                 flashcardStats={progress.flashcardStats}
                 quizStats={progress.quizStats}
                 query={query}
