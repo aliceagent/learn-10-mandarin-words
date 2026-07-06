@@ -11,6 +11,7 @@ import {
   type DailyQuestion,
 } from "@/lib/daily-logic";
 import { challengeStreak, todayISO } from "@/lib/progress-logic";
+import { redrillEntries, type RedrillEntry } from "@/lib/redrill-logic";
 import { HANZI_LANG, PINYIN_LANG, quizChoiceLang, quizPromptLang } from "@/lib/lang";
 import { track } from "@/lib/analytics";
 import { useProgress } from "./use-progress";
@@ -18,6 +19,7 @@ import { useSpeech } from "./use-speech";
 import { usePracticeShortcuts } from "./use-practice-shortcuts";
 import { LoadingScreen } from "./loading-screen";
 import { SpeakButton } from "./speak-button";
+import { RedrillPanel } from "./redrill-panel";
 
 // A snapshot of today's challenge: the day it was built for (snapshotted at
 // session start so a run straddling midnight UTC records against its start day),
@@ -51,6 +53,14 @@ export function DailyApp({ data }: { data: MandarinData }) {
   const [score, setScore] = useState(0);
   const [outcomes, setOutcomes] = useState<boolean[]>([]);
   const [done, setDone] = useState(false);
+  // wordKeys missed during the LIVE run (index-aligned mirror of `outcomes`).
+  // Only the live run can populate this — the stored prior-day result persists
+  // score/total only, not per-word outcomes, so re-drill is live-run-scoped.
+  const [missedKeys, setMissedKeys] = useState<string[]>([]);
+  // When set, the completion recap is swapped for a one-tap re-drill over the
+  // missed words. Answers persist via recordQuizAnswer only — the official daily
+  // result and share strip are untouched.
+  const [drillEntries, setDrillEntries] = useState<RedrillEntry[] | null>(null);
 
   if (loaded && session === null) {
     const day = todayISO();
@@ -80,7 +90,11 @@ export function DailyApp({ data }: { data: MandarinData }) {
       const correct = choice === current.card.answer;
       recordQuizAnswer(current.card.key, correct);
       setOutcomes((prev) => [...prev, correct]);
-      if (correct) setScore((v) => v + 1);
+      if (correct) {
+        setScore((v) => v + 1);
+      } else {
+        setMissedKeys((keys) => (keys.includes(current.card.key) ? keys : [...keys, current.card.key]));
+      }
     },
     [current, picked, recordQuizAnswer],
   );
@@ -133,6 +147,11 @@ export function DailyApp({ data }: { data: MandarinData }) {
   const displayScore = done ? score : storedResult?.score ?? 0;
   const displayTotal = done ? total : storedResult?.total ?? total;
 
+  // Missed words, resolved for the live-run recap's list + re-drill. Only the
+  // live run has per-word data (the stored replay persists score/total only), so
+  // this is empty in the "already done today" state.
+  const missedEntries = done ? redrillEntries(data.topics, missedKeys) : [];
+
   return (
     <main className="mx-auto max-w-7xl px-6 pb-24 pt-8 md:px-10 md:pb-12">
       <Link href="/" className="text-sm font-semibold text-emerald-300 hover:text-emerald-200">
@@ -149,6 +168,14 @@ export function DailyApp({ data }: { data: MandarinData }) {
       </div>
 
       {completed ? (
+        drillEntries ? (
+          /* ── One-tap re-drill over the words missed this run ── */
+          <RedrillPanel
+            entries={drillEntries}
+            onRecordAnswer={recordQuizAnswer}
+            onClose={() => setDrillEntries(null)}
+          />
+        ) : (
         /* ── Completed state ── */
         <div className="animate-celebrate mt-12 rounded-3xl border border-white/10 bg-surface p-8 text-center">
           {done ? (
@@ -180,6 +207,32 @@ export function DailyApp({ data }: { data: MandarinData }) {
 
           <DailyShare day={session.day} outcomes={displayOutcomes} />
 
+          {/* Missed-word list + one-tap re-drill (live run only — the stored
+              replay has no per-word data). The drill records quiz accuracy but
+              never changes today's official score or the share strip above. */}
+          {missedEntries.length > 0 ? (
+            <div className="mx-auto mt-8 max-w-md rounded-2xl border border-white/10 bg-surface-2 p-5 text-left">
+              <p className="text-sm font-semibold text-slate-300">{missedEntries.length} to review</p>
+              <ul className="mt-3 space-y-2">
+                {missedEntries.map((e) => (
+                  <li key={e.key} className="flex items-baseline gap-3">
+                    <span lang={HANZI_LANG} className="font-hanzi text-xl text-white">{e.item.hanzi}</span>
+                    <span lang={PINYIN_LANG} className="font-hanzi text-sm text-emerald-300">{e.item.pinyin}</span>
+                    <span className="text-sm text-slate-400">{e.item.english}</span>
+                  </li>
+                ))}
+              </ul>
+              <button
+                type="button"
+                onClick={() => setDrillEntries(missedEntries)}
+                className="mt-4 min-h-[44px] w-full rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+              >
+                Re-drill the {missedEntries.length} you missed
+              </button>
+              <p className="mt-2 text-xs text-slate-500">A quick extra pass — today&apos;s score stays as is.</p>
+            </div>
+          ) : null}
+
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link
               href="/review"
@@ -195,6 +248,7 @@ export function DailyApp({ data }: { data: MandarinData }) {
             </Link>
           </div>
         </div>
+        )
       ) : (
         /* ── Active run ── */
         <section className="mt-8 rounded-3xl border border-white/10 bg-surface p-6" aria-label="Daily challenge quiz">

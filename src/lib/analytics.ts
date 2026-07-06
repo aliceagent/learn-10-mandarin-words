@@ -23,6 +23,7 @@ export type AnalyticsEvent =
   | "listen_all_completed"
   | "review_completed"
   | "rescue_drill_completed"
+  | "redrill_completed"
   | "practice_session_completed"
   | "daily_challenge_completed"
   | "boss_round_completed"

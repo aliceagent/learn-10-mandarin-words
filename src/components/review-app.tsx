@@ -20,9 +20,11 @@ import {
   type ReviewSession,
 } from "@/lib/session-logic";
 import { dragTransform, FLING_THRESHOLD_PX, type FlingIntent } from "@/lib/gesture-logic";
+import { redrillEntries, type RedrillEntry } from "@/lib/redrill-logic";
 import { track } from "@/lib/analytics";
 import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
 import { useProgress } from "./use-progress";
+import { RedrillPanel } from "./redrill-panel";
 import { useCardDrag } from "./use-card-drag";
 import { useReducedMotion } from "./use-reduced-motion";
 import { DeckDots } from "./deck-dots";
@@ -67,7 +69,7 @@ type ReviewMode = "due" | "rescue";
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function ReviewApp({ data }: { data: MandarinData }) {
-  const { progress, loaded, gradeWord } = useProgress();
+  const { progress, loaded, gradeWord, recordQuizAnswer } = useProgress();
   // The session is an explicit, one-time SNAPSHOT of the due queue — never a
   // live memo of `dueCards`. Grading a card mutates `flashcardStats`; a live
   // memo would rebuild the queue mid-run while the position cursor marched on,
@@ -80,6 +82,10 @@ export function ReviewApp({ data }: { data: MandarinData }) {
   const [mode, setMode] = useState<ReviewMode>("due");
   // Transient confirmation shown after grading a card.
   const [toast, setToast] = useState<string | null>(null);
+  // When set, the completion recap is swapped for a one-tap re-drill over the
+  // words graded "Again" this session. Answers persist via recordQuizAnswer only
+  // (weak-words signal) — never gradeWord, so SM-2 scheduling stays intact.
+  const [drillEntries, setDrillEntries] = useState<RedrillEntry[] | null>(null);
 
   // Words repeatedly failed in review and still short of mastery. Recomputed on
   // every progress change (grading a rescue card can graduate a word off this
@@ -135,6 +141,7 @@ export function ReviewApp({ data }: { data: MandarinData }) {
     setSession(startSession(dueCards(data.topics, progress.flashcardStats)));
     setMode("due");
     setRevealed(false);
+    setDrillEntries(null);
   }
 
   // Start (or restart) a rescue drill: a capped session over just the currently
@@ -145,6 +152,7 @@ export function ReviewApp({ data }: { data: MandarinData }) {
     setSession(startSession(leechCards(data.topics, progress.flashcardStats), RESCUE_CAP));
     setMode("rescue");
     setRevealed(false);
+    setDrillEntries(null);
   }
 
   // ── Deck flip/fling (Sprint 9) ──────────────────────────────────────────────
@@ -309,6 +317,14 @@ export function ReviewApp({ data }: { data: MandarinData }) {
           </div>
         </div>
       ) : complete ? (
+        drillEntries ? (
+          /* ── One-tap re-drill over the words missed this session ── */
+          <RedrillPanel
+            entries={drillEntries}
+            onRecordAnswer={recordQuizAnswer}
+            onClose={() => setDrillEntries(null)}
+          />
+        ) : (
         /* ── Session complete summary ── */
         <div className="animate-celebrate mt-12 rounded-3xl border border-white/10 bg-surface p-8 text-center md:p-10">
           <p className="text-6xl">🎉</p>
@@ -362,6 +378,16 @@ export function ReviewApp({ data }: { data: MandarinData }) {
                   </li>
                 ))}
               </ul>
+              {/* One-tap re-drill over exactly these words. Records quiz accuracy
+                  (weak-words signal) but never reschedules — the grades just
+                  earned stay intact. */}
+              <button
+                type="button"
+                onClick={() => setDrillEntries(redrillEntries(data.topics, tough.map((c) => c.key)))}
+                className="mt-4 min-h-[44px] w-full rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+              >
+                Drill these again ({tough.length})
+              </button>
             </div>
           ) : null}
 
@@ -411,6 +437,7 @@ export function ReviewApp({ data }: { data: MandarinData }) {
             </Link>
           </div>
         </div>
+        )
       ) : current ? (
         /* ── Active review card ── */
         <section
