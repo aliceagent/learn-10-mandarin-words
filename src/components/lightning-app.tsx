@@ -17,6 +17,12 @@ import {
   type LightningRun,
 } from "@/lib/lightning-logic";
 import { defaultShuffle, type QuizCard } from "@/lib/quiz-logic";
+import {
+  crossedTimerMilestone,
+  multiplierAnnouncement,
+  quizVerdictAnnouncement,
+  timerMilestoneAnnouncement,
+} from "@/lib/announce-logic";
 import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
 import { track } from "@/lib/analytics";
 import { vibrateFeedback } from "./use-haptics";
@@ -88,6 +94,16 @@ export function LightningApp({ data }: { data: MandarinData }) {
   // results screen can show the old best / gap (recordRun overwrites `best`).
   const [prevBest, setPrevBest] = useState(0);
 
+  // Screen-reader announcement channels (Sprint 21). Two regions so a timer
+  // milestone never overwrites an in-flight verdict — both are aria-live="polite"
+  // so they queue rather than interrupt. `announcement` carries the answer verdict
+  // plus any multiplier change; `timerAnnouncement` carries the 30/10/5s
+  // milestones. `prevRemainingRef` tracks the previous countdown read so the timer
+  // effect can detect a crossed milestone.
+  const [announcement, setAnnouncement] = useState("");
+  const [timerAnnouncement, setTimerAnnouncement] = useState("");
+  const prevRemainingRef = useRef(LIGHTNING_DURATION_MS);
+
   // The latest run, mirrored into a ref so the timer-expiry handler records the
   // final score even though its effect only re-subscribes when the round starts.
   const runRef = useRef(run);
@@ -136,6 +152,12 @@ export function LightningApp({ data }: { data: MandarinData }) {
     };
     const tick = () => {
       const rem = remainingMs(endsAt, nowMs());
+      // Announce a 30/10/5-second milestone the first time the countdown crosses
+      // it. Tolerant of a backgrounded tab skipping several at once (only the
+      // lowest crossed milestone speaks). Ref update precedes the possible finish.
+      const milestone = crossedTimerMilestone(prevRemainingRef.current, rem);
+      prevRemainingRef.current = rem;
+      if (milestone !== null) setTimerAnnouncement(timerMilestoneAnnouncement(milestone));
       setRemaining(rem);
       if (rem <= 0) finish();
     };
@@ -167,6 +189,11 @@ export function LightningApp({ data }: { data: MandarinData }) {
     setPicked(null);
     setRun(emptyRun());
     setNewBest(false);
+    // Clear both announcement channels and reset the milestone tracker for the
+    // fresh countdown.
+    setAnnouncement("");
+    setTimerAnnouncement("");
+    prevRemainingRef.current = LIGHTNING_DURATION_MS;
     const ends = nowMs() + LIGHTNING_DURATION_MS;
     setEndsAt(ends);
     setRemaining(LIGHTNING_DURATION_MS);
@@ -196,7 +223,17 @@ export function LightningApp({ data }: { data: MandarinData }) {
     const correct = choice === current.answer;
     vibrateFeedback(correct ? "correct" : "incorrect");
     recordQuizAnswer(current.key, correct);
-    setRun((r) => applyAnswer(r, correct));
+    const nextRun = applyAnswer(run, correct);
+    setRun(nextRun);
+    // Speak a terse verdict (the answer is the English meaning, so no restatement
+    // is needed) plus any multiplier change. Polite/queued so it never cuts off a
+    // timer milestone; the round auto-advances every ~350ms, so copy stays short.
+    const multiplierNote = multiplierAnnouncement(run.multiplier, nextRun.multiplier);
+    setAnnouncement(
+      multiplierNote
+        ? `${quizVerdictAnnouncement(correct)} ${multiplierNote}`
+        : quizVerdictAnnouncement(correct),
+    );
     const answeredIndex = index;
     if (feedbackTimer.current !== null) window.clearTimeout(feedbackTimer.current);
     feedbackTimer.current = window.setTimeout(() => {
@@ -311,6 +348,16 @@ export function LightningApp({ data }: { data: MandarinData }) {
       ) : phase === "running" && current ? (
         /* ── Active round ── */
         <section className="mt-8 rounded-3xl border border-white/10 bg-surface p-6" aria-label="Lightning round quiz">
+          {/* Screen-reader announcers (Sprint 21): the verdict/multiplier channel
+              and the timer-milestone channel are kept separate so a milestone
+              never overwrites an in-flight verdict — both polite, so they queue. */}
+          <p className="sr-only" aria-live="polite" aria-atomic="true">
+            {announcement}
+          </p>
+          <p className="sr-only" aria-live="polite" aria-atomic="true">
+            {timerAnnouncement}
+          </p>
+
           {/* Timer + live score */}
           <div className="flex items-center justify-between gap-4">
             <p
@@ -401,28 +448,32 @@ export function LightningApp({ data }: { data: MandarinData }) {
       ) : phase === "done" ? (
         /* ── Results ── */
         <div className="animate-celebrate mt-10 rounded-3xl border border-white/10 bg-surface p-8 text-center">
-          {newBest ? (
-            <>
-              <p className="text-6xl">⚡</p>
-              <p className="mt-4 text-2xl font-semibold text-white">New personal best!</p>
-              <p className="mt-4 text-5xl font-bold text-emerald-300">{run.score.toLocaleString()}</p>
-              {prevBest > 0 ? (
-                <p className="mt-2 text-slate-400">Old best: {prevBest.toLocaleString()}</p>
-              ) : (
-                <p className="mt-2 text-slate-400">The bar is set — now beat it.</p>
-              )}
-            </>
-          ) : (
-            <>
-              <p className="text-6xl">🏁</p>
-              <p className="mt-4 text-2xl font-semibold text-white">Time&apos;s up!</p>
-              <p className="mt-4 text-5xl font-bold text-emerald-300">{run.score.toLocaleString()}</p>
-              <p className="mt-2 text-slate-400">
-                Best: {best.bestScore.toLocaleString()}
-                {best.bestScore > run.score ? ` — ${(best.bestScore - run.score).toLocaleString()} to beat it.` : ""}
-              </p>
-            </>
-          )}
+          {/* role="status" so the end-of-round verdict + score announces once on
+              mount (same pattern as boss-panel's results). */}
+          <div role="status">
+            {newBest ? (
+              <>
+                <p className="text-6xl">⚡</p>
+                <p className="mt-4 text-2xl font-semibold text-white">New personal best!</p>
+                <p className="mt-4 text-5xl font-bold text-emerald-300">{run.score.toLocaleString()}</p>
+                {prevBest > 0 ? (
+                  <p className="mt-2 text-slate-400">Old best: {prevBest.toLocaleString()}</p>
+                ) : (
+                  <p className="mt-2 text-slate-400">The bar is set — now beat it.</p>
+                )}
+              </>
+            ) : (
+              <>
+                <p className="text-6xl">🏁</p>
+                <p className="mt-4 text-2xl font-semibold text-white">Time&apos;s up!</p>
+                <p className="mt-4 text-5xl font-bold text-emerald-300">{run.score.toLocaleString()}</p>
+                <p className="mt-2 text-slate-400">
+                  Best: {best.bestScore.toLocaleString()}
+                  {best.bestScore > run.score ? ` — ${(best.bestScore - run.score).toLocaleString()} to beat it.` : ""}
+                </p>
+              </>
+            )}
+          </div>
 
           <p className="mt-4 text-slate-300">
             {run.answered} answered · {run.correct} correct · best combo ×{multiplierFor(run.bestStreak)}

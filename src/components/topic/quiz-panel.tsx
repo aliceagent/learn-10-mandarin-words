@@ -5,6 +5,7 @@ import type { VocabItem } from "@/lib/types";
 import type { QuizCard, QuizMode } from "@/lib/quiz-logic";
 import { HANZI_LANG, PINYIN_LANG, quizChoiceLang, quizPromptLang } from "@/lib/lang";
 import { comboMilestoneLabel, comboTier } from "@/lib/combo-logic";
+import { comboChangeAnnouncement, quizVerdictAnnouncement } from "@/lib/announce-logic";
 import { SpeakButton } from "../speak-button";
 import { useSpeech } from "../use-speech";
 
@@ -152,8 +153,43 @@ export function QuizPanel({
     );
   }
 
+  // Screen-reader verdict for the answered card. Sighted users get the
+  // correct/wrong button flash; this speaks the same outcome (and, when wrong,
+  // the right answer language-tagged so hanzi/pinyin are voiced correctly) plus
+  // any combo milestone / break. Derived from state — advancing clears `picked`,
+  // which empties the region so the next card starts silent.
+  const answered = quizState.picked !== null;
+  const isCorrect = quizState.picked === currentQuiz.answer;
+  // Listening mode omits the answer restatement: its role="status" reveal already
+  // reads the ground-truth hanzi + pinyin, so repeating it here would double-speak.
+  const restateAnswer = answered && !isCorrect && quizMode !== "listening";
+  const comboNote = answered
+    ? comboChangeAnnouncement({ combo: quizState.combo, brokenCombo: quizState.brokenCombo })
+    : null;
+
   return (
     <section className="mt-6 rounded-3xl border border-white/10 bg-surface p-6" aria-label="Quiz practice">
+      {/* Persistent sr-only verdict/combo announcer (Sprint 21). Empty until an
+          answer is picked; the answer word is language-tagged so a screen reader
+          voices hanzi/pinyin under the right voice. */}
+      <p className="sr-only" aria-live="polite" aria-atomic="true">
+        {answered ? (
+          <>
+            {restateAnswer ? (
+              <>
+                Not quite — the answer is{" "}
+                <span lang={quizChoiceLang(quizMode)}>{currentQuiz.answer}</span>.
+              </>
+            ) : (
+              quizVerdictAnnouncement(isCorrect)
+            )}
+            {comboNote ? ` ${comboNote}` : ""}
+          </>
+        ) : (
+          ""
+        )}
+      </p>
+
       {/* Quiz mode selector */}
       <div className="mb-5 flex flex-wrap gap-2" role="group" aria-label="Quiz mode">
         {([
@@ -183,9 +219,10 @@ export function QuizPanel({
         <p className="text-sm text-slate-400">Question {(quizState.index % quiz.length) + 1} of {quiz.length}</p>
         {/* Combo meter: hidden below ×2, then a tiered chip that pops on each
             increment (re-keyed on the combo value so the animation re-fires). The
-            milestone flash lives in a persistent aria-live span so streak
-            milestones are announced once, not on every answer. `Best ×N` is a
-            quiet all-time marker shown once it's worth bragging about. */}
+            milestone flash is now a purely visual cue — the sr-only verdict
+            region above owns all speech (comboChangeAnnouncement), so milestones
+            and breaks aren't spoken twice. `Best ×N` is a quiet all-time marker
+            shown once it's worth bragging about. */}
         <div className="flex items-center gap-2">
           {quizState.combo >= 2 ? (
             <span
@@ -195,7 +232,7 @@ export function QuizPanel({
               ×{quizState.combo}{comboTier(quizState.combo) >= 1 ? " 🔥" : ""}
             </span>
           ) : null}
-          <span aria-live="polite" className="text-xs font-semibold text-emerald-300">
+          <span className="text-xs font-semibold text-emerald-300">
             {comboMilestoneLabel(quizState.combo) ?? ""}
           </span>
           {bestCombo >= 3 ? <span className="text-xs text-slate-500">Best ×{bestCombo}</span> : null}
