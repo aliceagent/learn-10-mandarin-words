@@ -12,9 +12,11 @@ import {
   buildDuelTurns,
   currentTurn,
   duelResult,
+  headToHeadFor,
   startDuel,
   type DuelPlayerIndex,
   type DuelState,
+  type HeadToHead,
 } from "@/lib/duel-logic";
 import { HANZI_LANG, PINYIN_LANG, quizChoiceLang, quizPromptLang } from "@/lib/lang";
 import { canAttemptSpeech } from "@/lib/speech";
@@ -118,6 +120,7 @@ export function DuelApp({ data }: { data: HomeData }) {
       topicSlug,
       mode: effectiveMode,
       scores,
+      names: displayNames,
     });
     track("duel_completed", {
       topic: topicSlug,
@@ -167,6 +170,11 @@ export function DuelApp({ data }: { data: HomeData }) {
     },
   });
 
+  // Live head-to-head record for the current pair. Recomputed on every render so
+  // it updates as names are typed on setup, and — because recordResult runs in the
+  // done-phase effect first — already includes the just-finished duel on results.
+  const tally = headToHeadFor(history, displayNames);
+
   if (!loaded) {
     return <LoadingScreen message="Setting up the duel…" />;
   }
@@ -195,6 +203,8 @@ export function DuelApp({ data }: { data: HomeData }) {
           speechAvailable={speechAvailable}
           canDuel={canDuel}
           recentCount={history.results.length}
+          tally={tally}
+          names={displayNames}
           onNameA={setNameA}
           onNameB={setNameB}
           onTopic={setTopicSlug}
@@ -217,6 +227,7 @@ export function DuelApp({ data }: { data: HomeData }) {
         <ResultsScreen
           state={state}
           names={displayNames}
+          tally={tally}
           topic={topic}
           onRematch={() => {
             const { winner } = duelResult(state);
@@ -253,6 +264,8 @@ function SetupScreen({
   speechAvailable,
   canDuel,
   recentCount,
+  tally,
+  names,
   onNameA,
   onNameB,
   onTopic,
@@ -268,6 +281,8 @@ function SetupScreen({
   speechAvailable: boolean;
   canDuel: boolean;
   recentCount: number;
+  tally: HeadToHead;
+  names: [string, string];
   onNameA: (v: string) => void;
   onNameB: (v: string) => void;
   onTopic: (v: string) => void;
@@ -308,6 +323,11 @@ function SetupScreen({
             />
           </label>
         </div>
+        {tally.total > 0 ? (
+          <div className="mt-4">
+            <RivalryTally tally={tally} names={names} />
+          </div>
+        ) : null}
       </section>
 
       {/* Topic picker */}
@@ -597,12 +617,14 @@ function QuestionScreen({
 function ResultsScreen({
   state,
   names,
+  tally,
   topic,
   onRematch,
   onNewDuel,
 }: {
   state: DuelState;
   names: [string, string];
+  tally: HeadToHead;
   topic: TopicSummary | undefined;
   onRematch: () => void;
   onNewDuel: () => void;
@@ -632,6 +654,10 @@ function ResultsScreen({
       <div className="mt-5 flex items-center justify-center gap-3 text-sm">
         <ScoreChip name={names[0]} score={a} active={winner === 0} />
         <ScoreChip name={names[1]} score={b} active={winner === 1} />
+      </div>
+
+      <div className="mt-4 flex justify-center">
+        <RivalryTally tally={tally} names={names} justFinished />
       </div>
 
       {missedItems.length > 0 ? (
@@ -687,6 +713,65 @@ function ResultsScreen({
 }
 
 // ── Shared score chip ──────────────────────────────────────────────────────────
+
+// ── Head-to-head rivalry line ───────────────────────────────────────────────────
+
+// Compact running win tally for the current pair, styled like ScoreChip. On the
+// setup screen it live-updates as names are typed; on results it already counts the
+// just-finished duel (recordResult runs first in the done-phase effect). The tally
+// reflects the last DUEL_HISTORY_LIMIT duels only — a recent record by design.
+function RivalryTally({
+  tally,
+  names,
+  justFinished,
+}: {
+  tally: HeadToHead;
+  names: [string, string];
+  justFinished?: boolean;
+}): React.JSX.Element | null {
+  if (tally.total === 0) return null;
+
+  // First-ever duel between this pair, shown only on the results screen.
+  if (justFinished && tally.total === 1) {
+    return (
+      <p className="text-sm text-slate-400">
+        First duel between {names[0]} and {names[1]} — the rivalry begins!
+      </p>
+    );
+  }
+
+  const tieSuffix = tally.ties > 0 ? ` · ${tally.ties} tie${tally.ties !== 1 ? "s" : ""}` : "";
+  const record = (
+    <>
+      <span className="max-w-[7rem] truncate">{names[0]}</span>
+      <span className="tabular-nums text-emerald-200">
+        {tally.wins[0]} – {tally.wins[1]}
+      </span>
+      <span className="max-w-[7rem] truncate">{names[1]}</span>
+    </>
+  );
+
+  if (justFinished) {
+    return (
+      <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-sm font-semibold text-slate-300">
+        <span className="text-slate-400">Head-to-head:</span>
+        {record}
+        {tieSuffix ? <span className="text-slate-500">{tieSuffix}</span> : null}
+      </p>
+    );
+  }
+
+  return (
+    <div>
+      <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-sm font-semibold text-slate-300">
+        <span aria-hidden="true">⚔️</span>
+        {record}
+        {tieSuffix ? <span className="text-slate-500">{tieSuffix}</span> : null}
+      </p>
+      <p className="mt-1.5 text-xs text-slate-500">Head-to-head on this device</p>
+    </div>
+  );
+}
 
 function ScoreChip({ name, score, active }: { name: string; score: number; active: boolean }) {
   return (

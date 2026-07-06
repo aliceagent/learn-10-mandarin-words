@@ -10,9 +10,11 @@ import {
   appendDuelRecord,
   beginQuestion,
   buildDuelTurns,
+  canonicalDuelName,
   currentTurn,
   duelResult,
   emptyDuelHistory,
+  headToHeadFor,
   normalizeDuelHistory,
   questionNumberForPlayer,
   startDuel,
@@ -232,10 +234,147 @@ test("appendDuelRecord prepends newest-first and drops the oldest past the cap",
       topicSlug: "t",
       mode: "hanzi-english",
       scores: [i, 0],
+      names: ["Alice", "Bob"],
     });
   }
   assert.equal(history.results.length, DUEL_HISTORY_LIMIT);
   // Newest (highest i) is first; the five oldest were dropped.
   assert.equal(history.results[0].at, `t${DUEL_HISTORY_LIMIT + 4}`);
   assert.equal(history.results.at(-1).at, `t5`);
+  // The new per-record names field survives the cap.
+  assert.deepEqual(history.results[0].names, ["Alice", "Bob"]);
+});
+
+// ── Per-record names: normalization + back-fill ──────────────────────────────
+
+test("normalizeDuelHistory back-fills legacy records without names from the top-level pair", () => {
+  const norm = normalizeDuelHistory({
+    names: ["Alice", "Bob"],
+    results: [
+      // Legacy payload: no `names` on the record at all.
+      { at: "t0", topicSlug: "pets", mode: "hanzi-english", scores: [3, 2] },
+    ],
+  });
+  assert.deepEqual(norm.results[0].names, ["Alice", "Bob"]);
+});
+
+test("normalizeDuelHistory coerces junk record names to '' then back-fills both-empty", () => {
+  const norm = normalizeDuelHistory({
+    names: ["Alice", "Bob"],
+    results: [
+      { at: "t0", topicSlug: "pets", mode: "hanzi-english", scores: [1, 0], names: [7, null] },
+    ],
+  });
+  // Junk names → ["",""] → back-filled from the stored pair.
+  assert.deepEqual(norm.results[0].names, ["Alice", "Bob"]);
+});
+
+test("normalizeDuelHistory keeps a record's own names and truncates over-long ones", () => {
+  const long = "A very long name that exceeds the max";
+  const norm = normalizeDuelHistory({
+    names: ["Stored", "Pair"],
+    results: [
+      { at: "t0", topicSlug: "pets", mode: "hanzi-english", scores: [2, 1], names: [long, "Bob"] },
+    ],
+  });
+  // A record with its own names is NOT back-filled; the long one is capped.
+  assert.equal(norm.results[0].names[0].length, DUEL_NAME_MAX_LENGTH);
+  assert.equal(norm.results[0].names[1], "Bob");
+});
+
+test("normalizeDuelHistory round-trips a fully valid record unchanged", () => {
+  const rec = {
+    at: "2026-07-05T00:00:00.000Z",
+    topicSlug: "pets",
+    mode: "hanzi-english",
+    scores: [3, 2],
+    names: ["Alice", "Bob"],
+  };
+  const norm = normalizeDuelHistory({ schemaVersion: 1, names: ["Alice", "Bob"], results: [rec] });
+  assert.deepEqual(norm.results[0], rec);
+});
+
+// ── canonicalDuelName + headToHeadFor ────────────────────────────────────────
+
+test("canonicalDuelName trims and lowercases for matching", () => {
+  assert.equal(canonicalDuelName("  Alice "), "alice");
+  assert.equal(canonicalDuelName("BOB"), "bob");
+});
+
+// Build a history from a list of {names, scores} records (order/topic/mode fixed).
+function historyOf(records) {
+  return {
+    schemaVersion: 1,
+    names: ["", ""],
+    results: records.map((r, i) => ({
+      at: `t${i}`,
+      topicSlug: "t",
+      mode: "hanzi-english",
+      scores: r.scores,
+      names: r.names,
+    })),
+  };
+}
+
+test("headToHeadFor on empty history is all zeros", () => {
+  assert.deepEqual(headToHeadFor(emptyDuelHistory(), ["Alice", "Bob"]), {
+    wins: [0, 0],
+    ties: 0,
+    total: 0,
+  });
+});
+
+test("headToHeadFor counts wins per index and ties for an exact pair", () => {
+  const history = historyOf([
+    { names: ["Alice", "Bob"], scores: [5, 3] }, // Alice
+    { names: ["Alice", "Bob"], scores: [2, 4] }, // Bob
+    { names: ["Alice", "Bob"], scores: [3, 3] }, // tie
+  ]);
+  assert.deepEqual(headToHeadFor(history, ["Alice", "Bob"]), {
+    wins: [1, 1],
+    ties: 1,
+    total: 3,
+  });
+});
+
+test("headToHeadFor matches a reversed pair with scores swapped into query order", () => {
+  // Record stored as [Bob, Alice] with Bob winning 5–3; queried as [Alice, Bob].
+  const history = historyOf([{ names: ["Bob", "Alice"], scores: [5, 3] }]);
+  assert.deepEqual(headToHeadFor(history, ["Alice", "Bob"]), {
+    wins: [0, 1], // the win belongs to Bob (query index 1)
+    ties: 0,
+    total: 1,
+  });
+});
+
+test("headToHeadFor matching is case- and whitespace-insensitive", () => {
+  const history = historyOf([{ names: ["alice", "BOB"], scores: [4, 1] }]);
+  assert.deepEqual(headToHeadFor(history, [" Alice ", "bob"]), {
+    wins: [1, 0],
+    ties: 0,
+    total: 1,
+  });
+});
+
+test("headToHeadFor excludes records for a different pair", () => {
+  const history = historyOf([
+    { names: ["Alice", "Bob"], scores: [5, 0] },
+    { names: ["Charlie", "Dana"], scores: [3, 2] },
+  ]);
+  assert.deepEqual(headToHeadFor(history, ["Alice", "Bob"]), {
+    wins: [1, 0],
+    ties: 0,
+    total: 1,
+  });
+});
+
+test("headToHeadFor with identical names on both sides falls back to ordered matching", () => {
+  // Same canonical name on both sides: can't tell the sides apart, so a reversed
+  // record must not be double-counted — only the exact index-order match counts.
+  const history = historyOf([{ names: ["Sam", "Sam"], scores: [3, 1] }]);
+  assert.deepEqual(headToHeadFor(history, ["Sam", "Sam"]), {
+    wins: [1, 0],
+    ties: 0,
+    total: 1,
+  });
 });

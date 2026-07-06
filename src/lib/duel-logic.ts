@@ -163,6 +163,8 @@ export type DuelRecord = {
   topicSlug: string;
   mode: QuizMode;
   scores: [number, number];
+  /** Display names at the time of the duel (index 0 = Player 1). */
+  names: [string, string];
 };
 
 export type DuelHistory = {
@@ -196,11 +198,16 @@ function normalizeRecord(raw: unknown): DuelRecord | null {
   const mode = VALID_MODES.includes(r.mode as QuizMode) ? (r.mode as QuizMode) : null;
   if (at === null || topicSlug === null || mode === null) return null;
   if (!Array.isArray(r.scores) || r.scores.length !== 2) return null;
+  // Legacy records predate per-record names → ["", ""], back-filled from the
+  // history's top-level `names` in normalizeDuelHistory (correct for v1 payloads,
+  // which only ever remembered one pair).
+  const namesRaw = Array.isArray(r.names) ? r.names : [];
   return {
     at,
     topicSlug,
     mode,
     scores: [normalizeScore(r.scores[0]), normalizeScore(r.scores[1])],
+    names: [normalizeName(namesRaw[0]), normalizeName(namesRaw[1])],
   };
 }
 
@@ -218,9 +225,60 @@ export function normalizeDuelHistory(raw: unknown): DuelHistory {
   const results: DuelRecord[] = [];
   for (const item of resultsRaw) {
     const rec = normalizeRecord(item);
-    if (rec) results.push(rec);
+    if (!rec) continue;
+    // Back-fill a record with no names of its own from the top-level pair — the
+    // only names v1 ever remembered, so legacy duels attribute correctly.
+    if (!rec.names[0] && !rec.names[1]) rec.names = [names[0], names[1]];
+    results.push(rec);
   }
   return { schemaVersion: 1, names, results: results.slice(0, DUEL_HISTORY_LIMIT) };
+}
+
+// ── Head-to-head tally ──────────────────────────────────────────────────────
+
+/** Matching key for a player name: trimmed + lowercased. Display keeps user casing. */
+export function canonicalDuelName(raw: string): string {
+  return raw.trim().toLowerCase();
+}
+
+export type HeadToHead = {
+  /** Wins attributed to the CURRENT pair's index 0 / index 1. */
+  wins: [number, number];
+  ties: number;
+  /** Total past duels between this pair (wins + ties). */
+  total: number;
+};
+
+/**
+ * Tally every stored result between exactly this pair of names, order-insensitively:
+ * a record whose canonical pair is the reverse of the query has its scores swapped
+ * before counting, so the record survives the two players swapping input slots.
+ * When both canonical names are identical (or both empty) we can't tell the sides
+ * apart, so we match by index order only. A record is a win for the higher score,
+ * a tie on equal scores. Note this reflects the last DUEL_HISTORY_LIMIT duels only.
+ */
+export function headToHeadFor(history: DuelHistory, names: [string, string]): HeadToHead {
+  const [qa, qb] = [canonicalDuelName(names[0]), canonicalDuelName(names[1])];
+  const ambiguous = qa === qb;
+  const wins: [number, number] = [0, 0];
+  let ties = 0;
+
+  for (const rec of history.results) {
+    const [ra, rb] = [canonicalDuelName(rec.names[0]), canonicalDuelName(rec.names[1])];
+    let scores: [number, number] | null = null;
+    if (ra === qa && rb === qb) {
+      scores = rec.scores; // same slot order
+    } else if (!ambiguous && ra === qb && rb === qa) {
+      scores = [rec.scores[1], rec.scores[0]]; // reversed → swap to the query's order
+    }
+    if (!scores) continue;
+
+    if (scores[0] > scores[1]) wins[0] += 1;
+    else if (scores[1] > scores[0]) wins[1] += 1;
+    else ties += 1;
+  }
+
+  return { wins, ties, total: wins[0] + wins[1] + ties };
 }
 
 /** Prepend a new result (newest-first) and cap the list at DUEL_HISTORY_LIMIT. */
