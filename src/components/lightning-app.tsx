@@ -19,6 +19,7 @@ import {
 import { defaultShuffle, type QuizCard } from "@/lib/quiz-logic";
 import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
 import { track } from "@/lib/analytics";
+import { vibrateFeedback } from "./use-haptics";
 import { useProgress } from "./use-progress";
 import { useSpeech } from "./use-speech";
 import { useReducedMotion } from "./use-reduced-motion";
@@ -193,6 +194,7 @@ export function LightningApp({ data }: { data: MandarinData }) {
     if (endsAt === null || remainingMs(endsAt, nowMs()) <= 0) return;
     setPicked(choice);
     const correct = choice === current.answer;
+    vibrateFeedback(correct ? "correct" : "incorrect");
     recordQuizAnswer(current.key, correct);
     setRun((r) => applyAnswer(r, correct));
     const answeredIndex = index;

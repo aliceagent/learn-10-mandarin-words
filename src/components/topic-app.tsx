@@ -21,6 +21,8 @@ import { NextStepPanel } from "./next-step-panel";
 import { SaveOfflineButton } from "./save-offline-button";
 import { MasteryDots, masteryCountsLabel } from "./mastery-dots";
 import { ToneColorsToggle } from "./tone-colors-toggle";
+import { HapticsToggle } from "./haptics-toggle";
+import { vibrateFeedback } from "./use-haptics";
 import { WordsPanel } from "./topic/words-panel";
 import { FlashcardsPanel } from "./topic/flashcards-panel";
 import { QuizPanel } from "./topic/quiz-panel";
@@ -165,6 +167,7 @@ export function TopicApp({
   function answerQuiz(choice: string) {
     if (quizState.picked) return;
     const correct = choice === currentQuiz.answer;
+    vibrateFeedback(correct ? "correct" : "incorrect");
     // The `picked` guard above means this runs exactly once per card — the first
     // answer — so per-word quiz accuracy is recorded once per attempt.
     recordQuizAnswer(currentQuiz.key, correct);
@@ -401,8 +404,9 @@ export function TopicApp({
 
       {/* Tone-colors preference: a quiet, right-aligned control that recolors
           every pinyin line on this device when enabled (off by default). */}
-      <div className="mt-3 flex justify-end">
+      <div className="mt-3 flex flex-col items-end gap-3">
         <ToneColorsToggle />
+        <HapticsToggle />
       </div>
 
       {/* ── Phrasebook (Useful Phrases only) ── */}

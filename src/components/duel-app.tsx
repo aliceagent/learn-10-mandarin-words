@@ -22,6 +22,7 @@ import { HANZI_LANG, PINYIN_LANG, quizChoiceLang, quizPromptLang } from "@/lib/l
 import { canAttemptSpeech } from "@/lib/speech";
 import { DUEL_NAME_MAX_LENGTH } from "@/lib/duel-logic";
 import { track } from "@/lib/analytics";
+import { vibrateFeedback } from "./use-haptics";
 import { useDuelHistory } from "./use-duel-history";
 import { useSpeech } from "./use-speech";
 import { usePracticeShortcuts } from "./use-practice-shortcuts";
@@ -137,6 +138,11 @@ export function DuelApp({ data }: { data: HomeData }) {
   const card = current?.card ?? null;
 
   function handleAnswer(choice: string) {
+    // answerCurrent is a pure dispatch, so compute correctness here (guarded on
+    // the current card and the question phase) purely to drive the vibration.
+    if (card && state?.phase === "question") {
+      vibrateFeedback(choice === card.answer ? "correct" : "incorrect");
+    }
     setState((s) => (s ? answerCurrent(s, choice) : s));
   }
   function handleAdvance() {

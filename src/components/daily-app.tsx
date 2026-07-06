@@ -14,6 +14,7 @@ import { challengeStreak, todayISO } from "@/lib/progress-logic";
 import { redrillEntries, type RedrillEntry } from "@/lib/redrill-logic";
 import { HANZI_LANG, PINYIN_LANG, quizChoiceLang, quizPromptLang } from "@/lib/lang";
 import { track } from "@/lib/analytics";
+import { vibrateFeedback } from "./use-haptics";
 import { useProgress } from "./use-progress";
 import { useSpeech } from "./use-speech";
 import { usePracticeShortcuts } from "./use-practice-shortcuts";
@@ -89,6 +90,7 @@ export function DailyApp({ data }: { data: MandarinData }) {
       if (!current || picked !== null) return;
       setPicked(choice);
       const correct = choice === current.card.answer;
+      vibrateFeedback(correct ? "correct" : "incorrect");
       recordQuizAnswer(current.card.key, correct);
       setOutcomes((prev) => [...prev, correct]);
       if (correct) {

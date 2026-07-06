@@ -10,6 +10,7 @@ import {
 } from "@/lib/practice-logic";
 import { defaultShuffle, type QuizCard } from "@/lib/quiz-logic";
 import { track } from "@/lib/analytics";
+import { vibrateFeedback } from "./use-haptics";
 import { useProgress } from "./use-progress";
 import { useSpeech } from "./use-speech";
 import { usePracticeShortcuts } from "./use-practice-shortcuts";
@@ -90,6 +91,7 @@ export function PracticeApp({ data }: { data: MandarinData }) {
     if (!current || picked !== null) return;
     setPicked(choice);
     const correct = choice === current.answer;
+    vibrateFeedback(correct ? "correct" : "incorrect");
     recordQuizAnswer(current.key, correct);
     if (correct) {
       setScore((v) => v + 1);
