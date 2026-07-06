@@ -49,6 +49,8 @@ export type AnalyticsEvent =
   | "connection_opened"
   | "install_prompt_shown"
   | "install_accepted"
+  | "sw_update_shown"
+  | "sw_update_applied"
   | "lesson_saved_offline"
   | "lesson_removed_offline"
   | "category_saved_offline"

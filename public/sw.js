@@ -24,6 +24,17 @@
  * including HTTP Range requests so seeking works offline. The service worker
  * itself NEVER writes to the video cache — saving is only ever user-initiated.
  *
+ * Update flow (Sprint 26 — consent-based): install NO LONGER calls skipWaiting(),
+ * so a freshly installed worker parks in the `waiting` state instead of taking
+ * over a running client mid-session (which risks running old JS against a new
+ * worker). The page (src/components/pwa-register.tsx + src/lib/sw-update.ts)
+ * detects the waiting worker and shows an "Update available" toast; only when the
+ * learner taps Refresh does the page post a { type: "SKIP_WAITING" } message,
+ * which the handler below turns into skipWaiting(). activate still calls
+ * clients.claim() so the newly activated worker controls the reloaded page at
+ * once. If the learner dismisses the toast, the waiting worker activates on its
+ * own once every tab is closed — nobody is left on a stale version.
+ *
  * Bump CACHE_VERSION to invalidate old caches on the next activate.
  */
 const CACHE_VERSION = "v2";
@@ -38,13 +49,22 @@ const VIDEO_CACHE = "learn10-videos-v1";
 const PRECACHE_URLS = ["/", "/daily", "/review", "/favorites", "/privacy", "/offline", "/icon.svg"];
 
 self.addEventListener("install", (event) => {
+  // NOTE: intentionally NO skipWaiting() here — a new worker waits for consent
+  // (see the header comment and the "message" handler below) instead of taking
+  // over a running client mid-session.
   event.waitUntil(
     caches
       .open(CACHE)
       .then((cache) => cache.addAll(PRECACHE_URLS))
       .catch(() => {}) // best-effort; a missing page must not block install
-      .then(() => self.skipWaiting())
   );
+});
+
+// Consent-based activation: the page posts { type: "SKIP_WAITING" } when the
+// learner taps "Refresh" in the update toast. Only then does the waiting worker
+// take over; activate's clients.claim() then controls the page for the reload.
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {

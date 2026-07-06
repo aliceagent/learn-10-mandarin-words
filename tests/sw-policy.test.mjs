@@ -67,11 +67,14 @@ test("sw declares a dedicated video cache, separate from the app shell cache", (
 
 function loadSw({ cachesObj, fetchImpl, origin = "https://app.example" } = {}) {
   const handlers = {};
+  let skipWaitingCalls = 0;
   const selfObj = {
     addEventListener: (type, fn) => {
       handlers[type] = fn;
     },
-    skipWaiting: () => {},
+    skipWaiting: () => {
+      skipWaitingCalls++;
+    },
     clients: { claim: () => {} },
     location: { origin },
   };
@@ -82,7 +85,7 @@ function loadSw({ cachesObj, fetchImpl, origin = "https://app.example" } = {}) {
     `${sw}\nreturn { parseRange, buildRangeResponse, serveMedia };`,
   );
   const exported = factory(selfObj, cachesObj ?? { open: async () => ({}) }, fetchImpl);
-  return { handlers, ...exported };
+  return { handlers, skipWaitingCount: () => skipWaitingCalls, ...exported };
 }
 
 // Minimal request stand-in — the SW only reads url/method/mode and the Range header.
@@ -181,6 +184,34 @@ test("activate cleanup deletes stale caches but preserves app + video caches", a
   await waited;
 
   assert.deepEqual(deleted.sort(), ["learn10-old", "learn10-v1", "misc-cache"]);
+});
+
+// ── Update lifecycle invariants (Sprint 26) ──────────────────────────────────
+// The worker must NOT self-activate over a running client without consent: install
+// no longer calls skipWaiting(); instead a "message" handler calls it only when
+// the page posts { type: "SKIP_WAITING" } (the update-toast Refresh action).
+
+test("install completes without calling skipWaiting (no unconsented takeover)", async () => {
+  const cachesObj = { open: async () => ({ addAll: async () => {} }) };
+  const sw = loadSw({ cachesObj });
+
+  let waited;
+  sw.handlers.install({ waitUntil: (p) => (waited = p) });
+  await waited;
+
+  assert.equal(sw.skipWaitingCount(), 0, "install must not skipWaiting on its own");
+});
+
+test("a message handler calls skipWaiting only for a SKIP_WAITING message", () => {
+  const sw = loadSw({});
+  assert.equal(typeof sw.handlers.message, "function", "sw.js should register a message handler");
+
+  sw.handlers.message({ data: { type: "OTHER" } });
+  sw.handlers.message({ data: null });
+  assert.equal(sw.skipWaitingCount(), 0, "unrelated messages must not skipWaiting");
+
+  sw.handlers.message({ data: { type: "SKIP_WAITING" } });
+  assert.equal(sw.skipWaitingCount(), 1, "SKIP_WAITING should trigger exactly one skipWaiting");
 });
 
 // ── parseRange unit tests ────────────────────────────────────────────────────

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { track } from "@/lib/analytics";
+import { activateWaitingWorker, watchForWaitingWorker } from "@/lib/sw-update";
+import { UpdateToast } from "@/components/update-toast";
 
 // `beforeinstallprompt` is not in the standard DOM lib types.
 interface BeforeInstallPromptEvent extends Event {
@@ -12,19 +14,45 @@ interface BeforeInstallPromptEvent extends Event {
 export function PwaRegister() {
   const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [dismissed, setDismissed] = useState(false);
+  const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
+  const [updateDismissed, setUpdateDismissed] = useState(false);
 
-  // Register the service worker (production only, and only if supported).
+  // Register the service worker (production only, and only if supported) and wire
+  // the consent-based update flow: watch for a waiting worker and re-check for
+  // updates whenever the tab becomes visible (the reliable trigger for long-lived
+  // installed PWAs, iOS Safari included).
   useEffect(() => {
     if (process.env.NODE_ENV !== "production") return;
     if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) return;
+
+    let unwatch: (() => void) | null = null;
+    let registration: ServiceWorkerRegistration | null = null;
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") registration?.update().catch(() => {});
+    };
+
     const onLoad = () => {
-      navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => {
-        // Registration failure is non-fatal — the app works without offline support.
-      });
+      navigator.serviceWorker
+        .register("/sw.js", { scope: "/" })
+        .then((reg) => {
+          registration = reg;
+          unwatch = watchForWaitingWorker(reg, (worker) => {
+            track("sw_update_shown");
+            setWaitingWorker(worker as ServiceWorker);
+          });
+          document.addEventListener("visibilitychange", onVisibility);
+        })
+        .catch(() => {
+          // Registration failure is non-fatal — the app works without offline support.
+        });
     };
     if (document.readyState === "complete") onLoad();
     else window.addEventListener("load", onLoad, { once: true });
-    return () => window.removeEventListener("load", onLoad);
+    return () => {
+      window.removeEventListener("load", onLoad);
+      document.removeEventListener("visibilitychange", onVisibility);
+      unwatch?.();
+    };
   }, []);
 
   // Capture the install prompt so we can offer a custom, unobtrusive button.
@@ -45,6 +73,24 @@ export function PwaRegister() {
       window.removeEventListener("appinstalled", onInstalled);
     };
   }, []);
+
+  // An update is more urgent than an install nudge: when both would show, render
+  // only the update toast.
+  const showUpdate = waitingWorker !== null && !updateDismissed;
+  if (showUpdate) {
+    return (
+      <UpdateToast
+        onRefresh={() => {
+          if (!waitingWorker) return;
+          track("sw_update_applied");
+          activateWaitingWorker(waitingWorker, navigator.serviceWorker, () =>
+            window.location.reload(),
+          );
+        }}
+        onDismiss={() => setUpdateDismissed(true)}
+      />
+    );
+  }
 
   if (!installEvent || dismissed) return null;
 
