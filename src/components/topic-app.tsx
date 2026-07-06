@@ -26,6 +26,7 @@ import { FlashcardsPanel } from "./topic/flashcards-panel";
 import { QuizPanel } from "./topic/quiz-panel";
 import { TypingPanel } from "./topic/typing-panel";
 import { MatchPanel } from "./topic/match-panel";
+import { MemoryPanel } from "./topic/memory-panel";
 import { ClozePanel } from "./topic/cloze-panel";
 import { ScramblePanel } from "./topic/scramble-panel";
 import { SentenceListenPanel } from "./topic/sentence-listen-panel";
@@ -50,7 +51,7 @@ export function TopicApp({
   // selected by default so they read like a practical phrasebook rather than a
   // vocabulary list. Words/Cards/Quiz stay available for every topic.
   const isPhrasebook = isUsefulPhraseTopic(topic);
-  const [mode, setMode] = useState<"phrasebook" | "words" | "flashcards" | "quiz" | "typed" | "match" | "cloze" | "scramble" | "sentence-listen" | "boss">(
+  const [mode, setMode] = useState<"phrasebook" | "words" | "flashcards" | "quiz" | "typed" | "match" | "memory" | "cloze" | "scramble" | "sentence-listen" | "boss">(
     isPhrasebook ? "phrasebook" : "words",
   );
   const [cardIndex, setCardIndex] = useState(0);
@@ -385,6 +386,7 @@ export function TopicApp({
           <Tab active={mode === "quiz"} onClick={() => setMode("quiz")}>Quiz</Tab>
           <Tab active={mode === "typed"} onClick={() => setMode("typed")}>Type</Tab>
           <Tab active={mode === "match"} onClick={() => setMode("match")}>Match</Tab>
+          <Tab active={mode === "memory"} onClick={() => setMode("memory")}>Memory</Tab>
           <Tab active={mode === "cloze"} onClick={() => setMode("cloze")}>Sentences</Tab>
           <Tab active={mode === "scramble"} onClick={() => setMode("scramble")}>Scramble</Tab>
           {/* Listening only appears once speech is confirmed available (same gate
@@ -480,6 +482,11 @@ export function TopicApp({
       {/* ── Matching pairs game ── */}
       {mode === "match" ? (
         <MatchPanel topic={topic} onRecord={recordQuizAnswer} onTakeQuiz={() => setMode("quiz")} />
+      ) : null}
+
+      {/* ── Memory (concentration-style face-down pair matching) ── */}
+      {mode === "memory" ? (
+        <MemoryPanel topic={topic} onRecord={recordQuizAnswer} onTakeQuiz={() => setMode("quiz")} />
       ) : null}
 
       {/* ── Sentence cloze (fill-in-the-blank from real example sentences) ── */}

@@ -32,6 +32,7 @@ export type AnalyticsEvent =
   | "lightning_completed"
   | "typed_recall_completed"
   | "matching_completed"
+  | "memory_completed"
   | "daily_goal_met"
   | "streak_freeze_earned"
   | "streak_freeze_used"

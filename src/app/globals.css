@@ -246,6 +246,42 @@ textarea:focus-visible,
   animation: card-fling-right 0.3s ease-in both;
 }
 
+/* ── Memory flip game: lightweight 3D flip (Sprint 14) ──────────────────────── */
+/* Its own lighter variants (no min-height/hero shadow like the flashcard deck) —
+   each grid cell is a small square that rotates to reveal its face. */
+.memory-scene {
+  perspective: 800px;
+}
+
+.memory-card {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.35s;
+}
+
+.memory-card.is-up {
+  transform: rotateY(180deg);
+}
+
+.memory-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  /* translateZ nudge dodges Safari iOS backface flicker. */
+  transform: translateZ(0);
+}
+
+/* The face-down "?" shows at rest; the content face is rotated behind it and
+   swings forward when the card flips up. */
+.memory-face-front {
+  transform: translateZ(0);
+}
+
+.memory-face-back {
+  transform: rotateY(180deg) translateZ(0);
+}
+
 /* ── Reduced-motion safety ──────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .animate-quiz-wrong,
@@ -276,6 +312,10 @@ textarea:focus-visible,
   .card-fling-left,
   .card-fling-right {
     animation: none;
+  }
+  /* Memory cards swap faces instantly instead of rotating. */
+  .memory-card {
+    transition: none;
   }
 }
 
