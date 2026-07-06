@@ -25,6 +25,7 @@ import { track } from "@/lib/analytics";
 import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
 import { useProgress } from "./use-progress";
 import { RedrillPanel } from "./redrill-panel";
+import { ReviewForecast } from "./review-forecast";
 import { useCardDrag } from "./use-card-drag";
 import { useReducedMotion } from "./use-reduced-motion";
 import { DeckDots } from "./deck-dots";
@@ -567,6 +568,14 @@ export function ReviewApp({ data }: { data: MandarinData }) {
             </div>
           )}
         </section>
+      ) : null}
+
+      {/* 7-day upcoming-due forecast (Sprint 7). Shown in every review state once
+          at least one card is tracked; a brand-new user (no stats) keeps the plain
+          empty state instead of an all-zero chart. Reads live flashcardStats, so
+          grading a card visibly shifts its bar. */}
+      {Object.keys(progress.flashcardStats).length > 0 ? (
+        <ReviewForecast flashcardStats={progress.flashcardStats} />
       ) : null}
 
       <Toast message={toast} onDone={() => setToast(null)} />
