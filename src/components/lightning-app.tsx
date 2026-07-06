@@ -10,7 +10,9 @@ import {
   emptyRun,
   LIGHTNING_DURATION_MS,
   multiplierFor,
+  nextTier,
   remainingMs,
+  tierForScore,
   type LightningEntry,
   type LightningRun,
 } from "@/lib/lightning-logic";
@@ -21,6 +23,7 @@ import { useProgress } from "./use-progress";
 import { useSpeech } from "./use-speech";
 import { useReducedMotion } from "./use-reduced-motion";
 import { useLightningBest } from "./use-lightning-best";
+import { LightningSparkline } from "./lightning-sparkline";
 import { usePracticeShortcuts } from "./use-practice-shortcuts";
 import { LoadingScreen } from "./loading-screen";
 import { SpeakButton } from "./speak-button";
@@ -125,6 +128,7 @@ export function LightningApp({ data }: { data: MandarinData }) {
         correct: finalRun.correct,
         bestStreak: finalRun.bestStreak,
         newBest: isNewBest,
+        tier: tierForScore(finalRun.score)?.name ?? "none",
       });
       setPicked(null);
       setPhase("done");
@@ -251,6 +255,40 @@ export function LightningApp({ data }: { data: MandarinData }) {
             <>
               <p className="mt-4 text-sm font-semibold uppercase tracking-wide text-slate-400">Personal best</p>
               <p className="mt-1 text-5xl font-bold text-emerald-300">{best.bestScore.toLocaleString()}</p>
+              {/* Score tier + next-tier chase for the personal best */}
+              {(() => {
+                const tier = tierForScore(best.bestScore);
+                const chase = nextTier(best.bestScore);
+                return (
+                  <>
+                    {tier ? (
+                      <p className="mt-3">
+                        <span className="inline-flex items-center rounded-full border border-amber-300/50 bg-amber-400/10 px-3 py-1 text-sm font-bold text-amber-300">
+                          {tier.emoji} {tier.name}
+                        </span>
+                      </p>
+                    ) : null}
+                    {chase ? (
+                      <p className="mt-3 text-sm text-slate-400">
+                        {chase.pointsAway.toLocaleString()} points to {chase.tier.name} {chase.tier.emoji}
+                      </p>
+                    ) : null}
+                  </>
+                );
+              })()}
+              {/* Recent-run trend sparkline (renders once ≥ 2 runs exist) */}
+              {best.history.length >= 2 ? (
+                <div className="mt-5">
+                  <LightningSparkline
+                    history={best.history}
+                    bestScore={best.bestScore}
+                    className="mx-auto h-12 w-full max-w-xs"
+                  />
+                  <p className="mt-2 text-xs font-medium text-slate-500">Last {best.history.length} runs</p>
+                </div>
+              ) : (
+                <p className="mt-4 text-sm text-slate-400">Play a few rounds to see your score trend.</p>
+              )}
             </>
           ) : (
             <p className="mt-4 text-lg font-semibold text-white">No best score yet — set the bar.</p>
@@ -387,6 +425,41 @@ export function LightningApp({ data }: { data: MandarinData }) {
           <p className="mt-4 text-slate-300">
             {run.answered} answered · {run.correct} correct · best combo ×{multiplierFor(run.bestStreak)}
           </p>
+
+          {/* Tier the finished run landed in + next-tier chase copy */}
+          {(() => {
+            const tier = tierForScore(run.score);
+            const chase = nextTier(run.score);
+            return (
+              <>
+                <p className="mt-4 text-lg font-semibold text-amber-300">
+                  {tier
+                    ? `${tier.name} tier ${tier.emoji}`
+                    : chase
+                    ? `${chase.pointsAway.toLocaleString()} points reaches ${chase.tier.name} ${chase.tier.emoji}`
+                    : null}
+                </p>
+                {tier ? (
+                  <p className="mt-1 text-sm text-slate-400">
+                    {chase
+                      ? `${chase.pointsAway.toLocaleString()} to ${chase.tier.name} ${chase.tier.emoji} — go again?`
+                      : "Thunderclap 🌪️ — the top tier. Defend it."}
+                  </p>
+                ) : null}
+              </>
+            );
+          })()}
+
+          {/* Recent-run trend, now including the run just played */}
+          {best.history.length >= 2 ? (
+            <div className="mt-5">
+              <LightningSparkline
+                history={best.history}
+                bestScore={best.bestScore}
+                className="mx-auto h-12 w-full max-w-xs"
+              />
+            </div>
+          ) : null}
 
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <button

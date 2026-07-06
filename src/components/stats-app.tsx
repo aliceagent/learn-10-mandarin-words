@@ -6,6 +6,7 @@ import type { MandarinData, ProgressState, Topic, VocabItem } from "@/lib/types"
 import { wordKey } from "@/lib/data-logic";
 import { useProgress } from "./use-progress";
 import { useLightningBest } from "./use-lightning-best";
+import { tierForScore } from "@/lib/lightning-logic";
 import { LoadingScreen } from "./loading-screen";
 import { ProgressRing } from "./progress-ring";
 import { GOAL_OPTIONS } from "./onboarding";
@@ -238,7 +239,11 @@ export function StatsApp({
         <StatCard
           value={lightningBest.bestScore > 0 ? lightningBest.bestScore.toLocaleString() : "⚡"}
           label="lightning best"
-          sublabel={lightningBest.bestScore > 0 ? "60-second challenge" : "try your first round"}
+          sublabel={
+            lightningBest.bestScore > 0
+              ? `${tierForScore(lightningBest.bestScore)?.name ? `${tierForScore(lightningBest.bestScore)!.name} tier · ` : ""}60-second challenge`
+              : "try your first round"
+          }
           href="/lightning"
         />
       </div>

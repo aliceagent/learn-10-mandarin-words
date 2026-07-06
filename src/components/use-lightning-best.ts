@@ -19,7 +19,7 @@ import {
 // effect, so there is never an SSR/client mismatch. All storage access is
 // try/catch-wrapped for private-mode safety.
 
-const ZERO_BEST: LightningBest = { bestScore: 0, bestCorrect: 0, runs: 0, updatedAt: null };
+const ZERO_BEST: LightningBest = { bestScore: 0, bestCorrect: 0, runs: 0, updatedAt: null, history: [] };
 
 function readStored(): LightningBest {
   try {

@@ -37,6 +37,11 @@ export const MAX_MULTIPLIER = 3;
 // version (mirrors the tone-colors / video-rate standalone-pref pattern).
 export const LIGHTNING_STORAGE_KEY = "learn-10-mandarin-lightning-v1";
 
+// Recent-run history is capped so the persisted payload stays small and the
+// sparkline never has to render an unbounded series. Mirrors duel-logic's
+// DUEL_HISTORY_LIMIT (Sprint 12).
+export const LIGHTNING_HISTORY_LIMIT = 20;
+
 // ─── Word pool ─────────────────────────────────────────────────────────────────
 
 // Where a pooled word came from, in priority order: SRS-due, quiz-weak, or a
@@ -211,12 +216,24 @@ export function applyAnswer(run: LightningRun, correct: boolean): LightningRun {
 
 // ─── Personal best ────────────────────────────────────────────────────────────
 
+// One finished run recorded for the trend sparkline. Newest-first in
+// `LightningBest.history`, capped at LIGHTNING_HISTORY_LIMIT. Deliberately a
+// separate shape from the live LightningRun — only the display-relevant fields
+// plus an ISO timestamp are persisted (Sprint 12).
+export type LightningRunRecord = {
+  score: number;
+  correct: number;
+  answered: number;
+  at: string; // ISO timestamp of when the run finished
+};
+
 // The device-local personal best, persisted under LIGHTNING_STORAGE_KEY.
 export type LightningBest = {
   bestScore: number;
   bestCorrect: number;
   runs: number;
   updatedAt: string | null; // ISO of the latest run, or null before the first run
+  history: LightningRunRecord[]; // recent runs, newest-first, capped (Sprint 12)
 };
 
 // True for a well-formed ISO timestamp (matches progress-logic's isValidISO).
@@ -224,28 +241,57 @@ function isValidISO(value: unknown): value is string {
   return typeof value === "string" && Number.isFinite(new Date(value).getTime());
 }
 
+// Coerce any stored value to a safe run record, or null if it's unusable. Scores/
+// counts must be finite and ≥ 0 (rounded); the timestamp must be a valid ISO.
+// Mirrors the per-record defensiveness of duel-logic's normalizeRecord.
+function normalizeRunRecord(raw: unknown): LightningRunRecord | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as Partial<LightningRunRecord>;
+  if (!isValidISO(r.at)) return null;
+  const coerce = (value: unknown): number | null =>
+    Number.isFinite(value) && (value as number) >= 0 ? Math.round(value as number) : null;
+  const score = coerce(r.score);
+  const correct = coerce(r.correct);
+  const answered = coerce(r.answered);
+  if (score === null || correct === null || answered === null) return null;
+  return { score, correct, answered, at: r.at as string };
+}
+
 // Coerce any stored/unknown value to a safe LightningBest — never throws. Corrupt,
 // negative, non-finite, or missing fields collapse to a zero-state; valid stored
-// objects round-trip. Mirrors normalizeQuizStat's defensive style.
+// objects round-trip. Legacy v1 payloads (no `history` key) round-trip losslessly
+// with an empty history. Mirrors normalizeQuizStat's defensive style.
 export function normalizeLightningBest(raw: unknown): LightningBest {
-  const zero: LightningBest = { bestScore: 0, bestCorrect: 0, runs: 0, updatedAt: null };
+  const zero: LightningBest = { bestScore: 0, bestCorrect: 0, runs: 0, updatedAt: null, history: [] };
   if (!raw || typeof raw !== "object") return zero;
   const r = raw as Partial<LightningBest>;
   const coerce = (value: unknown): number =>
     Number.isFinite(value) && (value as number) >= 0 ? Math.round(value as number) : 0;
+  // Drop malformed entries, then cap newest-first at the limit. A non-array
+  // `history` (missing on legacy payloads, or corrupt) becomes [].
+  const history = Array.isArray(r.history)
+    ? r.history
+        .map(normalizeRunRecord)
+        .filter((entry): entry is LightningRunRecord => entry !== null)
+        .slice(0, LIGHTNING_HISTORY_LIMIT)
+    : [];
   return {
     bestScore: coerce(r.bestScore),
     bestCorrect: coerce(r.bestCorrect),
     runs: coerce(r.runs),
     updatedAt: isValidISO(r.updatedAt) ? (r.updatedAt as string) : null,
+    history,
   };
 }
 
 // Merge a finished run into the stored best (pure). A run is a NEW best only when
 // it answered at least one question AND its score strictly beats the stored best —
 // so a zero-answered run and an equal/lower score never overwrite the best, but
-// `runs` is always incremented and `updatedAt` always stamped. `now` is
-// injectable for deterministic tests.
+// `runs` is always incremented and `updatedAt` always stamped. A run that answered
+// at least one question is also prepended to `history` (newest-first, capped); a
+// zero-answered run counts toward `runs` but is NOT recorded, so an accidental
+// "start then walk away" never dents the sparkline. `now` is injectable for
+// deterministic tests.
 export function mergeRunIntoBest(
   best: LightningBest,
   run: LightningRun,
@@ -253,15 +299,94 @@ export function mergeRunIntoBest(
 ): { best: LightningBest; isNewBest: boolean } {
   const base = normalizeLightningBest(best);
   const isNewBest = run.answered > 0 && run.score > base.bestScore;
+  const history =
+    run.answered > 0
+      ? [
+          { score: run.score, correct: run.correct, answered: run.answered, at: now.toISOString() },
+          ...base.history,
+        ].slice(0, LIGHTNING_HISTORY_LIMIT)
+      : base.history;
   return {
     best: {
       bestScore: isNewBest ? run.score : base.bestScore,
       bestCorrect: isNewBest ? run.correct : base.bestCorrect,
       runs: base.runs + 1,
       updatedAt: now.toISOString(),
+      history,
     },
     isNewBest,
   };
+}
+
+// ─── Score tiers ──────────────────────────────────────────────────────────────
+
+// A named score tier: a run at or above `min` earns this tier's name/emoji.
+// Ascending by `min` (Spark → Bolt → Storm → Thunderclap), calibrated to the
+// known scoring bounds (realistic good runs land 2,000–5,000). Follows the tiered-
+// copy precedent in share-card-logic.ts / heatmap-logic.ts (Sprint 12).
+export type LightningTier = { name: string; emoji: string; min: number };
+
+export const SCORE_TIERS: LightningTier[] = [
+  { name: "Spark", emoji: "⚡", min: 500 },
+  { name: "Bolt", emoji: "🌩️", min: 1_500 },
+  { name: "Storm", emoji: "⛈️", min: 3_000 },
+  { name: "Thunderclap", emoji: "🌪️", min: 5_000 },
+];
+
+// The highest tier a score reaches, or null below the first tier (or non-finite
+// input). Tolerant like multiplierFor.
+export function tierForScore(score: number): LightningTier | null {
+  if (!Number.isFinite(score)) return null;
+  let match: LightningTier | null = null;
+  for (const tier of SCORE_TIERS) {
+    if (score >= tier.min) match = tier;
+  }
+  return match;
+}
+
+// The next tier a score is chasing plus the exact points to reach it, or null once
+// the top tier is reached (or non-finite input). Tolerant like multiplierFor.
+export function nextTier(score: number): { tier: LightningTier; pointsAway: number } | null {
+  if (!Number.isFinite(score)) return null;
+  for (const tier of SCORE_TIERS) {
+    if (score < tier.min) return { tier, pointsAway: tier.min - score };
+  }
+  return null;
+}
+
+// ─── Sparkline geometry ─────────────────────────────────────────────────────────
+
+// Build the SVG `points` string for a run-score sparkline (pure, so it's unit-
+// testable without React — the component in lightning-sparkline.tsx just renders
+// the polyline). `scores` are oldest→newest; higher score maps to a smaller y
+// (top of the box). A small internal PAD keeps the stroke off the edges. Degenerate
+// cases are handled so the output is never NaN: empty → ""; a single score → one
+// centered point; all-equal scores → a flat midline (no divide-by-zero).
+export function sparklinePoints(scores: number[], width: number, height: number): string {
+  const clean = scores.filter((s) => Number.isFinite(s));
+  if (clean.length === 0) return "";
+
+  const PAD = 4;
+  const innerW = Math.max(0, width - PAD * 2);
+  const innerH = Math.max(0, height - PAD * 2);
+
+  // A single point sits centered horizontally at the vertical midline.
+  if (clean.length === 1) {
+    return `${(PAD + innerW / 2).toFixed(2)},${(PAD + innerH / 2).toFixed(2)}`;
+  }
+
+  const max = Math.max(...clean);
+  const min = Math.min(...clean);
+  const span = max - min;
+
+  return clean
+    .map((score, i) => {
+      const x = PAD + (innerW * i) / (clean.length - 1);
+      // Flat midline when every score is equal (span 0); else higher score = top.
+      const y = span === 0 ? PAD + innerH / 2 : PAD + innerH * (1 - (score - min) / span);
+      return `${x.toFixed(2)},${y.toFixed(2)}`;
+    })
+    .join(" ");
 }
 
 // ─── Countdown ────────────────────────────────────────────────────────────────

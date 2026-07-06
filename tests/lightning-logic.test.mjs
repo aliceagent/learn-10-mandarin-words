@@ -7,13 +7,17 @@ import {
   buildLightningPool,
   COMBO_STEP,
   emptyRun,
+  LIGHTNING_HISTORY_LIMIT,
   LIGHTNING_POOL_SIZE,
   MAX_MULTIPLIER,
   mergeRunIntoBest,
   multiplierFor,
+  nextTier,
   normalizeLightningBest,
   POINTS_PER_CORRECT,
   remainingMs,
+  sparklinePoints,
+  tierForScore,
 } from "../src/lib/lightning-logic.ts";
 
 // Minimal Topic/VocabItem fixtures, matching the practice-logic test style.
@@ -190,7 +194,7 @@ test("applyAnswer: pure — the input run is not mutated", () => {
 });
 
 test("normalizeLightningBest: corrupt/missing/out-of-range values collapse to a safe zero-state", () => {
-  const zero = { bestScore: 0, bestCorrect: 0, runs: 0, updatedAt: null };
+  const zero = { bestScore: 0, bestCorrect: 0, runs: 0, updatedAt: null, history: [] };
   assert.deepEqual(normalizeLightningBest(null), zero);
   assert.deepEqual(normalizeLightningBest("junk"), zero);
   assert.deepEqual(normalizeLightningBest(42), zero);
@@ -210,7 +214,51 @@ test("normalizeLightningBest: corrupt/missing/out-of-range values collapse to a 
     bestCorrect: 11,
     runs: 4,
     updatedAt: "2026-07-05T12:00:00.000Z",
+    history: [],
   });
+});
+
+test("normalizeLightningBest: a legacy v1 payload without history round-trips with history: []", () => {
+  // The exact shape shipped before Sprint 12 — no `history` key.
+  const legacy = { bestScore: 2100, bestCorrect: 18, runs: 5, updatedAt: "2026-07-01T00:00:00.000Z" };
+  assert.deepEqual(normalizeLightningBest(legacy), { ...legacy, history: [] });
+});
+
+test("normalizeLightningBest: corrupt history entries are dropped; a non-array history becomes []", () => {
+  const good = { score: 800, correct: 8, answered: 10, at: "2026-07-05T12:00:00.000Z" };
+  const normalized = normalizeLightningBest({
+    bestScore: 800,
+    bestCorrect: 8,
+    runs: 3,
+    updatedAt: "2026-07-05T12:00:00.000Z",
+    history: [
+      good,
+      { score: -1, correct: 2, answered: 3, at: "2026-07-05T11:00:00.000Z" }, // negative score
+      { score: Number.NaN, correct: 2, answered: 3, at: "2026-07-05T11:00:00.000Z" }, // NaN
+      { score: 400, correct: 2, answered: 3, at: "not-a-date" }, // bad ISO
+      "junk",
+      null,
+    ],
+  });
+  // Only the well-formed entry survives; score is rounded via the coercer.
+  assert.deepEqual(normalized.history, [good]);
+
+  // A non-array history (or missing) collapses to [].
+  assert.deepEqual(normalizeLightningBest({ bestScore: 1, history: "nope" }).history, []);
+});
+
+test("normalizeLightningBest: over-long history is capped at LIGHTNING_HISTORY_LIMIT (newest-first)", () => {
+  const history = Array.from({ length: LIGHTNING_HISTORY_LIMIT + 8 }, (_, i) => ({
+    score: 1000 - i, // newest-first: index 0 is the newest/highest here
+    correct: 5,
+    answered: 8,
+    at: "2026-07-05T12:00:00.000Z",
+  }));
+  const normalized = normalizeLightningBest({ bestScore: 1000, history });
+  assert.equal(normalized.history.length, LIGHTNING_HISTORY_LIMIT);
+  // The cap keeps the first (newest) entries, dropping the oldest overflow.
+  assert.equal(normalized.history[0].score, 1000);
+  assert.equal(normalized.history[LIGHTNING_HISTORY_LIMIT - 1].score, 1000 - (LIGHTNING_HISTORY_LIMIT - 1));
 });
 
 test("mergeRunIntoBest: higher score sets a new best; equal/lower preserves it; runs always increments", () => {
@@ -247,8 +295,105 @@ test("mergeRunIntoBest: a zero-answered run never sets a best", () => {
   assert.equal(empty.best.runs, 1);
 });
 
+test("mergeRunIntoBest: an answered run is prepended to history newest-first, with the injected ISO", () => {
+  const zero = normalizeLightningBest(null);
+  const run1 = { ...emptyRun(), score: 500, answered: 6, correct: 5 };
+  const first = mergeRunIntoBest(zero, run1, NOW);
+  assert.deepEqual(first.best.history, [
+    { score: 500, correct: 5, answered: 6, at: NOW.toISOString() },
+  ]);
+
+  // A later, lower run is not a best but still lands at the FRONT of history.
+  const later = new Date("2026-07-06T12:00:00.000Z");
+  const run2 = { ...emptyRun(), score: 300, answered: 4, correct: 3 };
+  const second = mergeRunIntoBest(first.best, run2, later);
+  assert.equal(second.isNewBest, false);
+  assert.deepEqual(
+    second.best.history.map((r) => r.score),
+    [300, 500],
+  );
+  assert.equal(second.best.history[0].at, later.toISOString());
+});
+
+test("mergeRunIntoBest: a zero-answered run increments runs but appends nothing to history", () => {
+  const seeded = mergeRunIntoBest(normalizeLightningBest(null), { ...emptyRun(), score: 400, answered: 5, correct: 4 }, NOW);
+  assert.equal(seeded.best.history.length, 1);
+  const walked = mergeRunIntoBest(seeded.best, emptyRun(), NOW);
+  assert.equal(walked.best.runs, 2);
+  assert.equal(walked.best.history.length, 1); // unchanged — the empty run isn't recorded
+});
+
+test("mergeRunIntoBest: history is capped at LIGHTNING_HISTORY_LIMIT as runs accumulate", () => {
+  let state = normalizeLightningBest(null);
+  for (let i = 0; i < LIGHTNING_HISTORY_LIMIT + 5; i += 1) {
+    state = mergeRunIntoBest(state, { ...emptyRun(), score: 100 + i, answered: 3, correct: 2 }, NOW).best;
+  }
+  assert.equal(state.history.length, LIGHTNING_HISTORY_LIMIT);
+  // Newest-first: the most recent run (highest score here) sits at the front.
+  assert.equal(state.history[0].score, 100 + (LIGHTNING_HISTORY_LIMIT + 5 - 1));
+});
+
 test("remainingMs: mid-run value, exact zero, and past-deadline all clamp to ≥ 0", () => {
   assert.equal(remainingMs(1_000, 400), 600);
   assert.equal(remainingMs(1_000, 1_000), 0);
   assert.equal(remainingMs(1_000, 5_000), 0);
+});
+
+test("tierForScore: boundary values map to the right tier; below-Spark and non-finite → null", () => {
+  assert.equal(tierForScore(0), null);
+  assert.equal(tierForScore(499), null);
+  assert.equal(tierForScore(500).name, "Spark");
+  assert.equal(tierForScore(1_499).name, "Spark");
+  assert.equal(tierForScore(1_500).name, "Bolt");
+  assert.equal(tierForScore(2_999).name, "Bolt");
+  assert.equal(tierForScore(3_000).name, "Storm");
+  assert.equal(tierForScore(4_999).name, "Storm");
+  assert.equal(tierForScore(5_000).name, "Thunderclap");
+  assert.equal(tierForScore(9_999).name, "Thunderclap");
+  assert.equal(tierForScore(Number.NaN), null);
+  assert.equal(tierForScore(-100), null);
+});
+
+// Named tiers resolved from the exported thresholds so the tests don't hard-code
+// the objects.
+const SPARK = tierForScore(500);
+const STORM = tierForScore(3_000);
+
+test("nextTier: exact point gaps below the top tier; null at/above Thunderclap", () => {
+  assert.deepEqual(nextTier(0), { tier: SPARK, pointsAway: 500 });
+  assert.deepEqual(nextTier(2_600), { tier: STORM, pointsAway: 400 });
+  // Just inside a tier still chases the next one.
+  assert.equal(nextTier(1_500).tier.name, "Storm");
+  assert.equal(nextTier(1_500).pointsAway, 1_500);
+  assert.equal(nextTier(5_000), null);
+  assert.equal(nextTier(9_999), null);
+  assert.equal(nextTier(Number.NaN), null);
+});
+
+test("sparklinePoints: empty → \"\"; single score → one centered point", () => {
+  assert.equal(sparklinePoints([], 160, 40), "");
+  const single = sparklinePoints([1_200], 160, 40);
+  // One coordinate pair, centered in the padded box (PAD=4 → center 80,20).
+  assert.equal(single.split(" ").length, 1);
+  assert.equal(single, "80.00,20.00");
+});
+
+test("sparklinePoints: two scores — higher score maps to a smaller y; one pair per score", () => {
+  const pts = sparklinePoints([100, 900], 160, 40).split(" ");
+  assert.equal(pts.length, 2);
+  const [x0, y0] = pts[0].split(",").map(Number);
+  const [x1, y1] = pts[1].split(",").map(Number);
+  // x spans left→right across the padded width.
+  assert.equal(x0, 4);
+  assert.equal(x1, 156);
+  // The higher (second) score sits higher on screen → smaller y.
+  assert.ok(y1 < y0);
+});
+
+test("sparklinePoints: all-equal scores render a flat midline, never NaN", () => {
+  const out = sparklinePoints([500, 500, 500], 160, 40);
+  assert.ok(!out.includes("NaN"));
+  const ys = out.split(" ").map((p) => Number(p.split(",")[1]));
+  assert.deepEqual(ys, [20, 20, 20]); // all on the vertical midline
+  assert.equal(out.split(" ").length, 3); // one pair per score
 });
