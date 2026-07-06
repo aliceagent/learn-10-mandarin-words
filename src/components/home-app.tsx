@@ -359,6 +359,7 @@ export function HomeApp({ data }: { data: HomeData }) {
           <div className="flex gap-4">
             <Link href="/daily" className="transition hover:text-slate-300">Daily</Link>
             <Link href="/duel" className="transition hover:text-slate-300">Duel</Link>
+            <Link href="/tone-pairs" className="transition hover:text-slate-300">Tone Twins</Link>
             <Link href="/path" className="transition hover:text-slate-300">Path</Link>
             <Link href="/review" className="transition hover:text-slate-300">Review</Link>
             <Link href="/favorites" className="transition hover:text-slate-300">Favorites</Link>

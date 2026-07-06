@@ -19,6 +19,7 @@ export type AnalyticsEvent =
   | "quiz_completed"
   | "tone_practice_completed"
   | "tone_listen_completed"
+  | "tone_pairs_completed"
   | "listen_all_completed"
   | "review_completed"
   | "practice_session_completed"

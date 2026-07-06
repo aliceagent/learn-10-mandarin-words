@@ -36,9 +36,9 @@ test("absoluteUrl joins with or without a leading slash and never double-slashes
   assert.ok(!absoluteUrl("/path").slice("https://".length).includes("//"));
 });
 
-test("sitemapEntries covers exactly 10 + categories + topics routes, all absolute and unique", () => {
+test("sitemapEntries covers exactly 11 + categories + topics routes, all absolute and unique", () => {
   const entries = sitemapEntries(rawData);
-  assert.equal(entries.length, 10 + categories.length + topics.length);
+  assert.equal(entries.length, 11 + categories.length + topics.length);
 
   const urls = entries.map((e) => e.url);
   assert.equal(new Set(urls).size, urls.length, "urls must be unique");
@@ -61,6 +61,12 @@ test("sitemapEntries covers exactly 10 + categories + topics routes, all absolut
   assert.ok(lightning, "/lightning is in the sitemap");
   assert.equal(lightning.priority, 0.8);
   assert.equal(lightning.changeFrequency, "monthly");
+
+  // /tone-pairs (Sprint 2) is present at priority 0.8, monthly.
+  const tonePairs = entries.find((e) => e.url === absoluteUrl("/tone-pairs"));
+  assert.ok(tonePairs, "/tone-pairs is in the sitemap");
+  assert.equal(tonePairs.priority, 0.8);
+  assert.equal(tonePairs.changeFrequency, "monthly");
 
   // /duel (Sprint 10) is present at priority 0.8, monthly.
   const duel = entries.find((e) => e.url === absoluteUrl("/duel"));

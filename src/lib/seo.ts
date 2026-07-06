@@ -103,6 +103,7 @@ export function sitemapEntries(data: MandarinData): SitemapEntry[] {
     { url: absoluteUrl("/practice"), priority: 0.8, changeFrequency: "monthly" },
     { url: absoluteUrl("/duel"), priority: 0.8, changeFrequency: "monthly" },
     { url: absoluteUrl("/lightning"), priority: 0.8, changeFrequency: "monthly" },
+    { url: absoluteUrl("/tone-pairs"), priority: 0.8, changeFrequency: "monthly" },
     { url: absoluteUrl("/daily"), priority: 0.8, changeFrequency: "weekly" },
   ];
 
