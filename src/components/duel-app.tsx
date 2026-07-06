@@ -19,7 +19,6 @@ import {
   type HeadToHead,
 } from "@/lib/duel-logic";
 import { HANZI_LANG, PINYIN_LANG, quizChoiceLang, quizPromptLang } from "@/lib/lang";
-import { canAttemptSpeech } from "@/lib/speech";
 import { DUEL_NAME_MAX_LENGTH } from "@/lib/duel-logic";
 import { track } from "@/lib/analytics";
 import { vibrateFeedback } from "./use-haptics";
@@ -54,8 +53,12 @@ function keyForItem(topic: TopicSummary): (item: VocabItemSummary) => string {
 
 export function DuelApp({ data }: { data: HomeData }) {
   const { history, loaded, setNames, recordResult } = useDuelHistory();
-  const { status: speechStatus, speak } = useSpeech();
-  const speechAvailable = canAttemptSpeech(speechStatus);
+  const { availability, speak } = useSpeech();
+  // Connectivity-aware gate (Sprint 27): "ready" only. When offline with an
+  // online-only voice the listening mode option disappears and the existing
+  // `effectiveMode` fallback below routes any in-flight listening duel to
+  // Hanzi → English, so a started duel never stalls on silent audio.
+  const speechAvailable = availability === "ready";
 
   // Setup fields.
   const [nameA, setNameA] = useState("");

@@ -5,10 +5,14 @@ import {
   KEEPALIVE_MS,
   SPEECH_RATE,
   VOICES_SETTLE_MS,
+  classifyAudioAvailability,
   classifySupport,
+  hasOnlyNetworkChineseVoices,
   pickChineseVoice,
+  type AudioAvailability,
   type SpeechSupport,
 } from "@/lib/speech";
+import { useOnlineStatus } from "./use-online-status";
 
 // Single hardened entry point for Web Speech synthesis. Every speak control in
 // the app goes through this hook so the browser-quirk workarounds live in one
@@ -30,6 +34,10 @@ import {
 
 export interface UseSpeechResult {
   status: SpeechSupport;
+  /** Connectivity-aware availability: folds `status` together with online state
+   *  and whether every Chinese voice is network-only, so the UI can disable
+   *  listening honestly when offline instead of failing silently. */
+  availability: AudioAvailability;
   speaking: boolean;
   /** True briefly after a non-cancel utterance error; auto-clears. */
   failed: boolean;
@@ -41,8 +49,15 @@ const CANCEL_RACE_DELAY_MS = 60;
 
 export function useSpeech(): UseSpeechResult {
   const [status, setStatus] = useState<SpeechSupport>("loading");
+  // Whether every Chinese voice on this device is explicitly network-backed.
+  // Starts false (optimistic, matching the SSR-safe "loading" status) so the
+  // first render never disables audio; recomputed alongside `status` in refresh().
+  const [networkOnlyVoices, setNetworkOnlyVoices] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const [failed, setFailed] = useState(false);
+  // Live connectivity (hydration-safe: true for SSR + first render). Combined
+  // with the voice facts below into the `availability` the UI gates on.
+  const online = useOnlineStatus();
 
   // The current utterance is held in a ref for its whole lifetime so Chrome
   // can't GC it mid-speech.
@@ -79,7 +94,9 @@ export function useSpeech(): UseSpeechResult {
 
     const refresh = () => {
       if (!active) return;
-      setStatus(classifySupport(true, synth.getVoices(), settled));
+      const voices = synth.getVoices();
+      setStatus(classifySupport(true, voices, settled));
+      setNetworkOnlyVoices(hasOnlyNetworkChineseVoices(voices));
     };
 
     // Chrome returns [] until `voiceschanged` fires; other engines populate
@@ -189,5 +206,7 @@ export function useSpeech(): UseSpeechResult {
     setSpeaking(false);
   }, [clearKeepAlive]);
 
-  return { status, speaking, failed, speak, stop };
+  const availability = classifyAudioAvailability(status, networkOnlyVoices, online);
+
+  return { status, availability, speaking, failed, speak, stop };
 }

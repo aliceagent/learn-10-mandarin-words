@@ -3,8 +3,11 @@ import assert from "node:assert/strict";
 
 import {
   canAttemptSpeech,
+  classifyAudioAvailability,
   classifySupport,
+  hasOnlyNetworkChineseVoices,
   isChineseVoice,
+  listeningHint,
   normalizeLang,
   pickChineseVoice,
   rankChineseVoice,
@@ -95,4 +98,55 @@ test("canAttemptSpeech: true for ready/loading, false otherwise", () => {
   assert.equal(canAttemptSpeech("loading"), true);
   assert.equal(canAttemptSpeech("unsupported"), false);
   assert.equal(canAttemptSpeech("no-chinese-voice"), false);
+});
+
+test("hasOnlyNetworkChineseVoices: only when zh voices exist and all are explicitly network", () => {
+  // No Chinese voice at all → false (nothing to be offline about).
+  assert.equal(hasOnlyNetworkChineseVoices([]), false);
+  assert.equal(hasOnlyNetworkChineseVoices([v("en-US", { localService: false })]), false);
+  // A local zh voice present → false (listening still works offline).
+  assert.equal(
+    hasOnlyNetworkChineseVoices([v("zh-CN", { localService: false }), v("zh-TW", { localService: true })]),
+    false,
+  );
+  // Every zh voice explicitly network-backed → true. A LOCAL en-US must not rescue it.
+  assert.equal(
+    hasOnlyNetworkChineseVoices([v("en-US", { localService: true }), v("zh-CN", { localService: false })]),
+    true,
+  );
+  // Undefined localService on a zh voice is unknown, not network-only → stay optimistic (false).
+  assert.equal(hasOnlyNetworkChineseVoices([v("zh-CN")]), false);
+  assert.equal(
+    hasOnlyNetworkChineseVoices([v("zh-CN", { localService: false }), v("zh-Hans-CN")]),
+    false,
+  );
+});
+
+test("classifyAudioAvailability: permanent no-voice cases are always unavailable", () => {
+  for (const online of [true, false]) {
+    for (const networkOnly of [true, false]) {
+      assert.equal(classifyAudioAvailability("unsupported", networkOnly, online), "unavailable");
+      assert.equal(classifyAudioAvailability("no-chinese-voice", networkOnly, online), "unavailable");
+    }
+  }
+});
+
+test("classifyAudioAvailability: offline-voices only when offline AND all-network", () => {
+  assert.equal(classifyAudioAvailability("ready", true, true), "ready"); // online: fine
+  assert.equal(classifyAudioAvailability("ready", true, false), "offline-voices"); // offline + network-only
+  assert.equal(classifyAudioAvailability("ready", false, false), "ready"); // offline + a local voice
+  // Loading stays optimistic even offline with an empty voice list (Android-Chrome lie).
+  assert.equal(classifyAudioAvailability("loading", false, false), "ready");
+});
+
+test("listeningHint: offline copy, no-voice copy, generic fallback", () => {
+  assert.match(listeningHint("ready", "offline-voices"), /offline/i);
+  assert.equal(
+    listeningHint("no-chinese-voice", "unavailable"),
+    "Your device has no Chinese voice installed, so listening mode may be silent.",
+  );
+  assert.equal(
+    listeningHint("ready", "ready"),
+    "No sound? Your device may lack a Chinese voice.",
+  );
 });

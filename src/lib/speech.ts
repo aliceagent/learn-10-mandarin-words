@@ -121,3 +121,69 @@ export function classifySupport(
 export function canAttemptSpeech(status: SpeechSupport): boolean {
   return status === "ready" || status === "loading";
 }
+
+/**
+ * Connectivity-aware audio availability for the UI:
+ * - `ready`          — listening will plausibly work: either online, or offline
+ *                      with a local (offline-capable) Chinese voice / unknown.
+ * - `offline-voices` — the device is offline *and* every Chinese voice on it is
+ *                      explicitly network-backed, so listening would be silent.
+ *                      Controls are disabled with an honest note, not hidden.
+ * - `unavailable`    — no usable voice at all (no API, or a populated list with
+ *                      no zh voice) — the permanent case the UI already hides.
+ */
+export type AudioAvailability = "ready" | "offline-voices" | "unavailable";
+
+/**
+ * True iff at least one Chinese voice exists *and* every Chinese voice is
+ * explicitly network-backed (`localService === false`). A voice with
+ * `localService === undefined` is treated as *unknown*, not network-only — so
+ * uncertainty never trips this to `true`. Non-Chinese voices are ignored (a
+ * local `en-US` must not rescue an all-network zh set). This mirrors the
+ * optimistic empty-list rule in `classifySupport`: we only claim a limitation
+ * when the evidence is unambiguous.
+ */
+export function hasOnlyNetworkChineseVoices(voices: readonly SpeechVoiceLike[]): boolean {
+  let sawChinese = false;
+  for (const voice of voices) {
+    if (!isChineseVoice(voice)) continue;
+    sawChinese = true;
+    // Any zh voice that is local — or whose locality is unknown — means we can't
+    // be sure the whole set is network-only, so stay optimistic.
+    if (voice.localService !== false) return false;
+  }
+  return sawChinese;
+}
+
+/**
+ * Fold support + connectivity into the single value the UI gates on. The
+ * permanent no-voice cases stay `unavailable`; otherwise listening is `ready`
+ * unless we're both offline and certain every Chinese voice needs the network.
+ * `loading` stays optimistic (→ `ready`), matching `canAttemptSpeech`, so SSR
+ * and the first client render agree.
+ */
+export function classifyAudioAvailability(
+  support: SpeechSupport,
+  onlyNetworkChineseVoices: boolean,
+  online: boolean,
+): AudioAvailability {
+  if (support === "unsupported" || support === "no-chinese-voice") return "unavailable";
+  if (!online && onlyNetworkChineseVoices) return "offline-voices";
+  return "ready";
+}
+
+/**
+ * Shared listening-mode microcopy for the current state, centralising the three
+ * near-identical "No sound?" strings that used to live in quiz-panel,
+ * tone-listen-trainer, and listen-all-bar. Prefers the connectivity note when
+ * offline; otherwise falls back to the existing support-driven copy.
+ */
+export function listeningHint(support: SpeechSupport, availability: AudioAvailability): string {
+  if (availability === "offline-voices") {
+    return "You're offline and this device's Chinese voices need the internet. Visual practice modes all work offline.";
+  }
+  if (support === "no-chinese-voice") {
+    return "Your device has no Chinese voice installed, so listening mode may be silent.";
+  }
+  return "No sound? Your device may lack a Chinese voice.";
+}

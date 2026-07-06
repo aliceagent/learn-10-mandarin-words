@@ -21,17 +21,21 @@ interface SpeakButtonProps {
 // avoiding the hydration mismatch the old inline guard caused on browsers without
 // `speechSynthesis`.
 export function SpeakButton({ text, lang = "zh-CN", label, className }: SpeakButtonProps) {
-  const { status, speaking, failed, speak, stop } = useSpeech();
+  const { availability, speaking, failed, speak, stop } = useSpeech();
   // Which control was tapped last, so the pulse lands on the right button while
   // `speaking` is true. Not derived from the DOM/window, so SSR and first client
   // render match (no hydration warning).
   const [pace, setPace] = useState<SpeechPace>("normal");
 
-  const unavailable = status === "unsupported" || status === "no-chinese-voice";
+  // Disabled whenever audio can't plausibly play: the permanent no-voice case
+  // (`unavailable`) or offline with an online-only voice (`offline-voices`).
+  const unavailable = availability !== "ready";
+  const offline = availability === "offline-voices";
   const defaultLabel = label ?? `Pronounce: ${text}`;
   const slowLabel = label ? `${label} (slow)` : `Pronounce slowly: ${text}`;
 
   const titleFor = (base: string) => {
+    if (offline) return "Audio needs a connection — this device's Chinese voice is online-only";
     if (unavailable) return "Audio unavailable — no Chinese voice on this device";
     if (speaking) return "Stop audio";
     if (failed) return "Couldn't play audio — tap to try again";

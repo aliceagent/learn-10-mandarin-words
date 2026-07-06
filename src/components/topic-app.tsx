@@ -10,7 +10,6 @@ import { buildQuiz, itemsForKeys, type QuizMode } from "@/lib/quiz-logic";
 import { isNewBestCombo, nextCombo } from "@/lib/combo-logic";
 import { computeStats, formatIntervalDays, isCrowned, previewIntervals, topicProgress, topicWordStatuses } from "@/lib/progress-logic";
 import { downloadableMp4Url, hasPlayableVideo } from "@/lib/video";
-import { canAttemptSpeech } from "@/lib/speech";
 import { track } from "@/lib/analytics";
 import { useProgress } from "./use-progress";
 import { useSpeech } from "./use-speech";
@@ -102,14 +101,15 @@ export function TopicApp({
   // Whether the keyboard-shortcuts help overlay is open (Sprint 20). While open,
   // the game panels' shortcuts are disabled so digits don't fire under the modal.
   const [helpOpen, setHelpOpen] = useState(false);
-  // Whether the browser can plausibly speak Mandarin, driven by the shared
-  // useSpeech() hook. Its status starts as "loading" (canAttemptSpeech → true),
-  // so SSR and first client render agree and the listening-mode chip shows
-  // optimistically; post-hydration it hides only once a populated voice list
-  // confirms no Chinese voice — or the API is absent — never in the ambiguous
-  // empty-list case (some engines report `[]` yet speak).
-  const { status: speechStatus } = useSpeech();
-  const speechAvailable = canAttemptSpeech(speechStatus);
+  // Connectivity-aware audio availability, driven by the shared useSpeech() hook.
+  // It starts "ready" (loading + online), so SSR and first client render agree and
+  // the listening-mode chips show optimistically. Post-hydration it becomes
+  // "unavailable" only once a populated voice list confirms no Chinese voice (or
+  // the API is absent), and "offline-voices" when the learner is offline and every
+  // Chinese voice on the device is online-only. `speechAvailable` keeps its old
+  // meaning (fully usable) for the tabs/panels that hide when audio can't play.
+  const { availability: audioAvailability } = useSpeech();
+  const speechAvailable = audioAvailability === "ready";
 
   const isLearned = progress.learnedTopics.includes(topic.slug);
   const isFavoriteTopic = progress.favoriteTopics.includes(topic.slug);
@@ -460,7 +460,7 @@ export function TopicApp({
           topic={topic}
           favoriteWords={progress.favoriteWords}
           flashcardStats={progress.flashcardStats}
-          speechAvailable={speechAvailable}
+          audioAvailability={audioAvailability}
           connections={connections}
           onToggleFavorite={(key) => {
             if (!progress.favoriteWords.includes(key)) track("favorite_saved", { topic: topic.slug, kind: "word" });
@@ -501,7 +501,7 @@ export function TopicApp({
           bestCombo={progress.bestQuizCombo}
           isNewBest={quizState.newBest}
           missedItemsList={missedItemsList}
-          speechAvailable={speechAvailable}
+          audioAvailability={audioAvailability}
           onChangeQuizMode={changeQuizMode}
           onAnswer={answerQuiz}
           onNext={nextQuiz}
@@ -571,26 +571,46 @@ export function TopicApp({
         <p className="mt-1 text-sm text-slate-400">
           Train your ear for tones — read the word, or just listen.
         </p>
-        {/* Read/Listen sub-mode switch. Listen only appears once speech is
-            confirmed available (same gate as the quiz's listening chip), so
-            there is never a dead control on voiceless devices. */}
+        {/* Read/Listen sub-mode switch. When audio is ready, Listen is a live
+            chip. When the learner is offline and this device's voices are
+            online-only, Listen shows disabled with an honest note (not hidden)
+            so the limitation is visible. When permanently voiceless, Listen is
+            hidden as before — no dead control on those devices. */}
         <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Tone practice mode">
           {([
-            { key: "read", label: "Read" },
-            ...(speechAvailable ? [{ key: "listen", label: "Listen 🔊" } as const] : []),
+            { key: "read", label: "Read", disabled: false },
+            ...(audioAvailability !== "unavailable"
+              ? [{ key: "listen", label: "Listen 🔊", disabled: audioAvailability === "offline-voices" } as const]
+              : []),
           ] as const).map((m) => (
             <button
               key={m.key}
               type="button"
-              onClick={() => setToneMode(m.key)}
+              onClick={() => { if (!m.disabled) setToneMode(m.key); }}
               aria-pressed={toneMode === m.key}
-              className={`min-h-[44px] rounded-full border px-4 py-2 text-xs font-semibold transition ${toneMode === m.key ? "border-emerald-300/40 bg-emerald-400/10 text-emerald-200" : "border-white/10 text-slate-400 hover:border-white/25 hover:text-white"}`}
+              disabled={m.disabled}
+              aria-disabled={m.disabled || undefined}
+              className={`min-h-[44px] rounded-full border px-4 py-2 text-xs font-semibold transition ${
+                m.disabled
+                  ? "cursor-not-allowed border-white/10 text-slate-600 opacity-60"
+                  : toneMode === m.key
+                  ? "border-emerald-300/40 bg-emerald-400/10 text-emerald-200"
+                  : "border-white/10 text-slate-400 hover:border-white/25 hover:text-white"
+              }`}
             >
               {m.label}
             </button>
           ))}
         </div>
-        {toneMode === "listen" && speechAvailable ? (
+        {audioAvailability === "offline-voices" ? (
+          <p className="mt-2 text-xs text-slate-500">
+            Listening is paused while you&apos;re offline — this device&apos;s voices are online-only.
+          </p>
+        ) : null}
+        {/* Keep the listening trainer mounted for both "ready" and
+            "offline-voices" so a run in progress when connectivity drops can show
+            its own offline banner + reading steer, instead of vanishing. */}
+        {toneMode === "listen" && audioAvailability !== "unavailable" ? (
           <ToneListenTrainer
             topic={topic}
             keyFor={keyFor}

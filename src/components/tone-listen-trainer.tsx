@@ -5,6 +5,7 @@ import type { Topic, VocabItem } from "@/lib/types";
 import type { Tone } from "@/lib/pinyin";
 import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
 import { TONE_TEXT_CLASS } from "@/lib/tone-colors";
+import { listeningHint } from "@/lib/speech";
 import { track } from "@/lib/analytics";
 import {
   TONE_GLYPHS,
@@ -71,8 +72,12 @@ export function ToneListenTrainer({
   const [playedKey, setPlayedKey] = useState<string | null>(null);
   const [done, setDone] = useState(false);
 
-  const { speak, stop, status } = useSpeech();
+  const { speak, stop, status, availability } = useSpeech();
   const { enabled: toneColors } = useToneColors();
+  // Connectivity dropped mid-run and every Chinese voice on this device is
+  // online-only: each round would autoplay silence. Steer to the reading drill
+  // instead of offering broken play buttons (Sprint 27).
+  const offline = availability === "offline-voices";
 
   // Silence any in-flight audio when the drill unmounts (tab/mode switch, nav).
   useEffect(() => stop, [stop]);
@@ -205,6 +210,28 @@ export function ToneListenTrainer({
         </div>
       </div>
 
+      {offline ? (
+        // Connectivity dropped mid-run: every round would autoplay silence on
+        // this device, so replace the drill with an honest notice and a one-tap
+        // steer to the eyes-first reading drill (which works offline).
+        <div className="mt-8 rounded-2xl border border-white/10 bg-surface-2 p-6 text-center">
+          <p className="text-3xl" aria-hidden="true">🔇</p>
+          <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-300">
+            You&apos;re offline, and this device&apos;s Chinese voice needs the internet. Keep
+            practicing with a visual mode — everything else works offline.
+          </p>
+          {onPracticeReading ? (
+            <button
+              type="button"
+              onClick={onPracticeReading}
+              className="mt-4 min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
+            >
+              Practice reading tones
+            </button>
+          ) : null}
+        </div>
+      ) : (
+        <>
       {/* Audio zone: before answering, nothing identifies the word. */}
       {picked === null ? (
         <div className="mt-8 flex flex-col items-center text-center">
@@ -228,11 +255,7 @@ export function ToneListenTrainer({
               Replay
             </button>
           ) : null}
-          <p className="mt-2 text-xs text-slate-600">
-            {status === "no-chinese-voice"
-              ? "Your device has no Chinese voice installed, so listening mode may be silent."
-              : "No sound? Your device may lack a Chinese voice."}
-          </p>
+          <p className="mt-2 text-xs text-slate-600">{listeningHint(status, availability)}</p>
         </div>
       ) : (
         // After answering: reveal the word (hanzi + tone-marked pinyin + English).
@@ -316,6 +339,9 @@ export function ToneListenTrainer({
           ) : null}
         </div>
       ) : null}
+
+        </>
+      )}
 
       <p className="mt-4 text-xs text-slate-600">
         Tone patterns come from each word&apos;s pinyin. Your results stay on this device.

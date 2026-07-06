@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import type { FlashcardStat, Topic } from "@/lib/types";
 import type { CharConnectionGroup } from "@/lib/connections-logic";
+import type { AudioAvailability } from "@/lib/speech";
 import { wordKey } from "@/lib/data-logic";
 import { track } from "@/lib/analytics";
 import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
@@ -21,10 +22,13 @@ import { CharConnections } from "./char-connections";
 // PhrasebookPanel so both word surfaces stay in lockstep. Extracted verbatim
 // from topic-app's `mode === "words"` section.
 //
-// When `speechAvailable`, a "Play all" listening drill (Sprint 9) sits above the
-// grid: one tap speaks every word in sequence, highlighting each card as it plays
-// and scrolling it into view. `speechAvailable` is optional (default false) so
-// other callers — e.g. favorites — compile unchanged with the drill simply off.
+// A "Play all" listening drill (Sprint 9) sits above the grid when audio is
+// usable: one tap speaks every word in sequence, highlighting each card as it
+// plays and scrolling it into view. `audioAvailability` (Sprint 27) drives that:
+// `ready` shows the live bar; `offline-voices` keeps the bar but disables the
+// Play pill with an honest note (the device's voices need the internet);
+// `unavailable` hides the bar. It defaults to `"unavailable"` so any other caller
+// compiles unchanged with the drill simply off.
 //
 // `connections` (Sprint 3) is the precomputed `wordKey → shared-character groups`
 // map from the server page. It is optional (default absent) so other callers
@@ -33,14 +37,14 @@ export function WordsPanel({
   topic,
   favoriteWords,
   flashcardStats,
-  speechAvailable = false,
+  audioAvailability = "unavailable",
   connections,
   onToggleFavorite,
 }: {
   topic: Topic;
   favoriteWords: string[];
   flashcardStats: Record<string, FlashcardStat>;
-  speechAvailable?: boolean;
+  audioAvailability?: AudioAvailability;
   connections?: Record<string, CharConnectionGroup[]>;
   onToggleFavorite: (key: string) => void;
 }) {
@@ -63,12 +67,13 @@ export function WordsPanel({
 
   return (
     <div className="mt-6">
-      {speechAvailable ? (
+      {audioAvailability !== "unavailable" ? (
         <ListenAllBar
           status={status}
           activeIndex={activeIndex}
           activeStep={activeStep}
           total={steps.length}
+          audioAvailability={audioAvailability}
           onPlayAll={playAll}
           onStop={stop}
         />

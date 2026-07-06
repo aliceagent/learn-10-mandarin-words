@@ -7,6 +7,7 @@ import { HANZI_LANG, PINYIN_LANG, quizChoiceLang, quizPromptLang } from "@/lib/l
 import { HANZI_SIZE_CLASS } from "@/lib/hanzi-size";
 import { comboMilestoneLabel, comboTier } from "@/lib/combo-logic";
 import { comboChangeAnnouncement, quizVerdictAnnouncement } from "@/lib/announce-logic";
+import { listeningHint, type AudioAvailability } from "@/lib/speech";
 import { SpeakButton } from "../speak-button";
 import { useHanziSize } from "../use-hanzi-size";
 import { useSpeech } from "../use-speech";
@@ -52,7 +53,7 @@ export function QuizPanel({
   bestCombo,
   isNewBest,
   missedItemsList,
-  speechAvailable,
+  audioAvailability,
   onChangeQuizMode,
   onAnswer,
   onNext,
@@ -70,7 +71,10 @@ export function QuizPanel({
   /** Whether this run set a new all-time best combo (drives the completion moment). */
   isNewBest: boolean;
   missedItemsList: VocabItem[];
-  speechAvailable: boolean;
+  /** Connectivity-aware audio state: `ready` shows the live Listen chip,
+   *  `offline-voices` shows it disabled + steers a mid-run listener to a visual
+   *  mode, `unavailable` hides it (permanent no-voice devices). */
+  audioAvailability: AudioAvailability;
   onChangeQuizMode: (m: QuizMode) => void;
   onAnswer: (choice: string) => void;
   onNext: () => void;
@@ -196,27 +200,43 @@ export function QuizPanel({
       {/* Quiz mode selector */}
       <div className="mb-5 flex flex-wrap gap-2" role="group" aria-label="Quiz mode">
         {([
-          { key: "hanzi-english", label: "Hanzi → English" },
-          { key: "english-hanzi", label: "English → Hanzi" },
-          { key: "hanzi-pinyin", label: "Hanzi → Pinyin" },
-          // Listening mode only appears once speech synthesis is confirmed
-          // available (detected post-hydration in topic-app), so there's never a
-          // dead mode on devices without a voice.
-          ...(speechAvailable ? [{ key: "listening", label: "Listen 🔊" } as const] : []),
+          { key: "hanzi-english", label: "Hanzi → English", disabled: false },
+          { key: "english-hanzi", label: "English → Hanzi", disabled: false },
+          { key: "hanzi-pinyin", label: "Hanzi → Pinyin", disabled: false },
+          // Listening mode appears once speech is confirmed available (detected
+          // post-hydration in topic-app). When the learner is offline and this
+          // device's voices are online-only it shows *disabled* (honest, not
+          // hidden); on permanently voiceless devices it's hidden — no dead mode.
+          ...(audioAvailability !== "unavailable"
+            ? [{ key: "listening", label: "Listen 🔊", disabled: audioAvailability === "offline-voices" } as const]
+            : []),
         ] as const).map((m) => (
           <button
             key={m.key}
             type="button"
-            onClick={() => onChangeQuizMode(m.key)}
+            onClick={() => { if (!m.disabled) onChangeQuizMode(m.key); }}
+            disabled={m.disabled}
             // Quieter Level-2 selector (matches the topic mode tabs): the active
             // mode is a subtle emerald wash + accent ink, not a full emerald fill.
-            className={`min-h-[44px] rounded-full border px-4 py-2 text-xs font-semibold transition ${quizMode === m.key ? "border-emerald-300/40 bg-emerald-400/10 text-emerald-200" : "border-white/10 text-slate-400 hover:border-white/25 hover:text-white"}`}
+            className={`min-h-[44px] rounded-full border px-4 py-2 text-xs font-semibold transition ${
+              m.disabled
+                ? "cursor-not-allowed border-white/10 text-slate-600 opacity-60"
+                : quizMode === m.key
+                ? "border-emerald-300/40 bg-emerald-400/10 text-emerald-200"
+                : "border-white/10 text-slate-400 hover:border-white/25 hover:text-white"
+            }`}
             aria-pressed={quizMode === m.key}
+            aria-disabled={m.disabled || undefined}
           >
             {m.label}
           </button>
         ))}
       </div>
+      {audioAvailability === "offline-voices" ? (
+        <p className="-mt-3 mb-5 text-xs text-slate-500">
+          Listening is paused while you&apos;re offline — this device&apos;s voices are online-only.
+        </p>
+      ) : null}
 
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <p className="text-sm text-slate-400">Question {(quizState.index % quiz.length) + 1} of {quiz.length}</p>
@@ -249,7 +269,25 @@ export function QuizPanel({
       </div>
 
       {/* Prompt */}
-      {quizMode === "listening" ? (
+      {quizMode === "listening" && audioAvailability === "offline-voices" ? (
+        // Connectivity dropped mid-run: every listening prompt would be silent on
+        // this device, so replace the play screen with an honest notice and a
+        // one-tap escape to a visual mode (the quiz state carries over).
+        <div className="mt-8 rounded-2xl border border-white/10 bg-surface-2 p-6 text-center">
+          <p className="text-3xl" aria-hidden="true">🔇</p>
+          <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-300">
+            You&apos;re offline, and this device&apos;s Chinese voice needs the internet. Keep
+            practicing with a visual mode — everything else works offline.
+          </p>
+          <button
+            type="button"
+            onClick={() => onChangeQuizMode("hanzi-english")}
+            className="mt-4 min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
+          >
+            Switch to Hanzi → English
+          </button>
+        </div>
+      ) : quizMode === "listening" ? (
         quizState.picked === null ? (
           // Before answering: no hanzi/pinyin (that would leak the answer). Just
           // a big play button + helper text. No autoplay — the learner taps play.
@@ -277,11 +315,7 @@ export function QuizPanel({
                 Replay
               </button>
             ) : null}
-            <p className="mt-2 text-xs text-slate-600">
-              {status === "no-chinese-voice"
-                ? "Your device has no Chinese voice installed, so listening mode may be silent."
-                : "No sound? Your device may lack a Chinese voice."}
-            </p>
+            <p className="mt-2 text-xs text-slate-600">{listeningHint(status, audioAvailability)}</p>
           </div>
         ) : (
           // After answering: reveal the ground-truth hanzi + pinyin. role="status"
