@@ -7,6 +7,7 @@ import { datasetSummary, nextRecommendedTopic } from "@/lib/data-logic";
 import { track } from "@/lib/analytics";
 import { useProgress, computeStreak } from "./use-progress";
 import { goalProgress, streakAtRisk, studiedWithFreezes, todayISO } from "@/lib/progress-logic";
+import { comebackDeck, daysSinceLastStudy, isLapsed } from "@/lib/comeback-logic";
 import { OnboardingModal, ContinueLearningCard } from "./onboarding";
 import { ProgressRing } from "./progress-ring";
 import { TopicCard } from "./topic-card";
@@ -55,6 +56,16 @@ export function HomeApp({ data }: { data: HomeData }) {
   const streak = computeStreak(studiedUnion);
   const atRisk = streakAtRisk(studiedUnion);
   const freezeCount = progress.streakFreezes.available;
+
+  // Welcome-back path: a learner returning after 7+ days away, who has at least
+  // one mastered/studied word to warm up from, sees a gentle comeback banner.
+  // The deck length gates the banner so a lapsed-but-empty profile never sees it.
+  const comebackCount = useMemo(
+    () => comebackDeck(data.topics, progress.flashcardStats).length,
+    [data.topics, progress.flashcardStats],
+  );
+  const lapsed = isLapsed(progress.studiedDates);
+  const daysAway = daysSinceLastStudy(progress.studiedDates);
 
   const studiedWordsCount = Object.values(progress.flashcardStats).filter((s) => s.reviewCount > 0).length;
   const summary = datasetSummary(data.topics);
@@ -214,6 +225,11 @@ export function HomeApp({ data }: { data: HomeData }) {
           </div>
         </div>
       </section>
+
+      {/* ── Welcome-back banner (lapsed learner, warm-up available) ── */}
+      {loaded && lapsed && daysAway !== null && comebackCount > 0 ? (
+        <WelcomeBackBanner daysAway={daysAway} />
+      ) : null}
 
       {/* ── Daily Challenge banner ── */}
       {loaded ? <DailyChallengeBanner result={progress.dailyChallenge[todayISO()]} /> : null}
@@ -381,6 +397,34 @@ export function HomeApp({ data }: { data: HomeData }) {
         />
       ) : null}
     </main>
+  );
+}
+
+// ── Welcome-back banner ───────────────────────────────────────────────────────
+
+// Shown above the Daily Challenge banner when a learner returns after 7+ days
+// away and has words to warm up from. A confidence-first invitation to /comeback
+// (which stamps today's study date and dismisses this banner on the first grade)
+// rather than confronting the returning learner with a dead streak and a backlog.
+function WelcomeBackBanner({ daysAway }: { daysAway: number }) {
+  return (
+    <section className="mx-auto max-w-7xl px-6 md:px-10">
+      <Link
+        href="/comeback"
+        className="group flex items-center justify-between gap-4 rounded-3xl border border-emerald-500/25 bg-emerald-500/10 px-5 py-4 transition hover:border-emerald-300/50 hover:bg-emerald-500/15 md:px-6"
+        aria-label="Start your welcome-back warm-up"
+      >
+        <div className="min-w-0">
+          <p className="font-semibold text-white">👋 Welcome back — it&apos;s been {daysAway} days</p>
+          <p className="mt-0.5 text-sm text-slate-300">
+            Ease back in with a quick warm-up of words you already know. No pressure, no pile.
+          </p>
+        </div>
+        <span className="shrink-0 rounded-full bg-emerald-400 px-5 py-2.5 text-sm font-semibold text-slate-950 transition group-hover:bg-emerald-300">
+          Warm up
+        </span>
+      </Link>
+    </section>
   );
 }
 

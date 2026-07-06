@@ -36,9 +36,9 @@ test("absoluteUrl joins with or without a leading slash and never double-slashes
   assert.ok(!absoluteUrl("/path").slice("https://".length).includes("//"));
 });
 
-test("sitemapEntries covers exactly 11 + categories + topics routes, all absolute and unique", () => {
+test("sitemapEntries covers exactly 12 + categories + topics routes, all absolute and unique", () => {
   const entries = sitemapEntries(rawData);
-  assert.equal(entries.length, 11 + categories.length + topics.length);
+  assert.equal(entries.length, 12 + categories.length + topics.length);
 
   const urls = entries.map((e) => e.url);
   assert.equal(new Set(urls).size, urls.length, "urls must be unique");
@@ -73,6 +73,12 @@ test("sitemapEntries covers exactly 11 + categories + topics routes, all absolut
   assert.ok(duel, "/duel is in the sitemap");
   assert.equal(duel.priority, 0.8);
   assert.equal(duel.changeFrequency, "monthly");
+
+  // /comeback (Sprint 9) is a utility route at priority 0.3, monthly.
+  const comeback = entries.find((e) => e.url === absoluteUrl("/comeback"));
+  assert.ok(comeback, "/comeback is in the sitemap");
+  assert.equal(comeback.priority, 0.3);
+  assert.equal(comeback.changeFrequency, "monthly");
 
   // Every topic and category is present.
   for (const topic of topics) assert.ok(urls.includes(absoluteUrl(`/topics/${topic.slug}`)));
