@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { TopicApp } from "@/components/topic-app";
+import { TopicCheatSheet } from "@/components/topic/topic-cheat-sheet";
 import { JsonLd } from "@/components/json-ld";
 import { charConnectionsForTopic, data, getTopic } from "@/lib/data";
 import { pageOpenGraph, topicBreadcrumbJsonLd, topicMetaDescription, topicWordListJsonLd } from "@/lib/seo";
@@ -35,6 +36,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
       <JsonLd data={topicBreadcrumbJsonLd(topic)} />
       <JsonLd data={topicWordListJsonLd(topic)} />
       <TopicApp topic={topic} connections={connections} />
+      <TopicCheatSheet topic={topic} />
     </>
   );
 }

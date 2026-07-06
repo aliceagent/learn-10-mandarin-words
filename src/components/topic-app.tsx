@@ -34,6 +34,7 @@ import { ScramblePanel } from "./topic/scramble-panel";
 import { SentenceListenPanel } from "./topic/sentence-listen-panel";
 import { BossPanel } from "./topic/boss-panel";
 import { BOSS_STAGE_COUNT } from "@/lib/boss-logic";
+import { PrintButton } from "./print-button";
 import { Toast } from "./toast";
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -222,7 +223,7 @@ export function TopicApp({
   }
 
   return (
-    <main className="mx-auto max-w-7xl px-6 pb-24 pt-0 md:px-10 md:pb-12">
+    <main className="mx-auto max-w-7xl px-6 pb-24 pt-0 md:px-10 md:pb-12 print:hidden">
       {/* ── Sticky header ── */}
       {/* Chrome only: a back affordance + the current topic title. The Save /
           Mark-learned actions live in the hero below (see the lesson-actions row)
@@ -328,6 +329,7 @@ export function TopicApp({
             >
               {isLearned ? "Marked learned ✓" : "Mark learned"}
             </button>
+            <PrintButton topic={topic.slug} />
           </div>
         </div>
 

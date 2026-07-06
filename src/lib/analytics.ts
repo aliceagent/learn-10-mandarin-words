@@ -49,7 +49,8 @@ export type AnalyticsEvent =
   | "install_prompt_shown"
   | "install_accepted"
   | "lesson_saved_offline"
-  | "lesson_removed_offline";
+  | "lesson_removed_offline"
+  | "cheat_sheet_print";
 
 // Props are intentionally constrained to non-identifying primitives.
 export type AnalyticsProps = Record<string, string | number | boolean>;

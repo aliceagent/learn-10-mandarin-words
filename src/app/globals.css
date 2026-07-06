@@ -540,3 +540,14 @@ textarea:focus-visible,
   user-select: none;
   pointer-events: none;
 }
+
+/* ── Print (Sprint 19) ───────────────────────────────────────────────────────── */
+/* Printable topic cheat sheet: the dark app chrome is hidden via `print:hidden`   */
+/* (on <main>, the bottom nav, and the print button), and the print-only           */
+/* .cheat-sheet renders black-on-white. Flip the body to a light ground so no dark  */
+/* background bleeds through, even on non-topic pages.                              */
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; color: #000; }
+  .cheat-sheet { color-scheme: light; }
+}
