@@ -44,7 +44,10 @@ import { BOSS_STAGE_COUNT } from "./boss-logic.ts";
 //   v9 → v10: added `recentTopics` (most-recently-opened topic slugs, for the
 //   home "Jump back in" shelf). Older saves lack the field and migrate to an
 //   empty [], losing nothing else.
-export const CURRENT_PROGRESS_SCHEMA_VERSION = 10;
+//   v10 → v11: added `dailyQuiz` (per-day quiz accuracy tally, for the weekly
+//   recap card). Older saves lack the field and migrate to an empty `{}`, losing
+//   nothing else.
+export const CURRENT_PROGRESS_SCHEMA_VERSION = 11;
 
 export const emptyProgress: ProgressState = {
   schemaVersion: CURRENT_PROGRESS_SCHEMA_VERSION,
@@ -55,6 +58,7 @@ export const emptyProgress: ProgressState = {
   quizStats: {},
   dailyActivity: {},
   dailyChallenge: {},
+  dailyQuiz: {},
   bestQuizCombo: 0,
   bossStats: {},
   studiedDates: [],
@@ -82,6 +86,11 @@ export const DAILY_ACTIVITY_RETENTION_DAYS = 14;
 // How many days of Daily Challenge results to retain. Older days are pruned on
 // every write so storage stays bounded; ISO keys sort chronologically.
 export const DAILY_CHALLENGE_RETENTION_DAYS = 60;
+
+// How many days of per-day quiz tallies to retain. Matches DAILY_ACTIVITY_RETENTION_DAYS
+// so the weekly recap's 7-day window is always fully computable; older days are
+// pruned on every write so storage stays bounded.
+export const DAILY_QUIZ_RETENTION_DAYS = 14;
 
 // ─── SM-2-ish scheduling constants ────────────────────────────────────────────
 // The scheduler below is a simplified SuperMemo-2 variant. `ease` behaves like
@@ -222,6 +231,26 @@ function normalizeDailyChallenge(raw: unknown): Record<string, DailyChallengeRes
   return out;
 }
 
+// Sanitize a persisted/imported `dailyQuiz` map (ISO day → QuizStat): drop
+// invalid day keys and non-object values, repair each surviving tally via
+// normalizeQuizStat (enforcing `correct ≤ attempts`), and keep at most the newest
+// DAILY_QUIZ_RETENTION_DAYS day-keys (ISO keys sort chronologically). Never
+// throws. Added in schema v11. Mirrors normalizeDailyActivity.
+export function normalizeDailyQuiz(raw: unknown): Record<string, QuizStat> {
+  if (!raw || typeof raw !== "object") return {};
+  const kept: [string, QuizStat][] = [];
+  for (const [day, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (!isISODayKey(day)) continue;
+    if (!value || typeof value !== "object") continue; // non-object → drop
+    kept.push([day, normalizeQuizStat(value)]);
+  }
+  kept.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
+  const trimmed = kept.slice(Math.max(0, kept.length - DAILY_QUIZ_RETENTION_DAYS));
+  const out: Record<string, QuizStat> = {};
+  for (const [day, stat] of trimmed) out[day] = stat;
+  return out;
+}
+
 // Repair a persisted/imported `bestQuizCombo`: any non-number, non-finite, or
 // negative value collapses to 0; a valid number is rounded to a whole streak
 // count. Never throws. Added in schema v6.
@@ -342,6 +371,7 @@ export function normalizeProgress(
     quizStats: normalizeQuizStats(p.quizStats),
     dailyActivity: normalizeDailyActivity(p.dailyActivity),
     dailyChallenge: normalizeDailyChallenge(p.dailyChallenge),
+    dailyQuiz: normalizeDailyQuiz(p.dailyQuiz),
     bestQuizCombo: normalizeBestCombo(p.bestQuizCombo),
     bossStats: normalizeBossStats(p.bossStats),
     studiedDates: asStringArray(p.studiedDates) ?? [],
@@ -769,6 +799,31 @@ export function recordDailyPractice(
   const keep = new Set(days.slice(days.length - DAILY_ACTIVITY_RETENTION_DAYS));
   const pruned: Record<string, string[]> = {};
   for (const day of days) if (keep.has(day)) pruned[day] = next[day];
+  return pruned;
+}
+
+// Record one quiz answer into `day`'s tally, returning a NEW map (pure). The
+// existing tally is normalized first so a corrupt entry can't corrupt the
+// increment; `attempts` always rises and `correct` rises only on a right answer.
+// The result is pruned to the newest DAILY_QUIZ_RETENTION_DAYS day-keys so
+// storage stays bounded; ISO day keys sort chronologically. The input map is
+// never mutated. Added in schema v11; mirrors recordDailyPractice.
+export function recordDailyQuizAnswer(
+  map: Record<string, QuizStat> | undefined,
+  day: string,
+  correct: boolean,
+): Record<string, QuizStat> {
+  const base = map && typeof map === "object" ? map : {};
+  const prev = normalizeQuizStat(base[day]);
+  const next: Record<string, QuizStat> = {
+    ...base,
+    [day]: { correct: prev.correct + (correct ? 1 : 0), attempts: prev.attempts + 1 },
+  };
+  const days = Object.keys(next).sort();
+  if (days.length <= DAILY_QUIZ_RETENTION_DAYS) return next;
+  const keep = new Set(days.slice(days.length - DAILY_QUIZ_RETENTION_DAYS));
+  const pruned: Record<string, QuizStat> = {};
+  for (const d of days) if (keep.has(d)) pruned[d] = next[d];
   return pruned;
 }
 

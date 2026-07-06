@@ -26,7 +26,19 @@ export type ShareCardData =
       daysStudied: number;
     }
   | { kind: "practice"; score: number; total: number; missed: ShareCardWord[] }
-  | { kind: "review"; total: number; counts: Record<Grade, number>; toughest: ShareCardWord[] };
+  | { kind: "review"; total: number; counts: Record<Grade, number>; toughest: ShareCardWord[] }
+  | {
+      // Trailing-7-day recap (Sprint 15). Every field is derived by
+      // computeWeeklyRecap from progress the app already persists — no vocabulary,
+      // nothing invented. `dayFlags` is length 7, oldest → newest.
+      kind: "weekly";
+      wordsPracticed: number;
+      activeDays: number;
+      dayFlags: boolean[];
+      accuracy: number | null;
+      streak: number;
+      weekLabel: string;
+    };
 
 // ─── Layout + color constants ─────────────────────────────────────────────────
 // 4:5 portrait — the friendliest aspect ratio for a mobile share sheet / feed.
@@ -55,6 +67,11 @@ export const SHARE_CARD_COLORS = {
 // Emoji tiles for the Wordle-style score bar.
 const SQUARE_HIT = "🟩";
 const SQUARE_MISS = "🟥";
+
+// Days in the weekly-recap window (mirrors RECAP_WINDOW_DAYS in
+// weekly-recap-logic.ts). Kept as a local literal so this pure module stays free
+// of a value import; the two are trivially the same "7".
+const RECAP_WINDOW_MAX = 7;
 
 // ─── Derived score fraction ───────────────────────────────────────────────────
 
@@ -93,6 +110,14 @@ export function shareTitle(data: ShareCardData): string {
     if (data.streak > 0) return `🔥 ${data.streak}-day streak`;
     return `${clampInt(data.reviewedWords, 0, Number.MAX_SAFE_INTEGER)} words reviewed`;
   }
+  if (data.kind === "weekly") {
+    // Tiered by how many of the 7 days were active. A perfect week is the top
+    // milestone; four+ is a strong week; anything else is still momentum.
+    const active = clampInt(data.activeDays, 0, RECAP_WINDOW_MAX);
+    if (active >= RECAP_WINDOW_MAX) return "Perfect week 🎉";
+    if (active >= 4) return "Strong week 💪";
+    return "A week in motion 🌱";
+  }
   const fraction = scoreFraction(data);
   if (fraction >= 1) return "Perfect round! 🎉";
   if (fraction >= 0.8) return "So close to perfect 💪";
@@ -123,6 +148,24 @@ function wordLine(word: ShareCardWord): string {
   return `${word.hanzi} ${word.pinyin} — ${word.english}`;
 }
 
+// Whole-percent accuracy string ("92%") from an accuracy in [0, 1], or null when
+// there were no attempts (so the accuracy segment can be dropped, never "NaN%").
+export function accuracyPercent(accuracy: number | null): string | null {
+  if (accuracy == null || !Number.isFinite(accuracy)) return null;
+  return `${clampInt(accuracy * 100, 0, 100)}%`;
+}
+
+// The weekly stat line shared by the text snippet and the canvas:
+//   "92% quiz accuracy · 5/7 days active"  (accuracy segment dropped when null →
+//   "5/7 days active"). `activeDays` is clamped to the window so a corrupt value
+// can't read as "9/7".
+export function weeklyStatLine(accuracy: number | null, activeDays: number): string {
+  const active = clampInt(activeDays, 0, RECAP_WINDOW_MAX);
+  const days = `${active}/${RECAP_WINDOW_MAX} days active`;
+  const pct = accuracyPercent(accuracy);
+  return pct ? `${pct} quiz accuracy · ${days}` : days;
+}
+
 // The full multi-line text snippet (Wordle-style). Shared brand line first, then
 // a variant body, then any featured words, then the site host last. `siteHost`
 // is injected (from SITE_URL's host) so this stays DOM-free and testable.
@@ -145,6 +188,12 @@ export function buildShareText(data: ShareCardData, siteHost: string): string {
     lines.push(`Reviewed ${total} card${total !== 1 ? "s" : ""}`);
     lines.push(`${again} again · ${hard} hard · ${good} good · ${easy} easy`);
     for (const word of data.toughest.slice(0, 3)) lines.push(wordLine(word));
+  } else if (data.kind === "weekly") {
+    const words = clampInt(data.wordsPracticed, 0, Number.MAX_SAFE_INTEGER);
+    const streak = clampInt(data.streak, 0, Number.MAX_SAFE_INTEGER);
+    lines.push(`${shareTitle(data)} (${data.weekLabel})`);
+    lines.push(`${words} word${words !== 1 ? "s" : ""} · ${weeklyStatLine(data.accuracy, data.activeDays)}`);
+    if (streak > 0) lines.push(`🔥 ${streak}-day streak`);
   } else {
     lines.push(shareTitle(data));
     const reviewed = clampInt(data.reviewedWords, 0, Number.MAX_SAFE_INTEGER);

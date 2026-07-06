@@ -23,6 +23,8 @@ import {
   type MasterySummary,
 } from "@/lib/progress-logic";
 import { computeAchievements } from "@/lib/achievements-logic";
+import { computeWeeklyRecap, type WeeklyRecap } from "@/lib/weekly-recap-logic";
+import type { ShareCardData } from "@/lib/share-card-logic";
 import { AchievementShelf } from "./achievement-shelf";
 import { StudyHeatmap } from "./study-heatmap";
 import { ShareScoreButton } from "./share-score-button";
@@ -52,6 +54,10 @@ export function StatsApp({
 
   // computeStats defaults `now` to the real clock; recompute when progress changes.
   const stats = useMemo(() => computeStats(progress), [progress]);
+
+  // Trailing-7-day recap for the "This week" section + share card. Defaults its
+  // endDay to today; recompute only when progress changes.
+  const weeklyRecap = useMemo(() => computeWeeklyRecap(progress), [progress]);
 
   // Weakest quizzed words, resolved back to their word + topic for display.
   // computeWeakWords already filters to words with enough attempts, so an entry
@@ -248,6 +254,15 @@ export function StatsApp({
         />
       </div>
 
+      {/* ── This week recap (always rendered; the share button hides on an empty week) ── */}
+      <section className="mt-10" aria-label="This week">
+        <h2 className="text-xl font-semibold text-white">This week</h2>
+        <p className="mt-1 text-sm text-slate-400">
+          Your last 7 days, computed on this device. Share it as a card.
+        </p>
+        <ThisWeekCard recap={weeklyRecap} />
+      </section>
+
       {/* ── Study activity heatmap (always rendered; a blank year is informative) ── */}
       <section className="mt-10" aria-label="Study activity">
         <h2 className="text-xl font-semibold text-white">Study activity</h2>
@@ -332,6 +347,61 @@ export function StatsApp({
         </section>
       ) : null}
     </main>
+  );
+}
+
+// ── This week recap card ──────────────────────────────────────────────────────
+// The four trailing-7-day figures, a presence-only day-dot row, and the weekly
+// share button (which hides itself on an empty week). Accuracy falls back to "—"
+// until quiz answers land this week, since the per-day tally starts empty at ship.
+function ThisWeekCard({ recap }: { recap: WeeklyRecap }) {
+  const accuracyLabel = recap.accuracy == null ? "—" : `${Math.round(recap.accuracy * 100)}%`;
+  const data: ShareCardData = {
+    kind: "weekly",
+    wordsPracticed: recap.wordsPracticed,
+    activeDays: recap.activeDays,
+    dayFlags: recap.dayFlags,
+    accuracy: recap.accuracy,
+    streak: recap.streak,
+    weekLabel: recap.weekLabel,
+  };
+  return (
+    <div className="mt-4 rounded-2xl border border-white/10 bg-surface p-5">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-4">
+          <WeekFigure value={`${recap.wordsPracticed}`} label="words practiced" />
+          <WeekFigure value={accuracyLabel} label="quiz accuracy" />
+          <WeekFigure value={`${recap.activeDays}/7`} label="days active" />
+          <WeekFigure
+            value={`${recap.streak}`}
+            label={`day streak${recap.streak > 0 ? " 🔥" : ""}`}
+          />
+        </div>
+        <ShareScoreButton surface="weekly" data={data} />
+      </div>
+      <div className="mt-5 flex items-center gap-2" aria-label={`${recap.activeDays} of 7 days active this week`}>
+        {recap.dayFlags.map((active, i) => (
+          <span
+            key={i}
+            className={`h-3.5 w-3.5 rounded-full ${active ? "bg-emerald-400" : "border border-white/15"}`}
+            aria-hidden="true"
+          />
+        ))}
+      </div>
+      <p className="mt-4 text-xs text-slate-500">
+        Quiz accuracy counts answers from this week on this device.
+      </p>
+    </div>
+  );
+}
+
+// One labelled figure inside the weekly recap card.
+function WeekFigure({ value, label }: { value: string; label: string }) {
+  return (
+    <div>
+      <div className="text-3xl font-semibold text-white">{value}</div>
+      <div className="mt-1 text-xs text-slate-400">{label}</div>
+    </div>
   );
 }
 

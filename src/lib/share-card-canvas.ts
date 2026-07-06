@@ -8,6 +8,7 @@ import {
   SHARE_CARD_HEIGHT,
   SHARE_CARD_WIDTH,
   shareTitle,
+  weeklyStatLine,
   wrapText,
   type ShareCardData,
   type ShareCardWord,
@@ -126,16 +127,84 @@ function bigNumeral(data: ShareCardData): { value: string; caption: string } {
       caption: `card${data.total !== 1 ? "s" : ""} reviewed`,
     };
   }
+  if (data.kind === "weekly") {
+    return { value: `${data.wordsPracticed}`, caption: "words this week" };
+  }
   if (data.streak > 0) return { value: `${data.streak}`, caption: "day streak 🔥" };
   return { value: `${data.reviewedWords}`, caption: "words reviewed" };
 }
 
 // The featured words for the variant (practice → missed, review → toughest,
-// stats → none), capped at three.
+// stats / weekly → none), capped at three.
 function featuredWords(data: ShareCardData): ShareCardWord[] {
   if (data.kind === "practice") return data.missed.slice(0, 3);
   if (data.kind === "review") return data.toughest.slice(0, 3);
   return [];
+}
+
+// Single-letter UTC weekday labels indexed by getUTCDay() (Sun→Sat).
+const WEEKDAY_LETTERS = ["S", "M", "T", "W", "T", "F", "S"] as const;
+
+// The `count` weekday letters for a trailing window ending today (UTC),
+// oldest → newest — matching the dayFlags order. The weekly card is always
+// generated for endDay = today, so anchoring on the current UTC weekday keeps the
+// letters aligned with the dots. Impure (reads the clock), but so is the whole
+// canvas layer.
+function weekdayLettersEndingToday(count: number): string[] {
+  const todayDow = new Date().getUTCDay();
+  const letters: string[] = [];
+  for (let i = count - 1; i >= 0; i--) {
+    letters.push(WEEKDAY_LETTERS[(((todayDow - i) % 7) + 7) % 7]);
+  }
+  return letters;
+}
+
+// Weekly-only block drawn under the big numeral: a centered row of 7 day dots
+// (filled accent when active, hairline circle when not), weekday letters beneath,
+// one stat line, and the week label. No hanzi here, so no extra font loads.
+function drawWeeklyBlock(
+  ctx: CanvasRenderingContext2D,
+  data: Extract<ShareCardData, { kind: "weekly" }>,
+  centerX: number,
+  sansFont: string,
+): void {
+  const C = SHARE_CARD_COLORS;
+  const flags = Array.isArray(data.dayFlags) ? data.dayFlags.slice(0, 7) : [];
+  const n = flags.length;
+  const letters = weekdayLettersEndingToday(n);
+  const radius = 22;
+  const step = 92;
+  const startX = centerX - ((n - 1) * step) / 2;
+  const dotY = 740;
+
+  for (let i = 0; i < n; i++) {
+    const x = startX + i * step;
+    ctx.beginPath();
+    ctx.arc(x, dotY, radius, 0, Math.PI * 2);
+    if (flags[i]) {
+      ctx.fillStyle = C.accent;
+      ctx.fill();
+    } else {
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = C.border;
+      ctx.stroke();
+    }
+    ctx.font = `600 30px ${sansFont}`;
+    ctx.fillStyle = C.inkLow;
+    ctx.textAlign = "center";
+    ctx.fillText(letters[i] ?? "", x, dotY + 68);
+  }
+
+  ctx.textAlign = "center";
+  let stat = weeklyStatLine(data.accuracy, data.activeDays);
+  if (data.streak > 0) stat += ` · 🔥 ${data.streak}-day streak`;
+  ctx.font = `500 40px ${sansFont}`;
+  ctx.fillStyle = C.inkMid;
+  ctx.fillText(stat, centerX, dotY + 150);
+
+  ctx.font = `500 34px ${sansFont}`;
+  ctx.fillStyle = C.inkLow;
+  ctx.fillText(data.weekLabel, centerX, dotY + 205);
 }
 
 // Render the card to an offscreen canvas at SHARE_CARD_WIDTH × SHARE_CARD_HEIGHT.
@@ -191,6 +260,12 @@ export async function renderShareCard(
   ctx.font = `500 40px ${fonts.sans}`;
   ctx.fillStyle = C.inkMid;
   ctx.fillText(caption, centerX, 630);
+
+  // Weekly recap adds a day-dot row + stat line under the caption (no featured
+  // words follow, so it owns the mid-card space).
+  if (data.kind === "weekly") {
+    drawWeeklyBlock(ctx, data, centerX, fonts.sans);
+  }
 
   // Featured words (each: hanzi, pinyin under it, English gloss). English wraps
   // so a long gloss never overflows the panel.

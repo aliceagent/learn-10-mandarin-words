@@ -158,6 +158,14 @@ export type ProgressState = {
    */
   dailyChallenge: Record<string, DailyChallengeResult>;
   /**
+   * Per-day quiz accuracy tally (`YYYY-MM-DD` → QuizStat), summed across every
+   * quiz-style answer recorded that day. Unlike the all-time `quizStats` (keyed
+   * by word), this is keyed by day so a trailing-week accuracy can be derived for
+   * the weekly recap card. Pruned to the most recent DAILY_QUIZ_RETENTION_DAYS
+   * days on every write so storage stays bounded. Added in schema v11.
+   */
+  dailyQuiz: Record<string, QuizStat>;
+  /**
    * All-time best consecutive-correct quiz streak (the longest combo ever reached
    * in the Quiz tab). Monotonic — only ever raised. Added in schema v6.
    */

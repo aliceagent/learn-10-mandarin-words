@@ -18,7 +18,7 @@ import { track } from "@/lib/analytics";
 import { useToneColors } from "./use-tone-colors";
 import { Toast } from "./toast";
 
-type Surface = "stats" | "practice" | "review";
+type Surface = "stats" | "practice" | "review" | "weekly";
 
 // Elements that can receive keyboard focus inside the dialog (mirrors onboarding.tsx).
 const FOCUSABLE_SELECTOR =
@@ -38,6 +38,10 @@ const SITE_HOST = (() => {
 function hasSomethingToShare(data: ShareCardData): boolean {
   if (data.kind === "stats") {
     return data.streak > 0 || data.reviewedWords > 0 || data.learnedTopics > 0 || data.daysStudied > 0;
+  }
+  // A weekly card needs a lived-in week: any practice or any active day.
+  if (data.kind === "weekly") {
+    return data.wordsPracticed > 0 || data.activeDays > 0;
   }
   return data.total > 0;
 }
@@ -66,7 +70,12 @@ export function ShareScoreButton({
   const dialogRef = useRef<HTMLDivElement>(null);
   const previouslyFocused = useRef<HTMLElement | null>(null);
 
-  const label = surface === "stats" ? "Share progress 📸" : "Share score card 📸";
+  const label =
+    surface === "stats"
+      ? "Share progress 📸"
+      : surface === "weekly"
+        ? "Share weekly recap 📅"
+        : "Share score card 📸";
   const text = buildShareText(data, SITE_HOST);
 
   // Fresh blob per call — copy/share on Safari must receive a pending payload

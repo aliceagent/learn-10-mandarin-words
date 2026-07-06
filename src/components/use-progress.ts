@@ -15,6 +15,7 @@ import {
   recordBossResult,
   recordDailyChallenge,
   recordDailyPractice,
+  recordDailyQuizAnswer,
   recordRecentTopic,
   scheduleReview,
   todayISO,
@@ -138,6 +139,10 @@ export function useProgress() {
     recordQuizAnswer: (key: string, correct: boolean) => setProgress((current) => withPractice({
       ...current,
       quizStats: updateQuizStats(current.quizStats, key, correct),
+      // Also tally today's accuracy by day (schema v11) so the weekly recap card
+      // can derive a trailing-7-day quiz accuracy. gradeWord is deliberately
+      // excluded — accuracy is the quiz signal, same as the Trickiest words list.
+      dailyQuiz: recordDailyQuizAnswer(current.dailyQuiz, todayISO(), correct),
     }, key)),
     // Persist the official Daily Challenge result for `day` (first completion
     // wins). NOT routed through withPractice: each answer already flows through
