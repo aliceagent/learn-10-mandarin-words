@@ -33,7 +33,10 @@ import { BOSS_STAGE_COUNT } from "./boss-logic.ts";
 //   v6 → v7: added `bossStats` (per-topic Boss Round best score, attempts, and
 //   crown date). Older saves lack the field and migrate to an empty `{}`, losing
 //   nothing else.
-export const CURRENT_PROGRESS_SCHEMA_VERSION = 7;
+//   v7 → v8: added `lapses` to each FlashcardStat (count of "again" grades, for
+//   leech detection). Older stats lack the field and backfill to 0, losing
+//   nothing else.
+export const CURRENT_PROGRESS_SCHEMA_VERSION = 8;
 
 export const emptyProgress: ProgressState = {
   schemaVersion: CURRENT_PROGRESS_SCHEMA_VERSION,
@@ -98,11 +101,16 @@ export function normalizeStat(stat: unknown, now: Date): FlashcardStat {
     Number.isFinite(s.reviewCount) && (s.reviewCount as number) >= 0
       ? Math.round(s.reviewCount as number)
       : base.reviewCount;
+  const lapses =
+    Number.isFinite(s.lapses) && (s.lapses as number) >= 0
+      ? Math.round(s.lapses as number)
+      : base.lapses;
   return {
     intervalDays,
     ease: clampEase(s.ease as number),
     dueAt: isValidISO(s.dueAt) ? s.dueAt : base.dueAt,
     reviewCount,
+    lapses,
   };
 }
 
@@ -352,6 +360,8 @@ export type ProgressStats = {
   daysStudied: number;
   /** Consecutive-day study streak ending today (or yesterday). */
   streak: number;
+  /** Words repeatedly failed in review and flagged for a rescue drill. */
+  leechWords: number;
 };
 
 export function computeStats(progress: ProgressState, now: Date = new Date()): ProgressStats {
@@ -361,11 +371,13 @@ export function computeStats(progress: ProgressState, now: Date = new Date()): P
   let dueReviews = 0;
   let reviewedWords = 0;
   let totalReviews = 0;
+  let leechWords = 0;
   for (const stat of stats) {
     const due = new Date(stat.dueAt).getTime();
     if (Number.isFinite(due) && due <= nowMs) dueReviews++;
     if (stat.reviewCount > 0) reviewedWords++;
     totalReviews += stat.reviewCount;
+    if (isLeech(stat)) leechWords++;
   }
 
   return {
@@ -380,6 +392,7 @@ export function computeStats(progress: ProgressState, now: Date = new Date()): P
     // computeStreak takes the "today" anchor as an ISO day string; derive it
     // from the injectable clock so tests stay deterministic.
     streak: computeStreak(progress.studiedDates ?? [], isoDay(now)),
+    leechWords,
   };
 }
 
@@ -431,6 +444,8 @@ export type DueCard = {
   key: string;
   dueAt: string;
   intervalDays: number;
+  /** Count of "again" grades ever recorded for this word (drives leech flag). */
+  lapses: number;
 };
 
 // Every word across `topics` whose next review is due at or before `now`,
@@ -458,11 +473,76 @@ export function dueCards(
           key,
           dueAt: stat.dueAt,
           intervalDays: stat.intervalDays,
+          // Legacy pre-v8 stats may predate the lapse counter; default to 0 so
+          // the DueCard contract's `lapses: number` never leaks `undefined`.
+          lapses: stat.lapses ?? 0,
         });
       }
     }
   }
   return cards.sort((a, b) => new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime());
+}
+
+// ─── Leech detection ──────────────────────────────────────────────────────────
+//
+// A "leech" is a word the learner keeps failing: it has lapsed (been graded
+// "again") enough times to signal it isn't sticking, yet its review interval
+// hasn't climbed back to mastery. This is the SRS-failure complement to the
+// quiz-accuracy "tricky"/weak-word signal above — a separate, additive signal
+// over `flashcardStats` rather than `quizStats`.
+//
+// Threshold 4 (rather than Anki's classic 8) because this app's decks are 10
+// words per topic with short intervals: four failed reviews is already a strong
+// "not sticking" signal at this scale. It's a single named constant, tunable in
+// one place.
+export const LEECH_LAPSE_THRESHOLD = 4;
+
+// True iff the given stat has lapsed at least LEECH_LAPSE_THRESHOLD times AND
+// its interval is still below mastery. Reaching MASTERED_INTERVAL_DAYS graduates
+// a word off the leech list (no explicit un-flag or reset needed). The input is
+// normalized first so legacy/corrupt entries (including ones missing `lapses`)
+// are handled per house style; `undefined` is never a leech.
+export function isLeech(stat: FlashcardStat | undefined): boolean {
+  if (!stat) return false;
+  const s = normalizeStat(stat, new Date());
+  return s.lapses >= LEECH_LAPSE_THRESHOLD && s.intervalDays < MASTERED_INTERVAL_DAYS;
+}
+
+// Every word across `topics` currently flagged as a leech, resolved to the same
+// DueCard shape as `dueCards` but IGNORING the due date (a leech deserves focus
+// whether or not it happens to be due). Sorted most-lapsed first, then oldest
+// due date, then key — a stable, deterministic order. Pure; no clock needed
+// beyond `isLeech`'s mastery check.
+export function leechCards(
+  topics: Topic[],
+  flashcardStats: Record<string, FlashcardStat>,
+): DueCard[] {
+  const cards: DueCard[] = [];
+  for (const topic of topics) {
+    for (const item of topic.items) {
+      const key = wordKey(topic, item);
+      const stat = flashcardStats[key];
+      if (stat && isLeech(stat)) {
+        cards.push({
+          topicSlug: topic.slug,
+          topicTitle: topic.titleEn,
+          hanzi: item.hanzi,
+          pinyin: item.pinyin,
+          english: item.english,
+          key,
+          dueAt: stat.dueAt,
+          intervalDays: stat.intervalDays,
+          lapses: stat.lapses ?? 0,
+        });
+      }
+    }
+  }
+  return cards.sort(
+    (a, b) =>
+      b.lapses - a.lapses ||
+      new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime() ||
+      (a.key < b.key ? -1 : a.key > b.key ? 1 : 0),
+  );
 }
 
 // ─── Weak / tricky words ──────────────────────────────────────────────────────
@@ -508,7 +588,7 @@ export type Grade = "again" | "hard" | "good" | "easy";
 
 // The stat used for a word's very first review.
 export function defaultStat(now: Date): FlashcardStat {
-  return { intervalDays: 0, ease: DEFAULT_EASE, dueAt: now.toISOString(), reviewCount: 0 };
+  return { intervalDays: 0, ease: DEFAULT_EASE, dueAt: now.toISOString(), reviewCount: 0, lapses: 0 };
 }
 
 // Per-grade nudge applied to `ease` (SM-2 E-Factor). "good" leaves ease
@@ -551,7 +631,11 @@ export function scheduleReview(existing: FlashcardStat, grade: Grade, now: Date)
   const ease = clampEase(stat.ease + EASE_DELTA[grade]);
   const due = new Date(now);
   due.setDate(due.getDate() + intervalDays);
-  return { intervalDays, ease, dueAt: due.toISOString(), reviewCount: stat.reviewCount + 1 };
+  // A lapse is an "again" grade: the word slipped and had to be relearned. Only
+  // this grade bumps the counter that drives leech detection; every other grade
+  // preserves it.
+  const lapses = stat.lapses + (grade === "again" ? 1 : 0);
+  return { intervalDays, ease, dueAt: due.toISOString(), reviewCount: stat.reviewCount + 1, lapses };
 }
 
 // ─── Grading feedback previews ─────────────────────────────────────────────────

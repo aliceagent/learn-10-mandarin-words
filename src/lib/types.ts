@@ -72,6 +72,13 @@ export type FlashcardStat = {
   ease: number;
   dueAt: string;
   reviewCount: number;
+  /**
+   * Count of `"again"` grades ever recorded for this word (a lapse counter).
+   * Non-negative integer; only incremented at the `scheduleReview` choke point.
+   * Powers leech detection (repeatedly-missed words). Added in schema v8;
+   * older stats backfill to 0.
+   */
+  lapses: number;
 };
 
 // Per-word quiz accuracy, keyed by the same `wordKey` (`topic.slug:hanzi`) used

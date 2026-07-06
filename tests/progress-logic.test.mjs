@@ -16,7 +16,11 @@ import {
   formatIntervalDays,
   goalProgress,
   isCrowned,
+  isLeech,
+  LEECH_LAPSE_THRESHOLD,
+  leechCards,
   longestStreak,
+  MASTERED_INTERVAL_DAYS,
   masterySummary,
   normalizeBossStat,
   normalizeBossStats,
@@ -119,6 +123,7 @@ test("normalizeProgress repairs partial/invalid flashcard stats without dropping
     ease: 2.4,
     dueAt: "2026-07-05T00:00:00.000Z",
     reviewCount: 2,
+    lapses: 0, // pre-v8 stat lacks the lapse counter → backfilled to 0
   });
   assert.equal(p.flashcardStats["topic:坏"].ease, EASE_CEIL); // 9 clamped down
   assert.equal(p.flashcardStats["topic:坏"].reviewCount, 0); // backfilled
@@ -267,7 +272,7 @@ test("dueCards returns only due words, sorted oldest-due first", () => {
   const topics = [makeTopic("a", ["好", "坏"], "Topic A"), makeTopic("b", ["空"], "Topic B")];
   const flashcardStats = {
     // Due yesterday → included, and oldest so it sorts first.
-    "a:好": { intervalDays: 2, ease: 2.5, dueAt: "2026-07-01T00:00:00.000Z", reviewCount: 1 },
+    "a:好": { intervalDays: 2, ease: 2.5, dueAt: "2026-07-01T00:00:00.000Z", reviewCount: 1, lapses: 3 },
     // Due in the future → excluded.
     "a:坏": { intervalDays: 4, ease: 2.5, dueAt: "2026-07-10T00:00:00.000Z", reviewCount: 1 },
     // Due exactly at `now` → included (boundary is inclusive).
@@ -284,6 +289,7 @@ test("dueCards returns only due words, sorted oldest-due first", () => {
     key: "a:好",
     dueAt: "2026-07-01T00:00:00.000Z",
     intervalDays: 2,
+    lapses: 3, // carried through from the stat (drives the leech flag)
   });
 });
 
@@ -295,6 +301,74 @@ test("dueCards ignores words with no flashcard stat and returns [] when none are
     "a:好": { intervalDays: 4, ease: 2.5, dueAt: "2026-08-01T00:00:00.000Z", reviewCount: 1 },
   };
   assert.deepEqual(dueCards(topics, flashcardStats, now), []);
+});
+
+// ─── leech detection (schema v8) ────────────────────────────────────────────────
+
+// A flashcard stat with the given lapse count and interval; the other fields are
+// irrelevant to isLeech/leechCards so they take fixed defaults.
+function makeLeechStat({ lapses, intervalDays = 1, dueAt = "2026-07-01T00:00:00.000Z" }) {
+  return { intervalDays, ease: 2.5, dueAt, reviewCount: lapses, lapses };
+}
+
+test("isLeech flags a word only at/above the lapse threshold and below mastery", () => {
+  // Below the threshold → not a leech, however low the interval.
+  assert.equal(isLeech(makeLeechStat({ lapses: LEECH_LAPSE_THRESHOLD - 1 })), false);
+  // At the threshold with a sub-mastery interval → a leech.
+  assert.equal(isLeech(makeLeechStat({ lapses: LEECH_LAPSE_THRESHOLD })), true);
+  assert.equal(isLeech(makeLeechStat({ lapses: LEECH_LAPSE_THRESHOLD + 3 })), true);
+  // Enough lapses, but the interval has reached mastery → graduated, not a leech.
+  assert.equal(
+    isLeech(makeLeechStat({ lapses: LEECH_LAPSE_THRESHOLD, intervalDays: MASTERED_INTERVAL_DAYS })),
+    false,
+  );
+});
+
+test("isLeech tolerates undefined and legacy stats missing the lapse counter", () => {
+  assert.equal(isLeech(undefined), false);
+  // Pre-v8 stat with no `lapses` field normalizes to 0 lapses → never a leech.
+  assert.equal(isLeech({ intervalDays: 1, ease: 2.5, dueAt: "2026-07-01T00:00:00.000Z", reviewCount: 9 }), false);
+});
+
+test("leechCards returns flagged words most-lapsed first, ignoring the due date", () => {
+  const topics = [makeTopic("a", ["好", "坏", "妙"], "Topic A"), makeTopic("b", ["空"], "Topic B")];
+  const flashcardStats = {
+    // Flagged: 4 lapses, sub-mastery — and due far in the future, yet still listed.
+    "a:好": makeLeechStat({ lapses: 4, intervalDays: 1, dueAt: "2030-01-01T00:00:00.000Z" }),
+    // Not flagged: below threshold.
+    "a:坏": makeLeechStat({ lapses: 2 }),
+    // Flagged, more lapses → sorts before 好.
+    "a:妙": makeLeechStat({ lapses: 6, intervalDays: 2, dueAt: "2026-06-01T00:00:00.000Z" }),
+    // Not flagged: enough lapses but already mastered.
+    "b:空": makeLeechStat({ lapses: 5, intervalDays: MASTERED_INTERVAL_DAYS }),
+  };
+  const cards = leechCards(topics, flashcardStats);
+  assert.deepEqual(cards.map((c) => c.key), ["a:妙", "a:好"]);
+  assert.equal(cards[0].lapses, 6);
+  assert.equal(cards[0].topicTitle, "Topic A");
+});
+
+test("leechCards is [] when no word has lapsed enough", () => {
+  const topics = [makeTopic("a", ["好", "坏"])];
+  const flashcardStats = {
+    "a:好": makeLeechStat({ lapses: LEECH_LAPSE_THRESHOLD - 1 }),
+  };
+  assert.deepEqual(leechCards(topics, flashcardStats), []);
+});
+
+test("scheduleReview increments lapses only on an 'again' grade", () => {
+  const now = new Date("2026-07-01T00:00:00.000Z");
+  const start = makeLeechStat({ lapses: 2, intervalDays: 3 });
+  assert.equal(scheduleReview(start, "again", now).lapses, 3);
+  assert.equal(scheduleReview(start, "hard", now).lapses, 2);
+  assert.equal(scheduleReview(start, "good", now).lapses, 2);
+  assert.equal(scheduleReview(start, "easy", now).lapses, 2);
+  // A brand-new card's first 'again' records the first lapse.
+  assert.equal(scheduleReview(defaultStat(now), "again", now).lapses, 1);
+});
+
+test("defaultStat starts with a zero lapse counter", () => {
+  assert.equal(defaultStat(new Date("2026-07-01T00:00:00.000Z")).lapses, 0);
 });
 
 test("uniqueToggle adds when absent and removes when present", () => {

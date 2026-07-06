@@ -1,13 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { MandarinData } from "@/lib/types";
-import { dueCards, formatIntervalDays, previewIntervals } from "@/lib/progress-logic";
+import {
+  dueCards,
+  formatIntervalDays,
+  leechCards,
+  LEECH_LAPSE_THRESHOLD,
+  previewIntervals,
+} from "@/lib/progress-logic";
 import type { Grade } from "@/lib/progress-logic";
 import {
   gradeCard,
   isSessionComplete,
+  RESCUE_CAP,
   startSession,
   toughestCards,
   type ReviewSession,
@@ -51,6 +58,12 @@ const GRADE_SEGMENTS: { grade: Grade; rule: string }[] = [
   { grade: "easy", rule: "border-emerald-400/60" },
 ];
 
+// Two ways to enter the session machine: the normal due queue, or a focused
+// "rescue" pass over leech-flagged words (see leechCards / isLeech). Both run
+// through the exact same ReviewSession + grading flow; only the queue source and
+// the surrounding copy differ.
+type ReviewMode = "due" | "rescue";
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function ReviewApp({ data }: { data: MandarinData }) {
@@ -62,8 +75,19 @@ export function ReviewApp({ data }: { data: MandarinData }) {
   // and only ever rebuild on an explicit "Review N more".
   const [session, setSession] = useState<ReviewSession | null>(null);
   const [revealed, setRevealed] = useState(false);
+  // Which queue the current session is drilling: the due queue (default) or a
+  // rescue pass over leech-flagged words.
+  const [mode, setMode] = useState<ReviewMode>("due");
   // Transient confirmation shown after grading a card.
   const [toast, setToast] = useState<string | null>(null);
+
+  // Words repeatedly failed in review and still short of mastery. Recomputed on
+  // every progress change (grading a rescue card can graduate a word off this
+  // list — the point of the drill). Drives the rescue banner/CTA counts.
+  const leeches = useMemo(
+    () => leechCards(data.topics, progress.flashcardStats),
+    [data.topics, progress.flashcardStats],
+  );
 
   // Seed the session exactly once, the moment progress finishes loading — using
   // the "adjust state while rendering" pattern so the queue is fixed before
@@ -97,16 +121,29 @@ export function ReviewApp({ data }: { data: MandarinData }) {
       const next = gradeCard(session, grade);
       setSession(next);
       if (isSessionComplete(next)) {
-        track("review_completed", { count: next.queue.length });
+        track(mode === "rescue" ? "rescue_drill_completed" : "review_completed", {
+          count: next.queue.length,
+        });
       }
     },
-    [session, current, progress.flashcardStats, gradeWord],
+    [session, current, progress.flashcardStats, gradeWord, mode],
   );
 
   // Start a fresh session from the current (post-grading) due queue. Safe to
   // recompute here because it's an explicit user action, not a mid-run memo.
   function reviewMore() {
     setSession(startSession(dueCards(data.topics, progress.flashcardStats)));
+    setMode("due");
+    setRevealed(false);
+  }
+
+  // Start (or restart) a rescue drill: a capped session over just the currently
+  // flagged leech words, run through the same session machine and real grading.
+  // Re-deriving leechCards here (not the memo) is deliberate — words graded up in
+  // a prior rescue may have graduated, so each drill uses the freshest list.
+  function startRescue() {
+    setSession(startSession(leechCards(data.topics, progress.flashcardStats), RESCUE_CAP));
+    setMode("rescue");
     setRevealed(false);
   }
 
@@ -199,14 +236,25 @@ export function ReviewApp({ data }: { data: MandarinData }) {
       <Link href="/" className="text-sm font-semibold text-emerald-300 hover:text-emerald-200">← Library</Link>
 
       <div className="mt-8">
-        <h1 className="text-4xl font-semibold tracking-tight text-white md:text-5xl">Daily Review</h1>
-        <p className="mt-3 max-w-2xl text-lg text-slate-300">
-          {isEmpty
-            ? "No cards are due for review right now."
-            : session.remainingDue > 0
-              ? `${total} card session · ${session.remainingDue} more due later.`
-              : `${total} card${total !== 1 ? "s" : ""} due for review today.`}
-        </p>
+        {mode === "rescue" ? (
+          <>
+            <h1 className="text-4xl font-semibold tracking-tight text-white md:text-5xl">Rescue Drill</h1>
+            <p className="mt-3 max-w-2xl text-lg text-slate-300">
+              {total} word{total !== 1 ? "s" : ""} that keep slipping. Grade honestly — a Good or Easy here reschedules them for real.
+            </p>
+          </>
+        ) : (
+          <>
+            <h1 className="text-4xl font-semibold tracking-tight text-white md:text-5xl">Daily Review</h1>
+            <p className="mt-3 max-w-2xl text-lg text-slate-300">
+              {isEmpty
+                ? "No cards are due for review right now."
+                : session.remainingDue > 0
+                  ? `${total} card session · ${session.remainingDue} more due later.`
+                  : `${total} card${total !== 1 ? "s" : ""} due for review today.`}
+            </p>
+          </>
+        )}
       </div>
 
       {/* Tone-colors preference for the pinyin on review card backs (and the
@@ -214,6 +262,25 @@ export function ReviewApp({ data }: { data: MandarinData }) {
       <div className="mt-6 flex justify-end">
         <ToneColorsToggle />
       </div>
+
+      {/* ── Rescue banner: leeches exist while running the due queue ── */}
+      {mode === "due" && !isEmpty && leeches.length > 0 ? (
+        <div className="mt-6 rounded-3xl border border-amber-400/30 bg-amber-400/[0.06] p-6">
+          <h2 className="text-lg font-semibold text-amber-200">
+            {leeches.length} word{leeches.length !== 1 ? "s" : ""} {leeches.length !== 1 ? "keep" : "keeps"} slipping
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm text-amber-100/80">
+            You&apos;ve missed these {LEECH_LAPSE_THRESHOLD}+ times in review. A short rescue drill gives them focused attention until they stick.
+          </p>
+          <button
+            type="button"
+            onClick={startRescue}
+            className="mt-4 min-h-[44px] inline-flex items-center rounded-full bg-amber-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-amber-300"
+          >
+            Start rescue drill
+          </button>
+        </div>
+      ) : null}
 
       {/* ── Empty state: no cards due ── */}
       {isEmpty ? (
@@ -227,6 +294,15 @@ export function ReviewApp({ data }: { data: MandarinData }) {
             <Link href="/" className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 hover:bg-emerald-300 transition">
               Browse topics
             </Link>
+            {leeches.length > 0 ? (
+              <button
+                type="button"
+                onClick={startRescue}
+                className="min-h-[44px] inline-flex items-center rounded-full bg-amber-400 px-6 py-3 font-semibold text-slate-950 hover:bg-amber-300 transition"
+              >
+                Rescue {leeches.length} tricky word{leeches.length !== 1 ? "s" : ""}
+              </button>
+            ) : null}
             <Link href="/favorites" className="min-h-[44px] inline-flex items-center rounded-full border border-white/15 px-6 py-3 font-semibold text-white hover:border-emerald-300 transition">
               My favorites
             </Link>
@@ -236,9 +312,13 @@ export function ReviewApp({ data }: { data: MandarinData }) {
         /* ── Session complete summary ── */
         <div className="animate-celebrate mt-12 rounded-3xl border border-white/10 bg-surface p-8 text-center md:p-10">
           <p className="text-6xl">🎉</p>
-          <p className="mt-4 text-2xl font-semibold text-white">Session complete!</p>
+          <p className="mt-4 text-2xl font-semibold text-white">
+            {mode === "rescue" ? "Rescue drill complete!" : "Session complete!"}
+          </p>
           <p className="mt-3 text-slate-400">
-            You reviewed {total} card{total !== 1 ? "s" : ""}. Here&apos;s how it went.
+            {mode === "rescue"
+              ? `You worked through ${total} word${total !== 1 ? "s" : ""}. Words graduate off the rescue list once their review interval reaches a week.`
+              : `You reviewed ${total} card${total !== 1 ? "s" : ""}. Here's how it went.`}
           </p>
 
           {/* Grade tally */}
@@ -286,7 +366,21 @@ export function ReviewApp({ data }: { data: MandarinData }) {
           ) : null}
 
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            {session.remainingDue > 0 ? (
+            {mode === "rescue" ? (
+              leeches.length > 0 ? (
+                <button
+                  type="button"
+                  onClick={startRescue}
+                  className="min-h-[44px] rounded-full bg-amber-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-amber-300"
+                >
+                  Rescue {leeches.length} more
+                </button>
+              ) : (
+                <Link href="/" className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300">
+                  Learn more words
+                </Link>
+              )
+            ) : session.remainingDue > 0 ? (
               <button
                 type="button"
                 onClick={reviewMore}
@@ -390,7 +484,17 @@ export function ReviewApp({ data }: { data: MandarinData }) {
                   <p lang={HANZI_LANG} className="font-hanzi text-4xl font-semibold text-white">{current.hanzi}</p>
                   <p lang={PINYIN_LANG} className="mt-3 font-hanzi text-2xl text-emerald-300"><TonePinyin pinyin={current.pinyin} /></p>
                   <p className="mt-2 text-xl text-slate-200">{current.english}</p>
-                  <p className="mt-4 text-xs text-slate-500">Current interval: {current.intervalDays}d</p>
+                  <div className="mt-4 flex items-center justify-center gap-2">
+                    <p className="text-xs text-slate-500">Current interval: {current.intervalDays}d</p>
+                    {current.lapses >= LEECH_LAPSE_THRESHOLD ? (
+                      <span
+                        className="rounded-full border border-amber-400/50 px-2 py-0.5 text-[11px] font-medium text-amber-300"
+                        aria-label={`Missed ${current.lapses} times in review`}
+                      >
+                        Missed {current.lapses}×
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
               </div>
             </div>

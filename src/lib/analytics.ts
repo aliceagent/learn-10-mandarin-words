@@ -22,6 +22,7 @@ export type AnalyticsEvent =
   | "tone_pairs_completed"
   | "listen_all_completed"
   | "review_completed"
+  | "rescue_drill_completed"
   | "practice_session_completed"
   | "daily_challenge_completed"
   | "boss_round_completed"

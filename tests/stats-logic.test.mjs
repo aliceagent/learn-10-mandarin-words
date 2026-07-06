@@ -16,6 +16,7 @@ test("computeStats returns all-zero stats for empty progress", () => {
     totalReviews: 0,
     daysStudied: 0,
     streak: 0,
+    leechWords: 0,
   });
 });
 

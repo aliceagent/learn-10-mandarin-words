@@ -14,6 +14,10 @@ export const SESSION_CAP = 20;
 // cards, so the learner sees it again within the same session (relearn) without
 // it bouncing back immediately.
 export const AGAIN_GAP = 3;
+// A rescue drill (focused review over leech-flagged words) is capped smaller
+// than a normal session: it's a short, targeted burst over words that keep
+// slipping. The session state machine is reused as-is via `startSession(…, RESCUE_CAP)`.
+export const RESCUE_CAP = 8;
 
 export type ReviewSession = {
   /** Working queue including requeued copies of Again cards. */

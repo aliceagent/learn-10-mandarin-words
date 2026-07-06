@@ -10,6 +10,7 @@ import { LoadingScreen } from "./loading-screen";
 import { ProgressRing } from "./progress-ring";
 import { GOAL_OPTIONS } from "./onboarding";
 import { computeStats, computeWeakWords } from "@/lib/stats-logic";
+import { LEECH_LAPSE_THRESHOLD } from "@/lib/progress-logic";
 import { goalProgress, masterySummary, streakAtRisk, type MasterySummary } from "@/lib/progress-logic";
 import { computeAchievements } from "@/lib/achievements-logic";
 import { AchievementShelf } from "./achievement-shelf";
@@ -180,6 +181,12 @@ export function StatsApp({
           value={`${stats.dueReviews}`}
           label="reviews due now"
           sublabel={stats.wordsTracked > 0 ? `${stats.wordsTracked} word${stats.wordsTracked !== 1 ? "s" : ""} in queue` : "flashcard queue"}
+          href="/review"
+        />
+        <StatCard
+          value={`${stats.leechWords}`}
+          label={`word${stats.leechWords !== 1 ? "s" : ""} flagged for rescue`}
+          sublabel={`missed ${LEECH_LAPSE_THRESHOLD}+ reviews — run a rescue drill`}
           href="/review"
         />
         <StatCard
