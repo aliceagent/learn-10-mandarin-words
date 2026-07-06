@@ -6,6 +6,7 @@ import { resolveSource, type Resolved } from "@/lib/video";
 import {
   DEFAULT_RATE,
   PLAYBACK_RATES,
+  RATE_STORAGE_KEY,
   normalizeRate,
   rateLabel,
   type PlaybackRate,
@@ -16,8 +17,6 @@ interface VideoPlayerProps {
   title: string;
   video?: VideoMeta;
 }
-
-const RATE_STORAGE_KEY = "learn-10-mandarin-video-rate";
 
 // MP4 lessons get speed + replay controls on top of the native player. Split
 // into its own component so the player-only hooks never run for the YouTube or

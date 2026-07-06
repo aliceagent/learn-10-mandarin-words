@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { HomeData } from "@/lib/types";
 import { datasetSummary, nextRecommendedTopic, resolveRecentTopics } from "@/lib/data-logic";
 import { track } from "@/lib/analytics";
@@ -22,8 +22,7 @@ import { searchWords } from "@/lib/search-logic";
 export function HomeApp({ data }: { data: HomeData }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
-  const { progress, loaded, exportProgress, importProgress, completeOnboarding, skipOnboarding, toggleFavoriteWord } = useProgress();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { progress, loaded, completeOnboarding, skipOnboarding, toggleFavoriteWord } = useProgress();
 
   const nextTopic = useMemo(
     () => nextRecommendedTopic(data.topics, progress.learnedTopics),
@@ -74,21 +73,6 @@ export function HomeApp({ data }: { data: HomeData }) {
   const totalWords = summary.wordCount;
   const goal = goalProgress(progress);
 
-  function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      try {
-        importProgress(ev.target?.result as string);
-      } catch {
-        alert("Could not import: invalid progress file.");
-      }
-    };
-    reader.readAsText(file);
-    e.target.value = "";
-  }
-
   return (
     <main>
       {/* ── Hero ── */}
@@ -124,6 +108,9 @@ export function HomeApp({ data }: { data: HomeData }) {
             </Link>
             <Link href="/stats" className="font-medium text-slate-400 transition hover:text-emerald-300">
               Your stats
+            </Link>
+            <Link href="/settings" className="font-medium text-slate-400 transition hover:text-emerald-300">
+              Settings
             </Link>
           </div>
         </div>
@@ -206,29 +193,17 @@ export function HomeApp({ data }: { data: HomeData }) {
             </div>
           ) : null}
 
-          <div className="mt-4 flex gap-2 border-t border-white/10 pt-4">
-            <button
-              onClick={exportProgress}
-              className="flex-1 rounded-2xl border border-white/10 py-2.5 text-xs font-semibold text-slate-300 transition hover:border-emerald-300 hover:text-white"
-              aria-label="Export progress as JSON"
+          {/* Data actions (export/import) and every device-local preference now */}
+          {/* live on one /settings page — this card just links there. */}
+          <div className="mt-4 border-t border-white/10 pt-4">
+            <Link
+              href="/settings"
+              className="flex items-center justify-between rounded-2xl border border-white/10 px-4 py-2.5 text-xs font-semibold text-slate-300 transition hover:border-emerald-300 hover:text-white"
+              aria-label="Open settings to export or import progress and adjust preferences"
             >
-              Export progress
-            </button>
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="flex-1 rounded-2xl border border-white/10 py-2.5 text-xs font-semibold text-slate-300 transition hover:border-emerald-300 hover:text-white"
-              aria-label="Import progress from JSON file"
-            >
-              Import progress
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".json,application/json"
-              onChange={handleImport}
-              className="sr-only"
-              aria-hidden="true"
-            />
+              <span>Settings · export &amp; import progress</span>
+              <span aria-hidden="true">→</span>
+            </Link>
           </div>
         </div>
       </section>

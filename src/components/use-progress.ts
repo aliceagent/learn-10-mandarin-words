@@ -23,6 +23,7 @@ import {
   updateQuizStats,
 } from "@/lib/progress-logic";
 import { track } from "@/lib/analytics";
+import { progressExportFilename } from "@/lib/settings-logic";
 
 export { computeStreak };
 
@@ -93,7 +94,7 @@ export function useProgress() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `mandarin-progress-${todayISO()}.json`;
+    a.download = progressExportFilename(todayISO());
     a.click();
     URL.revokeObjectURL(url);
   }, [progress]);

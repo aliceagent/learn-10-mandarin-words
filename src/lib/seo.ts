@@ -113,7 +113,7 @@ export function sitemapEntries(data: MandarinData): SitemapEntry[] {
   for (const topic of data.topics) {
     entries.push({ url: absoluteUrl(`/topics/${topic.slug}`), priority: 0.7, changeFrequency: "monthly" });
   }
-  for (const route of ["/review", "/comeback", "/stats", "/favorites", "/privacy"]) {
+  for (const route of ["/review", "/comeback", "/stats", "/settings", "/favorites", "/privacy"]) {
     entries.push({ url: absoluteUrl(route), priority: 0.3, changeFrequency: "monthly" });
   }
 

@@ -38,6 +38,8 @@ export type AnalyticsEvent =
   | "streak_freeze_used"
   | "score_card_shared"
   | "favorite_saved"
+  | "progress_exported"
+  | "progress_imported"
   | "tone_colors_toggled"
   | "theme_toggled"
   | "search_result_opened"
