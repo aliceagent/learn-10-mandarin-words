@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import type { HomeData } from "@/lib/types";
-import { datasetSummary, nextRecommendedTopic, resolveRecentTopics } from "@/lib/data-logic";
+import { useCallback, useMemo, useState } from "react";
+import type { HomeIndexData, WordIndexEntry } from "@/lib/types";
+import { datasetSummary, mergeWordIndex, nextRecommendedTopic, resolveRecentTopics } from "@/lib/data-logic";
 import { track } from "@/lib/analytics";
 import { useProgress, computeStreak } from "./use-progress";
 import { goalProgress, streakAtRisk, studiedWithFreezes, todayISO } from "@/lib/progress-logic";
@@ -19,20 +19,50 @@ import { ThemeToggle } from "./theme-toggle";
 import { normalizePinyin } from "@/lib/highlight";
 import { searchWords } from "@/lib/search-logic";
 
-export function HomeApp({ data }: { data: HomeData }) {
+export function HomeApp({ data }: { data: HomeIndexData }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
   const { progress, loaded, completeOnboarding, skipOnboarding, toggleFavoriteWord } = useProgress();
 
+  // The home page ships a hanzi-only topic index (Sprint 24); the pinyin/english
+  // for all 1,020 words load lazily from /search-index.json the first time the
+  // learner touches the search box. Until then `words` is null and `mergeWordIndex`
+  // pads pinyin/english with "" — so titles/hanzi search works immediately and
+  // offline, and full word search lights up once the index lands.
+  const [words, setWords] = useState<WordIndexEntry[] | null>(null);
+  const [wordsState, setWordsState] = useState<"idle" | "loading" | "ready" | "error">("idle");
+
+  const ensureWordIndex = useCallback(() => {
+    // Idempotent: only fetch when we haven't already (or after an error retry).
+    setWordsState((state) => {
+      if (state === "loading" || state === "ready") return state;
+      fetch("/search-index.json")
+        .then((res) => {
+          if (!res.ok) throw new Error(`search index ${res.status}`);
+          return res.json();
+        })
+        .then((data: WordIndexEntry[]) => {
+          setWords(data);
+          setWordsState("ready");
+        })
+        .catch(() => setWordsState("error"));
+      return "loading";
+    });
+  }, []);
+
+  // Rejoin the index with the lazily-loaded word data so everything downstream
+  // (haystack, searchWords, matched-word rows, cards) keeps its TopicSummary shape.
+  const topics = useMemo(() => mergeWordIndex(data.topics, words), [data.topics, words]);
+
   const nextTopic = useMemo(
-    () => nextRecommendedTopic(data.topics, progress.learnedTopics),
-    [data.topics, progress.learnedTopics],
+    () => nextRecommendedTopic(topics, progress.learnedTopics),
+    [topics, progress.learnedTopics],
   );
   const showOnboarding = loaded && !progress.onboarding.completed;
 
   const filtered = useMemo(() => {
     const q = normalizePinyin(query.trim());
-    return data.topics.filter((topic) => {
+    return topics.filter((topic) => {
       const matchesCategory = category === "all" || topic.categorySlug === category;
       if (!q) return matchesCategory;
       const haystack = normalizePinyin(
@@ -40,14 +70,14 @@ export function HomeApp({ data }: { data: HomeData }) {
       );
       return matchesCategory && haystack.includes(q);
     });
-  }, [category, data.topics, query]);
+  }, [category, topics, query]);
 
   // Flat, ranked word-level matches shown above the topic grid while searching.
   // Same normalizer as `filtered`, so any word here implies its topic is in
   // `filtered` too — the panel never shows beside the "No topics found" state.
   const wordResults = useMemo(
-    () => searchWords(data.topics, query, { categorySlug: category === "all" ? undefined : category }),
-    [category, data.topics, query],
+    () => searchWords(topics, query, { categorySlug: category === "all" ? undefined : category }),
+    [category, topics, query],
   );
 
   const learnedCount = progress.learnedTopics.length;
@@ -62,14 +92,14 @@ export function HomeApp({ data }: { data: HomeData }) {
   // one mastered/studied word to warm up from, sees a gentle comeback banner.
   // The deck length gates the banner so a lapsed-but-empty profile never sees it.
   const comebackCount = useMemo(
-    () => comebackDeck(data.topics, progress.flashcardStats).length,
-    [data.topics, progress.flashcardStats],
+    () => comebackDeck(topics, progress.flashcardStats).length,
+    [topics, progress.flashcardStats],
   );
   const lapsed = isLapsed(progress.studiedDates);
   const daysAway = daysSinceLastStudy(progress.studiedDates);
 
   const studiedWordsCount = Object.values(progress.flashcardStats).filter((s) => s.reviewCount > 0).length;
-  const summary = datasetSummary(data.topics);
+  const summary = datasetSummary(topics);
   const totalWords = summary.wordCount;
   const goal = goalProgress(progress);
 
@@ -228,7 +258,7 @@ export function HomeApp({ data }: { data: HomeData }) {
       {/* ── Recently studied shelf (resume where you left off) ── */}
       {loaded ? (
         <RecentTopicsShelf
-          topics={resolveRecentTopics(data.topics, progress.recentTopics)}
+          topics={resolveRecentTopics(topics, progress.recentTopics)}
           flashcardStats={progress.flashcardStats}
           onResume={(slug, rank) => track("recent_topic_resumed", { topic: slug, rank })}
         />
@@ -296,14 +326,31 @@ export function HomeApp({ data }: { data: HomeData }) {
             <h2 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">Vocabulary library</h2>
             <p className="mt-3 max-w-2xl text-slate-400">Filter by category, search any word — results show both matching words and topics.</p>
           </div>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search words, pinyin, English"
-              aria-label="Search vocabulary"
-              className="min-w-64 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-300"
-            />
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+            <div className="flex flex-col gap-1.5">
+              <input
+                value={query}
+                onChange={(event) => {
+                  // Defensive: kick off the lazy word index on the first keystroke
+                  // too, in case focus fired without it (autofill, programmatic).
+                  ensureWordIndex();
+                  setQuery(event.target.value);
+                }}
+                onFocus={ensureWordIndex}
+                placeholder="Search words, pinyin, English"
+                aria-label="Search vocabulary"
+                className="min-w-64 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-300"
+              />
+              {/* Honest status while the pinyin/english index loads or fails; only
+                  when a query is active, so an idle focus stays quiet. */}
+              {query.trim() && wordsState === "loading" ? (
+                <p className="px-1 text-xs text-slate-500">Loading full word search…</p>
+              ) : query.trim() && wordsState === "error" ? (
+                <p className="px-1 text-xs text-slate-500">
+                  Full word search couldn&apos;t load — searching titles and characters only.
+                </p>
+              ) : null}
+            </div>
             <select
               value={category}
               onChange={(event) => setCategory(event.target.value)}

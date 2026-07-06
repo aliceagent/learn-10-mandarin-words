@@ -62,6 +62,19 @@ export type VocabItemSummary = Pick<VocabItem, "hanzi" | "pinyin" | "english">;
 export type TopicSummary = Omit<Topic, "items"> & { items: VocabItemSummary[] };
 export type HomeData = { categories: Category[]; topics: TopicSummary[] };
 
+// Split home payload (Sprint 24). `TopicSummary` above still keeps pinyin/english
+// for every word, but the home page only needs those *while searching* — the
+// hero, category grid, topic cards, and progress UI need just the hanzi. So the
+// home route ships a hanzi-only `HomeIndexData`, and the pinyin/english for all
+// 1,020 words load lazily as a `WordIndexEntry[]` (the `/search-index.json`
+// endpoint) only when the learner focuses the search box. `mergeWordIndex` joins
+// them back into `TopicSummary[]` client-side, so every downstream consumer keeps
+// its existing shape. `/duel` still uses the full `TopicSummary`/`HomeData`.
+export type VocabItemIndex = Pick<VocabItem, "hanzi">;
+export type TopicIndexEntry = Omit<Topic, "items"> & { items: VocabItemIndex[] };
+export type HomeIndexData = { categories: Category[]; topics: TopicIndexEntry[] };
+export type WordIndexEntry = { slug: string; items: VocabItemSummary[] };
+
 export type MandarinData = {
   categories: Category[];
   topics: Topic[];

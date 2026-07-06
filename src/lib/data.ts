@@ -1,5 +1,13 @@
 import rawData from "@/data/topics.json";
-import type { Category, HomeData, MandarinData, Topic, VocabItem } from "./types";
+import type {
+  Category,
+  HomeData,
+  HomeIndexData,
+  MandarinData,
+  Topic,
+  VocabItem,
+  WordIndexEntry,
+} from "./types";
 import * as logic from "./data-logic";
 import { topicCharConnections, type CharConnectionGroup } from "./connections-logic";
 
@@ -9,16 +17,41 @@ export const data = rawData as MandarinData;
 
 // Slimmed dataset for the home route: the full topic list minus per-item example
 // sentences. Built once at module scope so `homeData()` is a cheap accessor. See
-// toTopicSummary — this is what keeps the home page's serialized payload small.
+// toTopicSummary — this keeps the /duel payload small (duel still needs pinyin/
+// english for its questions). The home page itself uses the even slimmer
+// `homeIndexData()` below.
 const home: HomeData = {
   categories: data.categories,
   topics: data.topics.map(logic.toTopicSummary),
 };
 
 /** The slimmed home dataset (no example sentences). Safe to pass across the
- *  `"use client"` boundary without bloating the RSC payload / client chunk. */
+ *  `"use client"` boundary without bloating the RSC payload / client chunk.
+ *  Used by /duel, which needs each word's pinyin/english. */
 export function homeData(): HomeData {
   return home;
+}
+
+// Split home payload (Sprint 24). `homeIndex` is hanzi-only — everything the home
+// page renders without searching — and `words` is the lazy pinyin/english index
+// served from /search-index.json. Both built once at module scope. See
+// toTopicIndexEntry / toWordIndex / mergeWordIndex.
+const homeIndex: HomeIndexData = {
+  categories: data.categories,
+  topics: data.topics.map(logic.toTopicIndexEntry),
+};
+const words: WordIndexEntry[] = logic.toWordIndex(data.topics);
+
+/** The hanzi-only home index (no pinyin/english/sentences). What the home page
+ *  ships in its RSC payload; word search rehydrates via wordIndex() on demand. */
+export function homeIndexData(): HomeIndexData {
+  return homeIndex;
+}
+
+/** The lazy word-search index (pinyin/english for all words), served statically
+ *  from /search-index.json and merged client-side when the search box is used. */
+export function wordIndex(): WordIndexEntry[] {
+  return words;
 }
 
 export function getTopic(slug: string): Topic | undefined {

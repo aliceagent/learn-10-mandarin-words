@@ -1,4 +1,12 @@
-import type { Category, Topic, TopicSummary, VocabItem } from "./types";
+import type {
+  Category,
+  Topic,
+  TopicIndexEntry,
+  TopicSummary,
+  VocabItem,
+  VocabItemIndex,
+  WordIndexEntry,
+} from "./types";
 
 // Pure data helpers parameterized by the topics array, extracted from data.ts
 // so they can be unit-tested against topics.json without the "@/" path alias.
@@ -24,6 +32,67 @@ export function toTopicSummary(topic: Topic): TopicSummary {
       english: item.english,
     })),
   };
+}
+
+/**
+ * Slim a full `Topic` down to the hanzi-only home index entry (Sprint 24): every
+ * topic-level field is kept (slug, titles, category, videoPath/video — so
+ * `hasPlayableVideo`, the studied count, mastery dots, and the hanzi chips all
+ * keep working), but each item is reduced to `{ hanzi }`. Dropping pinyin/english
+ * is what takes the home RSC payload from ~118KB to ~75KB; they reload lazily via
+ * `toWordIndex`/`mergeWordIndex`. Pure and dataset-agnostic, like toTopicSummary.
+ */
+export function toTopicIndexEntry(topic: Topic): TopicIndexEntry {
+  return {
+    ...topic,
+    items: topic.items.map((item) => ({ hanzi: item.hanzi })),
+  };
+}
+
+/**
+ * The lazy word-search index: pinyin/english (plus hanzi, to join by position)
+ * for every word, grouped by topic slug. Fetched only when the home search box is
+ * focused, then merged back with `mergeWordIndex`. Pure; served statically from
+ * `/search-index.json`.
+ */
+export function toWordIndex(topics: Topic[]): WordIndexEntry[] {
+  return topics.map((topic) => ({
+    slug: topic.slug,
+    items: topic.items.map((item) => ({
+      hanzi: item.hanzi,
+      pinyin: item.pinyin,
+      english: item.english,
+    })),
+  }));
+}
+
+/**
+ * Rejoin the hanzi-only home index with the lazily-loaded word index into full
+ * `TopicSummary[]`, so every existing consumer (search haystack, searchWords,
+ * matched-word rows) keeps its shape. When `words` is `null` (not loaded yet) or a
+ * topic's slug is missing from it (dataset drift), pinyin/english pad to `""` —
+ * the UI never crashes and titles/hanzi search still works. Item order and count
+ * follow the index (hanzi is authoritative); word-index items are matched by
+ * position within the topic.
+ */
+export function mergeWordIndex(
+  indexTopics: TopicIndexEntry[],
+  words: WordIndexEntry[] | null,
+): TopicSummary[] {
+  const bySlug = new Map<string, WordIndexEntry>();
+  if (words) for (const entry of words) bySlug.set(entry.slug, entry);
+
+  return indexTopics.map((topic) => {
+    const wordItems = bySlug.get(topic.slug)?.items;
+    return {
+      ...topic,
+      items: topic.items.map((item, i) => ({
+        hanzi: item.hanzi,
+        pinyin: wordItems?.[i]?.pinyin ?? "",
+        english: wordItems?.[i]?.english ?? "",
+      })),
+    };
+  });
 }
 
 /** Look up a category by its slug. */
@@ -62,7 +131,7 @@ export function allWords(topics: Topic[]) {
   );
 }
 
-export function datasetSummary(topics: Pick<TopicSummary, "items">[]) {
+export function datasetSummary(topics: { items: VocabItemIndex[] }[]) {
   const listCount = topics.length;
   const wordCount = topics.reduce((total, topic) => total + topic.items.length, 0);
 

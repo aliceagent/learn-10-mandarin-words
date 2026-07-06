@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { HomeApp } from "@/components/home-app";
 import { JsonLd } from "@/components/json-ld";
-import { data, homeData } from "@/lib/data";
+import { data, homeIndexData } from "@/lib/data";
 import { siteDescription, webApplicationJsonLd, websiteJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -14,7 +14,7 @@ export default function Home() {
     <>
       <JsonLd data={websiteJsonLd()} />
       <JsonLd data={webApplicationJsonLd(data.topics)} />
-      <HomeApp data={homeData()} />
+      <HomeApp data={homeIndexData()} />
     </>
   );
 }
