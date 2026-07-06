@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Topic, VocabItem } from "@/lib/types";
 import type { CharConnectionGroup } from "@/lib/connections-logic";
@@ -35,10 +36,20 @@ import { MemoryPanel } from "./topic/memory-panel";
 import { ClozePanel } from "./topic/cloze-panel";
 import { ScramblePanel } from "./topic/scramble-panel";
 import { SentenceListenPanel } from "./topic/sentence-listen-panel";
-import { BossPanel } from "./topic/boss-panel";
 import { BOSS_STAGE_COUNT } from "@/lib/boss-logic";
 import { PrintButton } from "./print-button";
 import { Toast } from "./toast";
+
+// The Boss Round panel (~660 lines of stage-rendering code) is deferred into its
+// own chunk: the initial mode is always "words"/"phrasebook", so it never renders
+// during prerender or first paint. It loads only when a learner opens the Boss tab.
+const BossPanel = dynamic(() => import("./topic/boss-panel").then((m) => m.BossPanel), {
+  loading: () => (
+    <p className="mt-8 text-sm text-slate-400" role="status">
+      Loading the boss round…
+    </p>
+  ),
+});
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
