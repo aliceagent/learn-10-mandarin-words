@@ -20,6 +20,7 @@ import { usePracticeShortcuts } from "./use-practice-shortcuts";
 import { LoadingScreen } from "./loading-screen";
 import { SpeakButton } from "./speak-button";
 import { RedrillPanel } from "./redrill-panel";
+import { ChallengeArchive } from "./challenge-archive";
 
 // A snapshot of today's challenge: the day it was built for (snapshotted at
 // session start so a run straddling midnight UTC records against its start day),
@@ -359,6 +360,10 @@ export function DailyApp({ data }: { data: MandarinData }) {
           ) : null}
         </section>
       )}
+
+      {/* Wordle-style history of past daily challenges. Visible in both the
+          active and completed states so learners can browse before playing. */}
+      <ChallengeArchive dailyChallenge={progress.dailyChallenge} today={session.day} />
     </main>
   );
 }
