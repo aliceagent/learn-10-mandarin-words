@@ -15,6 +15,7 @@ import {
   recordBossResult,
   recordDailyChallenge,
   recordDailyPractice,
+  recordRecentTopic,
   scheduleReview,
   todayISO,
   uniqueToggle,
@@ -167,6 +168,16 @@ export function useProgress() {
       ...current,
       bossStats: recordBossResult(current.bossStats, slug, score, total),
     })),
+    // Record that the learner opened topic `slug`, moving it to the front of the
+    // recent-topics shelf. Deliberately NOT routed through withPractice or
+    // recordStudyToday: merely visiting a lesson is not practice and must never
+    // affect streaks or the daily goal. Like recordBestCombo, returns the state
+    // unchanged (referential no-op) when recordRecentTopic reports no change —
+    // this is what keeps the recording effect in topic-app loop-free.
+    recordTopicVisit: (slug: string) => setProgress((current) => {
+      const recentTopics = recordRecentTopic(current.recentTopics, slug);
+      return recentTopics === current.recentTopics ? current : { ...current, recentTopics };
+    }),
     gradeWord: (key: string, grade: "again" | "hard" | "good" | "easy") => setProgress((current) => {
       const now = new Date();
       const existing = current.flashcardStats[key] ?? defaultStat(now);

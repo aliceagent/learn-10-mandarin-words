@@ -129,6 +129,27 @@ export function nextTopicAfter<T extends Pick<Topic, "slug">>(
   );
 }
 
+/**
+ * Resolve persisted recent-topic slugs back to topic objects for the home
+ * "Jump back in" shelf, preserving the given (most-recent-first) order. Slugs
+ * that no longer exist in the dataset (renames/removals) are silently dropped,
+ * and the result is capped at `limit` (default 3). Generic like
+ * nextRecommendedTopic so it works with full Topics or slimmed TopicSummaries.
+ */
+export function resolveRecentTopics<T extends Pick<Topic, "slug">>(
+  topics: T[],
+  recentSlugs: string[],
+  limit = 3,
+): T[] {
+  const resolved: T[] = [];
+  for (const slug of recentSlugs) {
+    if (resolved.length >= limit) break;
+    const topic = getTopic(topics, slug);
+    if (topic) resolved.push(topic);
+  }
+  return resolved;
+}
+
 // A resolved section of the guided learning path: a titled group of real topics.
 export type PathSection = {
   key: string;

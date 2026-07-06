@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { useRef, useMemo, useState } from "react";
 import type { HomeData } from "@/lib/types";
-import { datasetSummary, nextRecommendedTopic } from "@/lib/data-logic";
+import { datasetSummary, nextRecommendedTopic, resolveRecentTopics } from "@/lib/data-logic";
 import { track } from "@/lib/analytics";
 import { useProgress, computeStreak } from "./use-progress";
 import { goalProgress, streakAtRisk, studiedWithFreezes, todayISO } from "@/lib/progress-logic";
 import { comebackDeck, daysSinceLastStudy, isLapsed } from "@/lib/comeback-logic";
 import { OnboardingModal, ContinueLearningCard } from "./onboarding";
+import { RecentTopicsShelf } from "./recent-topics-shelf";
 import { ProgressRing } from "./progress-ring";
 import { TopicCard } from "./topic-card";
 import { WordSearchResults } from "./word-search-results";
@@ -240,6 +241,15 @@ export function HomeApp({ data }: { data: HomeData }) {
           nextTopic={nextTopic}
           learnedCount={learnedCount}
           dailyGoal={progress.onboarding.dailyGoal}
+        />
+      ) : null}
+
+      {/* ── Recently studied shelf (resume where you left off) ── */}
+      {loaded ? (
+        <RecentTopicsShelf
+          topics={resolveRecentTopics(data.topics, progress.recentTopics)}
+          flashcardStats={progress.flashcardStats}
+          onResume={(slug, rank) => track("recent_topic_resumed", { topic: slug, rank })}
         />
       ) : null}
 

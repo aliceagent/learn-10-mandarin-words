@@ -175,6 +175,13 @@ export type ProgressState = {
    * math only (studiedWithFreezes) and never inflate daysStudied/heatmap.
    */
   streakFreezes: StreakFreezeState;
+  /**
+   * Topic slugs the learner most-recently opened, most-recent first, deduped and
+   * capped at RECENT_TOPICS_MAX. Powers the home "Jump back in" shelf. A mere
+   * topic visit records here and nowhere else — it never touches studiedDates or
+   * dailyActivity. Added in schema v10; older saves migrate to an empty array.
+   */
+  recentTopics: string[];
   onboarding: OnboardingState;
 };
 

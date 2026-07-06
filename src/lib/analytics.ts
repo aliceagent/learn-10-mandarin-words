@@ -39,6 +39,7 @@ export type AnalyticsEvent =
   | "favorite_saved"
   | "tone_colors_toggled"
   | "search_result_opened"
+  | "recent_topic_resumed"
   | "connection_opened"
   | "install_prompt_shown"
   | "install_accepted"

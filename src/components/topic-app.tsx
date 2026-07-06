@@ -45,7 +45,7 @@ export function TopicApp({
   // chunk; optional so the component still renders without it.
   connections?: Record<string, CharConnectionGroup[]>;
 }) {
-  const { progress, toggleFavoriteTopic, toggleFavoriteWord, toggleLearnedTopic, gradeWord, recordQuizAnswer, recordBestCombo, recordBossResult } = useProgress();
+  const { progress, loaded, toggleFavoriteTopic, toggleFavoriteWord, toggleLearnedTopic, gradeWord, recordQuizAnswer, recordBestCombo, recordBossResult, recordTopicVisit } = useProgress();
   // Useful Phrases topics get an extra "Phrasebook" mode, shown first and
   // selected by default so they read like a practical phrasebook rather than a
   // vocabulary list. Words/Cards/Quiz stay available for every topic.
@@ -125,6 +125,17 @@ export function TopicApp({
   useEffect(() => {
     track("topic_start", { topic: topic.slug });
   }, [topic.slug]);
+
+  // Persist this topic into the "Recently studied" shelf (schema v10). Gated on
+  // `loaded` so we never write before stored progress is hydrated. Loop-free: on
+  // the first write recordRecentTopic returns a new array; every re-render after
+  // it returns the same reference, recordTopicVisit bails to the same state, and
+  // React stops re-rendering. A visit records here only — never studiedDates or
+  // dailyActivity — so it can't create a streak day or count toward the goal.
+  useEffect(() => {
+    if (!loaded) return;
+    recordTopicVisit(topic.slug);
+  }, [loaded, topic.slug, recordTopicVisit]);
 
   // Switching to a different topic resets the quiz back to that topic's full
   // word set and clears any missed state carried over from the previous topic.

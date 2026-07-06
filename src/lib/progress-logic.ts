@@ -7,6 +7,7 @@ import type {
   StreakFreezeState,
   Topic,
   TopicSummary,
+  VocabItem,
 } from "./types";
 // Value imports need the explicit `.ts` extension so they resolve under
 // `node --test` (Node's native TS runner does not add extensions); `next build`
@@ -40,7 +41,10 @@ import { BOSS_STAGE_COUNT } from "./boss-logic.ts";
 //   v8 → v9: added `streakFreezes` (earned tokens that auto-cover one missed
 //   day). Older saves lack the field and default to
 //   {available:0, lastEarnedOn:null, frozenDates:[]}, losing nothing else.
-export const CURRENT_PROGRESS_SCHEMA_VERSION = 9;
+//   v9 → v10: added `recentTopics` (most-recently-opened topic slugs, for the
+//   home "Jump back in" shelf). Older saves lack the field and migrate to an
+//   empty [], losing nothing else.
+export const CURRENT_PROGRESS_SCHEMA_VERSION = 10;
 
 export const emptyProgress: ProgressState = {
   schemaVersion: CURRENT_PROGRESS_SCHEMA_VERSION,
@@ -55,8 +59,14 @@ export const emptyProgress: ProgressState = {
   bossStats: {},
   studiedDates: [],
   streakFreezes: { available: 0, lastEarnedOn: null, frozenDates: [] },
+  recentTopics: [],
   onboarding: { completed: false, dailyGoal: 0, completedAt: null },
 };
+
+// How many recently-opened topic slugs to persist. The home shelf shows only the
+// most recent 3, but we keep more so a single renamed/removed slug (dataset
+// drift) can't empty the shelf; the tail is cheap (short slug strings).
+export const RECENT_TOPICS_MAX = 8;
 
 // Max streak-freeze tokens a learner can bank at once — a small safety net, not
 // a way to coast indefinitely. Earning is gated to one non-overlapping goal-week.
@@ -272,6 +282,27 @@ export function normalizeStreakFreezes(raw: unknown): StreakFreezeState {
   return { available, lastEarnedOn, frozenDates };
 }
 
+// Sanitize a persisted/imported `recentTopics` list: keep only strings, dedupe
+// preserving first occurrence (most-recent-first order), and cap at
+// RECENT_TOPICS_MAX. Never throws. Added in schema v10. Mirrors the defensive
+// style of normalizeDailyActivity.
+function normalizeRecentTopics(raw: unknown): string[] {
+  const slugs = asStringArray(raw);
+  if (!slugs) return [];
+  return Array.from(new Set(slugs)).slice(0, RECENT_TOPICS_MAX);
+}
+
+// Move `slug` to the front of the recent-topics list, deduping and capping at
+// RECENT_TOPICS_MAX (pure). CRITICAL CONTRACT: when `slug` is already at index 0
+// the INPUT ARRAY is returned reference-unchanged, so the recording effect in
+// topic-app can bail out without re-rendering (see recordTopicVisit). Tolerates
+// an `undefined` list (older/partial state).
+export function recordRecentTopic(recent: string[] | undefined, slug: string): string[] {
+  const list = recent ?? [];
+  if (list[0] === slug) return list; // no-op: already most recent
+  return [slug, ...list.filter((s) => s !== slug)].slice(0, RECENT_TOPICS_MAX);
+}
+
 // Record one quiz answer against `key`, returning a NEW quizStats map (pure).
 // The existing entry is normalized first so a corrupt stat can't corrupt the
 // increment. Used by the useProgress hook's `recordQuizAnswer`.
@@ -315,6 +346,7 @@ export function normalizeProgress(
     bossStats: normalizeBossStats(p.bossStats),
     studiedDates: asStringArray(p.studiedDates) ?? [],
     streakFreezes: normalizeStreakFreezes(p.streakFreezes),
+    recentTopics: normalizeRecentTopics(p.recentTopics),
     onboarding: { ...emptyProgress.onboarding, ...onboarding },
   };
 }
@@ -457,7 +489,9 @@ export const MASTERED_INTERVAL_DAYS = 7;
 // the thresholds live in one place. Extracted from topic-app's `topicStats`
 // with identical behavior.
 export function topicProgress(
-  topic: Topic,
+  // Accepts a full Topic or the slimmed TopicSummary (home shelf) — only `slug`
+  // and each item's `hanzi` are read, via wordKey.
+  topic: Pick<Topic, "slug"> & { items: readonly Pick<VocabItem, "hanzi">[] },
   flashcardStats: Record<string, Pick<FlashcardStat, "reviewCount" | "intervalDays">>,
 ): TopicProgress {
   let studied = 0;
