@@ -21,6 +21,7 @@ import { NextStepPanel } from "./next-step-panel";
 import { SaveOfflineButton } from "./save-offline-button";
 import { MasteryDots, masteryCountsLabel } from "./mastery-dots";
 import { ToneColorsToggle } from "./tone-colors-toggle";
+import { HanziSizeControl } from "./hanzi-size-control";
 import { HapticsToggle } from "./haptics-toggle";
 import { ShortcutsHelp } from "./shortcuts-help";
 import type { HelpPanelKind } from "@/lib/shortcut-help-logic";
@@ -425,6 +426,7 @@ export function TopicApp({
         />
         <div className="flex flex-col items-end gap-3">
           <ToneColorsToggle />
+          <HanziSizeControl />
           <HapticsToggle />
         </div>
       </div>

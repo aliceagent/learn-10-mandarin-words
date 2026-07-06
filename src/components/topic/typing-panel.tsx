@@ -7,7 +7,9 @@ import { defaultShuffle } from "@/lib/quiz-logic";
 import { gradeTypedPinyin, parseTypedPinyin, toneNumberForm, type TypedGrade } from "@/lib/typing-logic";
 import { track } from "@/lib/analytics";
 import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
+import { HANZI_SIZE_CLASS } from "@/lib/hanzi-size";
 import { SpeakButton } from "../speak-button";
+import { useHanziSize } from "../use-hanzi-size";
 
 // The "Type" tab: show a hanzi word and have the learner type its pinyin. All
 // grading lives in src/lib/typing-logic.ts — this panel only holds drill state
@@ -24,6 +26,7 @@ export function TypingPanel({
   onRecord: (key: string, correct: boolean) => void;
 }) {
   // Shuffle once per mount/restart so answering never reshuffles the live deck.
+  const { size: hanziSize } = useHanziSize();
   const [deck, setDeck] = useState<VocabItem[]>(() => defaultShuffle(topic.items));
   const [index, setIndex] = useState(0);
   const [input, setInput] = useState("");
@@ -121,7 +124,7 @@ export function TypingPanel({
       {/* Prompt: hanzi + meaning (this drill targets pronunciation recall). */}
       <div className="mt-6 text-center">
         <div className="flex items-center justify-center gap-3">
-          <h3 lang={HANZI_LANG} className="font-hanzi text-7xl font-semibold text-white">{current.hanzi}</h3>
+          <h3 lang={HANZI_LANG} className={`font-hanzi ${HANZI_SIZE_CLASS.hero[hanziSize]} font-semibold text-white`}>{current.hanzi}</h3>
           <SpeakButton text={current.hanzi} label={`Pronounce ${current.hanzi}`} />
         </div>
         <p className="mt-2 text-sm text-slate-500">{current.english}</p>

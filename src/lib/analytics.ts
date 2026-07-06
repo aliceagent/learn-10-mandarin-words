@@ -41,6 +41,7 @@ export type AnalyticsEvent =
   | "progress_exported"
   | "progress_imported"
   | "tone_colors_toggled"
+  | "hanzi_size_changed"
   | "haptics_toggled"
   | "theme_toggled"
   | "search_result_opened"

@@ -4,9 +4,11 @@ import { useState } from "react";
 import type { VocabItem } from "@/lib/types";
 import type { QuizCard, QuizMode } from "@/lib/quiz-logic";
 import { HANZI_LANG, PINYIN_LANG, quizChoiceLang, quizPromptLang } from "@/lib/lang";
+import { HANZI_SIZE_CLASS } from "@/lib/hanzi-size";
 import { comboMilestoneLabel, comboTier } from "@/lib/combo-logic";
 import { comboChangeAnnouncement, quizVerdictAnnouncement } from "@/lib/announce-logic";
 import { SpeakButton } from "../speak-button";
+import { useHanziSize } from "../use-hanzi-size";
 import { useSpeech } from "../use-speech";
 
 type QuizViewState = {
@@ -79,6 +81,7 @@ export function QuizPanel({
   // Tracks the card whose audio has played, so the "Replay" affordance appears
   // only after the learner first taps play on the current listening card.
   const [playedKey, setPlayedKey] = useState<string | null>(null);
+  const { size: hanziSize } = useHanziSize();
   // Hardened speech for the listening-mode play/replay buttons (voice selection,
   // stuck-pause recovery, cancel-race workaround). `status` also drives the
   // stronger no-voice microcopy below.
@@ -285,7 +288,7 @@ export function QuizPanel({
           // so the reveal is announced to screen readers.
           <div className="mt-8 text-center" role="status">
             <div className="flex items-center justify-center gap-3">
-              <h2 lang={HANZI_LANG} className="font-hanzi text-5xl font-semibold text-white">{currentQuiz.prompt}</h2>
+              <h2 lang={HANZI_LANG} className={`font-hanzi ${HANZI_SIZE_CLASS.promptSm[hanziSize]} font-semibold text-white`}>{currentQuiz.prompt}</h2>
               <SpeakButton text={currentQuiz.prompt} label={`Pronounce: ${currentQuiz.prompt}`} />
             </div>
             {currentQuiz.promptPinyin ? (
@@ -296,7 +299,7 @@ export function QuizPanel({
       ) : (
         <div className="mt-8 text-center">
           <div className="flex items-center justify-center gap-3">
-            <h2 lang={quizPromptLang(quizMode)} className={`font-hanzi text-7xl font-semibold text-white ${quizMode === "english-hanzi" ? "font-sans text-4xl" : ""}`}>
+            <h2 lang={quizPromptLang(quizMode)} className={`font-semibold text-white ${quizMode === "english-hanzi" ? "font-sans text-4xl" : `font-hanzi ${HANZI_SIZE_CLASS.hero[hanziSize]}`}`}>
               {currentQuiz.prompt}
             </h2>
             {(quizMode === "hanzi-english" || quizMode === "hanzi-pinyin") ? (

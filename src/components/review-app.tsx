@@ -32,6 +32,7 @@ import { DeckDots } from "./deck-dots";
 import { LoadingScreen } from "./loading-screen";
 import { SpeakButton } from "./speak-button";
 import { ToneColorsToggle } from "./tone-colors-toggle";
+import { HanziSizeControl } from "./hanzi-size-control";
 import { TonePinyin } from "./tone-pinyin";
 import { Toast } from "./toast";
 import { ShareScoreButton } from "./share-score-button";
@@ -268,8 +269,9 @@ export function ReviewApp({ data }: { data: MandarinData }) {
 
       {/* Tone-colors preference for the pinyin on review card backs (and the
           toughest-words summary). Device-local, off by default. */}
-      <div className="mt-6 flex justify-end">
+      <div className="mt-6 flex flex-wrap justify-end gap-3">
         <ToneColorsToggle />
+        <HanziSizeControl />
       </div>
 
       {/* ── Rescue banner: leeches exist while running the due queue ── */}

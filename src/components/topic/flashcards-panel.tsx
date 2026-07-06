@@ -6,9 +6,11 @@ import type { Grade } from "@/lib/progress-logic";
 import { formatIntervalDays, previewIntervals } from "@/lib/progress-logic";
 import { dragTransform, FLING_THRESHOLD_PX, type FlingIntent } from "@/lib/gesture-logic";
 import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
+import { HANZI_SIZE_CLASS } from "@/lib/hanzi-size";
 import { SpeakButton } from "../speak-button";
 import { TonePinyin } from "../tone-pinyin";
 import { useCardDrag } from "../use-card-drag";
+import { useHanziSize } from "../use-hanzi-size";
 import { useReducedMotion } from "../use-reduced-motion";
 import { DeckDots } from "../deck-dots";
 
@@ -54,6 +56,7 @@ export function FlashcardsPanel({
   const previews = previewIntervals(stat, new Date());
 
   const reducedMotion = useReducedMotion();
+  const { size: hanziSize } = useHanziSize();
   // Fling animation state: the card flies off, then the grade lands on
   // animation end (with a timeout fallback so an interrupted animation never
   // leaves a stuck card). `flinging` blocks all further input until it settles.
@@ -172,13 +175,13 @@ export function FlashcardsPanel({
             {/* Front face: hanzi + speak */}
             <div className="card-face flex w-full flex-col items-center justify-center">
               <div className="flex items-center justify-center gap-3">
-                <h2 lang={HANZI_LANG} className="font-hanzi text-7xl font-semibold text-white">{current.hanzi}</h2>
+                <h2 lang={HANZI_LANG} className={`font-hanzi ${HANZI_SIZE_CLASS.hero[hanziSize]} font-semibold text-white`}>{current.hanzi}</h2>
                 <SpeakButton text={current.hanzi} label={`Pronounce ${current.hanzi}`} />
               </div>
             </div>
             {/* Back face: hanzi (smaller) + pinyin + english */}
             <div className="card-face card-face-back flex w-full flex-col items-center justify-center">
-              <p lang={HANZI_LANG} className="font-hanzi text-4xl font-semibold text-white">{current.hanzi}</p>
+              <p lang={HANZI_LANG} className={`font-hanzi ${HANZI_SIZE_CLASS.word[hanziSize]} font-semibold text-white`}>{current.hanzi}</p>
               <p lang={PINYIN_LANG} className="mt-3 font-hanzi text-2xl text-emerald-300"><TonePinyin pinyin={current.pinyin} /></p>
               <p className="mt-2 text-xl text-slate-200">{current.english}</p>
             </div>
