@@ -1,6 +1,7 @@
 import rawData from "@/data/topics.json";
 import type { Category, HomeData, MandarinData, Topic, VocabItem } from "./types";
 import * as logic from "./data-logic";
+import { topicCharConnections, type CharConnectionGroup } from "./connections-logic";
 
 export type { PathSection } from "./data-logic";
 
@@ -75,4 +76,15 @@ export function nextTopicAfter(learnedTopics: string[], currentSlug: string): To
 /** The guided learning path as ordered sections, drawn from the real dataset. */
 export function pathSections(): logic.PathSection[] {
   return logic.pathSections(data.topics);
+}
+
+/**
+ * Shared-character connections for one topic's words: a `wordKey → groups` map of
+ * the other dataset words that share a hanzi with each word on the topic. Computed
+ * from the full dataset (server-side only), it stays capped to a few KB so the
+ * topic page can pass it as a prop without bundling topics.json into any client
+ * chunk. See connections-logic.ts.
+ */
+export function charConnectionsForTopic(topic: Topic): Record<string, CharConnectionGroup[]> {
+  return topicCharConnections(data.topics, topic);
 }

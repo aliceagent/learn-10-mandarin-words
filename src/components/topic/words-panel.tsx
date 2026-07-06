@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import type { FlashcardStat, Topic } from "@/lib/types";
+import type { CharConnectionGroup } from "@/lib/connections-logic";
 import { wordKey } from "@/lib/data-logic";
 import { track } from "@/lib/analytics";
 import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
@@ -11,6 +12,7 @@ import { TonePinyin } from "../tone-pinyin";
 import { useListenAll } from "../use-listen-all";
 import { useReducedMotion } from "../use-reduced-motion";
 import { ListenAllBar } from "./listen-all-bar";
+import { CharConnections } from "./char-connections";
 
 // The "Words" tab of a topic: the full vocabulary list with example sentences,
 // per-word save toggles, and a review-count line once a word has been graded.
@@ -23,17 +25,23 @@ import { ListenAllBar } from "./listen-all-bar";
 // grid: one tap speaks every word in sequence, highlighting each card as it plays
 // and scrolling it into view. `speechAvailable` is optional (default false) so
 // other callers — e.g. favorites — compile unchanged with the drill simply off.
+//
+// `connections` (Sprint 3) is the precomputed `wordKey → shared-character groups`
+// map from the server page. It is optional (default absent) so other callers
+// compile unchanged and simply render no connections section.
 export function WordsPanel({
   topic,
   favoriteWords,
   flashcardStats,
   speechAvailable = false,
+  connections,
   onToggleFavorite,
 }: {
   topic: Topic;
   favoriteWords: string[];
   flashcardStats: Record<string, FlashcardStat>;
   speechAvailable?: boolean;
+  connections?: Record<string, CharConnectionGroup[]>;
   onToggleFavorite: (key: string) => void;
 }) {
   const reducedMotion = useReducedMotion();
@@ -71,6 +79,7 @@ export function WordsPanel({
           const favorite = favoriteWords.includes(key);
           const stat = flashcardStats[key];
           const active = key === activeKey;
+          const wordConnections = connections?.[key];
           return (
             <article
               key={item.hanzi}
@@ -115,6 +124,9 @@ export function WordsPanel({
                   </div>
                 ))}
               </div>
+              {wordConnections && wordConnections.length > 0 ? (
+                <CharConnections groups={wordConnections} hanzi={item.hanzi} topicSlug={topic.slug} />
+              ) : null}
             </article>
           );
         })}

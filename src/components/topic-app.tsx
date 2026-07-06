@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Topic, VocabItem } from "@/lib/types";
+import type { CharConnectionGroup } from "@/lib/connections-logic";
 import { isUsefulPhraseTopic, nextTopicAfter, wordKey } from "@/lib/data";
 import { buildQuiz, itemsForKeys, type QuizMode } from "@/lib/quiz-logic";
 import { isNewBestCombo, nextCombo } from "@/lib/combo-logic";
@@ -33,7 +34,16 @@ import { Toast } from "./toast";
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function TopicApp({ topic }: { topic: Topic }) {
+export function TopicApp({
+  topic,
+  connections,
+}: {
+  topic: Topic;
+  // Precomputed shared-character connections (Sprint 3), keyed by wordKey. Built
+  // server-side from the full dataset so topics.json never enters this client
+  // chunk; optional so the component still renders without it.
+  connections?: Record<string, CharConnectionGroup[]>;
+}) {
   const { progress, toggleFavoriteTopic, toggleFavoriteWord, toggleLearnedTopic, gradeWord, recordQuizAnswer, recordBestCombo, recordBossResult } = useProgress();
   // Useful Phrases topics get an extra "Phrasebook" mode, shown first and
   // selected by default so they read like a practical phrasebook rather than a
@@ -394,6 +404,7 @@ export function TopicApp({ topic }: { topic: Topic }) {
           favoriteWords={progress.favoriteWords}
           flashcardStats={progress.flashcardStats}
           speechAvailable={speechAvailable}
+          connections={connections}
           onToggleFavorite={(key) => {
             if (!progress.favoriteWords.includes(key)) track("favorite_saved", { topic: topic.slug, kind: "word" });
             toggleFavoriteWord(key);

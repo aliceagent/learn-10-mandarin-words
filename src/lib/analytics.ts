@@ -34,6 +34,7 @@ export type AnalyticsEvent =
   | "favorite_saved"
   | "tone_colors_toggled"
   | "search_result_opened"
+  | "connection_opened"
   | "install_prompt_shown"
   | "install_accepted"
   | "lesson_saved_offline"
