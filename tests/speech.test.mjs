@@ -8,6 +8,9 @@ import {
   normalizeLang,
   pickChineseVoice,
   rankChineseVoice,
+  speechRateFor,
+  SLOW_SPEECH_RATE,
+  SPEECH_RATE,
 } from "../src/lib/speech.ts";
 
 // Minimal voice fixtures — only the fields the helpers read.
@@ -75,6 +78,16 @@ test("classifySupport covers every branch", () => {
   assert.equal(classifySupport(true, [v("en-US")], true), "no-chinese-voice");
   assert.equal(classifySupport(true, [], false), "loading");
   assert.equal(classifySupport(true, [], true), "ready"); // optimistic empty-list rule
+});
+
+test("SLOW_SPEECH_RATE is slower than normal but above the ~0.5 glitch floor", () => {
+  assert.ok(SLOW_SPEECH_RATE < SPEECH_RATE);
+  assert.ok(SLOW_SPEECH_RATE > 0.5 && SLOW_SPEECH_RATE < 1);
+});
+
+test("speechRateFor maps pace to the matching rate", () => {
+  assert.equal(speechRateFor("normal"), SPEECH_RATE);
+  assert.equal(speechRateFor("slow"), SLOW_SPEECH_RATE);
 });
 
 test("canAttemptSpeech: true for ready/loading, false otherwise", () => {

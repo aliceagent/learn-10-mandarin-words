@@ -31,6 +31,19 @@ export type SpeechSupport = "loading" | "unsupported" | "no-chinese-voice" | "re
 
 /** Utterance rate for Mandarin practice — slightly slowed so tones are audible. */
 export const SPEECH_RATE = 0.85;
+/** Absolute utterance rate for the slow-replay control (~0.6×) — slow enough to
+ *  expose tone contours (rising 2nd, dipping 3rd, falling 4th) that blur together
+ *  at normal speed, yet above the ~0.5 floor where many engines sound glitchy. */
+export const SLOW_SPEECH_RATE = 0.6;
+
+/** Which of the two speak controls was tapped — maps to an utterance rate. */
+export type SpeechPace = "normal" | "slow";
+
+/** Map a pace to its absolute utterance rate, so the hook/component never
+ *  hardcode numbers and the mapping stays unit-testable. */
+export function speechRateFor(pace: SpeechPace): number {
+  return pace === "slow" ? SLOW_SPEECH_RATE : SPEECH_RATE;
+}
 /** How long to wait for `getVoices()` to populate before treating an empty list
  *  as "settled" (see the optimistic empty-list rule in `classifySupport`). */
 export const VOICES_SETTLE_MS = 1500;
