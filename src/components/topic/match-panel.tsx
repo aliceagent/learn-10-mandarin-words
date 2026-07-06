@@ -10,6 +10,8 @@ import {
   selectTile,
   type MatchTile,
 } from "@/lib/match-logic";
+import { resolveMatchShortcut, type MatchPhase } from "@/lib/panel-shortcut-logic";
+import { usePanelShortcuts } from "../use-panel-shortcuts";
 import { track } from "@/lib/analytics";
 import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
 
@@ -31,10 +33,13 @@ export function MatchPanel({
   topic,
   onRecord,
   onTakeQuiz,
+  shortcutsEnabled = true,
 }: {
   topic: Topic;
   onRecord: (key: string, correct: boolean) => void;
   onTakeQuiz: () => void;
+  // When false (help overlay open), keyboard shortcuts are inert. Default true.
+  shortcutsEnabled?: boolean;
 }) {
   const keyFor = (item: VocabItem) => wordKey(topic, item);
 
@@ -59,6 +64,59 @@ export function MatchPanel({
   useEffect(() => () => {
     if (flashTimer.current) clearTimeout(flashTimer.current);
   }, []);
+
+  // Keyboard layer (Sprint 20). Called ABOVE the early return so hook order stays
+  // stable; the resolver reads live state defensively (empty topic no-ops via
+  // `enabled`). Digits pick a tile — the left column when nothing/English is
+  // selected, the right column once a hanzi tile is selected — Esc clears the
+  // selection, Enter/→ advances the interstitial, R replays on the results screen.
+  usePanelShortcuts({
+    enabled: shortcutsEnabled && topic.items.length > 0,
+    resolve: (key, target) => {
+      const round = rounds[roundIndex];
+      if (!round) return null;
+      const roundComplete = state.matchedKeys.length === round.pairs.length;
+      const isLastRound = roundIndex === rounds.length - 1;
+      const phase: MatchPhase = roundComplete
+        ? isLastRound
+          ? "complete"
+          : "interstitial"
+        : "playing";
+      return resolveMatchShortcut(key, {
+        ...target,
+        phase,
+        selectedSide: state.selected?.side ?? null,
+        pairCount: round.pairs.length,
+        busy,
+      });
+    },
+    onIntent: (intent) => {
+      const round = rounds[roundIndex];
+      if (!round) return;
+      switch (intent.type) {
+        case "pick-left": {
+          const tile = round.hanziTiles[intent.index];
+          // Skip already-matched tiles so a digit never lands on a locked pair.
+          if (tile && !state.matchedKeys.includes(tile.key)) handleTap(tile);
+          break;
+        }
+        case "pick-right": {
+          const tile = round.englishTiles[intent.index];
+          if (tile && !state.matchedKeys.includes(tile.key)) handleTap(tile);
+          break;
+        }
+        case "clear-selection":
+          setState((s) => ({ ...s, selected: null }));
+          break;
+        case "continue":
+          nextRound();
+          break;
+        case "again":
+          playAgain();
+          break;
+      }
+    },
+  });
 
   if (topic.items.length === 0) return null;
 
@@ -176,6 +234,7 @@ export function MatchPanel({
           <button
             type="button"
             onClick={playAgain}
+            aria-keyshortcuts="R"
             className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
           >
             Play again
@@ -212,6 +271,7 @@ export function MatchPanel({
           <button
             type="button"
             onClick={nextRound}
+            aria-keyshortcuts="Enter"
             className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
           >
             Round {roundIndex + 2}
@@ -222,7 +282,7 @@ export function MatchPanel({
   }
 
   // ── Playing board ──
-  function renderTile(tile: MatchTile) {
+  function renderTile(tile: MatchTile, index: number) {
     const matched = state.matchedKeys.includes(tile.key);
     const selected =
       state.selected !== null &&
@@ -255,12 +315,18 @@ export function MatchPanel({
         disabled={matched || busy}
         aria-pressed={selected}
         aria-label={matched ? `${tile.label}, matched` : tile.label}
+        aria-keyshortcuts={index < 9 ? `${index + 1}` : undefined}
         // Hanzi tiles carry the Chinese lang tag; English tiles inherit the root
         // lang="en". The `font-hanzi` marker lives in the `face` variable above,
         // so the lang-attribute guard test allowlists this call site.
         lang={tile.side === "hanzi" ? HANZI_LANG : undefined}
-        className={`flex min-h-[56px] min-w-0 items-center justify-center rounded-2xl border px-3 py-3 text-center transition-opacity ${face} ${styles}`}
+        className={`relative flex min-h-[56px] min-w-0 items-center justify-center rounded-2xl border px-3 py-3 text-center transition-opacity ${face} ${styles}`}
       >
+        {index < 9 && !matched ? (
+          <kbd className="kbd absolute left-2 top-2 hidden md:inline-flex" aria-hidden="true">
+            {index + 1}
+          </kbd>
+        ) : null}
         {tile.label}
       </button>
     );
@@ -283,8 +349,8 @@ export function MatchPanel({
       <p className="mt-1 text-sm text-slate-400">Tap a word, then tap its match.</p>
 
       <div className="mt-6 grid grid-cols-2 gap-3">
-        <div className="grid gap-3">{round.hanziTiles.map(renderTile)}</div>
-        <div className="grid gap-3">{round.englishTiles.map(renderTile)}</div>
+        <div className="grid gap-3">{round.hanziTiles.map((tile, i) => renderTile(tile, i))}</div>
+        <div className="grid gap-3">{round.englishTiles.map((tile, i) => renderTile(tile, i))}</div>
       </div>
     </section>
   );

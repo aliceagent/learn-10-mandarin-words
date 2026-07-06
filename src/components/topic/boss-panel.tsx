@@ -10,6 +10,8 @@ import { CLOZE_BLANK } from "@/lib/cloze-logic";
 import type { ClozeCard } from "@/lib/cloze-logic";
 import { gradeTypedPinyin, parseTypedPinyin, toneNumberForm, type TypedGrade } from "@/lib/typing-logic";
 import { BOSS_STAGE_COUNT, buildBossRound, type BossRound, type BossStage } from "@/lib/boss-logic";
+import { resolveBossShortcut } from "@/lib/panel-shortcut-logic";
+import { usePanelShortcuts } from "../use-panel-shortcuts";
 import { track } from "@/lib/analytics";
 import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
 import { SpeakButton } from "../speak-button";
@@ -46,12 +48,15 @@ export function BossPanel({
   topic,
   bossStat,
   speechAvailable,
+  shortcutsEnabled = true,
   onRecord,
   onComplete,
 }: {
   topic: Topic;
   bossStat: BossStat | undefined;
   speechAvailable: boolean;
+  // When false (help overlay open), keyboard shortcuts are inert. Default true.
+  shortcutsEnabled?: boolean;
   onRecord: (key: string, correct: boolean) => void;
   onComplete: (score: number) => void;
 }): React.JSX.Element | null {
@@ -65,6 +70,19 @@ export function BossPanel({
   const [stageIndex, setStageIndex] = useState(0);
   // One boolean per resolved stage (true = passed), in stage order.
   const [results, setResults] = useState<boolean[]>([]);
+
+  // Keyboard layer for the panel-level phases (Sprint 20): Enter starts from the
+  // intro, Enter/R restarts from the result. The per-stage running phases own
+  // their own hooks (mounted only while running), so these stay mutually exclusive.
+  usePanelShortcuts({
+    enabled: shortcutsEnabled && (phase === "intro" || phase === "result"),
+    resolve: (key, target) =>
+      resolveBossShortcut(key, { ...target, phase: phase === "intro" ? "intro" : "result" }),
+    onIntent: (intent) => {
+      if (intent.type === "start") setPhase("running");
+      else if (intent.type === "again") restart();
+    },
+  });
 
   // Defensive: a topic with no words can't run a boss (the dataset guarantees
   // ≥4, so this never triggers on real data).

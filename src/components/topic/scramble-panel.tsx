@@ -16,6 +16,8 @@ import {
   type ScrambleState,
   type CheckResult,
 } from "@/lib/scramble-logic";
+import { resolveScrambleShortcut, type ScramblePhase } from "@/lib/panel-shortcut-logic";
+import { usePanelShortcuts } from "../use-panel-shortcuts";
 import { SpeakButton } from "../speak-button";
 import { TonePinyin } from "../tone-pinyin";
 
@@ -31,9 +33,12 @@ import { TonePinyin } from "../tone-pinyin";
 export function ScramblePanel({
   topic,
   onRecord,
+  shortcutsEnabled = true,
 }: {
   topic: Topic;
   onRecord: (key: string, correct: boolean) => void;
+  // When false (help overlay open), keyboard shortcuts are inert. Default true.
+  shortcutsEnabled?: boolean;
 }) {
   const keyFor = (item: VocabItem) => wordKey(topic, item);
 
@@ -50,6 +55,57 @@ export function ScramblePanel({
   const [result, setResult] = useState<CheckResult | null>(null);
   // The English translation hint, shown by default and toggleable across cards.
   const [showHint, setShowHint] = useState(true);
+
+  // Keyboard layer (Sprint 20). Called ABOVE the early returns so hook order is
+  // stable; the resolver reads live state defensively (an empty deck no-ops via
+  // `enabled`). Digits place from the current bank, Backspace pulls the last tile,
+  // Enter/→ check-then-advance, H toggles the hint, R restarts on the results screen.
+  usePanelShortcuts({
+    enabled: shortcutsEnabled && deck.length > 0,
+    resolve: (key, target) => {
+      const card = deck[index];
+      if (!card) return null;
+      const solved = result?.solved ?? false;
+      const bankCount = card.tiles.filter((t) => !state.placedIds.includes(t.id)).length;
+      const phase: ScramblePhase = done ? "done" : solved ? "solved" : "arranging";
+      return resolveScrambleShortcut(key, {
+        ...target,
+        phase,
+        bankCount,
+        placedCount: state.placedIds.length,
+        complete: isComplete(state, card),
+      });
+    },
+    onIntent: (intent) => {
+      const card = deck[index];
+      if (!card) return;
+      switch (intent.type) {
+        case "place": {
+          const bank = card.tiles.filter((t) => !state.placedIds.includes(t.id));
+          const tile = bank[intent.index];
+          if (tile) place(tile.id);
+          break;
+        }
+        case "return-last": {
+          const last = state.placedIds[state.placedIds.length - 1];
+          if (last !== undefined) unplace(last);
+          break;
+        }
+        case "check":
+          check();
+          break;
+        case "next":
+          next();
+          break;
+        case "toggle-hint":
+          setShowHint((v) => !v);
+          break;
+        case "again":
+          restart();
+          break;
+      }
+    },
+  });
 
   // No playable cards at all (defensive; real data always yields a full deck).
   if (deck.length === 0) return null;
@@ -95,6 +151,7 @@ export function ScramblePanel({
           <button
             type="button"
             onClick={restart}
+            aria-keyshortcuts="R"
             className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
           >
             Try again
@@ -216,6 +273,8 @@ export function ScramblePanel({
                 onClick={() => unplace(tile.id)}
                 disabled={solved}
                 lang={HANZI_LANG}
+                // Backspace returns the LAST placed tile, so only it advertises the key.
+                aria-keyshortcuts={!solved && i === placedTiles.length - 1 ? "Backspace" : undefined}
                 className={`font-hanzi min-h-[44px] rounded-xl border px-3 py-2 text-2xl transition ${styles}`}
                 aria-label={`${tile.text}, tap to return to the bank`}
               >
@@ -235,17 +294,23 @@ export function ScramblePanel({
         ) : null}
       </div>
 
-      {/* Tile bank — tap to place. */}
+      {/* Tile bank — tap to place, or press the shown digit (desktop hint). */}
       <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Sentence tiles">
-        {bankTiles.map((tile) => (
+        {bankTiles.map((tile, i) => (
           <button
             key={tile.id}
             type="button"
             onClick={() => place(tile.id)}
             disabled={solved}
             lang={HANZI_LANG}
-            className="font-hanzi min-h-[44px] rounded-xl border border-white/10 bg-surface-2 px-3 py-2 text-2xl text-white transition hover:border-emerald-300"
+            aria-keyshortcuts={i < 9 ? `${i + 1}` : undefined}
+            className="font-hanzi inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border border-white/10 bg-surface-2 px-3 py-2 text-2xl text-white transition hover:border-emerald-300"
           >
+            {i < 9 ? (
+              <kbd className="kbd hidden md:inline-flex" aria-hidden="true">
+                {i + 1}
+              </kbd>
+            ) : null}
             {tile.text}
           </button>
         ))}
@@ -268,6 +333,7 @@ export function ScramblePanel({
             type="button"
             onClick={check}
             disabled={!complete}
+            aria-keyshortcuts="Enter"
             className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta disabled:cursor-not-allowed disabled:opacity-40"
           >
             Check order
@@ -298,6 +364,7 @@ export function ScramblePanel({
             <button
               type="button"
               onClick={next}
+              aria-keyshortcuts="Enter"
               className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
             >
               {index + 1 >= total ? "See results" : "Next sentence"}

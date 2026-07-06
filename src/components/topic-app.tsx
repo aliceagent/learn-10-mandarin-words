@@ -22,6 +22,8 @@ import { SaveOfflineButton } from "./save-offline-button";
 import { MasteryDots, masteryCountsLabel } from "./mastery-dots";
 import { ToneColorsToggle } from "./tone-colors-toggle";
 import { HapticsToggle } from "./haptics-toggle";
+import { ShortcutsHelp } from "./shortcuts-help";
+import type { HelpPanelKind } from "@/lib/shortcut-help-logic";
 import { vibrateFeedback } from "./use-haptics";
 import { WordsPanel } from "./topic/words-panel";
 import { FlashcardsPanel } from "./topic/flashcards-panel";
@@ -85,6 +87,9 @@ export function TopicApp({
   const [missedKeys, setMissedKeys] = useState<string[]>([]);
   // Transient confirmation shown after grading a flashcard.
   const [toast, setToast] = useState<string | null>(null);
+  // Whether the keyboard-shortcuts help overlay is open (Sprint 20). While open,
+  // the game panels' shortcuts are disabled so digits don't fire under the modal.
+  const [helpOpen, setHelpOpen] = useState(false);
   // Whether the browser can plausibly speak Mandarin, driven by the shared
   // useSpeech() hook. Its status starts as "loading" (canAttemptSpeech → true),
   // so SSR and first client render agree and the listening-mode chip shows
@@ -112,6 +117,11 @@ export function TopicApp({
   const showNextStep = isLearned || (mode === "quiz" && quizComplete);
   const nextTopic = nextTopicAfter(progress.learnedTopics, topic.slug);
   const dueReviews = computeStats(progress).dueReviews;
+
+  // Which shortcut set the help overlay shows — only the keyboard-enabled game
+  // panels have a dedicated group; every other tab shows just the universal keys.
+  const helpKind: HelpPanelKind =
+    mode === "scramble" || mode === "match" || mode === "boss" ? mode : "other";
 
   const keyFor = useCallback((item: VocabItem) => wordKey(topic, item), [topic]);
   const quiz = useMemo(
@@ -404,11 +414,19 @@ export function TopicApp({
         </nav>
       </div>
 
-      {/* Tone-colors preference: a quiet, right-aligned control that recolors
-          every pinyin line on this device when enabled (off by default). */}
-      <div className="mt-3 flex flex-col items-end gap-3">
-        <ToneColorsToggle />
-        <HapticsToggle />
+      {/* Utility row: the keyboard-shortcuts help trigger on the left, the
+          tone-colors + haptics preferences (quiet, right-aligned) on the right. */}
+      <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
+        <ShortcutsHelp
+          open={helpOpen}
+          onOpen={() => setHelpOpen(true)}
+          onClose={() => setHelpOpen(false)}
+          kind={helpKind}
+        />
+        <div className="flex flex-col items-end gap-3">
+          <ToneColorsToggle />
+          <HapticsToggle />
+        </div>
       </div>
 
       {/* ── Phrasebook (Useful Phrases only) ── */}
@@ -487,7 +505,7 @@ export function TopicApp({
 
       {/* ── Matching pairs game ── */}
       {mode === "match" ? (
-        <MatchPanel topic={topic} onRecord={recordQuizAnswer} onTakeQuiz={() => setMode("quiz")} />
+        <MatchPanel topic={topic} onRecord={recordQuizAnswer} onTakeQuiz={() => setMode("quiz")} shortcutsEnabled={!helpOpen} />
       ) : null}
 
       {/* ── Memory (concentration-style face-down pair matching) ── */}
@@ -502,7 +520,7 @@ export function TopicApp({
 
       {/* ── Sentence scramble (rebuild the sentence from shuffled hanzi tiles) ── */}
       {mode === "scramble" ? (
-        <ScramblePanel topic={topic} onRecord={recordQuizAnswer} />
+        <ScramblePanel topic={topic} onRecord={recordQuizAnswer} shortcutsEnabled={!helpOpen} />
       ) : null}
 
       {/* ── Sentence listening comprehension (hear a real example sentence, pick
@@ -518,6 +536,7 @@ export function TopicApp({
           topic={topic}
           bossStat={progress.bossStats[topic.slug]}
           speechAvailable={speechAvailable}
+          shortcutsEnabled={!helpOpen}
           onRecord={recordQuizAnswer}
           onComplete={(score) => recordBossResult(topic.slug, score, BOSS_STAGE_COUNT)}
         />
