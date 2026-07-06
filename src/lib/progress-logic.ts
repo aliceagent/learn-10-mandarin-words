@@ -4,6 +4,7 @@ import type {
   FlashcardStat,
   ProgressState,
   QuizStat,
+  StreakFreezeState,
   Topic,
   TopicSummary,
 } from "./types";
@@ -36,7 +37,10 @@ import { BOSS_STAGE_COUNT } from "./boss-logic.ts";
 //   v7 → v8: added `lapses` to each FlashcardStat (count of "again" grades, for
 //   leech detection). Older stats lack the field and backfill to 0, losing
 //   nothing else.
-export const CURRENT_PROGRESS_SCHEMA_VERSION = 8;
+//   v8 → v9: added `streakFreezes` (earned tokens that auto-cover one missed
+//   day). Older saves lack the field and default to
+//   {available:0, lastEarnedOn:null, frozenDates:[]}, losing nothing else.
+export const CURRENT_PROGRESS_SCHEMA_VERSION = 9;
 
 export const emptyProgress: ProgressState = {
   schemaVersion: CURRENT_PROGRESS_SCHEMA_VERSION,
@@ -50,8 +54,16 @@ export const emptyProgress: ProgressState = {
   bestQuizCombo: 0,
   bossStats: {},
   studiedDates: [],
+  streakFreezes: { available: 0, lastEarnedOn: null, frozenDates: [] },
   onboarding: { completed: false, dailyGoal: 0, completedAt: null },
 };
+
+// Max streak-freeze tokens a learner can bank at once — a small safety net, not
+// a way to coast indefinitely. Earning is gated to one non-overlapping goal-week.
+export const MAX_STREAK_FREEZES = 2;
+// Consecutive goal-met days required to earn one freeze. DAILY_ACTIVITY_RETENTION_DAYS
+// (14) exceeds this, so the full lookback is always computable from persisted data.
+export const GOAL_WEEK_DAYS = 7;
 
 // How many days of per-day practice history to retain. Bounds storage growth:
 // ~14 days of short wordKey strings. Older days are pruned on every write.
@@ -236,6 +248,30 @@ export function normalizeBossStats(raw: unknown): Record<string, BossStat> {
   return out;
 }
 
+// Repair a persisted/imported `streakFreezes` blob: clamp `available` to
+// 0..MAX_STREAK_FREEZES (round, non-finite → 0), keep `lastEarnedOn` only if it
+// is a valid ISO day key (else null), and filter/dedupe/sort `frozenDates` by the
+// same key check. Never throws. Added in schema v9. Mirrors normalizeBossStat.
+export function normalizeStreakFreezes(raw: unknown): StreakFreezeState {
+  const base: StreakFreezeState = { available: 0, lastEarnedOn: null, frozenDates: [] };
+  if (!raw || typeof raw !== "object") return base;
+  const s = raw as Partial<StreakFreezeState>;
+  const available =
+    Number.isFinite(s.available) && (s.available as number) >= 0
+      ? Math.min(MAX_STREAK_FREEZES, Math.round(s.available as number))
+      : 0;
+  const lastEarnedOn =
+    typeof s.lastEarnedOn === "string" && isISODayKey(s.lastEarnedOn) ? s.lastEarnedOn : null;
+  const frozenDates = Array.isArray(s.frozenDates)
+    ? Array.from(
+        new Set(
+          s.frozenDates.filter((d): d is string => typeof d === "string" && isISODayKey(d)),
+        ),
+      ).sort()
+    : [];
+  return { available, lastEarnedOn, frozenDates };
+}
+
 // Record one quiz answer against `key`, returning a NEW quizStats map (pure).
 // The existing entry is normalized first so a corrupt stat can't corrupt the
 // increment. Used by the useProgress hook's `recordQuizAnswer`.
@@ -278,6 +314,7 @@ export function normalizeProgress(
     bestQuizCombo: normalizeBestCombo(p.bestQuizCombo),
     bossStats: normalizeBossStats(p.bossStats),
     studiedDates: asStringArray(p.studiedDates) ?? [],
+    streakFreezes: normalizeStreakFreezes(p.streakFreezes),
     onboarding: { ...emptyProgress.onboarding, ...onboarding },
   };
 }
@@ -390,8 +427,10 @@ export function computeStats(progress: ProgressState, now: Date = new Date()): P
     totalReviews,
     daysStudied: progress.studiedDates.length,
     // computeStreak takes the "today" anchor as an ISO day string; derive it
-    // from the injectable clock so tests stay deterministic.
-    streak: computeStreak(progress.studiedDates ?? [], isoDay(now)),
+    // from the injectable clock so tests stay deterministic. The streak reads the
+    // studied ∪ frozen union so a spent freeze bridges its covered day, while
+    // daysStudied stays on real study days only (frozen days never inflate it).
+    streak: computeStreak(studiedWithFreezes(progress), isoDay(now)),
     leechWords,
   };
 }
@@ -718,6 +757,104 @@ export function goalProgress(
   const goal = progress.onboarding?.dailyGoal ?? 0;
   const practiced = practicedCountOn(progress.dailyActivity, today);
   return { practiced, goal, met: goal > 0 && practiced >= goal };
+}
+
+// ─── Streak freezes (schema v9) ────────────────────────────────────────────────
+
+// True when `day`'s practiced count meets the CURRENT daily goal (0 goal never
+// meets). NOTE: only the per-day practiced count is stored, not the goal that was
+// in force that day — so past days are always evaluated against the goal set
+// today. Lowering the goal can retroactively complete a goal-week; acceptable for
+// a local, single-user app. `dailyActivity` retains DAILY_ACTIVITY_RETENTION_DAYS
+// (14) days, so a 7-day lookback is always fully available.
+export function goalMetOn(progress: ProgressState, day: string): boolean {
+  const goal = progress.onboarding?.dailyGoal ?? 0;
+  return goal > 0 && practicedCountOn(progress.dailyActivity, day) >= goal;
+}
+
+// Consecutive goal-met days ending on `today` (0 when today itself is unmet).
+// Drives the "n of 7 goal days" freeze-progress copy. Uses the same 86400000-ms
+// day stepping as computeStreak, capped implicitly by the retained activity
+// window. `today` is injectable for tests.
+export function consecutiveGoalDays(progress: ProgressState, today: string = todayISO()): number {
+  let count = 0;
+  let cursor = new Date(today).getTime();
+  // Walk backward from today while each day meets the goal; stop at the first miss.
+  while (goalMetOn(progress, isoDay(new Date(cursor)))) {
+    count++;
+    cursor -= 86400000;
+    // Never look past the retained activity window — beyond it goalMetOn is
+    // always false anyway, but bound the loop defensively.
+    if (count > DAILY_ACTIVITY_RETENTION_DAYS) break;
+  }
+  return count;
+}
+
+// Pure earn check for the goal-met crossing. Awards one freeze token iff the goal
+// was met on all GOAL_WEEK_DAYS days today..today-6, the stash is below
+// MAX_STREAK_FREEZES, and the last award was null or ≥ GOAL_WEEK_DAYS days ago
+// (so one hot week can't pay out daily). On award returns a NEW state with
+// available+1 and lastEarnedOn = today; otherwise returns the INPUT OBJECT
+// UNCHANGED (referential no-op, like recordBestCombo) so callers can detect a
+// change for analytics. When blocked ONLY by the cap, lastEarnedOn is left
+// untouched — the week isn't "spent". `today` is injectable for tests.
+export function earnFreezeOnGoalMet(progress: ProgressState, today: string = todayISO()): ProgressState {
+  const freezes = progress.streakFreezes;
+  // Every day of the goal-week must be met.
+  const todayMs = new Date(today).getTime();
+  for (let i = 0; i < GOAL_WEEK_DAYS; i++) {
+    if (!goalMetOn(progress, isoDay(new Date(todayMs - i * 86400000)))) return progress;
+  }
+  // Non-overlapping weeks: block a fresh award until 7 days after the last one.
+  if (freezes.lastEarnedOn !== null) {
+    const sinceLast = Math.round((todayMs - new Date(freezes.lastEarnedOn).getTime()) / 86400000);
+    if (sinceLast < GOAL_WEEK_DAYS) return progress;
+  }
+  // Cap reached: no award AND don't stamp lastEarnedOn (the week isn't spent).
+  if (freezes.available >= MAX_STREAK_FREEZES) return progress;
+  return {
+    ...progress,
+    streakFreezes: {
+      ...freezes,
+      available: freezes.available + 1,
+      lastEarnedOn: today,
+    },
+  };
+}
+
+// Pure load-time consumption: cover yesterday with a banked freeze iff exactly
+// one day was missed. Consumes iff a token exists, yesterday (today-1) is in
+// neither studiedDates nor frozenDates, and the day before (today-2) IS in that
+// union — i.e. the streak was alive through T-2 and only yesterday is missing. A
+// gap of 2+ days never consumes (the streak is already dead — don't waste a
+// token). On consume returns a NEW state with yesterday appended to frozenDates
+// (kept sorted) and available-1; otherwise returns the INPUT OBJECT UNCHANGED so
+// the hook can detect the change for analytics. `today` is injectable for tests.
+export function applyStreakFreeze(progress: ProgressState, today: string = todayISO()): ProgressState {
+  const freezes = progress.streakFreezes;
+  if (freezes.available <= 0) return progress;
+  const todayMs = new Date(today).getTime();
+  const yesterday = isoDay(new Date(todayMs - 86400000));
+  const dayBefore = isoDay(new Date(todayMs - 2 * 86400000));
+  const union = new Set([...progress.studiedDates, ...freezes.frozenDates]);
+  // Only a single missed day is coverable: yesterday absent, day-before present.
+  if (union.has(yesterday) || !union.has(dayBefore)) return progress;
+  return {
+    ...progress,
+    streakFreezes: {
+      ...freezes,
+      available: freezes.available - 1,
+      frozenDates: [...freezes.frozenDates, yesterday].sort(),
+    },
+  };
+}
+
+// studiedDates ∪ frozenDates (deduped). Feed to computeStreak / streakAtRisk so a
+// spent freeze bridges its covered day; never used for daysStudied / heatmap.
+export function studiedWithFreezes(progress: ProgressState): string[] {
+  return Array.from(
+    new Set([...(progress.studiedDates ?? []), ...(progress.streakFreezes?.frozenDates ?? [])]),
+  );
 }
 
 // ─── Daily Challenge (schema v5) ───────────────────────────────────────────────

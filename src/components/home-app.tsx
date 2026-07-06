@@ -6,7 +6,7 @@ import type { HomeData } from "@/lib/types";
 import { datasetSummary, nextRecommendedTopic } from "@/lib/data-logic";
 import { track } from "@/lib/analytics";
 import { useProgress, computeStreak } from "./use-progress";
-import { goalProgress, streakAtRisk, todayISO } from "@/lib/progress-logic";
+import { goalProgress, streakAtRisk, studiedWithFreezes, todayISO } from "@/lib/progress-logic";
 import { OnboardingModal, ContinueLearningCard } from "./onboarding";
 import { ProgressRing } from "./progress-ring";
 import { TopicCard } from "./topic-card";
@@ -50,8 +50,11 @@ export function HomeApp({ data }: { data: HomeData }) {
 
   const learnedCount = progress.learnedTopics.length;
   const favoriteCount = progress.favoriteWords.length + progress.favoriteTopics.length;
-  const streak = computeStreak(progress.studiedDates ?? []);
-  const atRisk = streakAtRisk(progress.studiedDates ?? []);
+  // Streak reads the studied ∪ frozen union so a spent freeze bridges its day.
+  const studiedUnion = studiedWithFreezes(progress);
+  const streak = computeStreak(studiedUnion);
+  const atRisk = streakAtRisk(studiedUnion);
+  const freezeCount = progress.streakFreezes.available;
 
   const studiedWordsCount = Object.values(progress.flashcardStats).filter((s) => s.reviewCount > 0).length;
   const summary = datasetSummary(data.topics);

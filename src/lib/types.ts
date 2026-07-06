@@ -109,6 +109,20 @@ export type BossStat = {
   crownedAt: string | null;
 };
 
+// Earned "streak freeze" tokens that automatically cover a single missed study
+// day so a long streak survives one lapse. Added in schema v9. `frozenDates` are
+// the ISO days a spent freeze covered — they are unioned into streak math ONLY
+// (see studiedWithFreezes) and are never added to `studiedDates`, so daysStudied,
+// the heatmap, and achievements keep counting only real study days.
+export type StreakFreezeState = {
+  /** Banked freeze tokens, 0..MAX_STREAK_FREEZES. */
+  available: number;
+  /** ISO day the last token was earned, or null. Enforces non-overlapping weeks. */
+  lastEarnedOn: string | null;
+  /** ISO days a consumed freeze covered. Unioned into streak math only. */
+  frozenDates: string[];
+};
+
 export type OnboardingState = {
   /** Whether the user has completed or skipped first-run onboarding. */
   completed: boolean;
@@ -155,6 +169,12 @@ export type ProgressState = {
    */
   bossStats: Record<string, BossStat>;
   studiedDates: string[];
+  /**
+   * Earned streak-freeze tokens (max MAX_STREAK_FREEZES) plus the days a spent
+   * freeze covered. Added in schema v9. `frozenDates` are unioned into streak
+   * math only (studiedWithFreezes) and never inflate daysStudied/heatmap.
+   */
+  streakFreezes: StreakFreezeState;
   onboarding: OnboardingState;
 };
 

@@ -3,8 +3,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ProgressState } from "@/lib/types";
 import {
+  applyStreakFreeze,
   computeStreak,
   defaultStat,
+  earnFreezeOnGoalMet,
   emptyProgress,
   goalProgress,
   normalizeBestCombo,
@@ -40,10 +42,19 @@ function withPractice(current: ProgressState, key: string): ProgressState {
   const before = practicedCountOn(current.dailyActivity, today);
   const dailyActivity = recordDailyPractice(current.dailyActivity, key, today);
   const after = practicedCountOn(dailyActivity, today);
+  const next = recordStudyToday({ ...current, dailyActivity });
   if (goal.goal > 0 && before < goal.goal && after >= goal.goal) {
     track("daily_goal_met", { goal: goal.goal, practiced: after });
+    // On the once-a-day goal crossing, check whether it completed a 7-day
+    // goal-week and banks a streak freeze. earnFreezeOnGoalMet is a referential
+    // no-op unless a token is awarded, so this fires at most once per week.
+    const earned = earnFreezeOnGoalMet(next, today);
+    if (earned !== next) {
+      track("streak_freeze_earned", { available: earned.streakFreezes.available });
+      return earned;
+    }
   }
-  return recordStudyToday({ ...current, dailyActivity });
+  return next;
 }
 
 export function useProgress() {
@@ -54,7 +65,15 @@ export function useProgress() {
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        setProgress(normalizeProgress(JSON.parse(stored)));
+        // Consume a banked freeze at load time if exactly one day was missed.
+        // applyStreakFreeze is a referential no-op unless it covers yesterday, so
+        // an unchanged state means nothing was spent.
+        const normalized = normalizeProgress(JSON.parse(stored));
+        const next = applyStreakFreeze(normalized, todayISO());
+        if (next !== normalized) {
+          track("streak_freeze_used", { remaining: next.streakFreezes.available });
+        }
+        setProgress(next);
       }
     } finally {
       setLoaded(true);

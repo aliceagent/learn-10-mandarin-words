@@ -10,8 +10,17 @@ import { LoadingScreen } from "./loading-screen";
 import { ProgressRing } from "./progress-ring";
 import { GOAL_OPTIONS } from "./onboarding";
 import { computeStats, computeWeakWords } from "@/lib/stats-logic";
-import { LEECH_LAPSE_THRESHOLD } from "@/lib/progress-logic";
-import { goalProgress, masterySummary, streakAtRisk, type MasterySummary } from "@/lib/progress-logic";
+import { LEECH_LAPSE_THRESHOLD, MAX_STREAK_FREEZES } from "@/lib/progress-logic";
+import {
+  consecutiveGoalDays,
+  goalProgress,
+  GOAL_WEEK_DAYS,
+  masterySummary,
+  streakAtRisk,
+  studiedWithFreezes,
+  todayISO,
+  type MasterySummary,
+} from "@/lib/progress-logic";
 import { computeAchievements } from "@/lib/achievements-logic";
 import { AchievementShelf } from "./achievement-shelf";
 import { StudyHeatmap } from "./study-heatmap";
@@ -96,6 +105,12 @@ export function StatsApp({
     return <LoadingScreen />;
   }
 
+  // Streak-freeze surfaces: banked token count and whether yesterday was covered
+  // by a spent freeze (drives the "your streak is safe" note).
+  const freezeCount = progress.streakFreezes.available;
+  const yesterdayISO = new Date(new Date(todayISO()).getTime() - 86400000).toISOString().slice(0, 10);
+  const yesterdayFrozen = progress.streakFreezes.frozenDates.includes(yesterdayISO);
+
   const hasActivity =
     stats.learnedTopics > 0 ||
     stats.favoriteWords > 0 ||
@@ -116,7 +131,7 @@ export function StatsApp({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          {streakAtRisk(progress.studiedDates ?? []) ? (
+          {streakAtRisk(studiedWithFreezes(progress)) ? (
             <Link
               href="/review"
               className="rounded-full border border-amber-400/60 px-4 py-2 text-sm font-bold text-amber-300 transition hover:border-amber-300 hover:text-amber-200"
@@ -128,6 +143,15 @@ export function StatsApp({
               <span className="text-lg font-black text-slate-950">{stats.streak}</span>
               <span className="text-sm font-bold text-slate-950">day streak 🔥</span>
             </div>
+          ) : null}
+          {freezeCount > 0 ? (
+            <span
+              className="rounded-full border border-sky-400/60 px-4 py-2 text-sm font-bold text-sky-300"
+              title="Covers one missed day automatically"
+              aria-label={`${freezeCount} streak freeze${freezeCount === 1 ? "" : "s"} banked, covers one missed day automatically`}
+            >
+              ❄️ {freezeCount} streak freeze{freezeCount === 1 ? "" : "s"}
+            </span>
           ) : null}
           <ShareScoreButton
             surface="stats"
@@ -142,6 +166,12 @@ export function StatsApp({
           />
         </div>
       </div>
+
+      {yesterdayFrozen ? (
+        <p className="mt-4 text-sm font-semibold text-sky-300">
+          ❄️ A streak freeze covered yesterday — your streak is safe.
+        </p>
+      ) : null}
 
       {!hasActivity ? (
         <div className="mt-10 rounded-3xl border border-white/10 bg-surface p-10 text-center">
@@ -352,6 +382,9 @@ function GoalCard({
 }) {
   const goal = goalProgress(progress);
   const current = progress.onboarding.dailyGoal;
+  const atFreezeCap = progress.streakFreezes.available >= MAX_STREAK_FREEZES;
+  // Consecutive goal-met days, displayed capped at a full week.
+  const goalDays = Math.min(consecutiveGoalDays(progress), GOAL_WEEK_DAYS);
 
   return (
     <div className="rounded-2xl border border-white/10 bg-surface p-5 sm:col-span-2 lg:col-span-3">
@@ -384,6 +417,13 @@ function GoalCard({
                 : "No daily goal set"}
             </p>
             <p className="mt-0.5 text-xs text-slate-500">distinct words practiced today</p>
+            {current > 0 ? (
+              <p className="mt-1 text-xs text-sky-300/90">
+                {atFreezeCap
+                  ? `Freeze stash full — ${MAX_STREAK_FREEZES} ❄️ banked`
+                  : `${goalDays} of ${GOAL_WEEK_DAYS} goal days toward a streak freeze ❄️`}
+              </p>
+            ) : null}
           </div>
         </div>
 

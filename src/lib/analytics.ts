@@ -32,6 +32,8 @@ export type AnalyticsEvent =
   | "typed_recall_completed"
   | "matching_completed"
   | "daily_goal_met"
+  | "streak_freeze_earned"
+  | "streak_freeze_used"
   | "score_card_shared"
   | "favorite_saved"
   | "tone_colors_toggled"
