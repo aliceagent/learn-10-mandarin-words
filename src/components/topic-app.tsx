@@ -28,6 +28,7 @@ import { TypingPanel } from "./topic/typing-panel";
 import { MatchPanel } from "./topic/match-panel";
 import { ClozePanel } from "./topic/cloze-panel";
 import { ScramblePanel } from "./topic/scramble-panel";
+import { SentenceListenPanel } from "./topic/sentence-listen-panel";
 import { BossPanel } from "./topic/boss-panel";
 import { BOSS_STAGE_COUNT } from "@/lib/boss-logic";
 import { Toast } from "./toast";
@@ -49,7 +50,7 @@ export function TopicApp({
   // selected by default so they read like a practical phrasebook rather than a
   // vocabulary list. Words/Cards/Quiz stay available for every topic.
   const isPhrasebook = isUsefulPhraseTopic(topic);
-  const [mode, setMode] = useState<"phrasebook" | "words" | "flashcards" | "quiz" | "typed" | "match" | "cloze" | "scramble" | "boss">(
+  const [mode, setMode] = useState<"phrasebook" | "words" | "flashcards" | "quiz" | "typed" | "match" | "cloze" | "scramble" | "sentence-listen" | "boss">(
     isPhrasebook ? "phrasebook" : "words",
   );
   const [cardIndex, setCardIndex] = useState(0);
@@ -375,6 +376,12 @@ export function TopicApp({
           <Tab active={mode === "match"} onClick={() => setMode("match")}>Match</Tab>
           <Tab active={mode === "cloze"} onClick={() => setMode("cloze")}>Sentences</Tab>
           <Tab active={mode === "scramble"} onClick={() => setMode("scramble")}>Scramble</Tab>
+          {/* Listening only appears once speech is confirmed available (same gate
+              as the quiz's listening chip), so there's never a dead tab on
+              voiceless devices. */}
+          {speechAvailable ? (
+            <Tab active={mode === "sentence-listen"} onClick={() => setMode("sentence-listen")}>Listening</Tab>
+          ) : null}
           <Tab active={mode === "boss"} onClick={() => setMode("boss")}>{topicCrowned ? "Boss 👑" : "Boss"}</Tab>
         </nav>
       </div>
@@ -472,6 +479,13 @@ export function TopicApp({
       {/* ── Sentence scramble (rebuild the sentence from shuffled hanzi tiles) ── */}
       {mode === "scramble" ? (
         <ScramblePanel topic={topic} onRecord={recordQuizAnswer} />
+      ) : null}
+
+      {/* ── Sentence listening comprehension (hear a real example sentence, pick
+          the English). Double-gated on speechAvailable so it renders nothing
+          rather than a dead panel if speech flips unavailable mid-session. ── */}
+      {mode === "sentence-listen" && speechAvailable ? (
+        <SentenceListenPanel topic={topic} onRecord={recordQuizAnswer} />
       ) : null}
 
       {/* ── Topic Boss Round (mixed-skill capstone; crowns the topic on 4/4) ── */}
