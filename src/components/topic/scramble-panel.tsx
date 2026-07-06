@@ -95,7 +95,7 @@ export function ScramblePanel({
           <button
             type="button"
             onClick={restart}
-            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
           >
             Try again
           </button>
@@ -201,7 +201,7 @@ export function ScramblePanel({
             const inCorrectPrefix = result !== null && i < result.correctPrefixTiles;
             let styles: string;
             if (solved) {
-              styles = "border-emerald-300 bg-emerald-300 text-slate-950 animate-quiz-correct";
+              styles = "border-emerald-300 bg-cta text-slate-950 animate-quiz-correct";
             } else if (showWrongHint && !inCorrectPrefix) {
               styles = "border-rose-400 bg-rose-400/20 text-rose-200 animate-quiz-wrong";
             } else if (showWrongHint && inCorrectPrefix) {
@@ -268,7 +268,7 @@ export function ScramblePanel({
             type="button"
             onClick={check}
             disabled={!complete}
-            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-40"
+            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta disabled:cursor-not-allowed disabled:opacity-40"
           >
             Check order
           </button>
@@ -298,7 +298,7 @@ export function ScramblePanel({
             <button
               type="button"
               onClick={next}
-              className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+              className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
             >
               {index + 1 >= total ? "See results" : "Next sentence"}
             </button>

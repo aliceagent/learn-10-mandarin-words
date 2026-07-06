@@ -13,6 +13,7 @@ import { RecentTopicsShelf } from "./recent-topics-shelf";
 import { ProgressRing } from "./progress-ring";
 import { TopicCard } from "./topic-card";
 import { WordSearchResults } from "./word-search-results";
+import { ThemeToggle } from "./theme-toggle";
 // Shared diacritic-tolerant normalizer so "nǐ", "ni", "ní" all match — the same
 // helper the highlighter uses, keeping search and highlight in lockstep.
 import { normalizePinyin } from "@/lib/highlight";
@@ -93,6 +94,11 @@ export function HomeApp({ data }: { data: HomeData }) {
       {/* ── Hero ── */}
       <section className="mx-auto grid min-h-[88dvh] max-w-7xl items-center gap-10 px-6 py-12 pb-24 md:grid-cols-[1.05fr_0.95fr] md:px-10 md:pb-12">
         <div>
+          {/* Device-local light/dark toggle (Sprint 16), right-aligned at the top */}
+          {/* of the hero — the same quiet chip register as the tone-colors toggle. */}
+          <div className="mb-4">
+            <ThemeToggle />
+          </div>
           <p className="mb-5 inline-flex rounded-full border border-emerald-500/25 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-300">
             {summary.formattedListCount} Mandarin vocab lists · {summary.formattedWordCount} words · one clean habit
           </p>
@@ -103,7 +109,7 @@ export function HomeApp({ data }: { data: HomeData }) {
             Watch short vocabulary lessons, practice with matching quizzes, save favorite words, and mark each list as learned.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <a href="#library" className="rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300">
+            <a href="#library" className="rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta">
               Start learning
             </a>
             <Link href="/review" className="rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300/70">
@@ -254,7 +260,7 @@ export function HomeApp({ data }: { data: HomeData }) {
       ) : null}
 
       {/* ── Feature row ── */}
-      <section id="practice" className="mt-14 border-y border-white/10 bg-slate-950/70 px-6 py-12 md:px-10">
+      <section id="practice" className="mt-14 border-y border-white/10 bg-background/70 px-6 py-12 md:px-10">
         <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-4">
           <Feature title="Video lessons" body="Each topic gets one short drill video with Chinese, pinyin, and English." />
           <Feature title="Matching quizzes" body="Three quiz modes: Hanzi→English, English→Hanzi, and Hanzi→Pinyin." />
@@ -275,7 +281,7 @@ export function HomeApp({ data }: { data: HomeData }) {
                 Two learners, one device — take turns and see who wins. No account needed.
               </p>
             </div>
-            <span className="shrink-0 rounded-full bg-emerald-400 px-5 py-2.5 text-sm font-semibold text-slate-950 transition group-hover:bg-emerald-300">
+            <span className="shrink-0 rounded-full bg-emerald-400 px-5 py-2.5 text-sm font-semibold text-slate-950 transition group-hover:bg-cta">
               Play
             </span>
           </Link>
@@ -327,7 +333,7 @@ export function HomeApp({ data }: { data: HomeData }) {
               value={category}
               onChange={(event) => setCategory(event.target.value)}
               aria-label="Filter by category"
-              className="rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-white outline-none transition focus:border-emerald-300"
+              className="rounded-2xl border border-white/10 bg-surface-2 px-4 py-3 text-white outline-none transition focus:border-emerald-300"
             >
               <option value="all">All categories</option>
               {data.categories.map((cat) => <option key={cat.slug} value={cat.slug}>{cat.name}</option>)}
@@ -358,7 +364,7 @@ export function HomeApp({ data }: { data: HomeData }) {
             </p>
             <button
               onClick={() => { setQuery(""); setCategory("all"); }}
-              className="mt-6 rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+              className="mt-6 rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
             >
               Clear filters
             </button>
@@ -430,7 +436,7 @@ function WelcomeBackBanner({ daysAway }: { daysAway: number }) {
             Ease back in with a quick warm-up of words you already know. No pressure, no pile.
           </p>
         </div>
-        <span className="shrink-0 rounded-full bg-emerald-400 px-5 py-2.5 text-sm font-semibold text-slate-950 transition group-hover:bg-emerald-300">
+        <span className="shrink-0 rounded-full bg-emerald-400 px-5 py-2.5 text-sm font-semibold text-slate-950 transition group-hover:bg-cta">
           Warm up
         </span>
       </Link>
@@ -466,7 +472,7 @@ function DailyChallengeBanner({ result }: { result?: { score: number; total: num
             </>
           )}
         </div>
-        <span className="shrink-0 rounded-full bg-emerald-400 px-5 py-2.5 text-sm font-semibold text-slate-950 transition group-hover:bg-emerald-300">
+        <span className="shrink-0 rounded-full bg-emerald-400 px-5 py-2.5 text-sm font-semibold text-slate-950 transition group-hover:bg-cta">
           {done ? "Review" : "Play"}
         </span>
       </Link>

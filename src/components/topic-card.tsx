@@ -92,7 +92,7 @@ export function TopicCard({
             </span>
           ) : null}
           {learned ? (
-            <span className="rounded-full bg-emerald-300/90 px-2.5 py-1 font-semibold text-slate-950">Learned</span>
+            <span className="rounded-full bg-cta/90 px-2.5 py-1 font-semibold text-slate-950">Learned</span>
           ) : null}
         </div>
       </div>
@@ -124,7 +124,7 @@ export function TopicCard({
           <div className="mb-1.5 flex items-center justify-between">
             <span className="text-xs text-slate-500">{studiedCount}/10 studied</span>
             {studiedCount === 10 ? (
-              <span className="text-xs font-semibold text-emerald-400">Complete ✓</span>
+              <span className="text-xs font-semibold text-accent">Complete ✓</span>
             ) : null}
           </div>
           <MasteryDots statuses={statuses} size="sm" label={masteryCountsLabel(statuses)} />
@@ -134,7 +134,7 @@ export function TopicCard({
           <div className="mb-1.5 flex items-center justify-between">
             <span className="text-xs text-slate-500">{studiedCount}/10 studied</span>
             {studiedCount === 10 ? (
-              <span className="text-xs font-semibold text-emerald-400">Complete ✓</span>
+              <span className="text-xs font-semibold text-accent">Complete ✓</span>
             ) : null}
           </div>
           <div className="progress-bar-track">

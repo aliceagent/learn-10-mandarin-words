@@ -99,7 +99,7 @@ export function RedrillPanel({
             <button
               type="button"
               onClick={onClose}
-              className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+              className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
             >
               Done
             </button>
@@ -108,7 +108,7 @@ export function RedrillPanel({
               <button
                 type="button"
                 onClick={drillAgain}
-                className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+                className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
               >
                 Drill again ({remaining})
               </button>
@@ -185,7 +185,7 @@ export function RedrillPanel({
               aria-selected={run.picked === choice}
               aria-disabled={run.picked !== null && run.picked !== choice}
               className={`min-h-[52px] rounded-2xl border px-5 py-4 text-left font-semibold transition
-                ${right ? "animate-quiz-correct border-emerald-300 bg-emerald-300 text-slate-950" : ""}
+                ${right ? "animate-quiz-correct border-emerald-300 bg-cta text-slate-950" : ""}
                 ${wrong ? "animate-quiz-wrong border-rose-400 bg-rose-400/20 text-rose-200" : ""}
                 ${!right && !wrong ? "border-white/10 bg-surface-2 text-white hover:border-emerald-300" : ""}
               `}
@@ -201,7 +201,7 @@ export function RedrillPanel({
           <button
             type="button"
             onClick={handleNext}
-            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
             aria-label={run.index + 1 >= total ? "See results" : "Next word"}
           >
             {run.index + 1 >= total ? "See results" : "Next word"}

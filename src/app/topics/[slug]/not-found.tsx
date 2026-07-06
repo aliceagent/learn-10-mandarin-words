@@ -40,7 +40,7 @@ export default function LessonNotFound(): React.JSX.Element {
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Link
           href="/"
-          className="inline-flex min-h-[44px] items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+          className="inline-flex min-h-[44px] items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
         >
           Browse all {formattedListCount} lists
         </Link>

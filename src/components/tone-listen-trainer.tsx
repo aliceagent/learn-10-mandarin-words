@@ -163,7 +163,7 @@ export function ToneListenTrainer({
           <button
             type="button"
             onClick={playAgain}
-            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
           >
             Play again
           </button>
@@ -212,7 +212,7 @@ export function ToneListenTrainer({
             type="button"
             onClick={play}
             aria-label="Play the word"
-            className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-300"
+            className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:bg-cta"
           >
             <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M8 5v14l11-7z" />
@@ -284,7 +284,7 @@ export function ToneListenTrainer({
               aria-disabled={picked !== null && picked !== key}
               aria-label={patternAriaLabel(option)}
               className={`flex min-h-[56px] items-center justify-center gap-3 rounded-2xl border px-5 py-4 text-2xl font-semibold transition
-                ${right ? "animate-quiz-correct border-emerald-300 bg-emerald-300 text-slate-950" : ""}
+                ${right ? "animate-quiz-correct border-emerald-300 bg-cta text-slate-950" : ""}
                 ${wrong ? "animate-quiz-wrong border-rose-400 bg-rose-400/20 text-rose-200" : ""}
                 ${!right && !wrong ? "border-white/10 bg-surface-2 text-white hover:border-emerald-300" : ""}
               `}
@@ -307,7 +307,7 @@ export function ToneListenTrainer({
           <button
             type="button"
             onClick={next}
-            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
           >
             {isLast ? "See results" : "Next word"}
           </button>

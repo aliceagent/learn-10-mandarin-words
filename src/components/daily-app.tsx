@@ -226,7 +226,7 @@ export function DailyApp({ data }: { data: MandarinData }) {
               <button
                 type="button"
                 onClick={() => setDrillEntries(missedEntries)}
-                className="mt-4 min-h-[44px] w-full rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+                className="mt-4 min-h-[44px] w-full rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
               >
                 Re-drill the {missedEntries.length} you missed
               </button>
@@ -237,7 +237,7 @@ export function DailyApp({ data }: { data: MandarinData }) {
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link
               href="/review"
-              className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+              className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
             >
               Daily review
             </Link>
@@ -304,9 +304,9 @@ export function DailyApp({ data }: { data: MandarinData }) {
                   aria-disabled={picked !== null && picked !== choice}
                   aria-keyshortcuts={i < 9 ? `${i + 1}` : undefined}
                   className={`flex min-h-[52px] items-center gap-3 rounded-2xl border px-5 py-4 text-left font-semibold transition
-                    ${right ? "animate-quiz-correct border-emerald-300 bg-emerald-300 text-slate-950" : ""}
+                    ${right ? "animate-quiz-correct border-emerald-300 bg-cta text-slate-950" : ""}
                     ${wrong ? "animate-quiz-wrong border-rose-400 bg-rose-400/20 text-rose-200" : ""}
-                    ${!right && !wrong ? "border-white/10 bg-slate-950 text-white hover:border-emerald-300" : ""}
+                    ${!right && !wrong ? "border-white/10 bg-background text-white hover:border-emerald-300" : ""}
                   `}
                 >
                   {i < 9 ? (
@@ -350,7 +350,7 @@ export function DailyApp({ data }: { data: MandarinData }) {
               <button
                 type="button"
                 onClick={handleNext}
-                className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+                className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
                 aria-label={index + 1 >= total ? "See results" : "Next question"}
                 aria-keyshortcuts="Enter"
               >

@@ -81,14 +81,14 @@ export function OnboardingModal({
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-background/80 p-4 backdrop-blur"
       role="dialog"
       aria-modal="true"
       aria-labelledby="onboarding-title"
       aria-describedby="onboarding-desc"
       ref={dialogRef}
     >
-      <div className="animate-celebrate w-full max-w-lg rounded-3xl border border-white/10 bg-slate-900 p-7 shadow-2xl">
+      <div className="animate-celebrate w-full max-w-lg rounded-3xl border border-white/10 bg-surface p-7 shadow-2xl">
         <p className="inline-flex rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-300">
           Welcome 你好
         </p>
@@ -132,7 +132,7 @@ export function OnboardingModal({
           <Link
             href={`/topics/${firstTopic.slug}`}
             onClick={() => onComplete(goal)}
-            className="flex-1 rounded-full bg-emerald-400 px-6 py-3 text-center font-semibold text-slate-950 transition hover:bg-emerald-300"
+            className="flex-1 rounded-full bg-emerald-400 px-6 py-3 text-center font-semibold text-slate-950 transition hover:bg-cta"
           >
             Start first lesson →
           </Link>
@@ -186,7 +186,7 @@ export function ContinueLearningCard({
         </div>
         <Link
           href={`/topics/${nextTopic.slug}`}
-          className="shrink-0 rounded-full bg-emerald-400 px-6 py-3 text-center font-semibold text-slate-950 transition hover:bg-emerald-300"
+          className="shrink-0 rounded-full bg-emerald-400 px-6 py-3 text-center font-semibold text-slate-950 transition hover:bg-cta"
         >
           {started ? "Resume →" : "Start first lesson →"}
         </Link>

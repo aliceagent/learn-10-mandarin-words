@@ -128,7 +128,7 @@ export function QuizPanel({
             <button
               type="button"
               onClick={onRetryMissed}
-              className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+              className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
             >
               Retry missed ({missedItemsList.length})
             </button>
@@ -143,7 +143,7 @@ export function QuizPanel({
           <button
             type="button"
             onClick={onPracticeFlashcards}
-            className={`min-h-[44px] rounded-full px-6 py-3 font-semibold transition ${missedItemsList.length === 0 ? "bg-emerald-400 text-slate-950 hover:bg-emerald-300" : "border border-white/15 text-white hover:border-emerald-300"}`}
+            className={`min-h-[44px] rounded-full px-6 py-3 font-semibold transition ${missedItemsList.length === 0 ? "bg-emerald-400 text-slate-950 hover:bg-cta" : "border border-white/15 text-white hover:border-emerald-300"}`}
           >
             Practice flashcards
           </button>
@@ -221,7 +221,7 @@ export function QuizPanel({
                 setPlayedKey(currentQuiz.key);
               }}
               aria-label="Play the word"
-              className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-300"
+              className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:bg-cta"
             >
               <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M8 5v14l11-7z" />
@@ -286,7 +286,7 @@ export function QuizPanel({
               aria-selected={quizState.picked === choice}
               aria-disabled={quizState.picked !== null && quizState.picked !== choice}
               className={`min-h-[52px] rounded-2xl border px-5 py-4 text-left font-semibold transition
-                ${right ? "animate-quiz-correct border-emerald-300 bg-emerald-300 text-slate-950" : ""}
+                ${right ? "animate-quiz-correct border-emerald-300 bg-cta text-slate-950" : ""}
                 ${wrong ? "animate-quiz-wrong border-rose-400 bg-rose-400/20 text-rose-200" : ""}
                 ${!right && !wrong ? "border-white/10 bg-surface-2 text-white hover:border-emerald-300" : ""}
               `}
@@ -304,7 +304,7 @@ export function QuizPanel({
           <button
             type="button"
             onClick={onNext}
-            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
             aria-label={quizState.index + 1 >= quiz.length ? "See results" : "Next question"}
           >
             {quizState.index + 1 >= quiz.length ? "See results" : "Next question"}

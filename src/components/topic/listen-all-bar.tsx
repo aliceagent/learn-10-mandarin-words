@@ -32,7 +32,7 @@ export function ListenAllBar({
           onClick={playing ? onStop : onPlayAll}
           aria-label={playing ? "Stop playback" : "Play all ten words"}
           aria-pressed={playing}
-          className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-300"
+          className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:bg-cta"
         >
           {playing ? "■ Stop" : "▶ Play all"}
         </button>

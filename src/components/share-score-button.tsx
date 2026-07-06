@@ -230,14 +230,14 @@ export function ShareScoreButton({
 
       {open ? (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-background/80 p-4 backdrop-blur"
           role="dialog"
           aria-modal="true"
           aria-labelledby="share-card-title"
           aria-describedby="share-card-privacy"
           ref={dialogRef}
         >
-          <div className="animate-celebrate w-full max-w-md rounded-3xl border border-white/10 bg-slate-900 p-6 shadow-2xl">
+          <div className="animate-celebrate w-full max-w-md rounded-3xl border border-white/10 bg-surface p-6 shadow-2xl">
             <h2 id="share-card-title" className="text-2xl font-semibold tracking-tight text-white">
               Your score card
             </h2>
@@ -268,7 +268,7 @@ export function ShareScoreButton({
                   type="button"
                   onClick={handleShare}
                   disabled={!ready}
-                  className={`${actionClass} bg-emerald-400 text-slate-950 hover:bg-emerald-300 disabled:opacity-40`}
+                  className={`${actionClass} bg-emerald-400 text-slate-950 hover:bg-cta disabled:opacity-40`}
                 >
                   Share image
                 </button>

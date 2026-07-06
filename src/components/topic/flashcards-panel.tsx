@@ -194,7 +194,7 @@ export function FlashcardsPanel({
           <button
             type="button"
             onClick={onReveal}
-            className="min-h-[44px] rounded-full bg-emerald-400 px-7 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+            className="min-h-[44px] rounded-full bg-emerald-400 px-7 py-3 font-semibold text-slate-950 transition hover:bg-cta"
             aria-label="Reveal answer"
           >
             Reveal

@@ -67,7 +67,7 @@ export function TypingPanel({
           <button
             type="button"
             onClick={restart}
-            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
           >
             Try again
           </button>
@@ -152,7 +152,7 @@ export function TypingPanel({
               <button
                 type="submit"
                 disabled={!canCheck}
-                className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-40"
+                className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Check
               </button>
@@ -168,7 +168,7 @@ export function TypingPanel({
             <button
               type="button"
               onClick={advance}
-              className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+              className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
             >
               {index + 1 >= total ? "See results" : "Next word"}
             </button>

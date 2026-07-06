@@ -35,7 +35,7 @@ export function NextStepPanel({
         {nextTopic ? (
           <Link
             href={`/topics/${nextTopic.slug}`}
-            className="group flex min-h-[44px] flex-col justify-center rounded-2xl bg-emerald-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+            className="group flex min-h-[44px] flex-col justify-center rounded-2xl bg-emerald-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-cta"
           >
             <span className="text-xs font-bold uppercase tracking-wide text-emerald-950/70">
               Continue

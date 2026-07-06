@@ -29,7 +29,7 @@ export default function ErrorPage({
         <button
           type="button"
           onClick={() => unstable_retry()}
-          className="inline-flex min-h-[44px] items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+          className="inline-flex min-h-[44px] items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
         >
           Try again
         </button>

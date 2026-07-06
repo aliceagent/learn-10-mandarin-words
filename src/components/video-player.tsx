@@ -94,7 +94,7 @@ function Mp4Player({
         playsInline
         preload="metadata"
         poster={resolved.poster}
-        className="w-full rounded-2xl bg-slate-950"
+        className="w-full rounded-2xl bg-background"
         aria-label={title}
       >
         <source src={resolved.src} type="video/mp4" />
@@ -118,7 +118,7 @@ function Mp4Player({
                 className={`min-h-[44px] min-w-[44px] rounded-full border px-4 py-2 text-sm font-semibold transition ${
                   active
                     ? "border-emerald-300 bg-emerald-300/20 text-white"
-                    : "border-white/10 bg-slate-950 text-slate-200 hover:border-emerald-300"
+                    : "border-white/10 bg-background text-slate-200 hover:border-emerald-300"
                 }`}
               >
                 {rateLabel(r)}

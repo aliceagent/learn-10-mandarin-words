@@ -39,6 +39,7 @@ export type AnalyticsEvent =
   | "score_card_shared"
   | "favorite_saved"
   | "tone_colors_toggled"
+  | "theme_toggled"
   | "search_result_opened"
   | "recent_topic_resumed"
   | "connection_opened"

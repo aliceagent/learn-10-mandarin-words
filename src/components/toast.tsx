@@ -22,7 +22,7 @@ export function Toast({ message, onDone }: { message: string | null; onDone: () 
     <div
       role="status"
       aria-live="polite"
-      className="animate-toast-in fixed bottom-20 left-1/2 z-50 max-w-[90vw] -translate-x-1/2 truncate rounded-full border border-white/15 bg-slate-900/95 px-5 py-2.5 text-sm font-semibold text-white shadow-xl shadow-emerald-950/30 backdrop-blur"
+      className="animate-toast-in fixed bottom-20 left-1/2 z-50 max-w-[90vw] -translate-x-1/2 truncate rounded-full border border-white/15 bg-surface/95 px-5 py-2.5 text-sm font-semibold text-white shadow-xl shadow-emerald-950/30 backdrop-blur"
     >
       {message}
     </div>

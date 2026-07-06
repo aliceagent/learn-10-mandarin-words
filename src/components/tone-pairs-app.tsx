@@ -170,7 +170,7 @@ export function TonePairsApp({ data }: { data: MandarinData }): React.JSX.Elemen
             <button
               type="button"
               onClick={startSession}
-              className="min-h-[44px] rounded-full bg-emerald-400 px-8 py-3 text-lg font-semibold text-slate-950 transition hover:bg-emerald-300"
+              className="min-h-[44px] rounded-full bg-emerald-400 px-8 py-3 text-lg font-semibold text-slate-950 transition hover:bg-cta"
             >
               Start ear training
             </button>
@@ -200,7 +200,7 @@ export function TonePairsApp({ data }: { data: MandarinData }): React.JSX.Elemen
                 type="button"
                 onClick={() => speakWord(round.target)}
                 aria-label="Play the word"
-                className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-300"
+                className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:bg-cta"
               >
                 <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                   <path d="M8 5v14l11-7z" />
@@ -301,7 +301,7 @@ export function TonePairsApp({ data }: { data: MandarinData }): React.JSX.Elemen
               <button
                 type="button"
                 onClick={next}
-                className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+                className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
               >
                 {isLast ? "See results" : "Next pair"}
               </button>
@@ -331,7 +331,7 @@ export function TonePairsApp({ data }: { data: MandarinData }): React.JSX.Elemen
             <button
               type="button"
               onClick={playAgain}
-              className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+              className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
             >
               Play again
             </button>

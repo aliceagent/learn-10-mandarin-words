@@ -346,7 +346,7 @@ function SetupScreen({
           value={topicSlug}
           onChange={(e) => onTopic(e.target.value)}
           aria-label="Duel topic"
-          className="mt-4 w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-white outline-none transition focus:border-emerald-300"
+          className="mt-4 w-full rounded-2xl border border-white/10 bg-surface-2 px-4 py-3 text-white outline-none transition focus:border-emerald-300"
         >
           {data.categories.map((cat) => (
             <optgroup key={cat.slug} label={cat.name}>
@@ -389,7 +389,7 @@ function SetupScreen({
           type="button"
           onClick={onStart}
           disabled={!canDuel}
-          className="min-h-[44px] rounded-full bg-emerald-400 px-8 py-3 text-lg font-semibold text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-40"
+          className="min-h-[44px] rounded-full bg-emerald-400 px-8 py-3 text-lg font-semibold text-slate-950 transition hover:bg-cta disabled:cursor-not-allowed disabled:opacity-40"
         >
           Start duel ⚔️
         </button>
@@ -439,7 +439,7 @@ function HandoffScreen({
       <button
         type="button"
         onClick={onReady}
-        className="mt-8 min-h-[44px] rounded-full bg-emerald-400 px-8 py-3 text-lg font-semibold text-slate-950 transition hover:bg-emerald-300"
+        className="mt-8 min-h-[44px] rounded-full bg-emerald-400 px-8 py-3 text-lg font-semibold text-slate-950 transition hover:bg-cta"
       >
         I&apos;m ready
       </button>
@@ -511,7 +511,7 @@ function QuestionScreen({
             type="button"
             onClick={() => speak(card.prompt)}
             aria-label="Play the word"
-            className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-300"
+            className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:bg-cta"
           >
             <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M8 5v14l11-7z" />
@@ -555,7 +555,7 @@ function QuestionScreen({
               aria-disabled={picked !== null && picked !== choice}
               aria-keyshortcuts={i < 9 ? `${i + 1}` : undefined}
               className={`flex min-h-[52px] items-center gap-3 rounded-2xl border px-5 py-4 text-left font-semibold transition
-                ${right ? "animate-quiz-correct border-emerald-300 bg-emerald-300 text-slate-950" : ""}
+                ${right ? "animate-quiz-correct border-emerald-300 bg-cta text-slate-950" : ""}
                 ${wrong ? "animate-quiz-wrong border-rose-400 bg-rose-400/20 text-rose-200" : ""}
                 ${!right && !wrong ? "border-white/10 bg-surface-2 text-white hover:border-emerald-300" : ""}
               `}
@@ -600,7 +600,7 @@ function QuestionScreen({
           <button
             type="button"
             onClick={onAdvance}
-            className="mt-5 min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+            className="mt-5 min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
             aria-label={isLastTurn ? "See results" : `Pass to ${otherName}`}
             aria-keyshortcuts="Enter"
           >
@@ -683,7 +683,7 @@ function ResultsScreen({
         <button
           type="button"
           onClick={onRematch}
-          className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+          className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
           aria-keyshortcuts="r"
         >
           Rematch

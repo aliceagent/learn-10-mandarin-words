@@ -1,8 +1,88 @@
 @import "tailwindcss";
 
+/* ── Theme raw-variable layer (Sprint 16 — manual light/dark) ──────────────── */
+/* Every physical value that must flip between themes lives here as a raw CSS   */
+/* variable. `:root` holds the DARK values (byte-identical to pre-Sprint-16, so */
+/* dark mode cannot regress). `[data-theme="light"]` overrides them. The theme  */
+/* is chosen device-locally and applied before first paint by the inline script */
+/* in src/app/layout.tsx (THEME_INIT_SCRIPT), which sets data-theme="light" on  */
+/* <html>; dark = attribute absent, so default/SSR output is always dark.       */
 :root {
+  color-scheme: dark;
+
   --background: #020617;
   --foreground: #f8fafc;
+
+  /* Surface elevation ladder (see @theme inline notes below). */
+  --surface: #0d1220;
+  --surface-2: #020617;
+  --surface-hover: #161d2e;
+  --surface-accent: #08131e;
+
+  /* Hairline borders. */
+  --border: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.15);
+
+  /* Quiet-ink ladder. */
+  --ink-high: #f8fafc;
+  --ink-mid: #94a3b8;
+  --ink-low: #64748b;
+
+  /* One accent + semantics. */
+  --accent: #34d399;
+  --warn: #fbbf24;
+  --danger: #fb7185;
+
+  /* Tone palette (1 red, 2 green, 3 blue, 4 purple, 5 gray). */
+  --tone-1: #f87171;
+  --tone-2: #4ade80;
+  --tone-3: #60a5fa;
+  --tone-4: #c084fc;
+  --tone-5: #94a3b8;
+
+  /* Solid CTA fill (mint) — paired with dark text; reads fine on both grounds, */
+  /* so it is identical in both themes (see --color-cta remap below).           */
+  --cta: #6ee7b7;
+
+  /* Flashcard face ring/shadow (see .card-face). */
+  --card-ring: rgba(255, 255, 255, 0.05);
+  --card-shadow: 0 26px 50px -30px rgba(2, 6, 23, 0.9);
+}
+
+/* Light theme: an opt-in device-local override. Text roles target ≥4.5:1 on the */
+/* #f8fafc / #ffffff light grounds; the mint CTA + dark ink stays legible too.  */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --background: #f8fafc;
+  --foreground: #0f172a;
+
+  --surface: #ffffff;
+  --surface-2: #f1f5f9;
+  --surface-hover: #eef2f7;
+  --surface-accent: #ecfdf5;
+
+  --border: rgba(2, 6, 23, 0.08);
+  --border-strong: rgba(2, 6, 23, 0.14);
+
+  --ink-high: #0f172a;
+  --ink-mid: #475569;
+  --ink-low: #64748b;
+
+  --accent: #059669;
+  --warn: #b45309;
+  --danger: #e11d48;
+
+  --tone-1: #dc2626;
+  --tone-2: #15803d;
+  --tone-3: #2563eb;
+  --tone-4: #9333ea;
+  --tone-5: #64748b;
+
+  /* --cta unchanged: mint CTA + dark text reads fine on light. */
+
+  --card-ring: rgba(2, 6, 23, 0.06);
+  --card-shadow: 0 20px 40px -30px rgba(15, 23, 42, 0.25);
 }
 
 @theme inline {
@@ -12,41 +92,47 @@
   --font-mono: var(--font-geist-mono);
 
   /* ── Surface elevation ladder (Sprint 1 opaque surfaces → Sprint 2 tokens) ─ */
-  /* Solid dark card/panel fills that replace the old translucent             */
-  /* `bg-white/[0.04x]` surfaces. They match the previous tinted-over-#020617  */
-  /* look but never let anything behind the card show through, so nothing can  */
-  /* band across a card the way the old body glow did.                         */
-  /*   background  → flat ground (see :root --background, #020617)             */
+  /* Solid card/panel fills that replace the old translucent `bg-white/[0.04x]` */
+  /* surfaces. They never let anything behind the card show through, so nothing */
+  /* can band across a card the way the old body glow did. Values now flip per  */
+  /* theme via the raw vars above.                                             */
+  /*   background  → flat ground (see --background)                            */
   /*   surface     → surface-1: the default card / panel fill                  */
-  /*   surface-2   → inset "well" sitting on top of a card (== slate-950)      */
+  /*   surface-2   → inset "well" sitting on top of a card                     */
   /*   surface-hover→ interactive raise on hover                              */
-  --color-surface: #0d1220;
-  --color-surface-2: #020617;
-  --color-surface-hover: #161d2e;
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-hover: var(--surface-hover);
   /* Emerald-tinted opaque variant for the "what's next" accent panel.        */
-  --color-surface-accent: #08131e;
+  --color-surface-accent: var(--surface-accent);
 
   /* ── Border tokens ─────────────────────────────────────────────────────── */
   /* Hairline borders on surfaces. `border` is the default card hairline;     */
   /* `border-strong` is the slightly brighter outline used on chips/controls. */
   /* These mirror the pervasive border-white/10 and border-white/15 literals. */
-  --color-border: rgba(255, 255, 255, 0.1);
-  --color-border-strong: rgba(255, 255, 255, 0.15);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
 
   /* ── Text "quiet ink" ladder ───────────────────────────────────────────── */
-  /* One near-white for primary text, then two muted slate steps. Maps to the */
+  /* One high-contrast ink for primary text, then two muted steps. Maps to the */
   /* existing slate-400 / slate-500 usage so adoption can be incremental.     */
-  --color-ink-high: #f8fafc;
-  --color-ink-mid: #94a3b8;
-  --color-ink-low: #64748b;
+  --color-ink-high: var(--ink-high);
+  --color-ink-mid: var(--ink-mid);
+  --color-ink-low: var(--ink-low);
 
   /* ── One accent + semantics only ("Quiet ink, one accent") ─────────────── */
   /* emerald is THE brand accent (primary / active / positive). amber and     */
   /* rose are semantic only — amber = streak / hard / warning, rose = again / */
   /* error. Sky-blue is intentionally absent as a decorative accent.          */
-  --color-accent: #34d399;
-  --color-warn: #fbbf24;
-  --color-danger: #fb7185;
+  --color-accent: var(--accent);
+  --color-warn: var(--warn);
+  --color-danger: var(--danger);
+
+  /* ── Solid CTA fill (Sprint 16) ────────────────────────────────────────── */
+  /* Mint fill for primary call-to-action buttons, always paired with dark ink */
+  /* (text-slate-950). Identical in both themes — mint + dark text reads fine  */
+  /* on a light ground too — so solid CTAs never flip. Generates bg-cta.       */
+  --color-cta: var(--cta);
 
   /* ── Tone colors (Sprint 10 — opt-in pedagogical channel) ──────────────── */
   /* The conventional Mandarin tone palette: 1 red, 2 green, 3 blue, 4 purple, */
@@ -54,12 +140,77 @@
   /* rule above — this color teaches tone. It only ever paints pinyin glyphs   */
   /* (never controls), only when the learner opts in, and never replaces the   */
   /* tone marks, so color is an extra channel and never the only one. Generates */
-  /* the text-tone-1 … text-tone-5 utilities; all clear ≥4.5:1 on #020617.     */
-  --color-tone-1: #f87171;
-  --color-tone-2: #4ade80;
-  --color-tone-3: #60a5fa;
-  --color-tone-4: #c084fc;
-  --color-tone-5: #94a3b8;
+  /* the text-tone-1 … text-tone-5 utilities; all clear ≥4.5:1 on both grounds. */
+  --color-tone-1: var(--tone-1);
+  --color-tone-2: var(--tone-2);
+  --color-tone-3: var(--tone-3);
+  --color-tone-4: var(--tone-4);
+  --color-tone-5: var(--tone-5);
+
+  /* ── Palette-primitive remaps (Sprint 16 — the big lever) ──────────────── */
+  /* Re-point Tailwind's built-in palette primitives at theme raw vars so the  */
+  /* ~700 existing dark-theme literals (text-white, border-white/10,           */
+  /* text-slate-300, text-emerald-300, …) flip in light mode without editing   */
+  /* every call site. In DARK the light-hand values equal Tailwind's defaults, */
+  /* so dark output is byte-identical. Opacity modifiers keep working:          */
+  /* Tailwind compiles border-white/10 to color-mix(... var(--color-white) …). */
+  /*                                                                            */
+  /* REMAPPED (flip in light):                                                 */
+  /*   white → ink; slate-100..600 → darker inks; emerald/amber/rose-200/300   */
+  /*   → darkened accents (text/border roles).                                 */
+  /* DELIBERATELY UNMAPPED (fill / on-fill roles that must NOT flip):          */
+  /*   slate-950 (dark ink on emerald fills, e.g. text-slate-950),             */
+  /*   emerald-400/500 (solid button/ring fills), rose-400, amber-400,         */
+  /*   emerald-50/100/950 (on-fill ink / deep tints). Solid CTA fills were     */
+  /*   migrated to bg-cta above, so the emerald-300 text/border role can flip. */
+  --color-white: var(--pal-white);
+  --color-slate-100: var(--pal-slate-100);
+  --color-slate-200: var(--pal-slate-200);
+  --color-slate-300: var(--pal-slate-300);
+  --color-slate-400: var(--pal-slate-400);
+  --color-slate-500: var(--pal-slate-500);
+  --color-slate-600: var(--pal-slate-600);
+  --color-emerald-200: var(--pal-emerald-200);
+  --color-emerald-300: var(--pal-emerald-300);
+  --color-amber-200: var(--pal-amber-200);
+  --color-amber-300: var(--pal-amber-300);
+  --color-rose-200: var(--pal-rose-200);
+  --color-rose-300: var(--pal-rose-300);
+}
+
+/* Palette-primitive raw values. Dark = Tailwind's stock palette (unchanged);  */
+/* light = darkened equivalents for legibility on white surfaces. Kept out of  */
+/* @theme inline so they can flip per data-theme like the other raw vars.      */
+:root {
+  --pal-white: #ffffff;
+  --pal-slate-100: #f1f5f9;
+  --pal-slate-200: #e2e8f0;
+  --pal-slate-300: #cbd5e1;
+  --pal-slate-400: #94a3b8;
+  --pal-slate-500: #64748b;
+  --pal-slate-600: #475569;
+  --pal-emerald-200: #a7f3d0;
+  --pal-emerald-300: #6ee7b7;
+  --pal-amber-200: #fde68a;
+  --pal-amber-300: #fcd34d;
+  --pal-rose-200: #fecdd3;
+  --pal-rose-300: #fda4af;
+}
+
+[data-theme="light"] {
+  --pal-white: #0f172a;
+  --pal-slate-100: #1e293b;
+  --pal-slate-200: #1e293b;
+  --pal-slate-300: #334155;
+  --pal-slate-400: #475569;
+  --pal-slate-500: #64748b;
+  --pal-slate-600: #94a3b8;
+  --pal-emerald-200: #065f46;
+  --pal-emerald-300: #047857;
+  --pal-amber-200: #92400e;
+  --pal-amber-300: #b45309;
+  --pal-rose-200: #9f1239;
+  --pal-rose-300: #be123c;
 }
 
 * {
@@ -93,13 +244,13 @@ select:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 [tabindex]:focus-visible {
-  outline: 2px solid #34d399;
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
 ::selection {
-  background: #34d399;
-  color: #020617;
+  background: var(--color-accent);
+  color: var(--background);
 }
 
 /* ── CJK hanzi/pinyin typography ────────────────────────────────────────────── */
@@ -214,8 +365,8 @@ textarea:focus-visible,
   border-radius: 1.5rem;
   background: var(--color-surface-hover);
   box-shadow:
-    0 26px 50px -30px rgba(2, 6, 23, 0.9),
-    0 0 0 1px rgba(255, 255, 255, 0.05);
+    var(--card-shadow),
+    0 0 0 1px var(--card-ring);
 }
 
 .card-face-back {
@@ -324,14 +475,14 @@ textarea:focus-visible,
   height: 0.25rem;
   width: 100%;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--color-border);
   overflow: hidden;
 }
 
 .progress-bar-fill {
   height: 100%;
   border-radius: 9999px;
-  background: #34d399;
+  background: var(--color-accent);
   transition: width 0.4s ease;
 }
 
@@ -379,7 +530,7 @@ textarea:focus-visible,
   justify-content: center;
   min-width: 1.25rem;
   padding: 0.05rem 0.35rem;
-  border: 1px solid rgb(255 255 255 / 0.1);
+  border: 1px solid var(--color-border);
   border-radius: 0.35rem;
   font-family: var(--font-mono, ui-monospace, monospace);
   font-size: 0.7rem;

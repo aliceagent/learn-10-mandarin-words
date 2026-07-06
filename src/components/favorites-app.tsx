@@ -59,7 +59,7 @@ export function FavoritesApp({ data }: { data: MandarinData }) {
             or tap <strong className="text-slate-300">Save</strong> next to a word to remember it here.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Link href="/" className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300">
+            <Link href="/" className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta">
               Browse topics
             </Link>
             <Link href="/review" className="min-h-[44px] inline-flex items-center rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300">

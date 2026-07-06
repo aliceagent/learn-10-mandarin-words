@@ -62,7 +62,7 @@ export default function OfflinePage() {
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Link
           href="/"
-          className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+          className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
         >
           Back to library
         </Link>

@@ -224,7 +224,7 @@ export function TopicApp({
       {/* Chrome only: a back affordance + the current topic title. The Save /
           Mark-learned actions live in the hero below (see the lesson-actions row)
           — duplicating them here made the sticky bar loud, so it stays quiet. */}
-      <div className="sticky top-0 z-30 -mx-6 border-b border-white/10 bg-slate-950/92 px-6 py-3 backdrop-blur md:-mx-10 md:px-10">
+      <div className="sticky top-0 z-30 -mx-6 border-b border-white/10 bg-background/92 px-6 py-3 backdrop-blur md:-mx-10 md:px-10">
         <div className="flex items-center gap-3">
           <Link
             href="/"
@@ -319,7 +319,7 @@ export function TopicApp({
             <button
               type="button"
               onClick={() => toggleLearnedTopic(topic.slug)}
-              className="min-h-[44px] rounded-full bg-emerald-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+              className="min-h-[44px] rounded-full bg-emerald-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-cta"
               aria-pressed={isLearned}
               aria-label={isLearned ? "Unmark as learned" : "Mark as learned"}
             >

@@ -300,7 +300,7 @@ export function ReviewApp({ data }: { data: MandarinData }) {
             No cards are due right now. Study a topic and grade words with the flashcard trainer to build your review queue.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Link href="/" className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 hover:bg-emerald-300 transition">
+            <Link href="/" className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 hover:bg-cta transition">
               Browse topics
             </Link>
             {leeches.length > 0 ? (
@@ -385,7 +385,7 @@ export function ReviewApp({ data }: { data: MandarinData }) {
               <button
                 type="button"
                 onClick={() => setDrillEntries(redrillEntries(data.topics, tough.map((c) => c.key)))}
-                className="mt-4 min-h-[44px] w-full rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+                className="mt-4 min-h-[44px] w-full rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
               >
                 Drill these again ({tough.length})
               </button>
@@ -403,7 +403,7 @@ export function ReviewApp({ data }: { data: MandarinData }) {
                   Rescue {leeches.length} more
                 </button>
               ) : (
-                <Link href="/" className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300">
+                <Link href="/" className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta">
                   Learn more words
                 </Link>
               )
@@ -411,12 +411,12 @@ export function ReviewApp({ data }: { data: MandarinData }) {
               <button
                 type="button"
                 onClick={reviewMore}
-                className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+                className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
               >
                 Review {session.remainingDue} more
               </button>
             ) : (
-              <Link href="/" className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300">
+              <Link href="/" className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta">
                 Learn more words
               </Link>
             )}
@@ -536,7 +536,7 @@ export function ReviewApp({ data }: { data: MandarinData }) {
               <button
                 type="button"
                 onClick={() => setRevealed(true)}
-                className="min-h-[44px] rounded-full bg-emerald-400 px-7 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+                className="min-h-[44px] rounded-full bg-emerald-400 px-7 py-3 font-semibold text-slate-950 transition hover:bg-cta"
                 aria-label="Reveal answer"
               >
                 Reveal

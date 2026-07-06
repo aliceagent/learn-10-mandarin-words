@@ -4,6 +4,7 @@ import "./globals.css";
 import { BottomNav } from "@/components/bottom-nav";
 import { PwaRegister } from "@/components/pwa-register";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { THEME_INIT_SCRIPT } from "@/lib/theme";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -55,8 +56,11 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  // SSR default is dark (#020617). The theme's `color-scheme` is now owned by
+  // CSS (:root / [data-theme="light"] in globals.css) so light-mode form controls
+  // render light; the browser-chrome color is kept in step at runtime by
+  // use-theme.ts updating this <meta> on toggle.
   themeColor: "#020617",
-  colorScheme: "dark",
 };
 
 export default function RootLayout({
@@ -65,8 +69,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${notoSansSC.variable} h-full antialiased`}>
-      <body className="min-h-full bg-slate-950 text-white">
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${notoSansSC.variable} h-full antialiased`} suppressHydrationWarning>
+      <head>
+        {/* Pre-paint theme init (Sprint 16): sets data-theme="light" on <html>   */}
+        {/* before first paint so a light-mode reload shows no dark flash. Dark    */}
+        {/* leaves the attribute absent, matching the SSR output. Follows the      */}
+        {/* Next.js 16 preventing-flash-before-hydration guide (Themes section).   */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
+      <body className="min-h-full bg-background text-foreground">
         {children}
         <BottomNav />
         <PwaRegister />

@@ -126,7 +126,7 @@ export function BossPanel({
           <button
             type="button"
             onClick={() => setPhase("running")}
-            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
           >
             Start the boss round
           </button>
@@ -163,7 +163,7 @@ export function BossPanel({
           <button
             type="button"
             onClick={restart}
-            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
           >
             {crowned ? "Defend the crown" : "Challenge again"}
           </button>
@@ -259,7 +259,7 @@ function NextButton({ isLast, passed, onResolve }: { isLast: boolean; passed: bo
       <button
         type="button"
         onClick={() => onResolve(passed)}
-        className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+        className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
       >
         {isLast ? "See result" : "Next question"}
       </button>
@@ -320,7 +320,7 @@ function QuizStage({
               aria-selected={picked === choice}
               aria-disabled={answered && picked !== choice}
               className={`min-h-[52px] rounded-2xl border px-5 py-4 text-center transition
-                ${right ? "animate-quiz-correct border-emerald-300 bg-emerald-300 text-slate-950" : ""}
+                ${right ? "animate-quiz-correct border-emerald-300 bg-cta text-slate-950" : ""}
                 ${wrong ? "animate-quiz-wrong border-rose-400 bg-rose-400/20 text-rose-200" : ""}
                 ${!right && !wrong ? "border-white/10 bg-surface-2 text-white hover:border-emerald-300" : ""}
               `}
@@ -409,7 +409,7 @@ function ClozeStage({
               aria-selected={picked === choice}
               aria-disabled={answered && picked !== choice}
               className={`min-h-[52px] rounded-2xl border px-5 py-4 text-center transition
-                ${right ? "animate-quiz-correct border-emerald-300 bg-emerald-300 text-slate-950" : ""}
+                ${right ? "animate-quiz-correct border-emerald-300 bg-cta text-slate-950" : ""}
                 ${wrong ? "animate-quiz-wrong border-rose-400 bg-rose-400/20 text-rose-200" : ""}
                 ${!right && !wrong ? "border-white/10 bg-surface-2 text-white hover:border-emerald-300" : ""}
               `}
@@ -513,7 +513,7 @@ function ToneStage({
                       aria-label={`Tone ${tone === 5 ? "neutral" : tone} for ${label}`}
                       disabled={checked}
                       className={`min-h-[44px] min-w-[44px] rounded-xl border px-3 py-2 text-sm font-semibold transition
-                        ${showRight ? "border-emerald-300 bg-emerald-300 text-slate-950" : ""}
+                        ${showRight ? "border-emerald-300 bg-cta text-slate-950" : ""}
                         ${showWrong ? "border-rose-400 bg-rose-400/20 text-rose-200" : ""}
                         ${!showRight && !showWrong && isPicked ? "border-emerald-300 bg-emerald-400/10 text-white" : ""}
                         ${!showRight && !showWrong && !isPicked ? "border-white/10 bg-white/[0.04] text-slate-200 hover:border-white/25" : ""}
@@ -535,7 +535,7 @@ function ToneStage({
             type="button"
             onClick={check}
             disabled={!complete}
-            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-40"
+            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta disabled:cursor-not-allowed disabled:opacity-40"
           >
             Check tones
           </button>
@@ -618,7 +618,7 @@ function TypingStage({
             <button
               type="submit"
               disabled={!canCheck}
-              className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-40"
+              className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta disabled:cursor-not-allowed disabled:opacity-40"
             >
               Check
             </button>

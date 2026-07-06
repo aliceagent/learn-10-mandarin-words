@@ -49,7 +49,7 @@ export function PwaRegister() {
   if (!installEvent || dismissed) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-20 z-40 mx-auto flex max-w-sm items-center gap-3 rounded-2xl border border-white/10 bg-slate-900/95 px-4 py-3 shadow-2xl backdrop-blur md:bottom-6">
+    <div className="fixed inset-x-0 bottom-20 z-40 mx-auto flex max-w-sm items-center gap-3 rounded-2xl border border-white/10 bg-surface/95 px-4 py-3 shadow-2xl backdrop-blur md:bottom-6">
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold text-white">Install this app</p>
         <p className="truncate text-xs text-slate-400">Add to your home screen for offline study.</p>
@@ -62,7 +62,7 @@ export function PwaRegister() {
           if (choice.outcome === "accepted") track("install_accepted");
           setInstallEvent(null);
         }}
-        className="inline-flex min-h-[44px] shrink-0 items-center rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300"
+        className="inline-flex min-h-[44px] shrink-0 items-center rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cta"
       >
         Install
       </button>

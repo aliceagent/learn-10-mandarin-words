@@ -74,7 +74,7 @@ export function ClozePanel({
           <button
             type="button"
             onClick={restart}
-            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
           >
             Try again
           </button>
@@ -171,7 +171,7 @@ export function ClozePanel({
               aria-selected={picked === choice}
               aria-disabled={answered && picked !== choice}
               className={`min-h-[52px] rounded-2xl border px-5 py-4 text-center transition
-                ${right ? "animate-quiz-correct border-emerald-300 bg-emerald-300 text-slate-950" : ""}
+                ${right ? "animate-quiz-correct border-emerald-300 bg-cta text-slate-950" : ""}
                 ${wrong ? "animate-quiz-wrong border-rose-400 bg-rose-400/20 text-rose-200" : ""}
                 ${!right && !wrong ? "border-white/10 bg-surface-2 text-white hover:border-emerald-300" : ""}
               `}
@@ -201,7 +201,7 @@ export function ClozePanel({
             <button
               type="button"
               onClick={next}
-              className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+              className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
             >
               {index + 1 >= total ? "See results" : "Next sentence"}
             </button>

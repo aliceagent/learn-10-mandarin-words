@@ -146,7 +146,7 @@ export function PracticeApp({ data }: { data: MandarinData }) {
             Take a few topic quizzes and your trickiest words will collect here.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Link href="/" className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300">
+            <Link href="/" className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta">
               Browse topics
             </Link>
             <Link href="/review" className="min-h-[44px] inline-flex items-center rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300">
@@ -188,7 +188,7 @@ export function PracticeApp({ data }: { data: MandarinData }) {
           </p>
 
           {missedEntries.length > 0 ? (
-            <div className="mx-auto mt-6 max-w-md rounded-2xl border border-white/10 bg-slate-950/60 p-5 text-left">
+            <div className="mx-auto mt-6 max-w-md rounded-2xl border border-white/10 bg-background/60 p-5 text-left">
               <p className="text-sm font-semibold text-slate-300">{missedEntries.length} to keep practicing</p>
               <ul className="mt-3 space-y-2">
                 {missedEntries.map((e) => (
@@ -206,7 +206,7 @@ export function PracticeApp({ data }: { data: MandarinData }) {
             <button
               type="button"
               onClick={practiceAgain}
-              className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+              className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
               aria-keyshortcuts="r"
             >
               Practice again
@@ -286,9 +286,9 @@ export function PracticeApp({ data }: { data: MandarinData }) {
                   aria-disabled={picked !== null && picked !== choice}
                   aria-keyshortcuts={i < 9 ? `${i + 1}` : undefined}
                   className={`flex min-h-[52px] items-center gap-3 rounded-2xl border px-5 py-4 text-left font-semibold transition
-                    ${right ? "animate-quiz-correct border-emerald-300 bg-emerald-300 text-slate-950" : ""}
+                    ${right ? "animate-quiz-correct border-emerald-300 bg-cta text-slate-950" : ""}
                     ${wrong ? "animate-quiz-wrong border-rose-400 bg-rose-400/20 text-rose-200" : ""}
-                    ${!right && !wrong ? "border-white/10 bg-slate-950 text-white hover:border-emerald-300" : ""}
+                    ${!right && !wrong ? "border-white/10 bg-background text-white hover:border-emerald-300" : ""}
                   `}
                 >
                   {i < 9 ? (
@@ -310,7 +310,7 @@ export function PracticeApp({ data }: { data: MandarinData }) {
               <button
                 type="button"
                 onClick={handleNext}
-                className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+                className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
                 aria-label={index + 1 >= total ? "See results" : "Next word"}
                 aria-keyshortcuts="Enter"
               >

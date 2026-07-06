@@ -42,7 +42,7 @@ export function CategoryApp({ category, topics }: { category: Category; topics: 
           <p className="mt-4 text-xl font-semibold text-white">No topics in this category yet</p>
           <Link
             href="/"
-            className="mt-6 inline-flex min-h-[44px] items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+            className="mt-6 inline-flex min-h-[44px] items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
           >
             Browse the library
           </Link>

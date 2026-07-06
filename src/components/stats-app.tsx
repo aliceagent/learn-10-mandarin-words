@@ -189,7 +189,7 @@ export function StatsApp({
             and it never leaves this device.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Link href="/path" className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300">
+            <Link href="/path" className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta">
               Start the path
             </Link>
             <Link href="/" className="min-h-[44px] inline-flex items-center rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300">
@@ -306,7 +306,7 @@ export function StatsApp({
             <h2 className="text-xl font-semibold text-white">Trickiest words</h2>
             <Link
               href="/practice"
-              className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-5 py-2 font-semibold text-slate-950 transition hover:bg-emerald-300"
+              className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-5 py-2 font-semibold text-slate-950 transition hover:bg-cta"
             >
               Practice these words
             </Link>

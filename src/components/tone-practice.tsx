@@ -116,7 +116,7 @@ export function TonePractice({ topic }: { topic: Topic }) {
                       // pick is a subtle emerald wash + hairline (not a full fill);
                       // graded states reuse the quiz's semantic correct/wrong.
                       className={`min-h-[44px] min-w-[44px] rounded-xl border px-3 py-2 text-sm font-semibold transition
-                        ${showRight ? "border-emerald-300 bg-emerald-300 text-slate-950" : ""}
+                        ${showRight ? "border-emerald-300 bg-cta text-slate-950" : ""}
                         ${showWrong ? "border-rose-400 bg-rose-400/20 text-rose-200" : ""}
                         ${!showRight && !showWrong && isPicked ? "border-emerald-300 bg-emerald-400/10 text-white" : ""}
                         ${!showRight && !showWrong && !isPicked ? "border-white/10 bg-white/[0.04] text-slate-200 hover:border-white/25" : ""}
@@ -139,7 +139,7 @@ export function TonePractice({ topic }: { topic: Topic }) {
             type="button"
             onClick={check}
             disabled={!complete}
-            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-40"
+            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta disabled:cursor-not-allowed disabled:opacity-40"
           >
             Check tones
           </button>

@@ -226,7 +226,7 @@ export function LightningApp({ data }: { data: MandarinData }) {
 
   const urgency = remaining <= DANGER_MS ? "danger" : remaining <= AMBER_MS ? "warn" : "accent";
   const timerColor =
-    urgency === "danger" ? "text-rose-400" : urgency === "warn" ? "text-amber-300" : "text-emerald-300";
+    urgency === "danger" ? "text-danger" : urgency === "warn" ? "text-amber-300" : "text-emerald-300";
   const barColor =
     urgency === "danger"
       ? "var(--color-danger)"
@@ -297,7 +297,7 @@ export function LightningApp({ data }: { data: MandarinData }) {
             <button
               type="button"
               onClick={startRound}
-              className="min-h-[44px] rounded-full bg-emerald-400 px-8 py-3 text-lg font-semibold text-slate-950 transition hover:bg-emerald-300"
+              className="min-h-[44px] rounded-full bg-emerald-400 px-8 py-3 text-lg font-semibold text-slate-950 transition hover:bg-cta"
             >
               ⚡ Start 60-second round
             </button>
@@ -376,9 +376,9 @@ export function LightningApp({ data }: { data: MandarinData }) {
                   aria-disabled={picked !== null && picked !== choice}
                   aria-keyshortcuts={i < 9 ? `${i + 1}` : undefined}
                   className={`flex min-h-[52px] items-center gap-3 rounded-2xl border px-5 py-4 text-left font-semibold transition
-                    ${right ? "animate-quiz-correct border-emerald-300 bg-emerald-300 text-slate-950" : ""}
+                    ${right ? "animate-quiz-correct border-emerald-300 bg-cta text-slate-950" : ""}
                     ${wrong ? "animate-quiz-wrong border-rose-400 bg-rose-400/20 text-rose-200" : ""}
-                    ${!right && !wrong ? "border-white/10 bg-slate-950 text-white hover:border-emerald-300" : ""}
+                    ${!right && !wrong ? "border-white/10 bg-background text-white hover:border-emerald-300" : ""}
                   `}
                 >
                   {i < 9 ? (
@@ -465,7 +465,7 @@ export function LightningApp({ data }: { data: MandarinData }) {
             <button
               type="button"
               onClick={startRound}
-              className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+              className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
               aria-keyshortcuts="r"
             >
               Go again

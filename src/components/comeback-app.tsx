@@ -98,7 +98,7 @@ export function ComebackApp({ data }: { data: MandarinData }) {
             Study a topic and grade some flashcards first — we&apos;ll build your comeback session from words you&apos;ve mastered.
           </p>
           <div className="mt-6 flex justify-center">
-            <Link href="/" className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 hover:bg-emerald-300 transition">
+            <Link href="/" className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 hover:bg-cta transition">
               Browse topics
             </Link>
           </div>
@@ -113,11 +113,11 @@ export function ComebackApp({ data }: { data: MandarinData }) {
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             {dueCount > 0 ? (
-              <Link href="/review" className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300">
+              <Link href="/review" className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta">
                 Review {dueCount} due word{dueCount !== 1 ? "s" : ""}
               </Link>
             ) : (
-              <Link href="/" className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300">
+              <Link href="/" className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta">
                 Browse topics
               </Link>
             )}
@@ -172,7 +172,7 @@ export function ComebackApp({ data }: { data: MandarinData }) {
                   <button
                     type="button"
                     onClick={() => setRevealed(true)}
-                    className="min-h-[44px] rounded-full bg-emerald-400 px-7 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+                    className="min-h-[44px] rounded-full bg-emerald-400 px-7 py-3 font-semibold text-slate-950 transition hover:bg-cta"
                     aria-label="Reveal answer"
                   >
                     Reveal
@@ -203,7 +203,7 @@ export function ComebackApp({ data }: { data: MandarinData }) {
                   <button
                     type="button"
                     onClick={() => handleGrade("good")}
-                    className="min-h-[44px] flex-1 rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+                    className="min-h-[44px] flex-1 rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
                     aria-label="I still know this word"
                   >
                     Got it

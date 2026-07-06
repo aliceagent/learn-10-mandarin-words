@@ -176,7 +176,7 @@ export function MatchPanel({
           <button
             type="button"
             onClick={playAgain}
-            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
           >
             Play again
           </button>
@@ -212,7 +212,7 @@ export function MatchPanel({
           <button
             type="button"
             onClick={nextRound}
-            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-emerald-300"
+            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
           >
             Round {roundIndex + 2}
           </button>
