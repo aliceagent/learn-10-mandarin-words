@@ -10,6 +10,7 @@ import { goalProgress, streakAtRisk, studiedWithFreezes, todayISO } from "@/lib/
 import { comebackDeck, daysSinceLastStudy, isLapsed } from "@/lib/comeback-logic";
 import { primaryCta } from "@/lib/home-cta-logic";
 import { categoryChips, starterLessons } from "@/lib/lesson-finder-logic";
+import { lessonCardStatus } from "@/lib/lesson-card-logic";
 import { OnboardingModal, ContinueLearningCard } from "./onboarding";
 import { RecentTopicsShelf } from "./recent-topics-shelf";
 import { ProgressRing } from "./progress-ring";
@@ -415,6 +416,33 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
         />
       ) : null}
 
+      {/* ── How it works ── */}
+      {/* A plain, three-step "how to use this" loop (Watch → Practice → Review)
+          so a first-time learner or an evaluating teacher understands the
+          product before committing — distinct from the capability grid below. */}
+      <section id="how-it-works" className="mx-auto max-w-7xl px-6 pt-14 md:px-10">
+        <div className="mb-6">
+          <p className="text-sm font-semibold uppercase tracking-wide text-emerald-300">How it works</p>
+          <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white md:text-4xl">
+            Watch, practice, review
+          </h2>
+        </div>
+        <ol className="grid gap-4 md:grid-cols-3">
+          <HowItWorksStep
+            step="1 · Watch"
+            body="A short video introduces 10 words with Chinese, pinyin, and English."
+          />
+          <HowItWorksStep
+            step="2 · Practice"
+            body="Quizzes, flashcards, matching, and typing lock them in."
+          />
+          <HowItWorksStep
+            step="3 · Review"
+            body="Spaced repetition brings words back right before you forget."
+          />
+        </ol>
+      </section>
+
       {/* ── Feature row ── */}
       <section id="practice" className="mt-14 border-y border-white/10 bg-background/70 px-6 py-12 md:px-10">
         <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-4">
@@ -510,6 +538,7 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
                 savedOffline={savedOffline.has(downloadableMp4Url(topic) ?? "")}
                 flashcardStats={progress.flashcardStats}
                 quizStats={progress.quizStats}
+                status={lessonCardStatus(topic, progress)}
                 query={query}
               />
             ))}
@@ -646,6 +675,20 @@ function Feature({ title, body }: { title: string; body: string }) {
       <h3 className="font-semibold text-white">{title}</h3>
       <p className="mt-2 text-sm leading-6 text-slate-400">{body}</p>
     </div>
+  );
+}
+
+// ── How-it-works step ─────────────────────────────────────────────────────────
+
+// One numbered step in the Watch → Practice → Review strip. `step` carries the
+// order as text ("1 · Watch") so the loop is legible without relying on the
+// visual list-item numbering alone.
+function HowItWorksStep({ step, body }: { step: string; body: string }) {
+  return (
+    <li className="list-none rounded-3xl border border-white/10 bg-surface p-5">
+      <p className="text-sm font-semibold uppercase tracking-wide text-emerald-300">{step}</p>
+      <p className="mt-2 text-sm leading-6 text-slate-400">{body}</p>
+    </li>
   );
 }
 

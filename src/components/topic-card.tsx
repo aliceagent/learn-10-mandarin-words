@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { FlashcardStat, QuizStat, TopicSummary } from "@/lib/types";
 import { wordKey } from "@/lib/data-logic";
 import { topicWordStatuses } from "@/lib/progress-logic";
+import { lessonCardMeta, type LessonCardStatus } from "@/lib/lesson-card-logic";
 import { hasPlayableVideo } from "@/lib/video";
 import { normalizePinyin } from "@/lib/highlight";
 import { HighlightedText } from "./highlighted-text";
@@ -20,6 +21,7 @@ export function TopicCard({
   savedOffline,
   flashcardStats,
   quizStats,
+  status,
   query,
 }: {
   topic: TopicSummary;
@@ -27,6 +29,10 @@ export function TopicCard({
   favorite: boolean;
   // Whether this topic has been crowned via a flawless Boss Round (schema v7).
   crowned?: boolean;
+  // Optional consolidated status (Sprint 5). When supplied, a single status chip
+  // replaces the separate Crowned/Learned chips so the card never double-badges;
+  // callers that omit it keep the original crowned/learned chips.
+  status?: LessonCardStatus;
   // Whether this topic's video is saved in the offline cache. Browser-only, so it
   // stays false during SSR/first paint and the chip pops in after mount.
   savedOffline?: boolean;
@@ -95,17 +101,27 @@ export function TopicCard({
               ★ Saved
             </span>
           ) : null}
-          {crowned ? (
-            <span
-              className="rounded-full border border-amber-300/30 px-2.5 py-1 font-medium text-amber-200/90"
-              title="Crowned — a flawless Boss Round"
-            >
-              👑 Crowned
-            </span>
-          ) : null}
-          {learned ? (
-            <span className="rounded-full bg-cta/90 px-2.5 py-1 font-semibold text-slate-950">Learned</span>
-          ) : null}
+          {/* When the caller supplies a consolidated status, render exactly one
+              status chip (achievement states only — "started"/"new" are already
+              conveyed by the studied bar below). Otherwise fall back to the
+              original separate Crowned/Learned chips. */}
+          {status ? (
+            <StatusChip status={status} />
+          ) : (
+            <>
+              {crowned ? (
+                <span
+                  className="rounded-full border border-amber-300/30 px-2.5 py-1 font-medium text-amber-200/90"
+                  title="Crowned — a flawless Boss Round"
+                >
+                  👑 Crowned
+                </span>
+              ) : null}
+              {learned ? (
+                <span className="rounded-full bg-cta/90 px-2.5 py-1 font-semibold text-slate-950">Learned</span>
+              ) : null}
+            </>
+          )}
         </div>
       </div>
 
@@ -187,9 +203,50 @@ export function TopicCard({
         </div>
       ) : null}
 
+      {/* Static "what's in this lesson" line (Sprint 5): word count · video? ·
+          quiz — reads the same for every learner so a teacher can size up a
+          lesson at a glance. */}
+      <p className="mt-3 text-xs text-slate-500">{lessonCardMeta(topic)}</p>
+
       <p className="mt-auto pt-4 text-sm font-semibold text-slate-400 transition group-hover:text-emerald-300">
         Open lesson →
       </p>
     </Link>
   );
+}
+
+// One consolidated status chip (Sprint 5). Only the achievement states get a
+// chip — "started" and "new" are already communicated by the studied bar, so
+// surfacing them here would just repeat "3/10 studied" or add "Not started"
+// noise to every fresh card. The label carries the meaning as text (a11y);
+// color/emoji only reinforce it.
+function StatusChip({ status }: { status: LessonCardStatus }) {
+  switch (status.kind) {
+    case "crowned":
+      return (
+        <span
+          className="rounded-full border border-amber-300/30 px-2.5 py-1 font-medium text-amber-200/90"
+          title="Crowned — a flawless Boss Round"
+        >
+          {status.label}
+        </span>
+      );
+    case "learned":
+      return (
+        <span className="rounded-full bg-cta/90 px-2.5 py-1 font-semibold text-slate-950">
+          {status.label}
+        </span>
+      );
+    case "mastered":
+      return (
+        <span
+          className="rounded-full border border-emerald-300/30 px-2.5 py-1 font-medium text-emerald-200/90"
+          title="Most words past the review threshold"
+        >
+          {status.label}
+        </span>
+      );
+    default:
+      return null;
+  }
 }
