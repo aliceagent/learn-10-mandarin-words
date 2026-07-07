@@ -14,6 +14,7 @@ import {
   recommendedPath,
   STARTER_SLUGS,
   topicsForCategory,
+  topicCategoryHref,
   USEFUL_PHRASES_CATEGORY_SLUG,
   wordKey,
 } from "../src/lib/data-logic.ts";
@@ -174,6 +175,12 @@ test("wordKey is topic.slug + ':' + hanzi", () => {
   const topic = topics[0];
   const item = topic.items[0];
   assert.equal(wordKey(topic, item), `${topic.slug}:${item.hanzi}`);
+});
+
+test("topicCategoryHref returns the category page for topic back navigation", () => {
+  const topic = getTopic(topics, "hotel-to-airport-mandarin-vocabulary");
+  assert.ok(topic);
+  assert.equal(topicCategoryHref(topic), "/categories/travel-and-tourism");
 });
 
 test("recommendedPath returns the starter slugs when present", () => {

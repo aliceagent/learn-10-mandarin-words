@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Topic, VocabItem } from "@/lib/types";
 import type { CharConnectionGroup } from "@/lib/connections-logic";
 import { isUsefulPhraseTopic, nextTopicAfter, wordKey } from "@/lib/data";
+import { topicCategoryHref } from "@/lib/data-logic";
 import { buildQuiz, itemsForKeys, type QuizMode } from "@/lib/quiz-logic";
 import { isNewBestCombo, nextCombo } from "@/lib/combo-logic";
 import { computeStats, formatIntervalDays, isCrowned, previewIntervals, topicProgress, topicWordStatuses } from "@/lib/progress-logic";
@@ -253,14 +254,14 @@ export function TopicApp({
       <div className="sticky top-0 z-30 -mx-6 border-b border-white/10 bg-background/92 px-6 py-3 backdrop-blur md:-mx-10 md:px-10">
         <div className="flex items-center gap-3">
           <Link
-            href="/"
+            href={topicCategoryHref(topic)}
             className="shrink-0 text-sm font-semibold text-emerald-300 hover:text-emerald-200"
-            aria-label="Back to library"
+            aria-label={`Back to ${topic.category}`}
           >
             {/* Compact on mobile (just the chevron); full label from sm up. Same
                 route/target — purely a visual narrowing of the nav. */}
             <span aria-hidden="true">←</span>
-            <span className="ml-1 hidden sm:inline">Library</span>
+            <span className="ml-1 hidden sm:inline">{topic.category}</span>
           </Link>
           <p className="min-w-0 flex-1 truncate text-center text-sm font-semibold text-slate-300">
             {topic.titleEn}

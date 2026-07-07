@@ -113,6 +113,15 @@ export function wordKey(topic: Pick<Topic, "slug">, item: Pick<VocabItem, "hanzi
   return `${topic.slug}:${item.hanzi}`;
 }
 
+/**
+ * Topic-page back affordance target. Returning to the topic's category keeps the
+ * category → topic → back flow one step deep, instead of dumping learners at the
+ * generic home/library page.
+ */
+export function topicCategoryHref(topic: Pick<Topic, "categorySlug">): string {
+  return `/categories/${topic.categorySlug}`;
+}
+
 /** Slug of the practical-phrases category (see topics.json / getCategory). */
 export const USEFUL_PHRASES_CATEGORY_SLUG = "useful-phrases";
 
