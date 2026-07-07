@@ -7,6 +7,7 @@ import {
   itemsForKeys,
   rankedDistractors,
 } from "../src/lib/quiz-logic.ts";
+import { glossesCollide } from "../src/lib/gloss.ts";
 
 // A tiny fixture of vocab items (only the fields the quiz logic reads).
 const ITEMS = [
@@ -153,6 +154,74 @@ test("buildQuizCard: choices are always unique across every mode", () => {
       assert.equal(new Set(card.choices).size, card.choices.length, `unique choices for ${mode}`);
       assert.ok(card.choices.includes(card.answer), `answer present for ${mode}`);
     }
+  }
+});
+
+// ─── Gloss-collision fairness (Sprint 29) ───────────────────────────────────
+
+// Fixture modeled on the real live collisions: 包子 "steamed bun" vs 馒头
+// "steamed bun (plain)" share a normalized gloss, and 对不起 "sorry" vs 不好意思
+// "excuse me / sorry" share a slash segment. `dumpling` is a clean, unrelated
+// word that should always survive as a distractor.
+const COLLIDING = [
+  { hanzi: "包子", pinyin: "bāozi", english: "steamed bun", sentences: [] },
+  { hanzi: "馒头", pinyin: "mántou", english: "steamed bun (plain)", sentences: [] },
+  { hanzi: "对不起", pinyin: "duìbuqǐ", english: "sorry", sentences: [] },
+  { hanzi: "不好意思", pinyin: "bùhǎoyìsi", english: "excuse me / sorry", sentences: [] },
+  { hanzi: "饺子", pinyin: "jiǎozi", english: "dumpling", sentences: [] },
+];
+
+// Map an answer-field value back to the pool item(s) that own it, so we can
+// check whether a chosen distractor collides with the quizzed item's gloss.
+function ownersOf(pool, field, value) {
+  return pool.filter((w) => w[field] === value);
+}
+
+test("rankedDistractors: a gloss-colliding candidate is never offered, in any mode", () => {
+  for (const mode of ["hanzi-english", "english-hanzi", "hanzi-pinyin", "listening"]) {
+    const field = {
+      "hanzi-english": "english",
+      "english-hanzi": "hanzi",
+      "hanzi-pinyin": "pinyin",
+      listening: "english",
+    }[mode];
+    for (const item of COLLIDING) {
+      const ranked = rankedDistractors(item, COLLIDING, mode, identity);
+      for (const value of ranked) {
+        for (const owner of ownersOf(COLLIDING, field, value)) {
+          assert.equal(
+            glossesCollide(owner.english, item.english),
+            false,
+            `${mode}: distractor "${value}" collides with answer "${item.english}"`,
+          );
+        }
+      }
+    }
+  }
+});
+
+test("buildQuizCard: the steamed-bun twin never co-appears as a choice", () => {
+  // hanzi→English on 包子: "steamed bun (plain)" must not be offered.
+  const eng = buildQuizCard(COLLIDING[0], COLLIDING, "hanzi-english", keyFor, identity);
+  assert.equal(eng.choices.includes("steamed bun (plain)"), false);
+  // English→hanzi on 包子: 馒头's hanzi must not be offered.
+  const han = buildQuizCard(COLLIDING[0], COLLIDING, "english-hanzi", keyFor, identity);
+  assert.equal(han.choices.includes("馒头"), false);
+});
+
+test("buildQuizCard: the apologize near-synonym never co-appears as a choice", () => {
+  const card = buildQuizCard(COLLIDING[2], COLLIDING, "hanzi-english", keyFor, identity);
+  // 对不起 "sorry" must never offer 不好意思 "excuse me / sorry" (shared sense).
+  assert.equal(card.choices.includes("excuse me / sorry"), false);
+});
+
+test("buildQuizCard: a clean pool still yields four unique choices after filtering", () => {
+  // ITEMS has no colliding glosses, so filtering changes nothing.
+  for (const mode of ["hanzi-english", "english-hanzi", "hanzi-pinyin", "listening"]) {
+    const card = buildQuizCard(ITEMS[0], ITEMS, mode, keyFor, identity);
+    assert.equal(card.choices.length, 4, `four choices for ${mode}`);
+    assert.equal(new Set(card.choices).size, 4, `unique choices for ${mode}`);
+    assert.ok(card.choices.includes(card.answer), `answer present for ${mode}`);
   }
 });
 

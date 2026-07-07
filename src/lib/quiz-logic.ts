@@ -4,6 +4,9 @@ import type { VocabItem } from "./types";
 // accept it via `allowImportingTsExtensions`. The pinyin helpers power the
 // tone-aware distractor ranking below.
 import { stripToneMarks, tonesOf } from "./pinyin.ts";
+// Gloss-collision filter (same explicit `.ts` extension rationale as above).
+// Ensures no distractor shares an English meaning with the correct answer.
+import { glossesCollide } from "./gloss.ts";
 
 // Pure quiz helpers, extracted from topic-app.tsx so the quiz-building and
 // missed-word logic can be unit-tested without React or the DOM. The component
@@ -161,8 +164,11 @@ function distractorScore(candidate: QuizWord, target: QuizWord, mode: QuizMode):
 }
 
 // Drop items whose answer-field value repeats (or equals `exclude`), keeping the
-// first occurrence. This is what stops two words with the same English label —
-// or the answer itself — from both appearing as choices.
+// first occurrence. This stops two words with the *same answer-field value* —
+// or the answer itself — from both appearing as choices. It only catches exact
+// repeats of the answer field; cross-meaning collisions (a distractor whose
+// English gloss matches the answer's, in any mode) are removed separately by the
+// `glossesCollide` filter in `rankedDistractors`.
 function dedupeByField<T extends QuizWord>(
   items: T[],
   field: "english" | "hanzi" | "pinyin",
@@ -193,7 +199,14 @@ export function rankedDistractors<T extends QuizWord>(
 ): string[] {
   const field = ANSWER_FIELD[mode];
   const answer = item[field];
-  const candidates = shuffle(dedupeByField(pool, field, answer));
+  // Fairness filter: never offer a distractor whose English gloss collides with
+  // the answer's gloss. This applies in every mode — in `hanzi-english` and
+  // `listening` a colliding gloss is literally a second correct answer; in
+  // `english-hanzi` the colliding candidate's hanzi is a second correct answer
+  // to the English prompt; in `hanzi-pinyin` it keeps the rule uniform at the
+  // cost of at most a candidate or two from a 10-word pool.
+  const fairPool = pool.filter((c) => !glossesCollide(c.english, item.english));
+  const candidates = shuffle(dedupeByField(fairPool, field, answer));
   const ranked = [...candidates].sort(
     (a, b) => distractorScore(b, item, mode) - distractorScore(a, item, mode),
   );
