@@ -72,7 +72,7 @@ npm run build          # runs data validation first (prebuild), then next build
 `npm run validate:data` checks `src/data/topics.json` and reports **errors** (exit 1)
 and **warnings** (exit 0). It runs automatically before every build via `prebuild`.
 
-It verifies: exactly 102 topics with 10 items each; required topic/item fields are
+It verifies: exactly 103 topics with 10 items each; required topic/item fields are
 present and non-empty; unique topic slugs, category slugs, and per-topic hanzi;
 category ↔ topic cross-references are consistent; pinyin shape and tone marks
 (warns on missing tone marks / stray characters); pinyin syllable count matches
@@ -103,7 +103,7 @@ them blocking. The shipped dataset produces zero findings by design.
 
 ## Data
 
-14 categories, 102 topics, 1,020 vocabulary words in `src/data/topics.json`.
+14 categories, 103 topics, 1,030 vocabulary words in `src/data/topics.json`.
 
 ## Video integration
 

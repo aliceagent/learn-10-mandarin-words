@@ -91,7 +91,6 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
   const studiedUnion = studiedWithFreezes(progress);
   const streak = computeStreak(studiedUnion);
   const atRisk = streakAtRisk(studiedUnion);
-  const freezeCount = progress.streakFreezes.available;
 
   // Welcome-back path: a learner returning after 7+ days away, who has at least
   // one mastered/studied word to warm up from, sees a gentle comeback banner.

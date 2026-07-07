@@ -21,18 +21,39 @@ import {
 const topics = rawData.topics;
 const categories = rawData.categories;
 
-test("dataset has exactly 102 topics and 1020 words", () => {
-  assert.equal(topics.length, 102);
-  assert.equal(allWords(topics).length, 1020);
+test("dataset has exactly 103 topics and 1030 words", () => {
+  assert.equal(topics.length, 103);
+  assert.equal(allWords(topics).length, 1030);
 });
 
 test("datasetSummary derives hero counts from the real topic list", () => {
   assert.deepEqual(datasetSummary(topics), {
-    listCount: 102,
-    wordCount: 1020,
-    formattedListCount: "102",
-    formattedWordCount: "1,020",
+    listCount: 103,
+    wordCount: 1030,
+    formattedListCount: "103",
+    formattedWordCount: "1,030",
   });
+});
+
+test("Hotel to Airport topic includes Jonathan's requested travel words", () => {
+  const topic = getTopic(topics, "hotel-to-airport-mandarin-vocabulary");
+  assert.ok(topic, "hotel-to-airport topic exists");
+  assert.equal(topic.categorySlug, "travel-and-tourism");
+  assert.deepEqual(
+    topic.items.map((item) => [item.english, item.hanzi, item.pinyin]),
+    [
+      ["terminal", "航站楼", "hángzhànlóu"],
+      ["airline", "航空公司", "hángkōng gōngsī"],
+      ["check-in counter", "值机柜台", "zhíjī guìtái"],
+      ["luggage cart", "行李车", "xíngli chē"],
+      ["highway / expressway toll", "高速费", "gāosù fèi"],
+      ["official receipt / tax invoice", "发票", "fāpiào"],
+      ["hotel receipt / invoice", "酒店发票", "jiǔdiàn fāpiào"],
+      ["check out", "退房", "tuìfáng"],
+      ["boarding pass", "登机牌", "dēngjīpái"],
+      ["departure level / departures", "出发层", "chūfā céng"],
+    ]
+  );
 });
 
 test("Useful Phrases category has 2 topics and 20 items, all well-formed", () => {

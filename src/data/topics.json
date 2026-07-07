@@ -164,6 +164,7 @@
         "ten-types-of-hotel-room-items",
         "ten-types-of-subway-things",
         "ten-types-of-airport-things",
+        "hotel-to-airport-mandarin-vocabulary",
         "ten-types-of-tourist-attractions",
         "ten-types-of-asking-directions-words",
         "ten-types-of-ways-to-get-around",
@@ -14707,6 +14708,166 @@
         "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-airport-things.mp4",
         "kind": "mp4"
       }
+    },
+    {
+      "slug": "hotel-to-airport-mandarin-vocabulary",
+      "titleCn": "酒店到机场中文词汇",
+      "titleEn": "Hotel to Airport Mandarin Vocabulary",
+      "category": "Travel & Tourism",
+      "categorySlug": "travel-and-tourism",
+      "videoPath": "/videos/hotel-to-airport-mandarin-vocabulary.mp4",
+      "items": [
+        {
+          "hanzi": "航站楼",
+          "pinyin": "hángzhànlóu",
+          "english": "terminal",
+          "sentences": [
+            {
+              "cn": "司机把我送到三号航站楼。",
+              "en": "The driver took me to Terminal 3."
+            },
+            {
+              "cn": "这个航站楼离酒店大约半小时。",
+              "en": "This terminal is about half an hour from the hotel."
+            }
+          ]
+        },
+        {
+          "hanzi": "航空公司",
+          "pinyin": "hángkōng gōngsī",
+          "english": "airline",
+          "sentences": [
+            {
+              "cn": "请问你的航空公司是哪一家？",
+              "en": "Which airline are you flying with?"
+            },
+            {
+              "cn": "航空公司发短信通知我航班延误了。",
+              "en": "The airline texted me that the flight was delayed."
+            }
+          ]
+        },
+        {
+          "hanzi": "值机柜台",
+          "pinyin": "zhíjī guìtái",
+          "english": "check-in counter",
+          "sentences": [
+            {
+              "cn": "我们先去值机柜台托运行李。",
+              "en": "We first went to the check-in counter to check our luggage."
+            },
+            {
+              "cn": "值机柜台在航站楼的二层。",
+              "en": "The check-in counter is on the second floor of the terminal."
+            }
+          ]
+        },
+        {
+          "hanzi": "行李车",
+          "pinyin": "xíngli chē",
+          "english": "luggage cart",
+          "sentences": [
+            {
+              "cn": "酒店门口有一辆行李车。",
+              "en": "There is a luggage cart at the hotel entrance."
+            },
+            {
+              "cn": "到了机场以后，我推着行李车去值机。",
+              "en": "After arriving at the airport, I pushed the luggage cart to check in."
+            }
+          ]
+        },
+        {
+          "hanzi": "高速费",
+          "pinyin": "gāosù fèi",
+          "english": "highway / expressway toll",
+          "sentences": [
+            {
+              "cn": "从酒店到机场要另外付高速费。",
+              "en": "From the hotel to the airport, you need to pay the expressway toll separately."
+            },
+            {
+              "cn": "司机说高速费可以一起算在车费里。",
+              "en": "The driver said the toll could be included with the fare."
+            }
+          ]
+        },
+        {
+          "hanzi": "发票",
+          "pinyin": "fāpiào",
+          "english": "official receipt / tax invoice",
+          "sentences": [
+            {
+              "cn": "下车前，请给我一张发票。",
+              "en": "Before I get out, please give me an official receipt."
+            },
+            {
+              "cn": "公司报销需要发票。",
+              "en": "The company needs a tax invoice for reimbursement."
+            }
+          ]
+        },
+        {
+          "hanzi": "酒店发票",
+          "pinyin": "jiǔdiàn fāpiào",
+          "english": "hotel receipt / invoice",
+          "sentences": [
+            {
+              "cn": "退房的时候，我要一张酒店发票。",
+              "en": "When checking out, I need a hotel invoice."
+            },
+            {
+              "cn": "酒店发票上要写公司的名字。",
+              "en": "The hotel invoice needs to show the company name."
+            }
+          ]
+        },
+        {
+          "hanzi": "退房",
+          "pinyin": "tuìfáng",
+          "english": "check out",
+          "sentences": [
+            {
+              "cn": "我早上七点退房，然后直接去机场。",
+              "en": "I check out at seven in the morning and then go straight to the airport."
+            },
+            {
+              "cn": "退房以后，前台帮我叫了一辆车。",
+              "en": "After check-out, the front desk called a car for me."
+            }
+          ]
+        },
+        {
+          "hanzi": "登机牌",
+          "pinyin": "dēngjīpái",
+          "english": "boarding pass",
+          "sentences": [
+            {
+              "cn": "请把护照和登机牌准备好。",
+              "en": "Please have your passport and boarding pass ready."
+            },
+            {
+              "cn": "我的登机牌在手机里。",
+              "en": "My boarding pass is on my phone."
+            }
+          ]
+        },
+        {
+          "hanzi": "出发层",
+          "pinyin": "chūfā céng",
+          "english": "departure level / departures",
+          "sentences": [
+            {
+              "cn": "出租车应该停在出发层。",
+              "en": "The taxi should stop at the departures level."
+            },
+            {
+              "cn": "出发层的人很多，我们要早点到。",
+              "en": "There are many people at departures, so we should arrive early."
+            }
+          ]
+        }
+      ]
     },
     {
       "slug": "ten-types-of-tourist-attractions",
