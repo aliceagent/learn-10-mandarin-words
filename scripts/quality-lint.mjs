@@ -182,6 +182,75 @@ export function duplicateEnglishLabels(items) {
   return [...byLabel.values()].filter((g) => g.indices.length > 1);
 }
 
+// ── Pinyin ↔ hanzi syllable alignment ────────────────────────────────────────
+// Every pinyin syllable maps to exactly one hanzi character, so a count
+// mismatch (a dropped/duplicated syllable, pinyin pasted onto the wrong word)
+// is almost certainly a transcription error a learner would memorize.
+
+/** Number of Han-script characters in a string (code-point aware; non-strings → 0). */
+export function hanziCharCount(text) {
+  if (typeof text !== "string" || !text) return 0;
+  return Array.from(text).filter((c) => /\p{Script=Han}/u.test(c)).length;
+}
+
+// Vowel letters, including the plain (v ↔ ü) and circumflex (ê) variants plus
+// every tone-marked vowel. Mirrors the VOWEL class in src/lib/pinyin.ts (line
+// 28) rather than importing across the scripts/↔src boundary — the same pattern
+// as TONE_MARKS in scripts/validate-data.mjs. A parity test in
+// tests/quality-lint.test.mjs asserts this counter agrees with tonesOf().
+const VOWEL = /[aeiouüvêāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]/i;
+
+/** Number of pinyin syllables = maximal vowel clusters. Mirrors tonesOf() in src/lib/pinyin.ts. */
+export function pinyinSyllableCount(pinyin) {
+  if (typeof pinyin !== "string") return 0;
+  let count = 0;
+  let inCluster = false;
+  for (const ch of pinyin) {
+    if (VOWEL.test(ch)) {
+      if (!inCluster) {
+        count++;
+        inCluster = true;
+      }
+    } else {
+      inCluster = false;
+    }
+  }
+  return count;
+}
+
+/**
+ * Message when pinyin syllable count disagrees with hanzi character count, else
+ * null. Skips empty/non-string inputs and empty hanzi (structural checks in
+ * validate-data.mjs already flag those — don't double-report). Allows the erhua
+ * contraction: when the hanzi ends in 儿 and the pinyin ends in a contracted
+ * r-coda (e.g. "yìdiǎnr" for 一点儿, not a standalone "ér" syllable), the pinyin
+ * legitimately has one fewer syllable than the hanzi has characters.
+ */
+export function syllableCountMismatch(hanzi, pinyin) {
+  if (typeof hanzi !== "string" || typeof pinyin !== "string") return null;
+  if (!hanzi.trim() || !pinyin.trim()) return null;
+
+  const hanziChars = hanziCharCount(hanzi);
+  if (hanziChars === 0) return null;
+
+  const syllables = pinyinSyllableCount(pinyin);
+  if (syllables === hanziChars) return null;
+
+  // Erhua allowance: a final 儿 that fuses onto the previous syllable as an
+  // r-coda drops one syllable. A standalone final "er/ér/ěr/èr" (its own
+  // vowel-bearing syllable) is NOT a contraction and stays subject to the rule.
+  const trimmedPinyin = pinyin.trim().toLowerCase();
+  const endsInContractedR =
+    /r$/.test(trimmedPinyin) && !/(?:^|[\s'’·・．.\-])[eēéěè]r$/.test(trimmedPinyin);
+  if (/儿$/.test(hanzi.trim()) && endsInContractedR && syllables === hanziChars - 1) {
+    return null;
+  }
+
+  const syl = `${syllables} syllable${syllables === 1 ? "" : "s"}`;
+  const chr = `${hanziChars} character${hanziChars === 1 ? "" : "s"}`;
+  return `pinyin "${pinyin}" splits into ${syl} but hanzi "${hanzi}" has ${chr}`;
+}
+
 // ── Topic-level roll-up ─────────────────────────────────────────────────────
 // Collects quality findings across all topics as flat, actionable strings:
 // "topic <slug>: <where> — <message>". The caller decides warning vs failure.
@@ -222,6 +291,8 @@ export function collectQualityWarnings(topics) {
       for (const a of suspiciousArticles(item?.english)) {
         at(`item[${i}].english`, a.message);
       }
+      const mismatch = syllableCountMismatch(item?.hanzi, item?.pinyin);
+      if (mismatch) at(`item[${i}]`, mismatch);
       (item?.sentences ?? []).forEach((s, k) => {
         const field = `item[${i}].sentences[${k}]`;
         for (const a of suspiciousArticles(s?.en)) {

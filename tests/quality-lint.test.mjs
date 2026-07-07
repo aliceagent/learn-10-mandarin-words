@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import rawData from "../src/data/topics.json" with { type: "json" };
+import { tonesOf } from "../src/lib/pinyin.ts";
 import {
   expectedArticle,
   suspiciousArticles,
@@ -9,6 +10,9 @@ import {
   looksTruncated,
   punctuationMismatch,
   duplicateEnglishLabels,
+  hanziCharCount,
+  pinyinSyllableCount,
+  syllableCountMismatch,
   collectQualityWarnings,
 } from "../scripts/quality-lint.mjs";
 
@@ -94,6 +98,68 @@ test("duplicateEnglishLabels returns nothing when labels are unique", () => {
     duplicateEnglishLabels([{ english: "a" }, { english: "b" }, { english: "c" }]),
     []
   );
+});
+
+// ── pinyin ↔ hanzi syllable alignment ────────────────────────────────────────
+test("hanziCharCount counts Han-script code points only", () => {
+  assert.equal(hanziCharCount("狗"), 1);
+  assert.equal(hanziCharCount("对不起"), 3);
+  assert.equal(hanziCharCount("一点儿"), 3);
+  assert.equal(hanziCharCount("T恤"), 1);
+  assert.equal(hanziCharCount("你好！"), 2);
+  assert.equal(hanziCharCount(""), 0);
+});
+
+test("pinyinSyllableCount counts maximal vowel clusters", () => {
+  assert.equal(pinyinSyllableCount("gǒu"), 1);
+  assert.equal(pinyinSyllableCount("duì bu qǐ"), 3);
+  assert.equal(pinyinSyllableCount("tùzi"), 2);
+  assert.equal(pinyinSyllableCount("péngyou"), 2);
+  assert.equal(pinyinSyllableCount("xī'ān"), 2);
+  assert.equal(pinyinSyllableCount("nǚ'ér"), 2);
+  assert.equal(pinyinSyllableCount("yìdiǎnr"), 2);
+});
+
+test("syllableCountMismatch aligns pinyin syllables to hanzi characters", () => {
+  // Matching counts → null.
+  assert.equal(syllableCountMismatch("狗", "gǒu"), null);
+  assert.equal(syllableCountMismatch("朋友", "péngyou"), null);
+  // Genuine mismatch → message naming both counts.
+  const msg = syllableCountMismatch("我们", "wǒ");
+  assert.match(msg, /1 syllable\b/);
+  assert.match(msg, /2 characters\b/);
+  // Erhua contraction is exempt.
+  assert.equal(syllableCountMismatch("一点儿", "yìdiǎnr"), null);
+  // A genuine erhua mismatch is still flagged.
+  assert.match(syllableCountMismatch("一点儿", "yì"), /syllable/);
+  // Empty / missing inputs → null (structural checks handle those).
+  assert.equal(syllableCountMismatch("", "gǒu"), null);
+  assert.equal(syllableCountMismatch("狗", ""), null);
+  assert.equal(syllableCountMismatch(undefined, undefined), null);
+});
+
+test("pinyinSyllableCount matches tonesOf across the whole shipped dataset", () => {
+  for (const topic of rawData.topics) {
+    for (const item of topic.items) {
+      assert.equal(
+        pinyinSyllableCount(item.pinyin),
+        tonesOf(item.pinyin).length,
+        `syllable counter drifted from tonesOf() on "${item.pinyin}"`
+      );
+    }
+  }
+});
+
+test("collectQualityWarnings reports a syllable-count mismatch once, located", () => {
+  const bad = [
+    {
+      slug: "counts",
+      items: [{ hanzi: "我们", pinyin: "wǒ", english: "we", sentences: [] }],
+    },
+  ];
+  const warnings = collectQualityWarnings(bad).filter((w) => /splits into/.test(w));
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0], /^topic "counts" item\[0\]:/);
 });
 
 // ── collectQualityWarnings (roll-up) ─────────────────────────────────────────

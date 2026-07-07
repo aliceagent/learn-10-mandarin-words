@@ -74,9 +74,11 @@ and **warnings** (exit 0). It runs automatically before every build via `prebuil
 It verifies: exactly 102 topics with 10 items each; required topic/item fields are
 present and non-empty; unique topic slugs, category slugs, and per-topic hanzi;
 category ↔ topic cross-references are consistent; pinyin shape and tone marks
-(warns on missing tone marks / stray characters); each item has a non-empty
-`sentences` array with `cn`/`en`; example sentences contain the target hanzi
-(warning); and each `videoPath` is a `/videos/*.mp4` path, YouTube id, or URL.
+(warns on missing tone marks / stray characters); pinyin syllable count matches
+hanzi character count (warning; blocking under `validate:quality`); each item has
+a non-empty `sentences` array with `cn`/`en`; example sentences contain the
+target hanzi (warning); and each `videoPath` is a `/videos/*.mp4` path, YouTube
+id, or URL.
 
 ## Pages
 
