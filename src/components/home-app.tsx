@@ -8,9 +8,8 @@ import { track } from "@/lib/analytics";
 import { useProgress, computeStreak } from "./use-progress";
 import { goalProgress, streakAtRisk, studiedWithFreezes, todayISO } from "@/lib/progress-logic";
 import { comebackDeck, daysSinceLastStudy, isLapsed } from "@/lib/comeback-logic";
-import { resolveResumeTarget } from "@/lib/resume-logic";
+import { primaryCta } from "@/lib/home-cta-logic";
 import { OnboardingModal, ContinueLearningCard } from "./onboarding";
-import { ResumeCard } from "./resume-card";
 import { RecentTopicsShelf } from "./recent-topics-shelf";
 import { ProgressRing } from "./progress-ring";
 import { TopicCard } from "./topic-card";
@@ -65,12 +64,15 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
     () => nextRecommendedTopic(topics, progress.learnedTopics),
     [topics, progress.learnedTopics],
   );
-  // The single most recent activity, resolved against the live dataset (null when
-  // there's nothing to resume or the slug no longer exists). Drives the top-of-page
-  // "Resume where you left off" card.
-  const resumeTarget = useMemo(
-    () => resolveResumeTarget(topics, progress.lastActivity),
-    [topics, progress.lastActivity],
+  // The single "smart" hero action — Resume (mid-activity) > Continue (has learned
+  // lists) > Start (brand-new) — computed from the live dataset and persisted
+  // progress. The hero now owns the resume surface, so the standalone resume card
+  // is suppressed below whenever this already shows Resume. Before `loaded`,
+  // progress is the empty default → "Start", which is a safe SSR/first-paint copy
+  // that never mismatches on hydration.
+  const cta = useMemo(
+    () => primaryCta(topics, { learnedTopics: progress.learnedTopics, lastActivity: progress.lastActivity }),
+    [topics, progress.learnedTopics, progress.lastActivity],
   );
   const showOnboarding = loaded && !progress.onboarding.completed;
 
@@ -133,16 +135,30 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
             Learn 10 Mandarin Words
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-            Watch short vocabulary lessons, practice with matching quizzes, save favorite words, and mark each list as learned.
+            Free Mandarin vocabulary lessons — watch a short video, practice with quizzes and flashcards, and track what sticks. Everything stays on your device.
           </p>
+          {/* One adaptive primary action (Resume / Continue / Start) + a plain */}
+          {/* "Browse all lessons" escape. The primary is the first interactive */}
+          {/* element in the hero, so keyboard focus lands on the single most useful */}
+          {/* next step. When it shows Resume it fires the same analytics event the */}
+          {/* old standalone resume card did, keyed off the recorded last-activity slug. */}
           <div className="mt-8 flex flex-wrap gap-3">
-            <a href="#library" className="rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta">
-              Start learning
-            </a>
-            <Link href="/review" className="rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300/70">
-              Daily review
+            <Link
+              href={cta.href}
+              onClick={
+                cta.kind === "resume"
+                  ? () => track("last_activity_resumed", { topic: progress.lastActivity!.topicSlug })
+                  : undefined
+              }
+              className="rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
+            >
+              {cta.label}
             </Link>
+            <a href="#library" className="rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300/70">
+              Browse all lessons
+            </a>
           </div>
+          <p className="mt-3 text-sm text-slate-400">{cta.sub}</p>
           {/* Path & Stats stay one tap away in the mobile bottom nav; on desktop */}
           {/* they drop to quiet text links so the hero leads with two clear CTAs. */}
           <div className="mt-5 hidden gap-6 text-sm md:flex">
@@ -268,13 +284,9 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
         />
       ) : null}
 
-      {/* ── Resume last activity (the one exact drill you were last in) ── */}
-      {loaded ? (
-        <ResumeCard
-          target={resumeTarget}
-          onResume={(slug) => track("last_activity_resumed", { topic: slug })}
-        />
-      ) : null}
+      {/* Resume now lives in the adaptive hero primary action (Sprint 3), so the */}
+      {/* standalone resume card is retired here — the recent-topics shelf below */}
+      {/* still covers browsing *other* recently opened lessons. */}
 
       {/* ── Recently studied shelf (resume where you left off) ── */}
       {loaded ? (
