@@ -64,6 +64,7 @@ npm run build          # runs data validation first (prebuild), then next build
 | `npm run start` | Serve the production build |
 | `npm run lint` | Run ESLint |
 | `npm run validate:data` | Validate `src/data/topics.json` (add `--strict` to fail on warnings) |
+| `npm run validate:quality` | Run the content-quality lint as a blocking gate (`validate:data --strict-quality`) |
 | `npm run map:videos [file]` | Map real videos into topics (see "Video integration") |
 
 ## Data validation
@@ -79,6 +80,15 @@ hanzi character count (warning; blocking under `validate:quality`); each item ha
 a non-empty `sentences` array with `cn`/`en`; example sentences contain the
 target hanzi (warning); and each `videoPath` is a `/videos/*.mp4` path, YouTube
 id, or URL.
+
+A separate **content-quality lint** (`scripts/quality-lint.mjs`) flags likely
+generation/copy-paste artifacts: wrong `a`/`an` articles, truncated sentences,
+CN/EN question–exclamation punctuation disagreement, duplicate **and**
+near-duplicate English glosses within a topic (e.g. `run` / `to run`), and
+mixed-script punctuation (half-width Latin marks in Chinese sentences or CJK
+punctuation in English ones). These surface as warnings under
+`npm run validate:data`; `npm run validate:quality` (`--strict-quality`) makes
+them blocking. The shipped dataset produces zero findings by design.
 
 ## Pages
 

@@ -168,6 +168,47 @@ export function punctuationMismatch(cn, en) {
   return null;
 }
 
+// ── Mixed-script punctuation ─────────────────────────────────────────────────
+// CN sentences should use full-width/CJK punctuation and EN sentences half-width
+// Latin punctuation; the wrong script leaking into either is a classic
+// copy-paste/generation artifact. Both detectors return a message or null.
+
+// Half-width Latin marks that should be full-width inside a CN sentence, mapped
+// to their expected full-width counterpart.
+const HALF_TO_FULL_WIDTH = new Map([
+  [",", "，"], [";", "；"], [":", "："], ["?", "？"], ["!", "！"], [".", "。"],
+]);
+
+// Message if a CN sentence contains half-width , ; : ? ! . — except when the
+// mark sits between two digits (e.g. "8:30", "3.5"), which is legitimate
+// numeric notation. Else null.
+export function halfWidthPunctuationInCn(text) {
+  const s = String(text ?? "");
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (!HALF_TO_FULL_WIDTH.has(ch)) continue;
+    if (/\d/.test(s[i - 1] ?? "") && /\d/.test(s[i + 1] ?? "")) continue;
+    return `CN sentence uses half-width punctuation "${ch}" (expected full-width "${HALF_TO_FULL_WIDTH.get(ch)}")`;
+  }
+  return null;
+}
+
+// CJK punctuation that should never appear in an EN sentence. "…" is
+// deliberately excluded — looksTruncated already owns the ellipsis check, so
+// including it here would double-report the same character.
+const CJK_PUNCTUATION = new Set(Array.from("。，！？、；：“”‘’（）《》【】"));
+
+// Message if an EN sentence contains any CJK punctuation, else null.
+export function cjkPunctuationInEn(text) {
+  const s = String(text ?? "");
+  for (const ch of s) {
+    if (CJK_PUNCTUATION.has(ch)) {
+      return `EN sentence contains CJK punctuation "${ch}"`;
+    }
+  }
+  return null;
+}
+
 // ── Duplicate labels ────────────────────────────────────────────────────────
 // English word labels should be distinct within a topic. Returns
 // [{ english, indices }] for any label used by more than one item.
@@ -180,6 +221,48 @@ export function duplicateEnglishLabels(items) {
     byLabel.get(label).indices.push(i);
   });
   return [...byLabel.values()].filter((g) => g.indices.length > 1);
+}
+
+// Canonical comparison form of an English gloss: lowercased, a single leading
+// "to "/"a "/"an "/"the " stripped, trailing punctuation stripped, internal
+// whitespace collapsed. Parenthetical qualifiers are KEPT — "(plain)" and the
+// like are deliberate disambiguators, so "steamed bun" and "steamed bun
+// (plain)" (topic ten-types-of-breakfast-foods) must NOT collide.
+export function normalizeGloss(text) {
+  let s = String(text ?? "").toLowerCase().trim();
+  s = s.replace(/^(?:to|a|an|the)\s+/, "");
+  s = s.replace(/[.,!?;:]+$/, "");
+  s = s.replace(/\s+/g, " ").trim();
+  return s;
+}
+
+// Groups of glosses within a topic that collide after normalizeGloss but are
+// NOT already exact (case-insensitive) duplicates — exact duplicates remain
+// duplicateEnglishLabels' job, so we don't double-report them. Catches pairs
+// like "run"/"to run" or "dog"/"the dog". Returns [{ normalized, labels,
+// indices }].
+export function nearDuplicateGlosses(items) {
+  const byNorm = new Map();
+  (items ?? []).forEach((item, i) => {
+    const raw = String(item?.english ?? "").trim();
+    if (!raw) return;
+    const normalized = normalizeGloss(raw);
+    if (!normalized) return;
+    if (!byNorm.has(normalized)) {
+      byNorm.set(normalized, { normalized, labels: [], indices: [] });
+    }
+    const group = byNorm.get(normalized);
+    group.labels.push(item.english);
+    group.indices.push(i);
+  });
+  return [...byNorm.values()].filter((g) => {
+    if (g.indices.length < 2) return false;
+    // Skip groups that are purely exact (case-insensitive) duplicates: those
+    // are reported by duplicateEnglishLabels. A group with >1 distinct exact
+    // label contains a genuine near-duplicate pair worth flagging here.
+    const distinctExact = new Set(g.labels.map((l) => String(l).trim().toLowerCase()));
+    return distinctExact.size > 1;
+  });
 }
 
 // ── Pinyin ↔ hanzi syllable alignment ────────────────────────────────────────
@@ -287,6 +370,13 @@ export function collectQualityWarnings(topics) {
       );
     }
 
+    for (const near of nearDuplicateGlosses(topic?.items)) {
+      at(
+        `items[${near.indices.join(",")}]`,
+        `near-duplicate English glosses ${near.labels.map((l) => `"${l}"`).join(" / ")} (all normalize to "${near.normalized}")`
+      );
+    }
+
     (topic?.items ?? []).forEach((item, i) => {
       for (const a of suspiciousArticles(item?.english)) {
         at(`item[${i}].english`, a.message);
@@ -305,6 +395,10 @@ export function collectQualityWarnings(topics) {
         }
         const mism = punctuationMismatch(s?.cn, s?.en);
         if (mism) at(field, mism);
+        const cnHalf = halfWidthPunctuationInCn(s?.cn);
+        if (cnHalf) at(`${field}.cn`, cnHalf);
+        const enCjk = cjkPunctuationInEn(s?.en);
+        if (enCjk) at(`${field}.en`, enCjk);
       });
     });
   }

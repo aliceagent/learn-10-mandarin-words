@@ -10,6 +10,10 @@ import {
   looksTruncated,
   punctuationMismatch,
   duplicateEnglishLabels,
+  normalizeGloss,
+  nearDuplicateGlosses,
+  halfWidthPunctuationInCn,
+  cjkPunctuationInEn,
   hanziCharCount,
   pinyinSyllableCount,
   syllableCountMismatch,
@@ -100,6 +104,51 @@ test("duplicateEnglishLabels returns nothing when labels are unique", () => {
   );
 });
 
+// ── normalizeGloss / nearDuplicateGlosses ────────────────────────────────────
+test("normalizeGloss strips a leading article and trailing punctuation", () => {
+  assert.equal(normalizeGloss("To Run"), "run");
+  assert.equal(normalizeGloss("the dog"), "dog");
+  assert.equal(normalizeGloss("an apple"), "apple");
+  assert.equal(normalizeGloss("hello!"), "hello");
+  assert.equal(normalizeGloss("well,  then"), "well, then"); // trailing only, whitespace collapsed
+  // Idempotent on already-normal input.
+  assert.equal(normalizeGloss("run"), "run");
+  // Parenthetical qualifiers are preserved (deliberate disambiguators).
+  assert.equal(normalizeGloss("steamed bun (plain)"), "steamed bun (plain)");
+});
+
+test("nearDuplicateGlosses flags article/punctuation collisions, not parentheticals", () => {
+  const near = nearDuplicateGlosses([{ english: "run" }, { english: "to run" }]);
+  assert.equal(near.length, 1);
+  assert.deepEqual(near[0].indices, [0, 1]);
+  assert.equal(near[0].normalized, "run");
+
+  // Parenthetical disambiguators must NOT collide.
+  assert.deepEqual(
+    nearDuplicateGlosses([{ english: "steamed bun" }, { english: "steamed bun (plain)" }]),
+    []
+  );
+  // Exact (case-insensitive) duplicates stay duplicateEnglishLabels' job.
+  assert.deepEqual(nearDuplicateGlosses([{ english: "dog" }, { english: "Dog" }]), []);
+  // Unique lists produce nothing.
+  assert.deepEqual(nearDuplicateGlosses([{ english: "a" }, { english: "b" }]), []);
+});
+
+// ── mixed-script punctuation ─────────────────────────────────────────────────
+test("halfWidthPunctuationInCn flags Latin marks except between digits", () => {
+  assert.match(halfWidthPunctuationInCn("你好,再见。"), /half-width/);
+  assert.match(halfWidthPunctuationInCn("这是一只狗."), /half-width/);
+  assert.equal(halfWidthPunctuationInCn("你好，再见。"), null);
+  assert.equal(halfWidthPunctuationInCn("现在是8:30。"), null); // digit-adjacent exempt
+});
+
+test("cjkPunctuationInEn flags CJK marks but not the ellipsis", () => {
+  assert.match(cjkPunctuationInEn("Hello。"), /CJK punctuation/);
+  assert.match(cjkPunctuationInEn("Yes，please."), /CJK punctuation/);
+  assert.equal(cjkPunctuationInEn("This is a clean sentence."), null);
+  assert.equal(cjkPunctuationInEn("Wait for me…"), null); // looksTruncated owns "…"
+});
+
 // ── pinyin ↔ hanzi syllable alignment ────────────────────────────────────────
 test("hanziCharCount counts Han-script code points only", () => {
   assert.equal(hanziCharCount("狗"), 1);
@@ -176,12 +225,17 @@ test("collectQualityWarnings reports actionable, located findings on bad data", 
           english: "dog",
           sentences: [
             { cn: "这是一只狗。", en: "He paid with an US dollar." },
-            { cn: "你好吗？", en: "Hello." }, // question mismatch
+            { cn: "你好吗？", en: "Hello。" }, // question mismatch + CJK in EN
+            { cn: "你好,再见。", en: "Hi there, goodbye." }, // half-width comma in CN
           ],
         },
         {
           english: "Dog", // duplicate label
           sentences: [{ cn: "我们要买一些", en: "We need to buy the" }], // cutoff + cn no terminal
+        },
+        {
+          english: "to dog", // near-duplicate of "dog"
+          sentences: [],
         },
       ],
     },
@@ -192,9 +246,12 @@ test("collectQualityWarnings reports actionable, located findings on bad data", 
     assert.match(w, /^topic "bad-topic" /);
   }
   assert.ok(warnings.some((w) => /duplicate English label/i.test(w)));
+  assert.ok(warnings.some((w) => /near-duplicate/i.test(w)));
   assert.ok(warnings.some((w) => /article/i.test(w)));
   assert.ok(warnings.some((w) => /question/i.test(w)));
   assert.ok(warnings.some((w) => /dangling|terminal/i.test(w)));
+  assert.ok(warnings.some((w) => /half-width/i.test(w)));
+  assert.ok(warnings.some((w) => /CJK punctuation/i.test(w)));
 });
 
 test("collectQualityWarnings only flags missing terminal punctuation when the corpus mostly has it", () => {
