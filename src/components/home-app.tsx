@@ -10,6 +10,7 @@ import { goalProgress, streakAtRisk, studiedWithFreezes, todayISO } from "@/lib/
 import { comebackDeck, daysSinceLastStudy, isLapsed } from "@/lib/comeback-logic";
 import { primaryCta } from "@/lib/home-cta-logic";
 import { categoryChips, starterLessons } from "@/lib/lesson-finder-logic";
+import { onboardingNext } from "@/lib/onboarding-next-logic";
 import { lessonCardStatus } from "@/lib/lesson-card-logic";
 import { OnboardingModal, ContinueLearningCard } from "./onboarding";
 import { RecentTopicsShelf } from "./recent-topics-shelf";
@@ -77,6 +78,13 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
     [topics, progress.learnedTopics, progress.lastActivity],
   );
   const showOnboarding = loaded && !progress.onboarding.completed;
+  // What the onboarding modal offers after the goal step: a first-lesson picker
+  // for new visitors, or a one-tap Resume for returning ones (Sprint 6). Reuses
+  // the same starter ordering as the finder, so the two never disagree.
+  const onboardingChoice = useMemo(
+    () => onboardingNext(topics, { learnedTopics: progress.learnedTopics, lastActivity: progress.lastActivity }),
+    [topics, progress.learnedTopics, progress.lastActivity],
+  );
 
   // Finder building blocks (Sprint 4). Chips are static browse-by-theme links;
   // starter lessons hide topics already marked learned so a returning learner
@@ -566,7 +574,7 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
       {/* ── First-run onboarding ── */}
       {showOnboarding ? (
         <OnboardingModal
-          firstTopic={nextTopic}
+          next={onboardingChoice}
           onComplete={(goal) => { completeOnboarding(goal); track("onboarding_completed", { dailyGoal: goal }); }}
           onSkip={() => { skipOnboarding(); track("onboarding_skipped"); }}
         />
