@@ -9,6 +9,7 @@ import { useProgress, computeStreak } from "./use-progress";
 import { goalProgress, streakAtRisk, studiedWithFreezes, todayISO } from "@/lib/progress-logic";
 import { comebackDeck, daysSinceLastStudy, isLapsed } from "@/lib/comeback-logic";
 import { primaryCta } from "@/lib/home-cta-logic";
+import { categoryChips, starterLessons } from "@/lib/lesson-finder-logic";
 import { OnboardingModal, ContinueLearningCard } from "./onboarding";
 import { RecentTopicsShelf } from "./recent-topics-shelf";
 import { ProgressRing } from "./progress-ring";
@@ -75,6 +76,15 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
     [topics, progress.learnedTopics, progress.lastActivity],
   );
   const showOnboarding = loaded && !progress.onboarding.completed;
+
+  // Finder building blocks (Sprint 4). Chips are static browse-by-theme links;
+  // starter lessons hide topics already marked learned so a returning learner
+  // sees fresh suggestions (the pure helpers own the ordering/dedup).
+  const chips = useMemo(() => categoryChips(data.categories), [data.categories]);
+  const starters = useMemo(
+    () => starterLessons(topics, progress.learnedTopics),
+    [topics, progress.learnedTopics],
+  );
 
   const filtered = useMemo(() => {
     const q = normalizePinyin(query.trim());
@@ -154,7 +164,7 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
             >
               {cta.label}
             </Link>
-            <a href="#library" className="rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300/70">
+            <a href="#find" className="rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300/70">
               Browse all lessons
             </a>
           </div>
@@ -267,6 +277,114 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
         </div>
       </section>
 
+      {/* ── Find your lesson (Sprint 4) ── */}
+      {/* Lifted directly under the hero so a learner/teacher can locate a lesson */}
+      {/* fast: one search box (the single source of search state, shared with the */}
+      {/* library grid below), one-tap category chips → dedicated pages, and a short */}
+      {/* starter row for newcomers. The hero's "Browse all lessons" scrolls here. */}
+      <section id="find" className="mx-auto max-w-7xl px-6 pt-14 md:px-10">
+        <div className="mb-6">
+          <p className="text-sm font-semibold uppercase tracking-wide text-emerald-300">Find your lesson</p>
+          <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white md:text-4xl">
+            Search {summary.formattedWordCount} words or browse by theme
+          </h2>
+        </div>
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+          <div className="flex flex-1 flex-col gap-1.5">
+            <input
+              value={query}
+              onChange={(event) => {
+                // Defensive: kick off the lazy word index on the first keystroke
+                // too, in case focus fired without it (autofill, programmatic).
+                ensureWordIndex();
+                setQuery(event.target.value);
+              }}
+              onFocus={ensureWordIndex}
+              placeholder="Search words, pinyin, English"
+              aria-label="Search vocabulary"
+              className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-300"
+            />
+            {/* Honest status while the pinyin/english index loads or fails; only
+                when a query is active, so an idle focus stays quiet. */}
+            {query.trim() && wordsState === "loading" ? (
+              <p className="px-1 text-xs text-slate-500">Loading full word search…</p>
+            ) : query.trim() && wordsState === "error" ? (
+              <p className="px-1 text-xs text-slate-500">
+                Full word search couldn&apos;t load — searching titles and characters only.
+              </p>
+            ) : null}
+          </div>
+          <select
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
+            aria-label="Filter by category"
+            className="rounded-2xl border border-white/10 bg-surface-2 px-4 py-3 text-white outline-none transition focus:border-emerald-300"
+          >
+            <option value="all">All categories</option>
+            {data.categories.map((cat) => <option key={cat.slug} value={cat.slug}>{cat.name}</option>)}
+          </select>
+        </div>
+
+        {/* Browse-by-theme chips → dedicated category pages. */}
+        <nav aria-label="Browse by category" className="mt-4 flex flex-wrap gap-2">
+          {chips.map((chip) => (
+            <Link
+              key={chip.slug}
+              href={chip.href}
+              className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface px-4 py-2 text-sm font-semibold text-slate-200 transition hover:-translate-y-0.5 hover:border-emerald-300/70 hover:text-white"
+            >
+              <span>{chip.name}</span>
+              <span className="rounded-full border border-white/10 bg-white/[0.05] px-2 py-0.5 text-xs font-medium text-slate-400">
+                {chip.count}
+              </span>
+            </Link>
+          ))}
+        </nav>
+
+        {query.trim() ? (
+          <div className="mt-6">
+            <WordSearchResults
+              results={wordResults}
+              query={query}
+              favoriteWords={progress.favoriteWords}
+              onToggleFavorite={(key) => {
+                // Mirror topic-app: only count a genuine save (not an un-save).
+                if (!progress.favoriteWords.includes(key)) track("favorite_saved", { topic: key.split(":")[0], kind: "word" });
+                toggleFavoriteWord(key);
+              }}
+              onOpenResult={(result) => track("search_result_opened", { topic: result.topicSlug, rank: result.rank })}
+            />
+          </div>
+        ) : (
+          <>
+            {/* Newcomer on-ramp: a short, stable set of starters (learned ones
+                hidden). Hidden once the learner is searching — results take over. */}
+            {starters.length > 0 ? (
+              <div className="mt-6">
+                <p className="text-sm font-semibold text-slate-300">New here? Start with one of these</p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {starters.map((topic) => (
+                    <Link
+                      key={topic.slug}
+                      href={`/topics/${topic.slug}`}
+                      className="group flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-surface px-5 py-4 transition hover:-translate-y-0.5 hover:bg-surface-hover"
+                    >
+                      <span className="min-w-0">
+                        <span className="block truncate font-semibold text-white transition group-hover:text-emerald-50">{topic.titleEn}</span>
+                        <span lang="zh" className="mt-0.5 block truncate text-sm text-slate-400">{topic.titleCn}</span>
+                      </span>
+                      <span aria-hidden="true" className="shrink-0 text-slate-500 transition group-hover:text-emerald-300">→</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+            <p className="mt-4 text-sm text-slate-500">Try “fruit”, “gǒu”, or tap a category.</p>
+          </>
+        )}
+      </section>
+
       {/* ── Welcome-back banner (lapsed learner, warm-up available) ── */}
       {loaded && lapsed && daysAway !== null && comebackCount > 0 ? (
         <WelcomeBackBanner daysAway={daysAway} />
@@ -353,62 +471,18 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
       </section>
 
       {/* ── Library ── */}
+      {/* Search + category controls now live in the #find block above (one shared */}
+      {/* search state, no duplicate input); this section is the full topic grid, */}
+      {/* which narrows live as the finder's query/category change. */}
       <section id="library" className="mx-auto max-w-7xl px-6 py-14 pb-24 md:px-10 md:pb-14">
-        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <h2 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">Vocabulary library</h2>
-            <p className="mt-3 max-w-2xl text-slate-400">Filter by category, search any word — results show both matching words and topics.</p>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
-            <div className="flex flex-col gap-1.5">
-              <input
-                value={query}
-                onChange={(event) => {
-                  // Defensive: kick off the lazy word index on the first keystroke
-                  // too, in case focus fired without it (autofill, programmatic).
-                  ensureWordIndex();
-                  setQuery(event.target.value);
-                }}
-                onFocus={ensureWordIndex}
-                placeholder="Search words, pinyin, English"
-                aria-label="Search vocabulary"
-                className="min-w-64 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-300"
-              />
-              {/* Honest status while the pinyin/english index loads or fails; only
-                  when a query is active, so an idle focus stays quiet. */}
-              {query.trim() && wordsState === "loading" ? (
-                <p className="px-1 text-xs text-slate-500">Loading full word search…</p>
-              ) : query.trim() && wordsState === "error" ? (
-                <p className="px-1 text-xs text-slate-500">
-                  Full word search couldn&apos;t load — searching titles and characters only.
-                </p>
-              ) : null}
-            </div>
-            <select
-              value={category}
-              onChange={(event) => setCategory(event.target.value)}
-              aria-label="Filter by category"
-              className="rounded-2xl border border-white/10 bg-surface-2 px-4 py-3 text-white outline-none transition focus:border-emerald-300"
-            >
-              <option value="all">All categories</option>
-              {data.categories.map((cat) => <option key={cat.slug} value={cat.slug}>{cat.name}</option>)}
-            </select>
-          </div>
+        <div className="mb-8">
+          <h2 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">Vocabulary library</h2>
+          <p className="mt-3 max-w-2xl text-slate-400">
+            Every ten-word lesson. Search or filter from{" "}
+            <a href="#find" className="font-semibold text-emerald-300 transition hover:text-emerald-200">Find your lesson</a>{" "}
+            above — the grid below updates as you go.
+          </p>
         </div>
-
-        {query.trim() ? (
-          <WordSearchResults
-            results={wordResults}
-            query={query}
-            favoriteWords={progress.favoriteWords}
-            onToggleFavorite={(key) => {
-              // Mirror topic-app: only count a genuine save (not an un-save).
-              if (!progress.favoriteWords.includes(key)) track("favorite_saved", { topic: key.split(":")[0], kind: "word" });
-              toggleFavoriteWord(key);
-            }}
-            onOpenResult={(result) => track("search_result_opened", { topic: result.topicSlug, rank: result.rank })}
-          />
-        ) : null}
 
         {filtered.length === 0 ? (
           <div className="mt-10 rounded-3xl border border-white/10 bg-surface p-12 text-center">
