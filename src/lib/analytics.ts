@@ -43,6 +43,7 @@ export type AnalyticsEvent =
   | "tone_colors_toggled"
   | "hanzi_size_changed"
   | "flashcard_visibility_changed"
+  | "flashcard_direction_changed"
   | "haptics_toggled"
   | "theme_toggled"
   | "search_result_opened"
