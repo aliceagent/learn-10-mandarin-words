@@ -2,6 +2,7 @@ import type {
   BossStat,
   DailyChallengeResult,
   FlashcardStat,
+  LastActivity,
   ProgressState,
   QuizStat,
   StreakFreezeState,
@@ -9,6 +10,7 @@ import type {
   TopicSummary,
   VocabItem,
 } from "./types";
+import type { ResumableQuizMode, TopicMode } from "./topic-mode-logic.ts";
 // Value imports need the explicit `.ts` extension so they resolve under
 // `node --test` (Node's native TS runner does not add extensions); `next build`
 // and tsc accept it via `allowImportingTsExtensions`. Mirrors quiz-logic.ts.
@@ -16,6 +18,9 @@ import type {
 // count, reused here to cap a persisted bestScore.
 import { wordKey } from "./data-logic.ts";
 import { BOSS_STAGE_COUNT } from "./boss-logic.ts";
+// parseMode/parseQuizMode validate a persisted lastActivity's mode ids without
+// duplicating the canonical mode registry here.
+import { parseMode, parseQuizMode } from "./topic-mode-logic.ts";
 
 // Pure progress helpers, extracted from use-progress.ts so they can be
 // unit-tested without React. The hook imports these and layers persistence /
@@ -47,7 +52,10 @@ import { BOSS_STAGE_COUNT } from "./boss-logic.ts";
 //   v10 → v11: added `dailyQuiz` (per-day quiz accuracy tally, for the weekly
 //   recap card). Older saves lack the field and migrate to an empty `{}`, losing
 //   nothing else.
-export const CURRENT_PROGRESS_SCHEMA_VERSION = 11;
+//   v11 → v12: added `lastActivity` (the single most recent topic + practice mode
+//   + quiz sub-mode, for the home "Resume where you left off" card). Older saves
+//   lack the field and migrate to null, losing nothing else.
+export const CURRENT_PROGRESS_SCHEMA_VERSION = 12;
 
 export const emptyProgress: ProgressState = {
   schemaVersion: CURRENT_PROGRESS_SCHEMA_VERSION,
@@ -64,6 +72,7 @@ export const emptyProgress: ProgressState = {
   studiedDates: [],
   streakFreezes: { available: 0, lastEarnedOn: null, frozenDates: [] },
   recentTopics: [],
+  lastActivity: null,
   onboarding: { completed: false, dailyGoal: 0, completedAt: null },
 };
 
@@ -332,6 +341,55 @@ export function recordRecentTopic(recent: string[] | undefined, slug: string): s
   return [slug, ...list.filter((s) => s !== slug)].slice(0, RECENT_TOPICS_MAX);
 }
 
+// Sanitize a persisted/imported `lastActivity` blob into a valid LastActivity or
+// null. Never throws (schema v12). Requires a non-empty `topicSlug`, a `mode`
+// that parses via the canonical registry, and a valid ISO `updatedAt`; a
+// `quizMode` is only kept for the quiz mode. Any failure yields null so the
+// resume card simply hides. Deliberately does NOT check the slug against the
+// dataset — that resolution/dropping lives in resume-logic against the live
+// topics, keeping this module dataset-independent (mirrors normalizeRecentTopics).
+function normalizeLastActivity(raw: unknown): LastActivity | null {
+  if (!raw || typeof raw !== "object") return null;
+  const a = raw as Record<string, unknown>;
+  if (typeof a.topicSlug !== "string" || a.topicSlug === "") return null;
+  const mode = parseMode(a.mode as string | null | undefined);
+  if (!mode) return null;
+  if (!isValidISO(a.updatedAt)) return null;
+  const quizMode = mode === "quiz" ? parseQuizMode(a.quizMode as string | null | undefined) : null;
+  const activity: LastActivity = { topicSlug: a.topicSlug, mode, updatedAt: a.updatedAt };
+  if (quizMode) activity.quizMode = quizMode;
+  return activity;
+}
+
+// Build the new lastActivity for a (slug, mode, quizMode) the learner just
+// switched to (pure). CRITICAL CONTRACT: when the slug + mode + quiz sub-mode
+// already match `prev`, the SAME reference is returned so the recording effect in
+// topic-app stays loop-free (mirrors recordRecentTopic). Any real change yields a
+// new object with a fresh `updatedAt`. `quizMode` is dropped for non-quiz modes.
+// `now` is injectable for deterministic tests.
+export function recordLastActivity(
+  prev: LastActivity | null | undefined,
+  next: { slug: string; mode: TopicMode; quizMode?: ResumableQuizMode },
+  now: Date = new Date(),
+): LastActivity {
+  const quizMode = next.mode === "quiz" ? next.quizMode : undefined;
+  if (
+    prev &&
+    prev.topicSlug === next.slug &&
+    prev.mode === next.mode &&
+    (prev.quizMode ?? undefined) === (quizMode ?? undefined)
+  ) {
+    return prev; // no-op: nothing meaningful changed
+  }
+  const activity: LastActivity = {
+    topicSlug: next.slug,
+    mode: next.mode,
+    updatedAt: now.toISOString(),
+  };
+  if (quizMode) activity.quizMode = quizMode;
+  return activity;
+}
+
 // Record one quiz answer against `key`, returning a NEW quizStats map (pure).
 // The existing entry is normalized first so a corrupt stat can't corrupt the
 // increment. Used by the useProgress hook's `recordQuizAnswer`.
@@ -377,6 +435,7 @@ export function normalizeProgress(
     studiedDates: asStringArray(p.studiedDates) ?? [],
     streakFreezes: normalizeStreakFreezes(p.streakFreezes),
     recentTopics: normalizeRecentTopics(p.recentTopics),
+    lastActivity: normalizeLastActivity(p.lastActivity),
     onboarding: { ...emptyProgress.onboarding, ...onboarding },
   };
 }

@@ -54,6 +54,16 @@ export const RESUMABLE_QUIZ_MODES = [
   "listening",
 ] as const;
 
+// Human labels for the quiz sub-modes — must match the direction labels rendered
+// on the quiz panel's mode chips (topic/quiz-panel.tsx). Used by resume-logic to
+// spell out "Quiz · English → Hanzi" on the home resume card.
+export const QUIZ_MODE_LABELS: Record<ResumableQuizMode, string> = {
+  "hanzi-english": "Hanzi → English",
+  "english-hanzi": "English → Hanzi",
+  "hanzi-pinyin": "Hanzi → Pinyin",
+  listening: "Listening",
+};
+
 // The quiz panel's own default sub-mode (topic-app initializes quizMode to this).
 // Kept here so modeQuery can omit `q` when it equals the default and URLs stay
 // canonical.

@@ -32,6 +32,7 @@ import {
   recordBossResult,
   recordDailyChallenge,
   recordDailyPractice,
+  recordLastActivity,
   scheduleReview,
   streakAtRisk,
   topicProgress,
@@ -99,6 +100,139 @@ test("normalizeProgress never throws on garbage and preserves valid arrays", () 
   assert.deepEqual(p.favoriteWords, ["ten-types-of-fruit:桃"]);
   assert.deepEqual(p.studiedDates, ["2026-06-30"]);
   assert.deepEqual(p.onboarding, emptyProgress.onboarding);
+});
+
+// ── lastActivity (schema v12) ────────────────────────────────────────────────
+
+test("normalizeProgress({}) is at schema v12 with lastActivity: null", () => {
+  const p = normalizeProgress({});
+  assert.equal(p.schemaVersion, 12);
+  assert.equal(CURRENT_PROGRESS_SCHEMA_VERSION, 12);
+  assert.equal(p.lastActivity, null);
+});
+
+test("a legacy v11 save without lastActivity migrates to null, losing nothing else", () => {
+  const legacy = {
+    schemaVersion: 11, // pre-lastActivity save
+    learnedTopics: ["ten-types-of-pets"],
+    recentTopics: ["ten-types-of-pets", "ten-types-of-drinks"],
+    studiedDates: ["2026-06-30"],
+    // No lastActivity field at all.
+  };
+  const p = normalizeProgress(legacy);
+  assert.equal(p.schemaVersion, CURRENT_PROGRESS_SCHEMA_VERSION);
+  assert.equal(p.lastActivity, null); // backfilled, lossless
+  assert.deepEqual(p.learnedTopics, legacy.learnedTopics);
+  assert.deepEqual(p.recentTopics, legacy.recentTopics);
+  assert.deepEqual(p.studiedDates, legacy.studiedDates);
+});
+
+test("normalizeProgress passes a valid lastActivity through, keeping its quizMode", () => {
+  const p = normalizeProgress({
+    lastActivity: {
+      topicSlug: "ten-types-of-drinks",
+      mode: "quiz",
+      quizMode: "english-hanzi",
+      updatedAt: "2026-07-06T10:00:00.000Z",
+    },
+  });
+  assert.deepEqual(p.lastActivity, {
+    topicSlug: "ten-types-of-drinks",
+    mode: "quiz",
+    quizMode: "english-hanzi",
+    updatedAt: "2026-07-06T10:00:00.000Z",
+  });
+});
+
+test("normalizeProgress drops a quizMode when the mode is not quiz", () => {
+  const p = normalizeProgress({
+    lastActivity: {
+      topicSlug: "ten-types-of-drinks",
+      mode: "flashcards",
+      quizMode: "english-hanzi", // stray sub-mode on a non-quiz mode
+      updatedAt: "2026-07-06T10:00:00.000Z",
+    },
+  });
+  assert.deepEqual(p.lastActivity, {
+    topicSlug: "ten-types-of-drinks",
+    mode: "flashcards",
+    updatedAt: "2026-07-06T10:00:00.000Z",
+  });
+});
+
+test("normalizeProgress repairs a corrupt lastActivity to null (never throws)", () => {
+  // Bad mode id.
+  assert.equal(
+    normalizeProgress({
+      lastActivity: { topicSlug: "x", mode: "nope", updatedAt: "2026-07-06T10:00:00.000Z" },
+    }).lastActivity,
+    null,
+  );
+  // Bad ISO timestamp.
+  assert.equal(
+    normalizeProgress({
+      lastActivity: { topicSlug: "x", mode: "words", updatedAt: "not-a-date" },
+    }).lastActivity,
+    null,
+  );
+  // Missing / empty slug.
+  assert.equal(
+    normalizeProgress({
+      lastActivity: { topicSlug: "", mode: "words", updatedAt: "2026-07-06T10:00:00.000Z" },
+    }).lastActivity,
+    null,
+  );
+  // Wholly wrong types never throw.
+  assert.equal(normalizeProgress({ lastActivity: "nope" }).lastActivity, null);
+  assert.equal(normalizeProgress({ lastActivity: 42 }).lastActivity, null);
+});
+
+test("recordLastActivity returns the SAME reference when nothing meaningful changed", () => {
+  const now = new Date("2026-07-06T10:00:00.000Z");
+  const prev = recordLastActivity(null, { slug: "a", mode: "quiz", quizMode: "english-hanzi" }, now);
+  // Same slug + mode + quizMode → loop-free no-op (identical reference).
+  const same = recordLastActivity(
+    prev,
+    { slug: "a", mode: "quiz", quizMode: "english-hanzi" },
+    new Date("2026-07-06T11:00:00.000Z"),
+  );
+  assert.equal(same, prev);
+});
+
+test("recordLastActivity ignores quizMode differences outside quiz mode (no-op)", () => {
+  const now = new Date("2026-07-06T10:00:00.000Z");
+  const prev = recordLastActivity(null, { slug: "a", mode: "words" }, now);
+  const same = recordLastActivity(
+    prev,
+    { slug: "a", mode: "words", quizMode: "english-hanzi" }, // stray quizMode dropped
+    new Date("2026-07-06T11:00:00.000Z"),
+  );
+  assert.equal(same, prev);
+  assert.equal(prev.quizMode, undefined);
+});
+
+test("recordLastActivity returns a NEW object with a fresh timestamp when the mode changes", () => {
+  const t1 = new Date("2026-07-06T10:00:00.000Z");
+  const t2 = new Date("2026-07-06T12:30:00.000Z");
+  const prev = recordLastActivity(null, { slug: "a", mode: "words" }, t1);
+  const next = recordLastActivity(prev, { slug: "a", mode: "flashcards" }, t2);
+  assert.notEqual(next, prev);
+  assert.deepEqual(next, {
+    topicSlug: "a",
+    mode: "flashcards",
+    updatedAt: "2026-07-06T12:30:00.000Z",
+  });
+});
+
+test("recordLastActivity treats a slug change and a quiz sub-mode change as real changes", () => {
+  const now = new Date("2026-07-06T10:00:00.000Z");
+  const prev = recordLastActivity(null, { slug: "a", mode: "quiz", quizMode: "english-hanzi" }, now);
+  // Different slug.
+  assert.notEqual(recordLastActivity(prev, { slug: "b", mode: "quiz", quizMode: "english-hanzi" }, now), prev);
+  // Different quiz sub-mode.
+  const subChange = recordLastActivity(prev, { slug: "a", mode: "quiz", quizMode: "listening" }, now);
+  assert.notEqual(subChange, prev);
+  assert.equal(subChange.quizMode, "listening");
 });
 
 test("normalizeProgress repairs partial/invalid flashcard stats without dropping keys", () => {

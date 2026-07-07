@@ -46,6 +46,7 @@ export type AnalyticsEvent =
   | "theme_toggled"
   | "search_result_opened"
   | "recent_topic_resumed"
+  | "last_activity_resumed"
   | "connection_opened"
   | "install_prompt_shown"
   | "install_accepted"

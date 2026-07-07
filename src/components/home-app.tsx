@@ -8,7 +8,9 @@ import { track } from "@/lib/analytics";
 import { useProgress, computeStreak } from "./use-progress";
 import { goalProgress, streakAtRisk, studiedWithFreezes, todayISO } from "@/lib/progress-logic";
 import { comebackDeck, daysSinceLastStudy, isLapsed } from "@/lib/comeback-logic";
+import { resolveResumeTarget } from "@/lib/resume-logic";
 import { OnboardingModal, ContinueLearningCard } from "./onboarding";
+import { ResumeCard } from "./resume-card";
 import { RecentTopicsShelf } from "./recent-topics-shelf";
 import { ProgressRing } from "./progress-ring";
 import { TopicCard } from "./topic-card";
@@ -62,6 +64,13 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
   const nextTopic = useMemo(
     () => nextRecommendedTopic(topics, progress.learnedTopics),
     [topics, progress.learnedTopics],
+  );
+  // The single most recent activity, resolved against the live dataset (null when
+  // there's nothing to resume or the slug no longer exists). Drives the top-of-page
+  // "Resume where you left off" card.
+  const resumeTarget = useMemo(
+    () => resolveResumeTarget(topics, progress.lastActivity),
+    [topics, progress.lastActivity],
   );
   const showOnboarding = loaded && !progress.onboarding.completed;
 
@@ -256,6 +265,14 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
           nextTopic={nextTopic}
           learnedCount={learnedCount}
           dailyGoal={progress.onboarding.dailyGoal}
+        />
+      ) : null}
+
+      {/* ── Resume last activity (the one exact drill you were last in) ── */}
+      {loaded ? (
+        <ResumeCard
+          target={resumeTarget}
+          onResume={(slug) => track("last_activity_resumed", { topic: slug })}
         />
       ) : null}
 

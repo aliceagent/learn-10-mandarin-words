@@ -1,3 +1,5 @@
+import type { ResumableQuizMode, TopicMode } from "./topic-mode-logic";
+
 export type Sentence = {
   cn: string;
   en: string;
@@ -136,6 +138,23 @@ export type StreakFreezeState = {
   frozenDates: string[];
 };
 
+// The single most recent activity the learner touched — the topic, the practice
+// mode, and (for quiz) the sub-mode — so the home page can offer a one-tap
+// "Resume where you left off" deep-link back into that exact drill. Recorded on
+// every mode switch; never affects streaks or the daily goal (a mode switch is
+// not practice). Added in schema v12. See topic-mode-logic.ts for the mode ids
+// and resume-logic.ts for resolving this into a renderable target.
+export type LastActivity = {
+  /** Slug of the topic the learner last practiced. */
+  topicSlug: string;
+  /** The practice mode they were in (canonical id from topic-mode-logic). */
+  mode: TopicMode;
+  /** Quiz sub-mode; only meaningful (and only persisted) when `mode === "quiz"`. */
+  quizMode?: ResumableQuizMode;
+  /** ISO timestamp this activity was recorded. */
+  updatedAt: string;
+};
+
 export type OnboardingState = {
   /** Whether the user has completed or skipped first-run onboarding. */
   completed: boolean;
@@ -203,6 +222,14 @@ export type ProgressState = {
    * dailyActivity. Added in schema v10; older saves migrate to an empty array.
    */
   recentTopics: string[];
+  /**
+   * The single most recent (topic, mode, quiz sub-mode) the learner touched, so
+   * the home page can offer a one-tap "Resume where you left off" card. Recorded
+   * on every mode switch and, like `recentTopics`, never touches studiedDates or
+   * dailyActivity. null until the learner opens any practice mode. Added in
+   * schema v12; older saves migrate to null.
+   */
+  lastActivity: LastActivity | null;
   onboarding: OnboardingState;
 };
 

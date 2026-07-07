@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ProgressState } from "@/lib/types";
+import type { ResumableQuizMode, TopicMode } from "@/lib/topic-mode-logic";
 import {
   applyStreakFreeze,
   computeStreak,
@@ -16,6 +17,7 @@ import {
   recordDailyChallenge,
   recordDailyPractice,
   recordDailyQuizAnswer,
+  recordLastActivity,
   recordRecentTopic,
   scheduleReview,
   todayISO,
@@ -184,6 +186,18 @@ export function useProgress() {
       const recentTopics = recordRecentTopic(current.recentTopics, slug);
       return recentTopics === current.recentTopics ? current : { ...current, recentTopics };
     }),
+    // Record the (topic, mode, quiz sub-mode) the learner just switched to as the
+    // single "last activity" powering the home resume card (schema v12). Like
+    // recordTopicVisit, this is deliberately NOT routed through withPractice or
+    // recordStudyToday — switching a practice mode is not practice and must never
+    // affect streaks or the daily goal. Returns the state unchanged (referential
+    // no-op) when recordLastActivity reports no meaningful change, keeping the
+    // recording effect in topic-app loop-free.
+    recordLastActivity: (slug: string, mode: TopicMode, quizMode?: ResumableQuizMode) =>
+      setProgress((current) => {
+        const lastActivity = recordLastActivity(current.lastActivity, { slug, mode, quizMode });
+        return lastActivity === current.lastActivity ? current : { ...current, lastActivity };
+      }),
     gradeWord: (key: string, grade: "again" | "hard" | "good" | "easy") => setProgress((current) => {
       const now = new Date();
       const existing = current.flashcardStats[key] ?? defaultStat(now);

@@ -65,7 +65,7 @@ export function TopicApp({
   // chunk; optional so the component still renders without it.
   connections?: Record<string, CharConnectionGroup[]>;
 }) {
-  const { progress, loaded, toggleFavoriteTopic, toggleFavoriteWord, toggleLearnedTopic, gradeWord, recordQuizAnswer, recordBestCombo, recordBossResult, recordTopicVisit } = useProgress();
+  const { progress, loaded, toggleFavoriteTopic, toggleFavoriteWord, toggleLearnedTopic, gradeWord, recordQuizAnswer, recordBestCombo, recordBossResult, recordTopicVisit, recordLastActivity } = useProgress();
   // Useful Phrases topics get an extra "Phrasebook" mode, shown first and
   // selected by default so they read like a practical phrasebook rather than a
   // vocabulary list. Words/Cards/Quiz stay available for every topic.
@@ -182,6 +182,18 @@ export function TopicApp({
     const query = modeQuery(mode, quizMode, { defaultMode });
     router.replace(`${pathname}${query}`, { scroll: false });
   }, [mode, quizMode, defaultMode, pathname, router]);
+
+  // Persist the current (topic, mode, quiz sub-mode) as the learner's "last
+  // activity" (schema v12) so the home page can offer a one-tap resume straight
+  // back into this drill. Gated on `loaded` so we never write before stored
+  // progress hydrates. Loop-free like recordTopicVisit: once a (slug, mode,
+  // quizMode) is recorded, recordLastActivity returns the same reference and the
+  // hook bails to the same state. A mode switch is recorded here only — it never
+  // stamps a study day or counts toward the daily goal.
+  useEffect(() => {
+    if (!loaded) return;
+    recordLastActivity(topic.slug, mode, quizMode);
+  }, [loaded, topic.slug, mode, quizMode, recordLastActivity]);
 
   // Switching to a different topic resets the quiz back to that topic's full
   // word set and clears any missed state carried over from the previous topic.
