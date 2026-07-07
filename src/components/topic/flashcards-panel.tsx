@@ -7,9 +7,11 @@ import { formatIntervalDays, previewIntervals } from "@/lib/progress-logic";
 import { dragTransform, FLING_THRESHOLD_PX, type FlingIntent } from "@/lib/gesture-logic";
 import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
 import { HANZI_SIZE_CLASS } from "@/lib/hanzi-size";
+import { FLASHCARD_VISIBILITY_OPTIONS } from "@/lib/flashcard-visibility";
 import { SpeakButton } from "../speak-button";
 import { TonePinyin } from "../tone-pinyin";
 import { useCardDrag } from "../use-card-drag";
+import { useFlashcardVisibility } from "../use-flashcard-visibility";
 import { useHanziSize } from "../use-hanzi-size";
 import { useReducedMotion } from "../use-reduced-motion";
 import { DeckDots } from "../deck-dots";
@@ -57,6 +59,7 @@ export function FlashcardsPanel({
 
   const reducedMotion = useReducedMotion();
   const { size: hanziSize } = useHanziSize();
+  const { visibility, toggle } = useFlashcardVisibility();
   // Fling animation state: the card flies off, then the grade lands on
   // animation end (with a timeout fallback so an interrupted animation never
   // leaves a stuck card). `flinging` blocks all further input until it settles.
@@ -145,6 +148,33 @@ export function FlashcardsPanel({
         ) : null}
       </div>
 
+      <div className="mt-4 rounded-2xl border border-white/10 bg-surface-2 p-2 text-left">
+        <p className="px-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+          Card hints
+        </p>
+        <div className="mt-2 grid gap-2 sm:grid-cols-3">
+          {FLASHCARD_VISIBILITY_OPTIONS.map((option) => {
+            const active = visibility[option.key];
+            return (
+              <button
+                key={option.key}
+                type="button"
+                onClick={() => toggle(option.key)}
+                aria-pressed={active}
+                className={`min-h-[44px] rounded-xl border px-3 py-2 text-left text-xs transition ${
+                  active
+                    ? "border-emerald-300/40 bg-emerald-400/10 text-emerald-100"
+                    : "border-white/10 text-slate-400 hover:border-white/20 hover:text-white"
+                }`}
+              >
+                <span className="block font-semibold">{option.label}</span>
+                <span className="mt-0.5 block text-[11px] leading-4 text-slate-500">{option.description}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Draggable 3D card. Touch handlers live on this wrapper; the fling
           animation + drag transform ride the wrapper (2D), the inner .card-3d
           does the rotateY flip so the two transforms never fight. */}
@@ -178,12 +208,24 @@ export function FlashcardsPanel({
                 <h2 lang={HANZI_LANG} className={`font-hanzi ${HANZI_SIZE_CLASS.hero[hanziSize]} font-semibold text-white`}>{current.hanzi}</h2>
                 <SpeakButton text={current.hanzi} label={`Pronounce ${current.hanzi}`} />
               </div>
+              {visibility.showPinyinBeforeReveal ? (
+                <p lang={PINYIN_LANG} className="mt-3 font-hanzi text-2xl text-emerald-300">
+                  <TonePinyin pinyin={current.pinyin} />
+                </p>
+              ) : null}
+              {visibility.showEnglishBeforeReveal ? (
+                <p className="mt-2 text-lg text-slate-300">{current.english}</p>
+              ) : null}
             </div>
-            {/* Back face: hanzi (smaller) + pinyin + english */}
+            {/* Back face: hanzi (smaller) + pinyin + optional english */}
             <div className="card-face card-face-back flex w-full flex-col items-center justify-center">
               <p lang={HANZI_LANG} className={`font-hanzi ${HANZI_SIZE_CLASS.word[hanziSize]} font-semibold text-white`}>{current.hanzi}</p>
               <p lang={PINYIN_LANG} className="mt-3 font-hanzi text-2xl text-emerald-300"><TonePinyin pinyin={current.pinyin} /></p>
-              <p className="mt-2 text-xl text-slate-200">{current.english}</p>
+              {visibility.showEnglishAfterReveal ? (
+                <p className="mt-2 text-xl text-slate-200">{current.english}</p>
+              ) : (
+                <p className="mt-2 text-sm text-slate-500">English hidden for recall practice</p>
+              )}
             </div>
           </div>
         </div>
