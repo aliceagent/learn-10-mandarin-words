@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Topic, VocabItem } from "@/lib/types";
 import type { CharConnectionGroup } from "@/lib/connections-logic";
 import { isUsefulPhraseTopic, nextTopicAfter, wordKey } from "@/lib/data";
 import { topicCategoryHref } from "@/lib/data-logic";
 import { buildQuiz, itemsForKeys, type QuizMode } from "@/lib/quiz-logic";
+import { modeQuery, parseMode, parseQuizMode, type TopicMode } from "@/lib/topic-mode-logic";
 import { isNewBestCombo, nextCombo } from "@/lib/combo-logic";
 import { computeStats, formatIntervalDays, isCrowned, previewIntervals, topicProgress, topicWordStatuses } from "@/lib/progress-logic";
 import { downloadableMp4Url, hasPlayableVideo } from "@/lib/video";
@@ -68,12 +70,19 @@ export function TopicApp({
   // selected by default so they read like a practical phrasebook rather than a
   // vocabulary list. Words/Cards/Quiz stay available for every topic.
   const isPhrasebook = isUsefulPhraseTopic(topic);
-  const [mode, setMode] = useState<"phrasebook" | "words" | "flashcards" | "quiz" | "typed" | "match" | "memory" | "cloze" | "scramble" | "sentence-listen" | "boss">(
-    isPhrasebook ? "phrasebook" : "words",
-  );
+  const defaultMode: TopicMode = isPhrasebook ? "phrasebook" : "words";
+  // Practice mode is URL-addressable (`/topics/{slug}?m={mode}&q={quizMode}`) so a
+  // teacher can share a link straight into a drill and the resume feature can
+  // deep-link back in. Initial mode/quizMode are read once from the query on
+  // mount; an absent/invalid param falls back to the topic default. A sync effect
+  // below reflects later changes back to the URL with router.replace.
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const [mode, setMode] = useState<TopicMode>(() => parseMode(searchParams.get("m")) ?? defaultMode);
   const [cardIndex, setCardIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
-  const [quizMode, setQuizMode] = useState<QuizMode>("hanzi-english");
+  const [quizMode, setQuizMode] = useState<QuizMode>(() => parseQuizMode(searchParams.get("q")) ?? "hanzi-english");
   // Tone-practice section sub-mode: the eyes-first per-syllable drill ("read")
   // or the ears-first listening trainer ("listen", speech-gated).
   const [toneMode, setToneMode] = useState<"read" | "listen">("read");
@@ -164,6 +173,16 @@ export function TopicApp({
     recordTopicVisit(topic.slug);
   }, [loaded, topic.slug, recordTopicVisit]);
 
+  // Reflect the selected mode (+ quiz sub-mode) to the URL so it's bookmark- and
+  // share-able. router.replace (not push) keeps mode switches out of the history
+  // stack, so the back button returns to the previous page rather than each tab.
+  // modeQuery omits the topic default and the default quiz sub-mode, so a plain
+  // "/topics/{slug}" stays canonical.
+  useEffect(() => {
+    const query = modeQuery(mode, quizMode, { defaultMode });
+    router.replace(`${pathname}${query}`, { scroll: false });
+  }, [mode, quizMode, defaultMode, pathname, router]);
+
   // Switching to a different topic resets the quiz back to that topic's full
   // word set and clears any missed state carried over from the previous topic.
   // This uses React's "adjust state while rendering on prop change" pattern
@@ -176,8 +195,19 @@ export function TopicApp({
     setQuizState({ index: 0, score: 0, picked: null, combo: 0, runBestCombo: 0, brokenCombo: 0, newBest: false });
     setQuizComplete(false);
     // Land on the mode that fits the newly shown topic (phrasebook vs. words),
-    // so a mode that no longer has a tab is never left selected.
-    setMode(isPhrasebook ? "phrasebook" : "words");
+    // so a mode that no longer has a tab is never left selected. The URL-sync
+    // effect then rewrites the query to this topic's canonical (bare) URL.
+    setMode(defaultMode);
+  }
+
+  // A speech-gated mode named in the URL (e.g. m=sentence-listen) on a voiceless
+  // device would leave no visible tab or panel, so degrade it to the topic
+  // default once speech is confirmed unavailable. (boss is always available;
+  // quiz's listening sub-mode degrades inside the quiz panel itself.) This uses
+  // the same render-time state-adjustment pattern as the topic-switch reset
+  // above; the guard means it fires at most once, so there's no render loop.
+  if (mode === "sentence-listen" && !speechAvailable) {
+    setMode(defaultMode);
   }
 
   function changeQuizMode(m: QuizMode) {
