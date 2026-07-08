@@ -77,25 +77,25 @@ export function ComebackApp({ data }: { data: MandarinData }) {
   const dueCount = dueCards(data.topics, progress.flashcardStats).length;
 
   return (
-    <main className="mx-auto max-w-3xl px-6 pb-24 pt-8 md:px-10 md:pb-12">
+    <main className="mx-auto max-w-3xl px-4 pb-28 pt-4 md:px-10 md:pb-12 md:pt-8">
       <Link href="/" className="text-sm font-semibold text-emerald-300 hover:text-emerald-200">← Library</Link>
 
-      <div className="mt-8">
-        <h1 className="text-4xl font-semibold tracking-tight text-white md:text-5xl">Welcome back</h1>
-        <p className="mt-3 max-w-2xl text-lg text-slate-300">
+      <div className="mt-4 md:mt-8">
+        <h1 className="text-3xl font-semibold tracking-tight text-white md:text-5xl">Welcome back</h1>
+        <p className="mt-2 max-w-2xl text-sm text-slate-300 md:mt-3 md:text-lg">
           {isEmpty
-            ? "Study a topic and grade some flashcards first — we'll build your comeback session from words you've mastered."
-            : `A gentle ${deckSize}-word warm-up from words you've mastered before. Then pick up right where you left off.`}
+            ? "Study a topic and grade flashcards first. We will build this warm-up from words you have mastered."
+            : `${deckSize}-word warm-up from words you have mastered before.`}
         </p>
       </div>
 
       {isEmpty ? (
         /* ── Empty state: nothing mastered/studied to warm up from ── */
-        <div className="mt-12 rounded-3xl border border-white/10 bg-surface p-10 text-center">
-          <p className="text-5xl">🌱</p>
-          <p className="mt-4 text-2xl font-semibold text-white">Nothing to warm up yet</p>
+        <div className="mt-8 rounded-3xl border border-white/10 bg-surface p-6 text-center md:mt-12 md:p-10">
+          <p className="text-4xl md:text-5xl">🌱</p>
+          <p className="mt-3 text-2xl font-semibold text-white md:mt-4">Nothing to warm up yet</p>
           <p className="mt-3 max-w-sm mx-auto text-slate-400">
-            Study a topic and grade some flashcards first — we&apos;ll build your comeback session from words you&apos;ve mastered.
+            Review flashcards in any topic first, then come back for a quick warm-up.
           </p>
           <div className="mt-6 flex justify-center">
             <Link href="/" className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 hover:bg-cta transition">
@@ -129,18 +129,18 @@ export function ComebackApp({ data }: { data: MandarinData }) {
       ) : current ? (
         <>
           {/* Tone-colors preference for the pinyin on the card back. Device-local. */}
-          <div className="mt-6 flex justify-end">
+          <div className="mt-4 hidden justify-end md:flex">
             <ToneColorsToggle />
           </div>
 
           {/* ── Active warm-up card ── */}
           <section
-            className="mt-4 rounded-3xl border border-white/10 bg-surface p-6 text-center"
+            className="mt-4 rounded-3xl border border-white/10 bg-surface p-4 text-center md:p-6"
             aria-label="Warm-up flashcard"
             role="region"
           >
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3 text-sm text-slate-400">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex min-w-0 flex-wrap items-center gap-2 text-xs text-slate-400 md:gap-3 md:text-sm">
                 <span>Card {session.position + 1} of {total}</span>
                 {requeueCount > 0 ? (
                   <span
@@ -151,7 +151,7 @@ export function ComebackApp({ data }: { data: MandarinData }) {
                   </span>
                 ) : null}
               </div>
-              <Link href={`/topics/${current.topicSlug}`} className="text-sm text-emerald-300 hover:text-emerald-200 truncate max-w-32">
+              <Link href={`/topics/${current.topicSlug}`} className="max-w-24 truncate text-xs text-emerald-300 hover:text-emerald-200 md:max-w-32 md:text-sm">
                 {current.topicTitle}
               </Link>
             </div>
@@ -164,11 +164,11 @@ export function ComebackApp({ data }: { data: MandarinData }) {
             {!revealed ? (
               /* Front: hanzi + speak, then reveal */
               <>
-                <div className="mt-10 flex items-center justify-center gap-3">
-                  <h2 lang={HANZI_LANG} className="font-hanzi text-7xl font-semibold text-white">{current.hanzi}</h2>
+                <div className="mt-6 flex items-center justify-center gap-3 md:mt-10">
+                  <h2 lang={HANZI_LANG} className="font-hanzi text-6xl font-semibold text-white md:text-7xl">{current.hanzi}</h2>
                   <SpeakButton text={current.hanzi} label={`Pronounce ${current.hanzi}`} />
                 </div>
-                <div className="mt-10 flex justify-center">
+                <div className="mt-6 flex justify-center md:mt-10">
                   <button
                     type="button"
                     onClick={() => setRevealed(true)}
@@ -182,13 +182,13 @@ export function ComebackApp({ data }: { data: MandarinData }) {
             ) : (
               /* Back: hanzi + pinyin + english, then two gentle grades */
               <>
-                <div className="mt-8">
-                  <p lang={HANZI_LANG} className="font-hanzi text-5xl font-semibold text-white">{current.hanzi}</p>
-                  <p lang={PINYIN_LANG} className="mt-3 font-hanzi text-2xl text-emerald-300"><TonePinyin pinyin={current.pinyin} /></p>
-                  <p className="mt-2 text-xl text-slate-200">{current.english}</p>
+                <div className="mt-5 md:mt-8">
+                  <p lang={HANZI_LANG} className="font-hanzi text-4xl font-semibold text-white md:text-5xl">{current.hanzi}</p>
+                  <p lang={PINYIN_LANG} className="mt-2 font-hanzi text-xl text-emerald-300 md:mt-3 md:text-2xl"><TonePinyin pinyin={current.pinyin} /></p>
+                  <p className="mt-2 text-lg text-slate-200 md:text-xl">{current.english}</p>
                 </div>
                 <div
-                  className="mt-10 mx-auto flex max-w-md gap-3"
+                  className="mt-6 mx-auto flex max-w-md gap-3 md:mt-10"
                   role="group"
                   aria-label="How well did you remember this word?"
                 >
@@ -212,6 +212,12 @@ export function ComebackApp({ data }: { data: MandarinData }) {
               </>
             )}
           </section>
+          <details className="mt-4 rounded-2xl border border-white/10 bg-surface-2 p-3 text-sm text-slate-300 md:hidden">
+            <summary className="cursor-pointer list-none font-semibold text-white">Practice options</summary>
+            <div className="mt-3">
+              <ToneColorsToggle />
+            </div>
+          </details>
         </>
       ) : null}
     </main>

@@ -172,7 +172,7 @@ Next:
 - M4. Review/rescue session flow on mobile.
 
 ### M4. Review/rescue session flow on mobile
-Status: pending
+Status: fixed
 Severity: medium
 Feature area: Review, Comeback, Redrill
 Problem:
@@ -181,6 +181,22 @@ Plan:
 - Audit due-review and rescue states.
 - Compact explanatory banners after first use.
 - Keep prompt, answer, and grading controls together.
+What changed:
+- Tightened mobile Review and Comeback page chrome: smaller top padding, smaller mobile headings, shorter active-session copy, and extra bottom padding for fixed nav clearance.
+- Moved review tone-color and Hanzi-size controls out of the core mobile loop into a collapsed Practice options disclosure while preserving the desktop controls above the card.
+- Hid the full rescue banner on active mobile review sessions and exposed rescue as a compact Practice options action below the card, so prompt and reveal/grading stay higher.
+- Compactified active Review, Comeback, and Redrill cards: smaller mobile card heights, prompt scale, spacing, answer grids, and full-width next action where useful.
+- Removed duplicated empty-state Comeback guidance and replaced it with one clear instruction.
+Evidence:
+- `dogfood-output/mobile/screenshots/m4-review-before-top.png`
+- `dogfood-output/mobile/screenshots/m4-review-after-top.png`
+- `dogfood-output/mobile/screenshots/m4-comeback-before-top.png`
+- `dogfood-output/mobile/screenshots/m4-comeback-after-top.png`
+- Chromium top-of-page captures show empty states by default because this local-first app depends on browser progress. Active Review/Comeback/Redrill loop fixes were verified by code inspection, lint, build, and responsive layout reasoning.
+QA:
+- Full gate passed: `npm run test && npm run validate:data && npm run validate:quality && npm run lint && npm run build`.
+Next:
+- M5. Home discovery density on mobile.
 
 ### M5. Home discovery density on mobile
 Status: pending

@@ -242,25 +242,25 @@ export function ReviewApp({ data }: { data: MandarinData }) {
     flingDir === "left" ? "card-fling-left" : flingDir === "right" ? "card-fling-right" : "";
 
   return (
-    <main className="mx-auto max-w-7xl px-6 pb-24 pt-8 md:px-10 md:pb-12">
+    <main className="mx-auto max-w-7xl px-4 pb-28 pt-4 md:px-10 md:pb-12 md:pt-8">
       <Link href="/" className="text-sm font-semibold text-emerald-300 hover:text-emerald-200">← Library</Link>
 
-      <div className="mt-8">
+      <div className="mt-4 md:mt-8">
         {mode === "rescue" ? (
           <>
-            <h1 className="text-4xl font-semibold tracking-tight text-white md:text-5xl">Rescue Drill</h1>
-            <p className="mt-3 max-w-2xl text-lg text-slate-300">
-              {total} word{total !== 1 ? "s" : ""} that keep slipping. Grade honestly — a Good or Easy here reschedules them for real.
+            <h1 className="text-3xl font-semibold tracking-tight text-white md:text-5xl">Rescue Drill</h1>
+            <p className="mt-2 max-w-2xl text-sm text-slate-300 md:mt-3 md:text-lg">
+              {total} word{total !== 1 ? "s" : ""} that keep slipping. Good or Easy reschedules them for real.
             </p>
           </>
         ) : (
           <>
-            <h1 className="text-4xl font-semibold tracking-tight text-white md:text-5xl">Daily Review</h1>
-            <p className="mt-3 max-w-2xl text-lg text-slate-300">
+            <h1 className="text-3xl font-semibold tracking-tight text-white md:text-5xl">Daily Review</h1>
+            <p className="mt-2 max-w-2xl text-sm text-slate-300 md:mt-3 md:text-lg">
               {isEmpty
                 ? "No cards are due for review right now."
                 : session.remainingDue > 0
-                  ? `${total} card session · ${session.remainingDue} more due later.`
+                  ? `${total} card session. ${session.remainingDue} more due later.`
                   : `${total} card${total !== 1 ? "s" : ""} due for review today.`}
             </p>
           </>
@@ -269,14 +269,14 @@ export function ReviewApp({ data }: { data: MandarinData }) {
 
       {/* Tone-colors preference for the pinyin on review card backs (and the
           toughest-words summary). Device-local, off by default. */}
-      <div className="mt-6 flex flex-wrap justify-end gap-3">
+      <div className="mt-6 hidden flex-wrap justify-end gap-3 md:flex">
         <ToneColorsToggle />
         <HanziSizeControl />
       </div>
 
       {/* ── Rescue banner: leeches exist while running the due queue ── */}
       {mode === "due" && !isEmpty && leeches.length > 0 ? (
-        <div className="mt-6 rounded-3xl border border-amber-400/30 bg-amber-400/[0.06] p-6">
+        <div className="mt-6 hidden rounded-3xl border border-amber-400/30 bg-amber-400/[0.06] p-6 md:block">
           <h2 className="text-lg font-semibold text-amber-200">
             {leeches.length} word{leeches.length !== 1 ? "s" : ""} {leeches.length !== 1 ? "keep" : "keeps"} slipping
           </h2>
@@ -444,12 +444,12 @@ export function ReviewApp({ data }: { data: MandarinData }) {
       ) : current ? (
         /* ── Active review card ── */
         <section
-          className="mt-8 rounded-3xl border border-white/10 bg-surface p-6 text-center"
+          className="mt-4 rounded-3xl border border-white/10 bg-surface p-4 text-center md:mt-8 md:p-6"
           aria-label="Review flashcard"
           role="region"
         >
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3 text-sm text-slate-400">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex min-w-0 flex-wrap items-center gap-2 text-xs text-slate-400 md:gap-3 md:text-sm">
               <span>Card {session.position + 1} of {total}</span>
               {requeueCount > 0 ? (
                 <span
@@ -461,13 +461,13 @@ export function ReviewApp({ data }: { data: MandarinData }) {
               ) : null}
               {/* Swipe hints — taught once, on the first card of the session. */}
               {session.position === 0 ? (
-                <div className="flex gap-3">
+                <div className="hidden gap-3 sm:flex">
                   <span className="swipe-hint">← again</span>
                   <span className="swipe-hint">easy →</span>
                 </div>
               ) : null}
             </div>
-            <Link href={`/topics/${current.topicSlug}`} className="text-sm text-emerald-300 hover:text-emerald-200 truncate max-w-32">
+            <Link href={`/topics/${current.topicSlug}`} className="max-w-24 truncate text-xs text-emerald-300 hover:text-emerald-200 md:max-w-32 md:text-sm">
               {current.topicTitle}
             </Link>
           </div>
@@ -480,7 +480,7 @@ export function ReviewApp({ data }: { data: MandarinData }) {
           {/* Draggable 3D card. The fling/drag transform rides this wrapper (2D);
               the inner .card-3d handles the rotateY flip so they never fight. */}
           <div
-            className={`relative mt-8 select-none touch-pan-y cursor-grab active:cursor-grabbing ${flingClass}`}
+            className={`relative mt-5 select-none touch-pan-y cursor-grab active:cursor-grabbing md:mt-8 ${flingClass}`}
             style={dragStyle}
             onAnimationEnd={settleFling}
             {...handlers}
@@ -501,20 +501,20 @@ export function ReviewApp({ data }: { data: MandarinData }) {
             </span>
 
             <div className="card-scene">
-              <div className={`card-3d flex min-h-[280px] items-center justify-center ${revealed ? "is-flipped" : ""}`}>
+              <div className={`card-3d flex min-h-[220px] items-center justify-center md:min-h-[280px] ${revealed ? "is-flipped" : ""}`}>
                 {/* Front face: hanzi + speak */}
                 <div className="card-face flex w-full flex-col items-center justify-center">
                   <div className="flex items-center justify-center gap-3">
-                    <h2 lang={HANZI_LANG} className="font-hanzi text-7xl font-semibold text-white">{current.hanzi}</h2>
+                    <h2 lang={HANZI_LANG} className="font-hanzi text-6xl font-semibold text-white md:text-7xl">{current.hanzi}</h2>
                     <SpeakButton text={current.hanzi} label={`Pronounce ${current.hanzi}`} />
                   </div>
                 </div>
                 {/* Back face: hanzi (smaller) + pinyin + english + interval */}
                 <div className="card-face card-face-back flex w-full flex-col items-center justify-center">
                   <p lang={HANZI_LANG} className="font-hanzi text-4xl font-semibold text-white">{current.hanzi}</p>
-                  <p lang={PINYIN_LANG} className="mt-3 font-hanzi text-2xl text-emerald-300"><TonePinyin pinyin={current.pinyin} /></p>
-                  <p className="mt-2 text-xl text-slate-200">{current.english}</p>
-                  <div className="mt-4 flex items-center justify-center gap-2">
+                  <p lang={PINYIN_LANG} className="mt-2 font-hanzi text-xl text-emerald-300 md:mt-3 md:text-2xl"><TonePinyin pinyin={current.pinyin} /></p>
+                  <p className="mt-2 text-lg text-slate-200 md:text-xl">{current.english}</p>
+                  <div className="mt-3 flex items-center justify-center gap-2 md:mt-4">
                     <p className="text-xs text-slate-500">Current interval: {current.intervalDays}d</p>
                     {current.lapses >= LEECH_LAPSE_THRESHOLD ? (
                       <span
@@ -534,7 +534,7 @@ export function ReviewApp({ data }: { data: MandarinData }) {
           {total <= DECK_DOT_MAX ? <DeckDots count={total} current={session.position} /> : null}
 
           {!revealed ? (
-            <div className="mt-8 flex justify-center">
+            <div className="mt-5 flex justify-center md:mt-8">
               <button
                 type="button"
                 onClick={() => setRevealed(true)}
@@ -549,7 +549,7 @@ export function ReviewApp({ data }: { data: MandarinData }) {
             // equal-width segments, each stacking label + interval, with a subtle
             // semantic top rule instead of a loud pill border.
             <div
-              className="mt-8 mx-auto flex max-w-md gap-1 rounded-2xl border border-white/10 bg-surface-2 p-1"
+              className="mt-5 mx-auto flex max-w-md gap-1 rounded-2xl border border-white/10 bg-surface-2 p-1 md:mt-8"
               role="group"
               aria-label="Grade your recall"
             >
@@ -570,6 +570,33 @@ export function ReviewApp({ data }: { data: MandarinData }) {
             </div>
           )}
         </section>
+      ) : null}
+
+      {!isEmpty && !complete ? (
+        <details className="mt-4 rounded-2xl border border-white/10 bg-surface-2 p-3 text-sm text-slate-300 md:hidden">
+          <summary className="cursor-pointer list-none font-semibold text-white">Practice options</summary>
+          <div className="mt-3 space-y-3">
+            <ToneColorsToggle />
+            <HanziSizeControl />
+            {mode === "due" && leeches.length > 0 ? (
+              <div className="rounded-2xl border border-amber-400/30 bg-amber-400/[0.06] p-3">
+                <p className="font-semibold text-amber-200">
+                  {leeches.length} word{leeches.length !== 1 ? "s" : ""} need rescue
+                </p>
+                <p className="mt-1 text-xs text-amber-100/80">
+                  Missed {LEECH_LAPSE_THRESHOLD}+ times in review.
+                </p>
+                <button
+                  type="button"
+                  onClick={startRescue}
+                  className="mt-3 min-h-[44px] w-full rounded-full bg-amber-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-amber-300"
+                >
+                  Start rescue drill
+                </button>
+              </div>
+            ) : null}
+          </div>
+        </details>
       ) : null}
 
       {/* 7-day upcoming-due forecast (Sprint 7). Shown in every review state once

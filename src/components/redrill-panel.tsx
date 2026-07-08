@@ -144,12 +144,12 @@ export function RedrillPanel({
 
   return (
     <section
-      className="mt-8 rounded-3xl border border-white/10 bg-surface p-6"
+      className="mt-4 rounded-3xl border border-white/10 bg-surface p-4 md:mt-8 md:p-6"
       aria-label="Quick re-drill"
     >
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">Quick re-drill</h2>
-        <p className="text-sm text-slate-400">Word {run.index + 1} of {total}</p>
+        <p className="text-xs text-slate-400 md:text-sm">Word {run.index + 1} of {total}</p>
       </div>
 
       {/* Progress bar through the drill */}
@@ -158,21 +158,21 @@ export function RedrillPanel({
       </div>
 
       {/* Prompt: hanzi + pronounce. Pinyin is revealed with the answer below. */}
-      <div className="mt-6 text-center">
+      <div className="mt-5 text-center md:mt-6">
         <div className="flex items-center justify-center gap-3">
-          <h3 lang={HANZI_LANG} className="font-hanzi text-7xl font-semibold text-white">{current.prompt}</h3>
+          <h3 lang={HANZI_LANG} className="font-hanzi text-6xl font-semibold text-white md:text-7xl">{current.prompt}</h3>
           <SpeakButton text={current.prompt} label={`Pronounce: ${current.prompt}`} />
         </div>
         {/* Pinyin ALWAYS accompanies the hanzi (project rule) — shown on answer. */}
         {run.picked !== null && current.promptPinyin ? (
-          <p lang={PINYIN_LANG} className="font-hanzi mt-2 text-2xl text-emerald-300" role="status">
+          <p lang={PINYIN_LANG} className="font-hanzi mt-2 text-xl text-emerald-300 md:text-2xl" role="status">
             {current.promptPinyin}
           </p>
         ) : null}
       </div>
 
       {/* Choices */}
-      <div className="mt-8 grid gap-3 md:grid-cols-2" role="listbox" aria-label="Answer choices">
+      <div className="mt-5 grid gap-2 md:mt-8 md:grid-cols-2 md:gap-3" role="listbox" aria-label="Answer choices">
         {current.choices.map((choice) => {
           const right = run.picked !== null && choice === current.answer;
           const wrong = run.picked === choice && choice !== current.answer;
@@ -184,7 +184,7 @@ export function RedrillPanel({
               role="option"
               aria-selected={run.picked === choice}
               aria-disabled={run.picked !== null && run.picked !== choice}
-              className={`min-h-[52px] rounded-2xl border px-5 py-4 text-left font-semibold transition
+              className={`min-h-[48px] rounded-2xl border px-4 py-3 text-left font-semibold transition md:min-h-[52px] md:px-5 md:py-4
                 ${right ? "animate-quiz-correct border-emerald-300 bg-cta text-slate-950" : ""}
                 ${wrong ? "animate-quiz-wrong border-rose-400 bg-rose-400/20 text-rose-200" : ""}
                 ${!right && !wrong ? "border-white/10 bg-surface-2 text-white hover:border-emerald-300" : ""}
@@ -197,11 +197,11 @@ export function RedrillPanel({
       </div>
 
       {run.picked ? (
-        <div className="mt-6">
+        <div className="mt-4 md:mt-6">
           <button
             type="button"
             onClick={handleNext}
-            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
+            className="min-h-[44px] w-full rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta md:w-auto"
             aria-label={run.index + 1 >= total ? "See results" : "Next word"}
           >
             {run.index + 1 >= total ? "See results" : "Next word"}
