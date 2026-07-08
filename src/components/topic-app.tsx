@@ -65,7 +65,7 @@ export function TopicApp({
   // chunk; optional so the component still renders without it.
   connections?: Record<string, CharConnectionGroup[]>;
 }) {
-  const { progress, loaded, toggleFavoriteTopic, toggleFavoriteWord, toggleLearnedTopic, gradeWord, recordQuizAnswer, recordBestCombo, recordBossResult, recordTopicVisit, recordLastActivity } = useProgress();
+  const { progress, loaded, toggleFavoriteTopic, toggleFavoriteWord, toggleLearnedTopic, gradeWord, markWordKnown, recordQuizAnswer, recordBestCombo, recordBossResult, recordTopicVisit, recordLastActivity } = useProgress();
   // Useful Phrases topics get an extra "Phrasebook" mode, shown first and
   // selected by default so they read like a practical phrasebook rather than a
   // vocabulary list. Words/Cards/Quiz stay available for every topic.
@@ -527,6 +527,13 @@ export function TopicApp({
             const days = previewIntervals(progress.flashcardStats[currentKey], new Date())[grade];
             gradeWord(currentKey, grade);
             setToast(`“${current.hanzi}” scheduled in ${formatIntervalDays(days)}`);
+            setRevealed(false);
+            setCardIndex((v) => (v + 1) % topic.items.length);
+          }}
+          onKnown={() => {
+            markWordKnown(currentKey);
+            track("flashcard_known_marked", { topic: topic.slug });
+            setToast(`“${current.hanzi}” marked known — we'll review it less often`);
             setRevealed(false);
             setCardIndex((v) => (v + 1) % topic.items.length);
           }}

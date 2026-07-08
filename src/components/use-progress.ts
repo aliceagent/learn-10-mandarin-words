@@ -19,6 +19,7 @@ import {
   recordDailyQuizAnswer,
   recordLastActivity,
   recordRecentTopic,
+  markWordKnown,
   scheduleReview,
   todayISO,
   uniqueToggle,
@@ -206,6 +207,17 @@ export function useProgress() {
         flashcardStats: {
           ...current.flashcardStats,
           [key]: scheduleReview(existing, grade, now),
+        },
+      }, key);
+    }),
+    markWordKnown: (key: string) => setProgress((current) => {
+      const now = new Date();
+      const existing = current.flashcardStats[key];
+      return withPractice({
+        ...current,
+        flashcardStats: {
+          ...current.flashcardStats,
+          [key]: markWordKnown(existing, now),
         },
       }, key);
     }),

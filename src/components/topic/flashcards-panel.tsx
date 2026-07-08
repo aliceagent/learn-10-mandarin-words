@@ -53,6 +53,7 @@ export function FlashcardsPanel({
   revealed,
   onReveal,
   onGrade,
+  onKnown,
 }: {
   topic: Topic;
   cardIndex: number;
@@ -63,6 +64,7 @@ export function FlashcardsPanel({
   revealed: boolean;
   onReveal: () => void;
   onGrade: (grade: Grade) => void;
+  onKnown: () => void;
 }) {
   // Projected next interval per grade — computed via previewIntervals so the
   // labels always match what a real grade would schedule (never re-derived).
@@ -292,7 +294,7 @@ export function FlashcardsPanel({
       <DeckDots count={topic.items.length} current={cardIndex} />
 
       {!revealed ? (
-        <div className="mt-8 flex justify-center">
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <button
             type="button"
             onClick={onReveal}
@@ -300,6 +302,14 @@ export function FlashcardsPanel({
             aria-label="Reveal answer"
           >
             Reveal
+          </button>
+          <button
+            type="button"
+            onClick={onKnown}
+            className="min-h-[44px] rounded-full border border-emerald-300/30 px-5 py-3 text-sm font-semibold text-emerald-100 transition hover:border-emerald-200/50 hover:bg-emerald-400/10"
+            aria-label={`Mark ${current.hanzi} as known and review it less often`}
+          >
+            I know this word
           </button>
         </div>
       ) : (

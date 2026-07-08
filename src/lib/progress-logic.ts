@@ -800,6 +800,25 @@ export function scheduleReview(existing: FlashcardStat, grade: Grade, now: Date)
   return { intervalDays, ease, dueAt: due.toISOString(), reviewCount: stat.reviewCount + 1, lapses };
 }
 
+// Learner-declared quick mastery. This is intentionally stronger than a first
+// "easy" grade but not a permanent exemption: it moves the card to at least the
+// mastery threshold, bumps ease gently, preserves lapse history, and keeps any
+// already-longer interval instead of downgrading it.
+export function markWordKnown(existing: FlashcardStat | undefined, now: Date): FlashcardStat {
+  const stat = existing ? normalizeStat(existing, now) : defaultStat(now);
+  const intervalDays = Math.max(stat.intervalDays, MASTERED_INTERVAL_DAYS);
+  const ease = clampEase(stat.ease + EASE_DELTA.easy);
+  const due = new Date(now);
+  due.setDate(due.getDate() + intervalDays);
+  return {
+    intervalDays,
+    ease,
+    dueAt: due.toISOString(),
+    reviewCount: stat.reviewCount + 1,
+    lapses: stat.lapses,
+  };
+}
+
 // ─── Grading feedback previews ─────────────────────────────────────────────────
 
 // Every grade in scheduling order — shared so previews line up with the grade

@@ -22,6 +22,7 @@ import {
   longestStreak,
   MASTERED_INTERVAL_DAYS,
   masterySummary,
+  markWordKnown,
   normalizeBossStat,
   normalizeBossStats,
   normalizeProgress,
@@ -503,6 +504,29 @@ test("scheduleReview increments lapses only on an 'again' grade", () => {
 
 test("defaultStat starts with a zero lapse counter", () => {
   assert.equal(defaultStat(new Date("2026-07-01T00:00:00.000Z")).lapses, 0);
+});
+
+test("markWordKnown schedules a known word at the mastery threshold", () => {
+  const now = new Date("2026-07-01T00:00:00.000Z");
+  const known = markWordKnown(undefined, now);
+  assert.equal(known.intervalDays, MASTERED_INTERVAL_DAYS);
+  assert.equal(known.reviewCount, 1);
+  assert.equal(known.lapses, 0);
+  assert.equal(known.ease, 2.65);
+  assert.equal(known.dueAt, "2026-07-08T00:00:00.000Z");
+});
+
+test("markWordKnown preserves lapse history and never downgrades a longer interval", () => {
+  const now = new Date("2026-07-01T00:00:00.000Z");
+  const existing = { intervalDays: 30, ease: 2.8, dueAt: "2026-07-31T00:00:00.000Z", reviewCount: 5, lapses: 3 };
+  const before = { ...existing };
+  const known = markWordKnown(existing, now);
+  assert.equal(known.intervalDays, 30);
+  assert.equal(known.reviewCount, 6);
+  assert.equal(known.lapses, 3);
+  assert.ok(Math.abs(known.ease - 2.95) < 0.000001);
+  assert.equal(known.dueAt, "2026-07-31T00:00:00.000Z");
+  assert.deepEqual(existing, before);
 });
 
 test("uniqueToggle adds when absent and removes when present", () => {
