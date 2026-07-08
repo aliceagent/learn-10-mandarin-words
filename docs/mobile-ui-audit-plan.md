@@ -91,19 +91,31 @@ Status key:
 - deployed: live in production
 
 ### M1. Flashcards one-screen repeated-action layout
-Status: pending
+Status: fixed
 Severity: high
 Feature area: Topic lesson page, Flashcards tab
 Problem:
-- Repetitive flashcard practice requires scrolling because configuration sections appear above the card.
+- Repetitive flashcard practice required scrolling because configuration sections appeared above the card.
 - Primary practice loop should fit in one mobile screen: prompt, reveal/known action, grading, and minimal context.
-- Current controls push the actual card and grading actions down.
+- Current controls pushed the actual card and grading actions down.
 Plan:
 - Make flashcard practice mobile-first.
 - Collapse Health, Direction, Deck order, and Hints behind compact disclosure controls on mobile.
 - Keep the core card, confidence, reveal, known, grading, and progress visible without vertical hunting.
 - Preserve full controls on larger screens.
 - Add pure helper tests for mobile panel grouping/copy if needed, then QA via 390x844 screenshot.
+What changed:
+- Moved mobile Health, Direction, Deck order, Card hints, and rescue note controls into a collapsed Practice settings disclosure below the core loop.
+- Kept the desktop settings/dashboard layout visible above the card at `md` and up.
+- Tightened mobile flashcard panel padding, card height, control spacing, and grade button grid so the repeated prompt/action loop is compact on 390px screens.
+- Added `compactFlashcardSettingsSummary` with focused tests for the mobile disclosure summary chips.
+Evidence:
+- `dogfood-output/mobile/screenshots/m1-flashcards-after-top.png` (390x844 top-of-page capture; Chromium harness starts at the page top and does not scroll to the below-fold flashcard panel, so the panel fix was verified by code inspection, build, and responsive layout reasoning.)
+QA:
+- Focused test: `node --test tests/flashcard-mobile-settings.test.mjs` passed.
+- Build spot check: `npm run build` passed.
+Next:
+- M2. Topic page mode tabs mobile density.
 
 ### M2. Topic page mode tabs mobile density
 Status: pending

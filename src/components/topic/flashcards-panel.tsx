@@ -21,6 +21,7 @@ import { FLASHCARD_VISIBILITY_OPTIONS } from "@/lib/flashcard-visibility";
 import type { FlashcardSessionSummary } from "@/lib/flashcard-session-summary";
 import { FLASHCARD_DECK_ORDER_OPTIONS, type FlashcardDeckOrder } from "@/lib/flashcard-deck-order";
 import type { FlashcardSettings, FlashcardTopicHealth } from "@/lib/flashcard-health";
+import { compactFlashcardSettingsSummary } from "@/lib/flashcard-mobile-settings";
 import { flashcardRescuePrompt } from "@/lib/flashcard-rescue";
 import { SpeakButton } from "../speak-button";
 import { TonePinyin } from "../tone-pinyin";
@@ -99,6 +100,15 @@ export function FlashcardsPanel({
   const directionalStat = directionalStats?.[activeDirection];
   const face = buildFlashcardFace(current, activeDirection);
   const confidence = flashcardConfidence(stat);
+  const directionLabel = FLASHCARD_DIRECTION_OPTIONS.find((option) => option.key === direction)?.label ?? "Mixed";
+  const deckOrderLabel = FLASHCARD_DECK_ORDER_OPTIONS.find((option) => option.key === deckOrder)?.label ?? "Default";
+  const hintCount = FLASHCARD_VISIBILITY_OPTIONS.filter((option) => visibility[option.key]).length;
+  const mobileSettingsSummary = compactFlashcardSettingsSummary({
+    health,
+    directionLabel,
+    deckOrderLabel,
+    hintCount,
+  });
   const [dismissedRescueKeys, setDismissedRescueKeys] = useState<Set<string>>(() => new Set());
   const rescuePrompt = flashcardRescuePrompt(current, stat, {
     dismissed: dismissedRescueKeys.has(`${topic.slug}:${current.hanzi}`),
@@ -176,7 +186,7 @@ export function FlashcardsPanel({
 
   return (
     <section
-      className="mt-6 rounded-3xl border border-white/10 bg-surface p-6 text-center"
+      className="mt-4 rounded-3xl border border-white/10 bg-surface p-3 text-center md:mt-6 md:p-6"
       aria-label="Flashcard practice"
       role="region"
     >
@@ -190,24 +200,25 @@ export function FlashcardsPanel({
           {confidence.label} · {confidence.score}%
         </div>
         {directionalStat ? (
-          <div className="rounded-full border border-sky-300/25 bg-sky-400/10 px-3 py-1 text-xs font-semibold text-sky-100" title="Confidence for this prompt direction only">
+          <div className="hidden rounded-full border border-sky-300/25 bg-sky-400/10 px-3 py-1 text-xs font-semibold text-sky-100 sm:block" title="Confidence for this prompt direction only">
             This direction · {directionalStat.confidence}% · {directionalStat.reviewCount}x
           </div>
         ) : (
-          <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-400">
+          <div className="hidden rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-400 sm:block">
             New in this direction
           </div>
         )}
         {/* Swipe gesture hints — taught once, on the first card of the deck. */}
         {cardIndex === 0 ? (
-          <div className="flex gap-3">
+          <div className="hidden gap-3 md:flex">
             <span className="swipe-hint">← again</span>
             <span className="swipe-hint">easy →</span>
           </div>
         ) : null}
       </div>
 
-      <div className="mt-4 rounded-2xl border border-white/10 bg-surface-2 p-4 text-left">
+      <div className="hidden md:block">
+        <div className="mt-4 rounded-2xl border border-white/10 bg-surface-2 p-4 text-left">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Flashcard health</p>
@@ -369,12 +380,13 @@ export function FlashcardsPanel({
           })}
         </div>
       </div>
+      </div>
 
       {/* Draggable 3D card. Touch handlers live on this wrapper; the fling
           animation + drag transform ride the wrapper (2D), the inner .card-3d
           does the rotateY flip so the two transforms never fight. */}
       <div
-        className={`relative mt-6 select-none touch-pan-y cursor-grab active:cursor-grabbing ${flingClass}`}
+        className={`relative mt-4 select-none touch-pan-y cursor-grab active:cursor-grabbing md:mt-6 ${flingClass}`}
         style={dragStyle}
         onAnimationEnd={settleFling}
         {...handlers}
@@ -396,7 +408,7 @@ export function FlashcardsPanel({
         </span>
 
         <div className="card-scene">
-          <div className={`card-3d flex min-h-[280px] items-center justify-center ${revealed ? "is-flipped" : ""}`}>
+          <div className={`card-3d flex min-h-[240px] items-center justify-center md:min-h-[280px] ${revealed ? "is-flipped" : ""}`}>
             {/* Front face: hanzi + speak */}
             <div className="card-face flex w-full flex-col items-center justify-center">
               <div className="flex items-center justify-center gap-3">
@@ -471,7 +483,7 @@ export function FlashcardsPanel({
       ) : null}
 
       {!revealed ? (
-        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <div className="mt-4 flex flex-col items-center justify-center gap-3 sm:flex-row md:mt-8">
           <button
             type="button"
             onClick={onReveal}
@@ -493,13 +505,13 @@ export function FlashcardsPanel({
         // Calmer segmented grade bar: one quiet surface well holding four
         // equal-width segments, each stacking label + interval, with a subtle
         // semantic top rule instead of a loud pill border.
-        <div className="mt-8">
+        <div className="mt-4 md:mt-8">
           <p className="mx-auto max-w-md text-sm font-semibold text-slate-200">{FLASHCARD_RECALL_PROMPT}</p>
           <p className="mx-auto mt-1 max-w-md text-xs text-slate-500">
             Choose the recall quality; the tiny text still previews the next review interval.
           </p>
           <div
-            className="mx-auto mt-3 grid max-w-2xl gap-2 rounded-2xl border border-white/10 bg-surface-2 p-1 sm:grid-cols-4"
+            className="mx-auto mt-3 grid max-w-2xl grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-surface-2 p-1 sm:grid-cols-4"
             role="group"
             aria-label={FLASHCARD_RECALL_PROMPT}
           >
@@ -510,7 +522,7 @@ export function FlashcardsPanel({
                   key={grade}
                   type="button"
                   onClick={() => onGrade(grade, activeDirection)}
-                  className={`flex min-h-[64px] flex-col items-center justify-center gap-0.5 rounded-xl border-t-2 ${rule} px-2 py-2 text-center font-semibold text-white transition hover:bg-surface-hover`}
+                  className={`flex min-h-[56px] flex-col items-center justify-center gap-0.5 rounded-xl border-t-2 ${rule} px-2 py-2 text-center font-semibold text-white transition hover:bg-surface-hover md:min-h-[64px]`}
                   aria-label={flashcardGradeAriaLabel(grade, previews[grade])}
                   title={`Internal grade: ${grade}`}
                 >
@@ -529,10 +541,142 @@ export function FlashcardsPanel({
 
       {/* Tip on first card */}
       {!revealed && cardIndex === 0 ? (
-        <p className="mt-6 text-xs text-slate-600">
-          Tap the card to flip, then grade your recall · swipe left/right after revealing
+        <p className="mt-4 text-xs text-slate-600 md:mt-6">
+          Tap the card to flip, then grade your recall. Swipe left or right after revealing.
         </p>
       ) : null}
+
+      <details className="group mt-4 rounded-2xl border border-white/10 bg-surface-2 p-2 text-left md:hidden">
+        <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-3 px-2 text-sm font-semibold text-slate-200 [&::-webkit-details-marker]:hidden">
+          <span>Practice settings</span>
+          <span aria-hidden="true" className="text-xs text-slate-500 transition group-open:rotate-180">▾</span>
+        </summary>
+        <div className="flex flex-wrap gap-1.5 px-2 pb-2">
+          {mobileSettingsSummary.map((item) => (
+            <span key={item} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-slate-400">
+              {item}
+            </span>
+          ))}
+        </div>
+
+        <div className="border-t border-white/10 pt-3">
+          <p className="px-2 text-xs font-semibold text-slate-400">Health</p>
+          <p className="mt-1 px-2 text-xs leading-5 text-slate-500">
+            {health.tracked}/{health.totalWords} tracked, {health.due} due, {health.shaky} shaky, {health.mastered} mastered
+          </p>
+          <button
+            type="button"
+            onClick={() => onSettingsChange({ ...settings, showHealthDashboard: !settings.showHealthDashboard })}
+            className="mt-2 min-h-[44px] rounded-full border border-white/15 px-4 py-2 text-xs font-semibold text-slate-300 transition hover:border-white/30 hover:text-white"
+            aria-pressed={settings.showHealthDashboard}
+          >
+            {settings.showHealthDashboard ? "Hide dashboard" : "Show dashboard"}
+          </button>
+          {settings.showHealthDashboard ? (
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <HealthMetric label="New" value={health.newWords} />
+              <HealthMetric label="Due" value={health.due} />
+              <HealthMetric label="Shaky" value={health.shaky} />
+              <HealthMetric label="Rescue" value={health.needsRescue} />
+            </div>
+          ) : null}
+        </div>
+
+        <div className="mt-3 border-t border-white/10 pt-3">
+          <p className="px-2 text-xs font-semibold text-slate-400">Direction</p>
+          <div className="mt-2 grid gap-2">
+            {FLASHCARD_DIRECTION_OPTIONS.map((option) => {
+              const active = direction === option.key;
+              return (
+                <button
+                  key={option.key}
+                  type="button"
+                  onClick={() => setDirection(option.key)}
+                  aria-pressed={active}
+                  className={`min-h-[44px] rounded-xl border px-3 py-2 text-left text-xs transition ${
+                    active
+                      ? "border-emerald-300/40 bg-emerald-400/10 text-emerald-100"
+                      : "border-white/10 text-slate-400 hover:border-white/20 hover:text-white"
+                  }`}
+                >
+                  <span className="block font-semibold">{option.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="mt-3 border-t border-white/10 pt-3">
+          <p className="px-2 text-xs font-semibold text-slate-400">Deck order</p>
+          <div className="mt-2 grid gap-2">
+            {FLASHCARD_DECK_ORDER_OPTIONS.map((option) => {
+              const active = deckOrder === option.key;
+              return (
+                <button
+                  key={option.key}
+                  type="button"
+                  onClick={() => onDeckOrderChange(option.key)}
+                  aria-pressed={active}
+                  className={`min-h-[44px] rounded-xl border px-3 py-2 text-left text-xs transition ${
+                    active
+                      ? "border-sky-300/40 bg-sky-400/10 text-sky-100"
+                      : "border-white/10 text-slate-400 hover:border-white/20 hover:text-white"
+                  }`}
+                >
+                  <span className="block font-semibold">{option.label}</span>
+                </button>
+              );
+            })}
+          </div>
+          <button
+            type="button"
+            onClick={() => onSetDefaultDeckOrder(deckOrder)}
+            className="mt-2 min-h-[44px] rounded-full border border-white/15 px-4 py-2 text-xs font-semibold text-slate-300 transition hover:border-sky-300/40 hover:text-white"
+          >
+            Save as default
+          </button>
+        </div>
+
+        <div className="mt-3 border-t border-white/10 pt-3">
+          <p className="px-2 text-xs font-semibold text-slate-400">Card hints</p>
+          <div className="mt-2 grid gap-2">
+            {FLASHCARD_VISIBILITY_OPTIONS.map((option) => {
+              const active = visibility[option.key];
+              return (
+                <button
+                  key={option.key}
+                  type="button"
+                  onClick={() => toggle(option.key)}
+                  aria-pressed={active}
+                  className={`min-h-[44px] rounded-xl border px-3 py-2 text-left text-xs transition ${
+                    active
+                      ? "border-emerald-300/40 bg-emerald-400/10 text-emerald-100"
+                      : "border-white/10 text-slate-400 hover:border-white/20 hover:text-white"
+                  }`}
+                >
+                  <span className="block font-semibold">{option.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {rescuePrompt ? (
+          <div className="mt-3 border-t border-amber-300/20 pt-3">
+            <p className="px-2 text-sm font-semibold text-amber-100">{rescuePrompt.title}</p>
+            <p className="mt-1 px-2 text-xs leading-5 text-slate-300">
+              “{rescuePrompt.word}” has slipped {rescuePrompt.lapses} times. {rescuePrompt.body}
+            </p>
+            <button
+              type="button"
+              onClick={() => setDismissedRescueKeys((keys) => new Set(keys).add(`${topic.slug}:${current.hanzi}`))}
+              className="mt-2 min-h-[44px] rounded-full border border-white/15 px-4 py-2 text-xs font-semibold text-slate-300 transition hover:border-amber-200/50 hover:text-white"
+            >
+              Skip note
+            </button>
+          </div>
+        ) : null}
+      </details>
     </section>
   );
 }

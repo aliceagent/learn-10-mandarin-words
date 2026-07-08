@@ -357,11 +357,10 @@ textarea:focus-visible,
   -webkit-backface-visibility: hidden;
   /* translateZ nudge dodges Safari iOS backface flicker. */
   transform: translateZ(0);
-  /* Sprint 3: each face is a real, elevated card — a raised opaque surface with
-     matched radius and a soft "hero" drop shadow so the deck reads as a physical
-     card floating above the panel rather than flat text on the panel fill. Both
-     faces fill the flip box (min-height) so front/back read identically. */
-  min-height: 280px;
+  /* Sprint 3: each face is a real, elevated card. Mobile keeps the repeated
+     loop compact; desktop preserves the original taller deck. Both faces fill
+     the flip box so front/back read identically. */
+  min-height: 240px;
   border-radius: 1.5rem;
   background: var(--color-surface-hover);
   box-shadow:
@@ -373,6 +372,12 @@ textarea:focus-visible,
   position: absolute;
   inset: 0;
   transform: rotateY(180deg) translateZ(0);
+}
+
+@media (min-width: 768px) {
+  .card-face {
+    min-height: 280px;
+  }
 }
 
 @keyframes card-fling-left {
