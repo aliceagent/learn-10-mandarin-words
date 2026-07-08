@@ -140,28 +140,28 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
   return (
     <main>
       {/* ── Hero ── */}
-      <section className="mx-auto grid min-h-[88dvh] max-w-7xl items-center gap-10 px-6 py-12 pb-24 md:grid-cols-[1.05fr_0.95fr] md:px-10 md:pb-12">
+      <section className="mx-auto grid max-w-7xl items-start gap-5 px-4 pb-8 pt-6 md:min-h-[88dvh] md:grid-cols-[1.05fr_0.95fr] md:items-center md:gap-10 md:px-10 md:pb-12 md:pt-12">
         <div>
           {/* Device-local light/dark toggle (Sprint 16), right-aligned at the top */}
-          {/* of the hero — the same quiet chip register as the tone-colors toggle. */}
-          <div className="mb-4">
+          {/* of the hero, using the same quiet chip register as the tone-colors toggle. */}
+          <div className="mb-3 md:mb-4">
             <ThemeToggle />
           </div>
-          <p className="mb-5 inline-flex rounded-full border border-emerald-500/25 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-300">
-            {summary.formattedListCount} Mandarin vocab lists · {summary.formattedWordCount} words · one clean habit
+          <p className="mb-3 inline-flex rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-300 md:mb-5 md:px-4 md:py-2 md:text-sm">
+            {summary.formattedListCount} Mandarin vocab lists · {summary.formattedWordCount} words
           </p>
-          <h1 className="max-w-3xl text-5xl font-semibold tracking-tight text-white md:text-7xl">
+          <h1 className="max-w-3xl text-4xl font-semibold leading-tight tracking-tight text-white md:text-7xl md:leading-none">
             Learn 10 Mandarin Words
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-            Free Mandarin vocabulary lessons — watch a short video, practice with quizzes and flashcards, and track what sticks. Everything stays on your device.
+          <p className="mt-3 max-w-2xl text-base leading-6 text-slate-300 md:mt-6 md:text-lg md:leading-8">
+            Free Mandarin lessons. Watch, practice, review, and keep everything on your device.
           </p>
           {/* One adaptive primary action (Resume / Continue / Start) + a plain */}
           {/* "Browse all lessons" escape. The primary is the first interactive */}
           {/* element in the hero, so keyboard focus lands on the single most useful */}
           {/* next step. When it shows Resume it fires the same analytics event the */}
           {/* old standalone resume card did, keyed off the recorded last-activity slug. */}
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-5 grid gap-3 min-[380px]:grid-cols-2 md:mt-8 md:flex md:flex-wrap">
             <Link
               href={cta.href}
               onClick={
@@ -169,15 +169,20 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
                   ? () => track("last_activity_resumed", { topic: progress.lastActivity!.topicSlug })
                   : undefined
               }
-              className="rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
+              className="inline-flex min-h-11 items-center justify-center rounded-full bg-emerald-400 px-5 py-3 text-center font-semibold text-slate-950 transition hover:bg-cta md:px-6"
             >
               {cta.label}
             </Link>
-            <a href="#find" className="rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300/70">
-              Browse all lessons
+            <a href="#find" className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/15 px-5 py-3 text-center font-semibold text-white transition hover:border-emerald-300/70 md:px-6">
+              Browse lessons
             </a>
           </div>
-          <p className="mt-3 text-sm text-slate-400">{cta.sub}</p>
+          <p className="mt-2 hidden text-sm text-slate-400 sm:block md:mt-3">{cta.sub}</p>
+          <div className="mt-4 grid grid-cols-3 gap-2 md:hidden" aria-label="Library summary">
+            <MiniMetric value={`${data.topics.length}`} label="lessons" />
+            <MiniMetric value={summary.formattedWordCount} label="words" />
+            <MiniMetric value={`${studiedWordsCount}`} label="studied" />
+          </div>
           {/* Path & Stats stay one tap away in the mobile bottom nav; on desktop */}
           {/* they drop to quiet text links so the hero leads with two clear CTAs. */}
           <div className="mt-5 hidden gap-6 text-sm md:flex">
@@ -197,7 +202,7 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
         {/* One flat Level-1 card (post flat-background sprint: no shadow/backdrop */}
         {/* blur). Quiet Level-2 stat tiles sit inset on it; the amber streak chip */}
         {/* stays as the single semantic warm element. */}
-        <div className="rounded-3xl border border-white/10 bg-surface p-5 md:p-6">
+        <div className="hidden rounded-3xl border border-white/10 bg-surface p-5 md:block md:p-6">
           <div className="mb-5 flex items-center justify-between border-b border-white/10 pb-4">
             <span className="text-sm font-semibold text-slate-300">Today&apos;s snapshot</span>
             {atRisk ? (
@@ -291,10 +296,10 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
       {/* fast: one search box (the single source of search state, shared with the */}
       {/* library grid below), one-tap category chips → dedicated pages, and a short */}
       {/* starter row for newcomers. The hero's "Browse all lessons" scrolls here. */}
-      <section id="find" className="mx-auto max-w-7xl px-6 pt-14 md:px-10">
-        <div className="mb-6">
-          <p className="text-sm font-semibold uppercase tracking-wide text-emerald-300">Find your lesson</p>
-          <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white md:text-4xl">
+      <section id="find" className="mx-auto max-w-7xl px-4 pt-6 md:px-10 md:pt-14">
+        <div className="mb-4 md:mb-6">
+          <p className="text-sm font-semibold text-emerald-300">Find your lesson</p>
+          <h2 className="mt-1 text-2xl font-semibold tracking-tight text-white md:mt-2 md:text-4xl">
             Search {summary.formattedWordCount} words or browse by theme
           </h2>
         </div>
@@ -312,7 +317,7 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
               onFocus={ensureWordIndex}
               placeholder="Search words, pinyin, English"
               aria-label="Search vocabulary"
-              className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-300"
+              className="min-h-11 w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-300"
             />
             {/* Honest status while the pinyin/english index loads or fails; only
                 when a query is active, so an idle focus stays quiet. */}
@@ -320,7 +325,7 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
               <p className="px-1 text-xs text-slate-500">Loading full word search…</p>
             ) : query.trim() && wordsState === "error" ? (
               <p className="px-1 text-xs text-slate-500">
-                Full word search couldn&apos;t load — searching titles and characters only.
+                Full word search couldn&apos;t load. Searching titles and characters only.
               </p>
             ) : null}
           </div>
@@ -328,7 +333,7 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
             value={category}
             onChange={(event) => setCategory(event.target.value)}
             aria-label="Filter by category"
-            className="rounded-2xl border border-white/10 bg-surface-2 px-4 py-3 text-white outline-none transition focus:border-emerald-300"
+            className="min-h-11 rounded-2xl border border-white/10 bg-surface-2 px-4 py-3 text-white outline-none transition focus:border-emerald-300"
           >
             <option value="all">All categories</option>
             {data.categories.map((cat) => <option key={cat.slug} value={cat.slug}>{cat.name}</option>)}
@@ -336,12 +341,12 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
         </div>
 
         {/* Browse-by-theme chips → dedicated category pages. */}
-        <nav aria-label="Browse by category" className="mt-4 flex flex-wrap gap-2">
+        <nav aria-label="Browse by category" className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:mt-4 md:flex-wrap md:overflow-visible md:px-0 md:pb-0">
           {chips.map((chip) => (
             <Link
               key={chip.slug}
               href={chip.href}
-              className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface px-4 py-2 text-sm font-semibold text-slate-200 transition hover:-translate-y-0.5 hover:border-emerald-300/70 hover:text-white"
+              className="group inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-white/10 bg-surface px-4 py-2 text-sm font-semibold text-slate-200 transition hover:-translate-y-0.5 hover:border-emerald-300/70 hover:text-white"
             >
               <span>{chip.name}</span>
               <span className="rounded-full border border-white/10 bg-white/[0.05] px-2 py-0.5 text-xs font-medium text-slate-400">
@@ -370,14 +375,14 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
             {/* Newcomer on-ramp: a short, stable set of starters (learned ones
                 hidden). Hidden once the learner is searching — results take over. */}
             {starters.length > 0 ? (
-              <div className="mt-6">
+              <div className="mt-5 md:mt-6">
                 <p className="text-sm font-semibold text-slate-300">New here? Start with one of these</p>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 [&>*:nth-child(n+3)]:hidden sm:[&>*:nth-child(n+3)]:flex">
                   {starters.map((topic) => (
                     <Link
                       key={topic.slug}
                       href={`/topics/${topic.slug}`}
-                      className="group flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-surface px-5 py-4 transition hover:-translate-y-0.5 hover:bg-surface-hover"
+                      className="group flex min-h-14 items-center justify-between gap-3 rounded-2xl border border-white/10 bg-surface px-4 py-3 transition hover:-translate-y-0.5 hover:bg-surface-hover md:px-5 md:py-4"
                     >
                       <span className="min-w-0">
                         <span className="block truncate font-semibold text-white transition group-hover:text-emerald-50">{topic.titleEn}</span>
@@ -671,6 +676,15 @@ function Metric({
           <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
         </div>
       ) : null}
+    </div>
+  );
+}
+
+function MiniMetric({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-surface p-3 text-center">
+      <div className="truncate text-lg font-semibold leading-none text-white">{value}</div>
+      <div className="mt-1 text-[11px] font-medium text-slate-500">{label}</div>
     </div>
   );
 }

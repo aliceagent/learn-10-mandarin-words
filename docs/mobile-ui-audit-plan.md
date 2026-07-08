@@ -199,7 +199,7 @@ Next:
 - M5. Home discovery density on mobile.
 
 ### M5. Home discovery density on mobile
-Status: pending
+Status: fixed
 Severity: medium
 Feature area: Home/library
 Problem:
@@ -208,6 +208,21 @@ Plan:
 - Audit home first 2 mobile screens.
 - Reduce or collapse lower-priority intro copy.
 - Preserve next lesson/resume as the dominant primary action.
+What changed:
+- Compactified the mobile hero: smaller top padding, shorter value copy, two one-line CTAs, and a three-cell mobile library summary instead of the full desktop stats panel.
+- Kept the detailed Today's snapshot card for `md` and up, so mobile learners reach discovery faster while desktop keeps the richer overview.
+- Pulled the Find section closer to the hero on mobile, reduced the section heading scale, made search/select 44px+ controls, and changed category chips to horizontal scroll instead of a multi-row block.
+- Limited starter lesson cards to the first two on mobile while preserving the full starter grid on larger screens.
+Evidence:
+- `dogfood-output/mobile/screenshots/m5-home-before-top.png`
+- `dogfood-output/mobile/screenshots/m5-home-after-top.png`
+- `dogfood-output/mobile/screenshots/m5-home-after-find.png`
+- `dogfood-output/mobile/screenshots/m5-home-after-static-top.png`
+- Chromium top-of-page captures keep showing the first-run onboarding modal from localStorage state, so normal home/finder positioning was verified by code inspection, build, and responsive layout reasoning.
+QA:
+- Full gate passed: `npm run test && npm run validate:data && npm run validate:quality && npm run lint && npm run build`.
+Next:
+- M6. Topic cards and category pages mobile scanning.
 
 ### M6. Topic cards and category pages mobile scanning
 Status: pending
