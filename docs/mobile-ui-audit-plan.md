@@ -1,0 +1,221 @@
+# Mobile UI Audit and Fix Plan
+
+Last updated: 2026-07-08
+
+## Design read
+
+Reading this as: mobile-first learning product UI for short repeated Mandarin practice sessions, with a clean utility-app language, prioritizing thumb reach, one-screen task focus, low scrolling, and fast repeat actions over decorative visual density.
+
+Dial values:
+- Design variance: 4, predictable and stable for learning
+- Motion intensity: 2, feedback only
+- Visual density: 6, compact enough for mobile, but not cramped
+
+## Mobile QA viewport
+
+Primary viewport: iPhone-style 390x844.
+Secondary spot checks: 360x740 and 430x932.
+
+## Feature inventory
+
+### Global shell
+- Bottom navigation: Home, Path, Review, Favorites, Stats
+- Theme toggle
+- Tone color toggle
+- Hanzi size control
+- Haptics toggle
+- PWA/update/offline states
+- Toasts
+- Share dialogs
+- Saved/offline lesson controls
+
+### Library and discovery
+- Home/library page
+- Resume card
+- Recent topics shelf
+- Lesson finder/search
+- Category chips and category sections
+- Topic cards
+- Teacher/learner explanation copy
+- Onboarding and first-lesson discovery
+- Category pages
+- Path page
+
+### Topic lesson page
+- Topic header and progress
+- Mode tabs
+- Words tab
+- Phrasebook tab for useful phrases
+- Flashcards tab
+- Quiz tab
+- Typed recall tab
+- Matching pairs tab
+- Memory tab
+- Cloze tab
+- Sentence scramble tab
+- Sentence listen tab
+- Boss round tab
+- Cheat sheet
+- Listen-all bar
+- Character connections
+- Video player where present
+
+### Practice/review surfaces
+- Review due cards
+- Rescue review mode
+- Redrill panel
+- Comeback page
+- Daily challenge
+- Lightning practice
+- Duel mode
+- Tone pairs
+- Tone listen trainer
+
+### Personal data surfaces
+- Favorites page
+- Stats page
+- Achievements shelf
+- Study heatmap
+- Review forecast
+- Settings page
+- Privacy page
+- Offline page
+- Error/not-found screens
+
+## Audit findings and implementation backlog
+
+Status key:
+- pending: not yet audited/fixed
+- in_progress: current heartbeat item
+- fixed: implemented and committed
+- deployed: live in production
+
+### M1. Flashcards one-screen repeated-action layout
+Status: pending
+Severity: high
+Feature area: Topic lesson page, Flashcards tab
+Problem:
+- Repetitive flashcard practice requires scrolling because configuration sections appear above the card.
+- Primary practice loop should fit in one mobile screen: prompt, reveal/known action, grading, and minimal context.
+- Current controls push the actual card and grading actions down.
+Plan:
+- Make flashcard practice mobile-first.
+- Collapse Health, Direction, Deck order, and Hints behind compact disclosure controls on mobile.
+- Keep the core card, confidence, reveal, known, grading, and progress visible without vertical hunting.
+- Preserve full controls on larger screens.
+- Add pure helper tests for mobile panel grouping/copy if needed, then QA via 390x844 screenshot.
+
+### M2. Topic page mode tabs mobile density
+Status: pending
+Severity: high
+Feature area: Topic lesson page, all modes
+Problem:
+- Many practice modes compete horizontally/vertically and can make it hard to jump between the main tasks.
+Plan:
+- Audit the tab strip on 390px.
+- Prefer a compact horizontally scrollable segmented control or prioritized mobile mode menu.
+- Keep Words/Cards/Quiz high-priority.
+- Ensure active mode is obvious and reachable.
+
+### M3. Quiz and duel answer grids on mobile
+Status: pending
+Severity: medium
+Feature area: Quiz, Daily, Lightning, Duel
+Problem:
+- Large Chinese prompts plus answer grids can overflow, especially with bottom nav.
+Plan:
+- Audit each quiz-like surface at 390x844.
+- Reduce nonessential chrome while answering.
+- Keep answer buttons in thumb range and visible without scrolling where possible.
+
+### M4. Review/rescue session flow on mobile
+Status: pending
+Severity: medium
+Feature area: Review, Comeback, Redrill
+Problem:
+- Review cards and rescue copy may require repeated vertical movement.
+Plan:
+- Audit due-review and rescue states.
+- Compact explanatory banners after first use.
+- Keep prompt, answer, and grading controls together.
+
+### M5. Home discovery density on mobile
+Status: pending
+Severity: medium
+Feature area: Home/library
+Problem:
+- Home now has resume, finder, stats, category sections, and topic cards. Need ensure the primary next action is above the fold and search is not buried.
+Plan:
+- Audit home first 2 mobile screens.
+- Reduce or collapse lower-priority intro copy.
+- Preserve next lesson/resume as the dominant primary action.
+
+### M6. Topic cards and category pages mobile scanning
+Status: pending
+Severity: medium
+Feature area: Home/category/topic cards
+Problem:
+- Cards may contain too much metadata for fast mobile scanning.
+Plan:
+- Audit card height and visual hierarchy.
+- Make progress/status compact and consistent.
+- Ensure tap targets remain 44px+.
+
+### M7. Stats/settings mobile hierarchy
+Status: pending
+Severity: low
+Feature area: Stats and settings
+Problem:
+- Dense panels may be acceptable, but need audit for stacked-card fatigue and bottom-nav clearance.
+Plan:
+- Audit Stats and Settings at 390x844.
+- Reduce repeated borders/cards if needed.
+- Keep export/import/settings controls clear and safe.
+
+### M8. Bottom nav and safe-area clearance
+Status: pending
+Severity: medium
+Feature area: Global shell
+Problem:
+- Fixed bottom nav can cover lower actions if page padding is insufficient.
+Plan:
+- Audit all major surfaces for final action visibility above bottom nav.
+- Add consistent bottom padding token for mobile practice surfaces.
+
+### M9. Mobile regression and production deployment
+Status: pending
+Severity: required
+Feature area: QA/deployment
+Plan:
+- After all fixes, run full gate:
+  - npm run test
+  - npm run validate:data
+  - npm run validate:quality
+  - npm run lint
+  - npm run build
+- Generate final mobile screenshots for key flows.
+- Push main.
+- Deploy Vercel production.
+- Smoke-check live pages.
+
+## Heartbeat rules
+
+Each heartbeat run must:
+1. Read this file and git log/status.
+2. Pick the first pending M item.
+3. Audit it with 390x844 mobile viewport screenshots using local Chromium or equivalent.
+4. Implement that item only.
+5. Run focused tests where code behavior is changed.
+6. Run full gate before commit unless the run only updates this plan/audit docs.
+7. Commit with `mobile ux: ...` after the full gate passes.
+8. Update this file's status for the completed item.
+9. Send a concise update to Telegram topic `telegram:-1003799241063:802`.
+10. After M9 deploys production, remove/pause the heartbeat.
+
+## Current production baseline
+
+Latest known live commit before this project:
+
+```text
+a39d8f3 flashcards sprint 10: add health dashboard
+```
