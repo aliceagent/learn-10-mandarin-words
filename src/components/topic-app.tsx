@@ -41,6 +41,13 @@ import { SentenceListenPanel } from "./topic/sentence-listen-panel";
 import { BOSS_STAGE_COUNT } from "@/lib/boss-logic";
 import { PrintButton } from "./print-button";
 import { Toast } from "./toast";
+import {
+  emptyFlashcardSession,
+  flashcardSessionSummary,
+  itemsForFlashcardSessionKeys,
+  recordFlashcardSessionResult,
+  type FlashcardSessionState,
+} from "@/lib/flashcard-session-summary";
 
 // The Boss Round panel (~660 lines of stage-rendering code) is deferred into its
 // own chunk: the initial mode is always "words"/"phrasebook", so it never renders
@@ -82,6 +89,8 @@ export function TopicApp({
   const [mode, setMode] = useState<TopicMode>(() => parseMode(searchParams.get("m")) ?? defaultMode);
   const [cardIndex, setCardIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
+  const [flashcardItems, setFlashcardItems] = useState<VocabItem[]>(topic.items);
+  const [flashcardSession, setFlashcardSession] = useState<FlashcardSessionState>(() => emptyFlashcardSession(topic));
   const [quizMode, setQuizMode] = useState<QuizMode>(() => parseQuizMode(searchParams.get("q")) ?? "hanzi-english");
   // Tone-practice section sub-mode: the eyes-first per-syllable drill ("read")
   // or the ears-first listening trainer ("listen", speech-gated).
@@ -124,7 +133,7 @@ export function TopicApp({
   const isLearned = progress.learnedTopics.includes(topic.slug);
   const isFavoriteTopic = progress.favoriteTopics.includes(topic.slug);
   const topicCrowned = isCrowned(progress.bossStats, topic.slug);
-  const current = topic.items[cardIndex % topic.items.length];
+  const current = flashcardItems[cardIndex % flashcardItems.length] ?? topic.items[0];
   const currentKey = wordKey(topic, current);
   const { studied, mastered, total } = topicProgress(topic, progress.flashcardStats);
   const studiedPct = total > 0 ? (studied / total) * 100 : 0;
@@ -155,6 +164,18 @@ export function TopicApp({
   const missedItemsList = useMemo(
     () => itemsForKeys(topic.items, keyFor, missedKeys),
     [topic.items, keyFor, missedKeys],
+  );
+  const flashcardSessionTopic = useMemo(
+    () => ({ slug: topic.slug, items: flashcardItems }),
+    [flashcardItems, topic.slug],
+  );
+  const flashcardPanelTopic = useMemo(
+    () => ({ ...topic, items: flashcardItems }),
+    [flashcardItems, topic],
+  );
+  const sessionSummary = useMemo(
+    () => flashcardSessionSummary(flashcardSession, flashcardSessionTopic, progress.flashcardStats),
+    [flashcardSession, flashcardSessionTopic, progress.flashcardStats],
   );
 
   // Record a topic start once per mounted topic (anonymous, local/dev only).
@@ -202,6 +223,10 @@ export function TopicApp({
   const [quizTopicSlug, setQuizTopicSlug] = useState(topic.slug);
   if (quizTopicSlug !== topic.slug) {
     setQuizTopicSlug(topic.slug);
+    setFlashcardItems(topic.items);
+    setFlashcardSession(emptyFlashcardSession(topic));
+    setCardIndex(0);
+    setRevealed(false);
     setActiveItems(topic.items);
     setMissedKeys([]);
     setQuizState({ index: 0, score: 0, picked: null, combo: 0, runBestCombo: 0, brokenCombo: 0, newBest: false });
@@ -515,7 +540,7 @@ export function TopicApp({
       {/* ── Flashcards ── */}
       {mode === "flashcards" ? (
         <FlashcardsPanel
-          topic={topic}
+          topic={flashcardPanelTopic}
           cardIndex={cardIndex}
           current={current}
           stat={progress.flashcardStats[currentKey]}
@@ -525,17 +550,41 @@ export function TopicApp({
             // Compute the projected interval BEFORE grading mutates the stat, so
             // the toast reports exactly what this grade scheduled.
             const days = previewIntervals(progress.flashcardStats[currentKey], new Date())[grade];
+            setFlashcardSession((session) =>
+              recordFlashcardSessionResult(session, currentKey, grade, progress.flashcardStats[currentKey]),
+            );
             gradeWord(currentKey, grade);
             setToast(`“${current.hanzi}” scheduled in ${formatIntervalDays(days)}`);
             setRevealed(false);
-            setCardIndex((v) => (v + 1) % topic.items.length);
+            setCardIndex((v) => (v + 1) % flashcardItems.length);
           }}
           onKnown={() => {
+            setFlashcardSession((session) =>
+              recordFlashcardSessionResult(session, currentKey, "known", progress.flashcardStats[currentKey]),
+            );
             markWordKnown(currentKey);
             track("flashcard_known_marked", { topic: topic.slug });
             setToast(`“${current.hanzi}” marked known — we'll review it less often`);
             setRevealed(false);
-            setCardIndex((v) => (v + 1) % topic.items.length);
+            setCardIndex((v) => (v + 1) % flashcardItems.length);
+          }}
+          sessionSummary={sessionSummary}
+          onReviewMissed={() => {
+            const missed = itemsForFlashcardSessionKeys(flashcardSessionTopic, sessionSummary.needsWorkKeys);
+            if (missed.length === 0) return;
+            const missedTopic = { slug: topic.slug, items: missed };
+            setFlashcardItems(missed);
+            setFlashcardSession(emptyFlashcardSession(missedTopic));
+            setCardIndex(0);
+            setRevealed(false);
+            setToast(`Re-drilling ${missed.length} missed word${missed.length === 1 ? "" : "s"}`);
+          }}
+          onRestartSession={() => {
+            setFlashcardItems(topic.items);
+            setFlashcardSession(emptyFlashcardSession(topic));
+            setCardIndex(0);
+            setRevealed(false);
+            setToast("Flashcard session restarted");
           }}
         />
       ) : null}

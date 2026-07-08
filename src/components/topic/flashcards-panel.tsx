@@ -17,6 +17,7 @@ import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
 import { HANZI_SIZE_CLASS } from "@/lib/hanzi-size";
 import { buildFlashcardFace, directionForCard, FLASHCARD_DIRECTION_OPTIONS } from "@/lib/flashcard-direction";
 import { FLASHCARD_VISIBILITY_OPTIONS } from "@/lib/flashcard-visibility";
+import type { FlashcardSessionSummary } from "@/lib/flashcard-session-summary";
 import { SpeakButton } from "../speak-button";
 import { TonePinyin } from "../tone-pinyin";
 import { useCardDrag } from "../use-card-drag";
@@ -49,6 +50,9 @@ export function FlashcardsPanel({
   onReveal,
   onGrade,
   onKnown,
+  sessionSummary,
+  onReviewMissed,
+  onRestartSession,
 }: {
   topic: Topic;
   cardIndex: number;
@@ -60,6 +64,9 @@ export function FlashcardsPanel({
   onReveal: () => void;
   onGrade: (grade: Grade) => void;
   onKnown: () => void;
+  sessionSummary: FlashcardSessionSummary;
+  onReviewMissed: () => void;
+  onRestartSession: () => void;
 }) {
   // Projected next interval per grade — computed via previewIntervals so the
   // labels always match what a real grade would schedule (never re-derived).
@@ -287,6 +294,39 @@ export function FlashcardsPanel({
 
       {/* Deck-position dots (decorative; the "Card N of M" text carries it for AT) */}
       <DeckDots count={topic.items.length} current={cardIndex} />
+
+      {sessionSummary.complete ? (
+        <div className="mx-auto mt-6 max-w-2xl rounded-2xl border border-emerald-300/20 bg-emerald-400/10 p-4 text-left">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-emerald-100">Session complete</p>
+              <p className="mt-1 text-sm text-slate-300">
+                Reviewed {sessionSummary.reviewedCount}/{sessionSummary.totalCount} cards · {sessionSummary.improvedCount} improved · {sessionSummary.knownCount} known
+              </p>
+              <p className="mt-1 text-xs text-slate-500">
+                Again {sessionSummary.gradeCounts.again} · Hard {sessionSummary.gradeCounts.hard} · Good {sessionSummary.gradeCounts.good} · Easy {sessionSummary.gradeCounts.easy}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={onReviewMissed}
+                disabled={sessionSummary.needsWorkCount === 0}
+                className="min-h-[40px] rounded-full border border-amber-300/30 px-4 py-2 text-sm font-semibold text-amber-100 transition hover:border-amber-200/50 hover:bg-amber-400/10 disabled:cursor-not-allowed disabled:border-white/10 disabled:text-slate-600 disabled:hover:bg-transparent"
+              >
+                Review missed again ({sessionSummary.needsWorkCount})
+              </button>
+              <button
+                type="button"
+                onClick={onRestartSession}
+                className="min-h-[40px] rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-white transition hover:border-emerald-300/40 hover:bg-white/5"
+              >
+                Restart
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {!revealed ? (
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
