@@ -304,7 +304,7 @@ Next:
 - M9. Mobile regression and production deployment.
 
 ### M9. Mobile regression and production deployment
-Status: pending
+Status: deployed
 Severity: required
 Feature area: QA/deployment
 Plan:
@@ -318,6 +318,23 @@ Plan:
 - Push main.
 - Deploy Vercel production.
 - Smoke-check live pages.
+What changed:
+- Ran the full project gate after all M1-M8 mobile fixes.
+- Captured final 390x844 mobile regression screenshots for home, flashcards, review, and stats.
+- Pushed `main` through commit `8b1b271` and deployed production with Vercel.
+- Smoke-checked production routes `/`, `/topics/ten-types-of-furniture?m=flashcards`, `/review`, `/stats`, and `/search-index.json`; all returned HTTP 200.
+- Paused the `learn10-mobile-ui-audit-fix-heartbeat` cron job after successful deployment.
+Evidence:
+- `dogfood-output/mobile/screenshots/m9-final-home.png`
+- `dogfood-output/mobile/screenshots/m9-final-flashcards.png`
+- `dogfood-output/mobile/screenshots/m9-final-review.png`
+- `dogfood-output/mobile/screenshots/m9-final-stats.png`
+- Production URL: `https://learn-10-mandarin-words.vercel.app`
+QA:
+- Full gate passed: `npm run test && npm run validate:data && npm run validate:quality && npm run lint && npm run build`.
+- Vercel production deploy succeeded and aliased `https://learn-10-mandarin-words.vercel.app`.
+Next:
+- Mobile audit complete. Heartbeat paused.
 
 ## Heartbeat rules
 
