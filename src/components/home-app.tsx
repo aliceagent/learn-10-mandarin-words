@@ -9,6 +9,7 @@ import { useProgress, computeStreak } from "./use-progress";
 import { goalProgress, streakAtRisk, studiedWithFreezes, todayISO } from "@/lib/progress-logic";
 import { comebackDeck, daysSinceLastStudy, isLapsed } from "@/lib/comeback-logic";
 import { primaryCta } from "@/lib/home-cta-logic";
+import { savedListsHomeSummary } from "@/lib/home-saved-lists-logic";
 import { categoryFilterOptions, starterLessons } from "@/lib/lesson-finder-logic";
 import { onboardingNext } from "@/lib/onboarding-next-logic";
 import { lessonCardStatus } from "@/lib/lesson-card-logic";
@@ -118,6 +119,10 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
 
   const learnedCount = progress.learnedTopics.length;
   const favoriteCount = progress.favoriteWords.length + progress.favoriteTopics.length;
+  const savedListsSummary = useMemo(
+    () => savedListsHomeSummary(topics, progress.favoriteTopics, progress.favoriteWords, 3),
+    [topics, progress.favoriteTopics, progress.favoriteWords],
+  );
   // Streak reads the studied ∪ frozen union so a spent freeze bridges its day.
   const studiedUnion = studiedWithFreezes(progress);
   const streak = computeStreak(studiedUnion);
@@ -291,6 +296,56 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
           </div>
         </div>
       </section>
+
+      {loaded && savedListsSummary.hasSavedLists ? (
+        <section className="mx-auto max-w-7xl px-4 pt-1 md:px-10 md:pt-2" aria-label="Saved lists">
+          <div className="rounded-3xl border border-emerald-300/25 bg-emerald-400/[0.08] p-4 md:p-5">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-emerald-300">Saved lists</p>
+                <h2 className="mt-1 text-2xl font-semibold tracking-tight text-white md:text-3xl">
+                  Jump back into your saved lessons
+                </h2>
+                <p className="mt-2 text-sm text-slate-300">
+                  {savedListsSummary.listCount} saved list{savedListsSummary.listCount !== 1 ? "s" : ""}
+                  {savedListsSummary.wordCount > 0
+                    ? ` and ${savedListsSummary.wordCount} saved word${savedListsSummary.wordCount !== 1 ? "s" : ""}`
+                    : ""}
+                </p>
+              </div>
+              <Link
+                href="/favorites"
+                className="inline-flex min-h-11 items-center justify-center rounded-full bg-emerald-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cta"
+              >
+                View all saved
+              </Link>
+            </div>
+
+            <div className="mt-4 grid gap-3 md:grid-cols-3">
+              {savedListsSummary.visibleTopics.map((topic) => (
+                <Link
+                  key={topic.slug}
+                  href={`/topics/${topic.slug}`}
+                  className="group flex min-h-16 items-center justify-between gap-3 rounded-2xl border border-white/10 bg-surface px-4 py-3 transition active:scale-[0.99] hover:border-emerald-300/50 hover:bg-surface-hover"
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold text-white group-hover:text-emerald-50">{topic.titleEn}</span>
+                    <span lang="zh" className="mt-0.5 block truncate text-lg font-semibold text-emerald-300">{topic.titleCn}</span>
+                    <span className="mt-0.5 block truncate text-xs text-slate-500">{topic.category} · {topic.items.length} words</span>
+                  </span>
+                  <span aria-hidden="true" className="shrink-0 text-slate-500 transition group-hover:text-emerald-300">→</span>
+                </Link>
+              ))}
+            </div>
+
+            {savedListsSummary.remainingListCount > 0 ? (
+              <p className="mt-3 text-sm text-slate-400">
+                +{savedListsSummary.remainingListCount} more saved list{savedListsSummary.remainingListCount !== 1 ? "s" : ""} in Favorites.
+              </p>
+            ) : null}
+          </div>
+        </section>
+      ) : null}
 
       {/* ── Find your lesson (Sprint 4) ── */}
       {/* Lifted directly under the hero so a learner/teacher can locate a lesson */}
