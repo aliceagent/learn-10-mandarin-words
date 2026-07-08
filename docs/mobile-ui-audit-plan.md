@@ -321,8 +321,8 @@ Plan:
 What changed:
 - Ran the full project gate after all M1-M8 mobile fixes.
 - Captured final 390x844 mobile regression screenshots for home, flashcards, review, and stats.
-- Pushed `main` through commit `8b1b271` and deployed production with Vercel.
-- Smoke-checked production routes `/`, `/topics/ten-types-of-furniture?m=flashcards`, `/review`, `/stats`, and `/search-index.json`; all returned HTTP 200.
+- Pushed `main` through the final mobile audit commit and deployed production with Vercel.
+- Smoke-checked production routes `/`, `/topics/ten-types-of-furniture?m=flashcards`, `/review`, `/stats`, and `/search-index.json`; all returned HTTP 200 after the final deploy.
 - Paused the `learn10-mobile-ui-audit-fix-heartbeat` cron job after successful deployment.
 Evidence:
 - `dogfood-output/mobile/screenshots/m9-final-home.png`
