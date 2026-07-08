@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { FlashcardStat, Topic, VocabItem } from "@/lib/types";
 import type { Grade } from "@/lib/progress-logic";
 import { formatIntervalDays, previewIntervals } from "@/lib/progress-logic";
+import { confidenceAriaLabel, flashcardConfidence } from "@/lib/flashcard-confidence";
 import { dragTransform, FLING_THRESHOLD_PX, type FlingIntent } from "@/lib/gesture-logic";
 import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
 import { HANZI_SIZE_CLASS } from "@/lib/hanzi-size";
@@ -29,6 +30,14 @@ const GRADE_SEGMENTS = [
   { grade: "good", rule: "border-slate-400/50" },
   { grade: "easy", rule: "border-emerald-400/60" },
 ] as const;
+
+const CONFIDENCE_TONE_CLASS = {
+  slate: "border-white/10 bg-white/5 text-slate-300",
+  amber: "border-amber-300/30 bg-amber-400/10 text-amber-100",
+  sky: "border-sky-300/30 bg-sky-400/10 text-sky-100",
+  emerald: "border-emerald-300/30 bg-emerald-400/10 text-emerald-100",
+  rose: "border-rose-300/30 bg-rose-400/10 text-rose-100",
+} as const;
 
 // The "Cards" tab: a single flashcard rendered as a physical-feeling deck
 // (Sprint 9) — a 3D flip on reveal, drag-to-follow, fling-to-grade, and deck
@@ -65,6 +74,7 @@ export function FlashcardsPanel({
   const { visibility, toggle } = useFlashcardVisibility();
   const activeDirection = directionForCard(direction, cardIndex);
   const face = buildFlashcardFace(current, activeDirection);
+  const confidence = flashcardConfidence(stat);
   // Fling animation state: the card flies off, then the grade lands on
   // animation end (with a timeout fallback so an interrupted animation never
   // leaves a stuck card). `flinging` blocks all further input until it settles.
@@ -142,8 +152,15 @@ export function FlashcardsPanel({
       aria-label="Flashcard practice"
       role="region"
     >
-      <div className="flex items-center justify-between gap-2 text-sm text-slate-400">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-slate-400">
         <span>Card {cardIndex + 1} of {topic.items.length}</span>
+        <div
+          className={`rounded-full border px-3 py-1 text-xs font-semibold ${CONFIDENCE_TONE_CLASS[confidence.tone]}`}
+          aria-label={confidenceAriaLabel(confidence)}
+          title={confidence.explanation}
+        >
+          {confidence.label} · {confidence.score}%
+        </div>
         {/* Swipe gesture hints — taught once, on the first card of the deck. */}
         {cardIndex === 0 ? (
           <div className="flex gap-3">
