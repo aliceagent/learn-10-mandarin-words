@@ -5,6 +5,13 @@ import type { FlashcardStat, Topic, VocabItem } from "@/lib/types";
 import type { Grade } from "@/lib/progress-logic";
 import { formatIntervalDays, previewIntervals } from "@/lib/progress-logic";
 import { confidenceAriaLabel, flashcardConfidence } from "@/lib/flashcard-confidence";
+import {
+  FLASHCARD_RECALL_PROMPT,
+  flashcardGradeAriaLabel,
+  flashcardGradeMicrocopy,
+  flashcardGradePreviewLabel,
+  flashcardGradeSegments,
+} from "@/lib/flashcard-grading-copy";
 import { dragTransform, FLING_THRESHOLD_PX, type FlingIntent } from "@/lib/gesture-logic";
 import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
 import { HANZI_SIZE_CLASS } from "@/lib/hanzi-size";
@@ -18,18 +25,6 @@ import { useFlashcardVisibility } from "../use-flashcard-visibility";
 import { useHanziSize } from "../use-hanzi-size";
 import { useReducedMotion } from "../use-reduced-motion";
 import { DeckDots } from "../deck-dots";
-
-// Segments for the calmer segmented grade bar (Sprint 3): scheduling order with
-// a semantic accent shown as a subtle 2px top rule (rose = again, amber = hard,
-// slate = good/neutral, emerald = easy) rather than a loud full border on every
-// button. Grade actions, labels, intervals, aria labels, and touch targets are
-// all unchanged from the old pill buttons — only the container/skin differs.
-const GRADE_SEGMENTS = [
-  { grade: "again", rule: "border-rose-400/60" },
-  { grade: "hard", rule: "border-amber-400/60" },
-  { grade: "good", rule: "border-slate-400/50" },
-  { grade: "easy", rule: "border-emerald-400/60" },
-] as const;
 
 const CONFIDENCE_TONE_CLASS = {
   slate: "border-white/10 bg-white/5 text-slate-300",
@@ -316,25 +311,37 @@ export function FlashcardsPanel({
         // Calmer segmented grade bar: one quiet surface well holding four
         // equal-width segments, each stacking label + interval, with a subtle
         // semantic top rule instead of a loud pill border.
-        <div
-          className="mt-8 mx-auto flex max-w-md gap-1 rounded-2xl border border-white/10 bg-surface-2 p-1"
-          role="group"
-          aria-label="Grade your recall"
-        >
-          {GRADE_SEGMENTS.map(({ grade, rule }) => (
-            <button
-              key={grade}
-              type="button"
-              onClick={() => onGrade(grade)}
-              className={`flex min-h-[44px] flex-1 flex-col items-center justify-center gap-0.5 rounded-xl border-t-2 ${rule} px-2 py-2 text-center font-semibold text-white transition hover:bg-surface-hover`}
-              aria-label={`Grade as ${grade} — next review in ${previews[grade]} day${previews[grade] !== 1 ? "s" : ""}`}
-            >
-              <span className="text-sm capitalize">{grade}</span>
-              <span className="text-[11px] font-normal text-slate-500" aria-hidden="true">
-                {formatIntervalDays(previews[grade])}
-              </span>
-            </button>
-          ))}
+        <div className="mt-8">
+          <p className="mx-auto max-w-md text-sm font-semibold text-slate-200">{FLASHCARD_RECALL_PROMPT}</p>
+          <p className="mx-auto mt-1 max-w-md text-xs text-slate-500">
+            Choose the recall quality; the tiny text still previews the next review interval.
+          </p>
+          <div
+            className="mx-auto mt-3 grid max-w-2xl gap-2 rounded-2xl border border-white/10 bg-surface-2 p-1 sm:grid-cols-4"
+            role="group"
+            aria-label={FLASHCARD_RECALL_PROMPT}
+          >
+            {flashcardGradeSegments.map(({ grade, label, rule }) => {
+              const preview = flashcardGradePreviewLabel(grade, previews[grade]);
+              return (
+                <button
+                  key={grade}
+                  type="button"
+                  onClick={() => onGrade(grade)}
+                  className={`flex min-h-[64px] flex-col items-center justify-center gap-0.5 rounded-xl border-t-2 ${rule} px-2 py-2 text-center font-semibold text-white transition hover:bg-surface-hover`}
+                  aria-label={flashcardGradeAriaLabel(grade, previews[grade])}
+                  title={`Internal grade: ${grade}`}
+                >
+                  <span className="text-sm">{label}</span>
+                  <span className="text-[11px] font-normal text-slate-400">{flashcardGradeMicrocopy(grade)}</span>
+                  <span className="text-[11px] font-normal text-slate-500" aria-hidden="true">
+                    {formatIntervalDays(previews[grade])}
+                  </span>
+                  <span className="sr-only">{preview}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 
