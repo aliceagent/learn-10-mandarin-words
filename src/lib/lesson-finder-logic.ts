@@ -21,6 +21,13 @@ export type CategoryChip = {
   count: number;
 };
 
+export type CategoryFilterOption = {
+  label: string;
+  slug: string;
+  count: number;
+  active: boolean;
+};
+
 export function categoryChips(
   categories: Pick<Category, "name" | "slug" | "topics">[],
 ): CategoryChip[] {
@@ -30,6 +37,25 @@ export function categoryChips(
     href: `/categories/${category.slug}`,
     count: category.topics.length,
   }));
+}
+
+export function categoryFilterOptions(
+  categories: Pick<Category, "name" | "slug" | "topics">[],
+  selectedSlug: string,
+): CategoryFilterOption[] {
+  const validSlugs = new Set(categories.map((category) => category.slug));
+  const activeSlug = validSlugs.has(selectedSlug) ? selectedSlug : "all";
+  const total = categories.reduce((sum, category) => sum + category.topics.length, 0);
+
+  return [
+    { label: "All", slug: "all", count: total, active: activeSlug === "all" },
+    ...categories.map((category) => ({
+      label: category.name,
+      slug: category.slug,
+      count: category.topics.length,
+      active: activeSlug === category.slug,
+    })),
+  ];
 }
 
 /**

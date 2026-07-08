@@ -9,7 +9,7 @@ import { useProgress, computeStreak } from "./use-progress";
 import { goalProgress, streakAtRisk, studiedWithFreezes, todayISO } from "@/lib/progress-logic";
 import { comebackDeck, daysSinceLastStudy, isLapsed } from "@/lib/comeback-logic";
 import { primaryCta } from "@/lib/home-cta-logic";
-import { categoryChips, starterLessons } from "@/lib/lesson-finder-logic";
+import { categoryFilterOptions, starterLessons } from "@/lib/lesson-finder-logic";
 import { onboardingNext } from "@/lib/onboarding-next-logic";
 import { lessonCardStatus } from "@/lib/lesson-card-logic";
 import { OnboardingModal, ContinueLearningCard } from "./onboarding";
@@ -86,10 +86,11 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
     [topics, progress.learnedTopics, progress.lastActivity],
   );
 
-  // Finder building blocks (Sprint 4). Chips are static browse-by-theme links;
+  // Finder building blocks. Category filter chips update the library in place;
   // starter lessons hide topics already marked learned so a returning learner
-  // sees fresh suggestions (the pure helpers own the ordering/dedup).
-  const chips = useMemo(() => categoryChips(data.categories), [data.categories]);
+  // sees fresh suggestions.
+  const categoryFilters = useMemo(() => categoryFilterOptions(data.categories, category), [category, data.categories]);
+  const activeCategoryLabel = categoryFilters.find((option) => option.active)?.label ?? "All";
   const starters = useMemo(
     () => starterLessons(topics, progress.learnedTopics),
     [topics, progress.learnedTopics],
@@ -304,8 +305,8 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
           </h2>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
-          <div className="flex flex-1 flex-col gap-1.5">
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-1.5">
             <input
               value={query}
               onChange={(event) => {
@@ -329,32 +330,48 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
               </p>
             ) : null}
           </div>
-          <select
-            value={category}
-            onChange={(event) => setCategory(event.target.value)}
-            aria-label="Filter by category"
-            className="min-h-11 rounded-2xl border border-white/10 bg-surface-2 px-4 py-3 text-white outline-none transition focus:border-emerald-300"
-          >
-            <option value="all">All categories</option>
-            {data.categories.map((cat) => <option key={cat.slug} value={cat.slug}>{cat.name}</option>)}
-          </select>
-        </div>
 
-        {/* Browse-by-theme chips → dedicated category pages. */}
-        <nav aria-label="Browse by category" className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:mt-4 md:flex-wrap md:overflow-visible md:px-0 md:pb-0">
-          {chips.map((chip) => (
-            <Link
-              key={chip.slug}
-              href={chip.href}
-              className="group inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-white/10 bg-surface px-4 py-2 text-sm font-semibold text-slate-200 transition hover:-translate-y-0.5 hover:border-emerald-300/70 hover:text-white"
-            >
-              <span>{chip.name}</span>
-              <span className="rounded-full border border-white/10 bg-white/[0.05] px-2 py-0.5 text-xs font-medium text-slate-400">
-                {chip.count}
+          <div>
+            <div className="flex items-center justify-between gap-3 px-1 text-xs text-slate-400">
+              <span>
+                Filter: <span className="font-semibold text-slate-200">{activeCategoryLabel}</span>
               </span>
-            </Link>
-          ))}
-        </nav>
+              <span>{filtered.length} lesson{filtered.length !== 1 ? "s" : ""}</span>
+            </div>
+            <div
+              aria-label="Filter lessons by category"
+              className="-mx-4 mt-2 flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0 md:pb-0"
+            >
+              {categoryFilters.map((option) => (
+                <button
+                  key={option.slug}
+                  type="button"
+                  onClick={() => setCategory(option.slug)}
+                  aria-pressed={option.active}
+                  className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                    option.active
+                      ? "border-emerald-300/60 bg-emerald-400 text-slate-950"
+                      : "border-white/10 bg-surface text-slate-200 hover:border-emerald-300/70 hover:text-white"
+                  }`}
+                >
+                  <span>{option.label}</span>
+                  <span
+                    className={`rounded-full border px-2 py-0.5 text-xs font-medium ${
+                      option.active
+                        ? "border-slate-950/15 bg-slate-950/10 text-slate-950"
+                        : "border-white/10 bg-white/[0.05] text-slate-400"
+                    }`}
+                  >
+                    {option.count}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 px-1 text-xs text-slate-500">
+              These chips filter the library below. Dedicated category pages are farther down.
+            </p>
+          </div>
+        </div>
 
         {query.trim() ? (
           <div className="mt-6">

@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { categoryChips, starterLessons } from "../src/lib/lesson-finder-logic.ts";
+import { categoryChips, categoryFilterOptions, starterLessons } from "../src/lib/lesson-finder-logic.ts";
 
 // ── categoryChips ─────────────────────────────────────────────────────────────
 
@@ -22,6 +22,28 @@ test("categoryChips returns one chip per category, in dataset order, with count 
 
 test("categoryChips on an empty dataset → []", () => {
   assert.deepEqual(categoryChips([]), []);
+});
+
+test("categoryFilterOptions returns an explicit all filter plus category filters with active state", () => {
+  const categories = [
+    { name: "Animals & Living Things", slug: "animals", topics: ["pets", "birds"] },
+    { name: "Food & Drink", slug: "food", topics: ["fruit"] },
+  ];
+
+  assert.deepEqual(categoryFilterOptions(categories, "animals"), [
+    { label: "All", slug: "all", count: 3, active: false },
+    { label: "Animals & Living Things", slug: "animals", count: 2, active: true },
+    { label: "Food & Drink", slug: "food", count: 1, active: false },
+  ]);
+});
+
+test("categoryFilterOptions falls back to All when the selected category is invalid", () => {
+  const options = categoryFilterOptions([
+    { name: "Food & Drink", slug: "food", topics: ["fruit"] },
+  ], "missing");
+
+  assert.equal(options[0].active, true);
+  assert.equal(options[1].active, false);
 });
 
 // ── starterLessons ────────────────────────────────────────────────────────────
