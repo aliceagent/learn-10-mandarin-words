@@ -30,7 +30,7 @@ export function SettingsApp() {
   const { progress, loaded, setDailyGoal } = useProgress();
 
   return (
-    <main className="mx-auto max-w-3xl px-4 pb-28 pt-5 md:px-10 md:pb-12 md:pt-8">
+    <main className="mobile-bottom-safe mx-auto max-w-3xl px-4 pt-5 md:px-10 md:pt-8">
       <div className="flex items-center justify-between gap-3">
         <Link href="/" className="text-sm font-semibold text-emerald-300 hover:text-emerald-200">← Library</Link>
         <Link href="/stats" className="text-sm font-semibold text-slate-400 transition hover:text-emerald-300">Your stats</Link>

@@ -6,8 +6,8 @@ import type { ErrorWord } from "@/lib/error-copy";
  * Deliberately a plain presentational component with no hooks and no
  * `"use client"` directive, so it can render inside both server files
  * (`not-found.tsx`) and client files (`error.tsx`). Visually rhymes with
- * `src/app/offline/page.tsx`: a centered `min-h-[80dvh]` column with `pb-24`
- * clearance for the fixed BottomNav, and emerald pill / outlined actions
+ * `src/app/offline/page.tsx`: a centered `min-h-[80dvh]` column with shared
+ * mobile-bottom-safe clearance for the fixed BottomNav, and emerald pill / outlined actions
  * passed in as `children`.
  *
  * Every Chinese line carries pinyin (the app's pinyin-on-Chinese-lines rule).
@@ -31,7 +31,7 @@ export function ErrorScreen({
   const hanziColor = tone === "danger" ? "text-danger" : "text-emerald-300";
 
   return (
-    <main className="mx-auto flex min-h-[80dvh] max-w-2xl flex-col items-center justify-center px-6 pb-24 pt-16 text-center">
+    <main className="mobile-bottom-safe mx-auto flex min-h-[80dvh] max-w-2xl flex-col items-center justify-center px-6 pt-16 text-center">
       {/* Featured real-dataset word — the failure screen teaches you a word. */}
       <p className={`font-hanzi text-6xl font-semibold leading-none md:text-7xl ${hanziColor}`}>
         {word.hanzi}

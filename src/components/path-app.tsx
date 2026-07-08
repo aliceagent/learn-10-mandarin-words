@@ -28,7 +28,7 @@ export function PathApp({ sections }: { sections: PathSection[] }) {
   );
 
   return (
-    <main className="mx-auto max-w-7xl px-6 pb-24 pt-8 md:px-10 md:pb-12">
+    <main className="mobile-bottom-safe mx-auto max-w-7xl px-6 pt-8 md:px-10">
       <Link href="/" className="text-sm font-semibold text-emerald-300 hover:text-emerald-200">
         ← Library
       </Link>

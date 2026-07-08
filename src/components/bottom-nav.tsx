@@ -56,7 +56,7 @@ export function BottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-white/10 bg-background/95 pb-safe pt-2 backdrop-blur md:hidden print:hidden"
+      className="mobile-bottom-nav fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-white/10 bg-background/95 pt-2 backdrop-blur md:hidden print:hidden"
       aria-label="Main navigation"
     >
       {NAV_ITEMS.map((item) => {

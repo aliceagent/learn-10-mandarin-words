@@ -276,7 +276,7 @@ Next:
 - M8. Bottom nav and safe-area clearance.
 
 ### M8. Bottom nav and safe-area clearance
-Status: pending
+Status: fixed
 Severity: medium
 Feature area: Global shell
 Problem:
@@ -284,6 +284,24 @@ Problem:
 Plan:
 - Audit all major surfaces for final action visibility above bottom nav.
 - Add consistent bottom padding token for mobile practice surfaces.
+What changed:
+- Added shared `mobile-bottom-safe` and `mobile-bottom-nav` CSS tokens that include the safe-area inset instead of relying on scattered `pb-24` / `pb-28` guesses.
+- Applied the shared bottom clearance to topic, review, comeback, daily, lightning, duel, stats, settings, category, favorites, path, practice, tone-pairs, privacy, offline, error, and topic-loading shells.
+- Replaced the undefined `pb-safe` nav class with an explicit safe-area-aware bottom-nav token.
+Evidence:
+- `dogfood-output/mobile/screenshots/m8-topic-flashcards-before-top.png`
+- `dogfood-output/mobile/screenshots/m8-topic-flashcards-after-top.png`
+- `dogfood-output/mobile/screenshots/m8-review-before-top.png`
+- `dogfood-output/mobile/screenshots/m8-review-after-top.png`
+- `dogfood-output/mobile/screenshots/m8-favorites-before-top.png`
+- `dogfood-output/mobile/screenshots/m8-favorites-after-top.png`
+- `dogfood-output/mobile/screenshots/m8-practice-before-top.png`
+- `dogfood-output/mobile/screenshots/m8-practice-after-top.png`
+- Chromium top-of-page captures showed no visible overlap. Below-fold clearance was verified by shared-shell code inspection, lint, build, and responsive layout reasoning.
+QA:
+- Full gate passed: `npm run test && npm run validate:data && npm run validate:quality && npm run lint && npm run build`.
+Next:
+- M9. Mobile regression and production deployment.
 
 ### M9. Mobile regression and production deployment
 Status: pending

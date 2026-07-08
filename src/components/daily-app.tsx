@@ -156,7 +156,7 @@ export function DailyApp({ data }: { data: MandarinData }) {
   const missedEntries = done ? redrillEntries(data.topics, missedKeys) : [];
 
   return (
-    <main className="mx-auto max-w-7xl px-4 pb-28 pt-5 md:px-10 md:pb-12 md:pt-8">
+    <main className="mobile-bottom-safe mx-auto max-w-7xl px-4 pt-5 md:px-10 md:pt-8">
       <Link href="/" className="text-sm font-semibold text-emerald-300 hover:text-emerald-200">
         ← Home
       </Link>

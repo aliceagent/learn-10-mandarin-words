@@ -11,7 +11,7 @@ import { pageOpenGraph, topicBreadcrumbJsonLd, topicMetaDescription, topicWordLi
 // TopicApp (below its useSearchParams Suspense boundary) hydrates.
 function TopicAppFallback() {
   return (
-    <main className="mx-auto max-w-7xl px-6 pb-24 pt-10 md:px-10" aria-busy="true">
+    <main className="mobile-bottom-safe mx-auto max-w-7xl px-6 pt-10 md:px-10" aria-busy="true">
       <p className="text-sm text-slate-400" role="status">
         Loading the lesson…
       </p>

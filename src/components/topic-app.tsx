@@ -378,7 +378,7 @@ export function TopicApp({
   }
 
   return (
-    <main className="mx-auto max-w-7xl px-6 pb-24 pt-0 md:px-10 md:pb-12 print:hidden">
+    <main className="mobile-bottom-safe mx-auto max-w-7xl px-6 pt-0 md:px-10 print:hidden">
       {/* ── Sticky header ── */}
       {/* Chrome only: a back affordance + the current topic title. The Save /
           Mark-learned actions live in the hero below (see the lesson-actions row)

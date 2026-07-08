@@ -135,7 +135,7 @@ export function PracticeApp({ data }: { data: MandarinData }) {
   // ── Empty state: not enough quiz history to build a worthwhile deck ──
   if (entries.length < MIN_DECK) {
     return (
-      <main className="mx-auto max-w-7xl px-6 pb-24 pt-8 md:px-10 md:pb-12">
+      <main className="mobile-bottom-safe mx-auto max-w-7xl px-6 pt-8 md:px-10">
         <Link href="/stats" className="text-sm font-semibold text-emerald-300 hover:text-emerald-200">← Stats</Link>
         <div className="mt-8">
           <h1 className="text-4xl font-semibold tracking-tight text-white md:text-5xl">Practice</h1>
@@ -164,7 +164,7 @@ export function PracticeApp({ data }: { data: MandarinData }) {
   const missedEntries = entries.filter((e) => missedKeys.includes(e.key));
 
   return (
-    <main className="mx-auto max-w-7xl px-6 pb-24 pt-8 md:px-10 md:pb-12">
+    <main className="mobile-bottom-safe mx-auto max-w-7xl px-6 pt-8 md:px-10">
       <Link href="/stats" className="text-sm font-semibold text-emerald-300 hover:text-emerald-200">← Stats</Link>
 
       <div className="mt-8">

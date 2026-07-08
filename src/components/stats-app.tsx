@@ -126,7 +126,7 @@ export function StatsApp({
     stats.daysStudied > 0;
 
   return (
-    <main className="mx-auto max-w-7xl px-4 pb-28 pt-5 md:px-10 md:pb-12 md:pt-8">
+    <main className="mobile-bottom-safe mx-auto max-w-7xl px-4 pt-5 md:px-10 md:pt-8">
       <div className="flex items-center justify-between gap-3">
         <Link href="/" className="text-sm font-semibold text-emerald-300 hover:text-emerald-200">← Library</Link>
         <Link

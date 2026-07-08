@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <main className="mx-auto max-w-2xl px-6 pb-24 pt-10 md:px-10 md:pb-12">
+    <main className="mobile-bottom-safe mx-auto max-w-2xl px-6 pt-10 md:px-10">
       <Link href="/" className="text-sm font-semibold text-emerald-300 hover:text-emerald-200">← Library</Link>
 
       <h1 className="mt-8 text-4xl font-semibold tracking-tight text-white md:text-5xl">Privacy</h1>

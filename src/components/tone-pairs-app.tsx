@@ -127,7 +127,7 @@ export function TonePairsApp({ data }: { data: MandarinData }): React.JSX.Elemen
   // ── Graceful empty state (only if the dataset ever loses all pairs) ──
   if (groups.length === 0) {
     return (
-      <main className="mx-auto max-w-3xl px-6 pb-24 pt-8 md:px-10 md:pb-12">
+      <main className="mobile-bottom-safe mx-auto max-w-3xl px-6 pt-8 md:px-10">
         <Link href="/" className="text-sm font-semibold text-emerald-300 hover:text-emerald-200">
           ← Home
         </Link>
@@ -142,7 +142,7 @@ export function TonePairsApp({ data }: { data: MandarinData }): React.JSX.Elemen
   const streakNote = streakLabel(streak);
 
   return (
-    <main className="mx-auto max-w-3xl px-6 pb-24 pt-8 md:px-10 md:pb-12">
+    <main className="mobile-bottom-safe mx-auto max-w-3xl px-6 pt-8 md:px-10">
       <Link href="/" className="text-sm font-semibold text-emerald-300 hover:text-emerald-200">
         ← Home
       </Link>

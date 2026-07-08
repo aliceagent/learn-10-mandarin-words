@@ -242,7 +242,7 @@ export function ReviewApp({ data }: { data: MandarinData }) {
     flingDir === "left" ? "card-fling-left" : flingDir === "right" ? "card-fling-right" : "";
 
   return (
-    <main className="mx-auto max-w-7xl px-4 pb-28 pt-4 md:px-10 md:pb-12 md:pt-8">
+    <main className="mobile-bottom-safe mx-auto max-w-7xl px-4 pt-4 md:px-10 md:pt-8">
       <Link href="/" className="text-sm font-semibold text-emerald-300 hover:text-emerald-200">← Library</Link>
 
       <div className="mt-4 md:mt-8">
