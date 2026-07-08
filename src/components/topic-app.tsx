@@ -48,6 +48,11 @@ import {
   recordFlashcardSessionResult,
   type FlashcardSessionState,
 } from "@/lib/flashcard-session-summary";
+import {
+  DEFAULT_FLASHCARD_DECK_ORDER,
+  orderFlashcardDeck,
+  type FlashcardDeckOrder,
+} from "@/lib/flashcard-deck-order";
 
 // The Boss Round panel (~660 lines of stage-rendering code) is deferred into its
 // own chunk: the initial mode is always "words"/"phrasebook", so it never renders
@@ -91,6 +96,8 @@ export function TopicApp({
   const [revealed, setRevealed] = useState(false);
   const [flashcardItems, setFlashcardItems] = useState<VocabItem[]>(topic.items);
   const [flashcardSession, setFlashcardSession] = useState<FlashcardSessionState>(() => emptyFlashcardSession(topic));
+  const [flashcardDeckOrder, setFlashcardDeckOrder] = useState<FlashcardDeckOrder>(DEFAULT_FLASHCARD_DECK_ORDER);
+  const [flashcardDeckSnapshotKey, setFlashcardDeckSnapshotKey] = useState<string | null>(null);
   const [quizMode, setQuizMode] = useState<QuizMode>(() => parseQuizMode(searchParams.get("q")) ?? "hanzi-english");
   // Tone-practice section sub-mode: the eyes-first per-syllable drill ("read")
   // or the ears-first listening trainer ("listen", speech-gated).
@@ -155,6 +162,17 @@ export function TopicApp({
     mode === "scramble" || mode === "match" || mode === "boss" ? mode : "other";
 
   const keyFor = useCallback((item: VocabItem) => wordKey(topic, item), [topic]);
+
+  function resetFlashcardDeck(nextOrder: FlashcardDeckOrder, message?: string) {
+    const ordered = orderFlashcardDeck(topic, progress.flashcardStats, nextOrder);
+    setFlashcardItems(ordered);
+    setFlashcardSession(emptyFlashcardSession({ slug: topic.slug, items: ordered }));
+    setCardIndex(0);
+    setRevealed(false);
+    setFlashcardDeckSnapshotKey(`${topic.slug}:${nextOrder}`);
+    if (message) setToast(message);
+  }
+
   const quiz = useMemo(
     () => buildQuiz(activeItems, topic.items, quizMode, keyFor),
     [activeItems, topic.items, quizMode, keyFor],
@@ -225,6 +243,7 @@ export function TopicApp({
     setQuizTopicSlug(topic.slug);
     setFlashcardItems(topic.items);
     setFlashcardSession(emptyFlashcardSession(topic));
+    setFlashcardDeckSnapshotKey(null);
     setCardIndex(0);
     setRevealed(false);
     setActiveItems(topic.items);
@@ -235,6 +254,15 @@ export function TopicApp({
     // so a mode that no longer has a tab is never left selected. The URL-sync
     // effect then rewrites the query to this topic's canonical (bare) URL.
     setMode(defaultMode);
+  }
+
+  if (loaded && flashcardDeckSnapshotKey === null) {
+    const ordered = orderFlashcardDeck(topic, progress.flashcardStats, flashcardDeckOrder);
+    setFlashcardItems(ordered);
+    setFlashcardSession(emptyFlashcardSession({ slug: topic.slug, items: ordered }));
+    setCardIndex(0);
+    setRevealed(false);
+    setFlashcardDeckSnapshotKey(`${topic.slug}:${flashcardDeckOrder}`);
   }
 
   // A speech-gated mode named in the URL (e.g. m=sentence-listen) on a voiceless
@@ -545,6 +573,11 @@ export function TopicApp({
           current={current}
           stat={progress.flashcardStats[currentKey]}
           revealed={revealed}
+          deckOrder={flashcardDeckOrder}
+          onDeckOrderChange={(nextOrder) => {
+            setFlashcardDeckOrder(nextOrder);
+            resetFlashcardDeck(nextOrder, "Flashcard deck reordered");
+          }}
           onReveal={() => setRevealed(true)}
           onGrade={(grade) => {
             // Compute the projected interval BEFORE grading mutates the stat, so
@@ -580,11 +613,7 @@ export function TopicApp({
             setToast(`Re-drilling ${missed.length} missed word${missed.length === 1 ? "" : "s"}`);
           }}
           onRestartSession={() => {
-            setFlashcardItems(topic.items);
-            setFlashcardSession(emptyFlashcardSession(topic));
-            setCardIndex(0);
-            setRevealed(false);
-            setToast("Flashcard session restarted");
+            resetFlashcardDeck(flashcardDeckOrder, "Flashcard session restarted");
           }}
         />
       ) : null}

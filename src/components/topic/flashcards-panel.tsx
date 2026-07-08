@@ -18,6 +18,7 @@ import { HANZI_SIZE_CLASS } from "@/lib/hanzi-size";
 import { buildFlashcardFace, directionForCard, FLASHCARD_DIRECTION_OPTIONS } from "@/lib/flashcard-direction";
 import { FLASHCARD_VISIBILITY_OPTIONS } from "@/lib/flashcard-visibility";
 import type { FlashcardSessionSummary } from "@/lib/flashcard-session-summary";
+import { FLASHCARD_DECK_ORDER_OPTIONS, type FlashcardDeckOrder } from "@/lib/flashcard-deck-order";
 import { SpeakButton } from "../speak-button";
 import { TonePinyin } from "../tone-pinyin";
 import { useCardDrag } from "../use-card-drag";
@@ -50,6 +51,8 @@ export function FlashcardsPanel({
   onReveal,
   onGrade,
   onKnown,
+  deckOrder,
+  onDeckOrderChange,
   sessionSummary,
   onReviewMissed,
   onRestartSession,
@@ -64,6 +67,8 @@ export function FlashcardsPanel({
   onReveal: () => void;
   onGrade: (grade: Grade) => void;
   onKnown: () => void;
+  deckOrder: FlashcardDeckOrder;
+  onDeckOrderChange: (order: FlashcardDeckOrder) => void;
   sessionSummary: FlashcardSessionSummary;
   onReviewMissed: () => void;
   onRestartSession: () => void;
@@ -199,6 +204,36 @@ export function FlashcardsPanel({
             );
           })}
         </div>
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-white/10 bg-surface-2 p-2 text-left">
+        <p className="px-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+          Deck order
+        </p>
+        <div className="mt-2 grid gap-2 sm:grid-cols-5">
+          {FLASHCARD_DECK_ORDER_OPTIONS.map((option) => {
+            const active = deckOrder === option.key;
+            return (
+              <button
+                key={option.key}
+                type="button"
+                onClick={() => onDeckOrderChange(option.key)}
+                aria-pressed={active}
+                className={`min-h-[44px] rounded-xl border px-3 py-2 text-left text-xs transition ${
+                  active
+                    ? "border-sky-300/40 bg-sky-400/10 text-sky-100"
+                    : "border-white/10 text-slate-400 hover:border-white/20 hover:text-white"
+                }`}
+              >
+                <span className="block font-semibold">{option.label}</span>
+                <span className="mt-0.5 block text-[11px] leading-4 text-slate-500">{option.description}</span>
+              </button>
+            );
+          })}
+        </div>
+        <p className="mt-2 px-2 text-[11px] text-slate-500">
+          The order is snapshotted for this pass, so grading won&apos;t move cards under you.
+        </p>
       </div>
 
       <div className="mt-3 rounded-2xl border border-white/10 bg-surface-2 p-2 text-left">
