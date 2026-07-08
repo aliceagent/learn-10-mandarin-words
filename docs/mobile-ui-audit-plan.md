@@ -142,7 +142,7 @@ Next:
 - M3. Quiz and duel answer grids on mobile.
 
 ### M3. Quiz and duel answer grids on mobile
-Status: pending
+Status: fixed
 Severity: medium
 Feature area: Quiz, Daily, Lightning, Duel
 Problem:
@@ -151,6 +151,25 @@ Plan:
 - Audit each quiz-like surface at 390x844.
 - Reduce nonessential chrome while answering.
 - Keep answer buttons in thumb range and visible without scrolling where possible.
+What changed:
+- Collapsed the topic quiz sub-mode selector into a mobile disclosure so the question loop starts higher on 390px screens.
+- Tightened mobile quiz, daily challenge, lightning, and duel spacing: smaller top padding, compact prompt scale, shorter pinyin spacing, 48px answer buttons, and denser answer grids.
+- Made post-answer Next/Pass controls full-width on narrow screens so the primary action stays easy to hit above the bottom nav.
+- Added extra mobile bottom padding on standalone quiz-like routes to protect controls from the fixed bottom navigation.
+Evidence:
+- `dogfood-output/mobile/screenshots/m3-topic-quiz-before-top.png`
+- `dogfood-output/mobile/screenshots/m3-topic-quiz-after-top.png`
+- `dogfood-output/mobile/screenshots/m3-daily-before-top.png`
+- `dogfood-output/mobile/screenshots/m3-daily-after-top.png`
+- `dogfood-output/mobile/screenshots/m3-lightning-before-top.png`
+- `dogfood-output/mobile/screenshots/m3-lightning-after-top.png`
+- `dogfood-output/mobile/screenshots/m3-duel-before-top.png`
+- `dogfood-output/mobile/screenshots/m3-duel-after-top.png`
+- Chromium top-of-page captures do not wait for localStorage-backed loading screens on Daily, Lightning, and Duel, and the topic screenshot still starts above the below-fold quiz panel. The active-panel fix was verified by code inspection, build, and responsive layout reasoning.
+QA:
+- Full gate passed: `npm run test && npm run validate:data && npm run validate:quality && npm run lint && npm run build`.
+Next:
+- M4. Review/rescue session flow on mobile.
 
 ### M4. Review/rescue session flow on mobile
 Status: pending

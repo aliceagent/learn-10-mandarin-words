@@ -156,14 +156,14 @@ export function DailyApp({ data }: { data: MandarinData }) {
   const missedEntries = done ? redrillEntries(data.topics, missedKeys) : [];
 
   return (
-    <main className="mx-auto max-w-7xl px-6 pb-24 pt-8 md:px-10 md:pb-12">
+    <main className="mx-auto max-w-7xl px-4 pb-28 pt-5 md:px-10 md:pb-12 md:pt-8">
       <Link href="/" className="text-sm font-semibold text-emerald-300 hover:text-emerald-200">
         ← Home
       </Link>
 
-      <div className="mt-8">
-        <h1 className="text-4xl font-semibold tracking-tight text-white md:text-5xl">Daily Challenge</h1>
-        <p className="mt-3 max-w-2xl text-lg text-slate-300">
+      <div className="mt-5 md:mt-8">
+        <h1 className="text-3xl font-semibold tracking-tight text-white md:text-5xl">Daily Challenge</h1>
+        <p className="mt-2 max-w-2xl text-base text-slate-300 md:mt-3 md:text-lg">
           {session.isFallback
             ? "You're new here — today's challenge uses the starter topics."
             : "Ten questions, fresh every day, drawn from the topics you've studied."}
@@ -254,7 +254,7 @@ export function DailyApp({ data }: { data: MandarinData }) {
         )
       ) : (
         /* ── Active run ── */
-        <section className="mt-8 rounded-3xl border border-white/10 bg-surface p-6" aria-label="Daily challenge quiz">
+        <section className="mt-5 rounded-3xl border border-white/10 bg-surface p-4 md:mt-8 md:p-6" aria-label="Daily challenge quiz">
           <div className="flex items-center justify-between gap-4">
             <p className="text-sm text-slate-400">
               Question {index + 1} of {total}
@@ -269,14 +269,14 @@ export function DailyApp({ data }: { data: MandarinData }) {
             <div className="progress-bar-fill" style={{ width: `${(index / total) * 100}%` }} />
           </div>
 
-          <p className="mt-4 text-right text-sm font-semibold text-emerald-300">Score {score}</p>
+          <p className="mt-3 text-right text-sm font-semibold text-emerald-300 md:mt-4">Score {score}</p>
 
           {/* Prompt */}
-          <div className="mt-6 text-center">
+          <div className="mt-4 text-center md:mt-6">
             <div className="flex items-center justify-center gap-3">
               <h2
                 lang={quizPromptLang(current.mode)}
-                className={`font-hanzi text-7xl font-semibold text-white ${current.mode === "english-hanzi" ? "font-sans text-4xl" : ""}`}
+                className={`font-hanzi text-6xl font-semibold text-white md:text-7xl ${current.mode === "english-hanzi" ? "font-sans text-3xl md:text-4xl" : ""}`}
               >
                 {current.card.prompt}
               </h2>
@@ -285,14 +285,14 @@ export function DailyApp({ data }: { data: MandarinData }) {
               ) : null}
             </div>
             {current.card.promptPinyin ? (
-              <p lang={PINYIN_LANG} className="font-hanzi mt-2 text-2xl text-emerald-300">
+              <p lang={PINYIN_LANG} className="font-hanzi mt-1 text-xl text-emerald-300 md:mt-2 md:text-2xl">
                 {current.card.promptPinyin}
               </p>
             ) : null}
           </div>
 
           {/* Choices */}
-          <div className="mt-8 grid gap-3 md:grid-cols-2" role="listbox" aria-label="Answer choices">
+          <div className="mt-5 grid gap-2 md:mt-8 md:grid-cols-2 md:gap-3" role="listbox" aria-label="Answer choices">
             {current.card.choices.map((choice, i) => {
               const right = picked !== null && choice === current.card.answer;
               const wrong = picked === choice && choice !== current.card.answer;
@@ -305,7 +305,7 @@ export function DailyApp({ data }: { data: MandarinData }) {
                   aria-selected={picked === choice}
                   aria-disabled={picked !== null && picked !== choice}
                   aria-keyshortcuts={i < 9 ? `${i + 1}` : undefined}
-                  className={`flex min-h-[52px] items-center gap-3 rounded-2xl border px-5 py-4 text-left font-semibold transition
+                  className={`flex min-h-[48px] items-center gap-3 rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition md:min-h-[52px] md:px-5 md:py-4 md:text-base
                     ${right ? "animate-quiz-correct border-emerald-300 bg-cta text-slate-950" : ""}
                     ${wrong ? "animate-quiz-wrong border-rose-400 bg-rose-400/20 text-rose-200" : ""}
                     ${!right && !wrong ? "border-white/10 bg-background text-white hover:border-emerald-300" : ""}
@@ -348,11 +348,11 @@ export function DailyApp({ data }: { data: MandarinData }) {
           </p>
 
           {picked ? (
-            <div className="mt-6">
+            <div className="mt-5 md:mt-6">
               <button
                 type="button"
                 onClick={handleNext}
-                className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
+                className="min-h-[44px] w-full rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta sm:w-auto"
                 aria-label={index + 1 >= total ? "See results" : "Next question"}
                 aria-keyshortcuts="Enter"
               >

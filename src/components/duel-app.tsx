@@ -189,14 +189,14 @@ export function DuelApp({ data }: { data: HomeData }) {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-6 pb-24 pt-8 md:px-10 md:pb-12">
+    <main className="mx-auto max-w-3xl px-4 pb-28 pt-5 md:px-10 md:pb-12 md:pt-8">
       <Link href="/" className="text-sm font-semibold text-emerald-300 hover:text-emerald-200">
         ← Home
       </Link>
 
-      <div className="mt-6">
-        <h1 className="text-4xl font-semibold tracking-tight text-white md:text-5xl">Pass &amp; Play Duel</h1>
-        <p className="mt-3 text-lg text-slate-300">
+      <div className="mt-5 md:mt-6">
+        <h1 className="text-3xl font-semibold tracking-tight text-white md:text-5xl">Pass &amp; Play Duel</h1>
+        <p className="mt-2 text-base text-slate-300 md:mt-3 md:text-lg">
           Two learners, one device. Take turns — most correct answers wins.
         </p>
       </div>
@@ -493,12 +493,12 @@ function QuestionScreen({
   const [otherName, playerName] = [names[player === 0 ? 1 : 0], names[player]];
 
   return (
-    <section className="mt-8 rounded-3xl border border-white/10 bg-surface p-6" aria-label="Duel question">
+    <section className="mt-5 rounded-3xl border border-white/10 bg-surface p-4 md:mt-8 md:p-6" aria-label="Duel question">
       <div className="flex items-center justify-between gap-4">
-        <p className="text-sm text-slate-400">
+        <p className="text-xs text-slate-400 md:text-sm">
           {playerName} · Question {asked} of {QUESTIONS_PER_PLAYER}
         </p>
-        <div className="flex items-center gap-2 text-xs">
+        <div className="flex items-center gap-1.5 text-xs md:gap-2">
           <ScoreChip name={names[0]} score={state.scores[0]} active={player === 0} />
           <ScoreChip name={names[1]} score={state.scores[1]} active={player === 1} />
         </div>
@@ -515,7 +515,7 @@ function QuestionScreen({
       {/* Prompt */}
       {isListening && !answered ? (
         // Listening, pre-answer: audio only — revealing hanzi would leak the answer.
-        <div className="mt-8 flex flex-col items-center text-center">
+        <div className="mt-5 flex flex-col items-center text-center md:mt-8">
           <button
             type="button"
             onClick={() => speak(card.prompt)}
@@ -529,11 +529,11 @@ function QuestionScreen({
           <p className="mt-4 text-sm text-slate-400">Listen, then pick the meaning</p>
         </div>
       ) : (
-        <div className="mt-8 text-center">
+        <div className="mt-5 text-center md:mt-8">
           <div className="flex items-center justify-center gap-3">
             <h2
               lang={quizPromptLang(mode)}
-              className={`font-hanzi text-7xl font-semibold text-white ${mode === "english-hanzi" ? "font-sans text-4xl" : ""}`}
+              className={`font-hanzi text-6xl font-semibold text-white md:text-7xl ${mode === "english-hanzi" ? "font-sans text-3xl md:text-4xl" : ""}`}
             >
               {card.prompt}
             </h2>
@@ -542,7 +542,7 @@ function QuestionScreen({
             ) : null}
           </div>
           {card.promptPinyin ? (
-            <p lang={PINYIN_LANG} className="font-hanzi mt-2 text-2xl text-emerald-300">
+            <p lang={PINYIN_LANG} className="font-hanzi mt-1 text-xl text-emerald-300 md:mt-2 md:text-2xl">
               <TonePinyin pinyin={card.promptPinyin} />
             </p>
           ) : null}
@@ -550,7 +550,7 @@ function QuestionScreen({
       )}
 
       {/* Choices */}
-      <div className="mt-8 grid gap-3 md:grid-cols-2" role="listbox" aria-label="Answer choices">
+      <div className="mt-5 grid gap-2 md:mt-8 md:grid-cols-2 md:gap-3" role="listbox" aria-label="Answer choices">
         {card.choices.map((choice, i) => {
           const right = picked !== null && choice === card.answer;
           const wrong = picked === choice && choice !== card.answer;
@@ -563,7 +563,7 @@ function QuestionScreen({
               aria-selected={picked === choice}
               aria-disabled={picked !== null && picked !== choice}
               aria-keyshortcuts={i < 9 ? `${i + 1}` : undefined}
-              className={`flex min-h-[52px] items-center gap-3 rounded-2xl border px-5 py-4 text-left font-semibold transition
+              className={`flex min-h-[48px] items-center gap-3 rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition md:min-h-[52px] md:px-5 md:py-4 md:text-base
                 ${right ? "animate-quiz-correct border-emerald-300 bg-cta text-slate-950" : ""}
                 ${wrong ? "animate-quiz-wrong border-rose-400 bg-rose-400/20 text-rose-200" : ""}
                 ${!right && !wrong ? "border-white/10 bg-surface-2 text-white hover:border-emerald-300" : ""}
@@ -587,7 +587,7 @@ function QuestionScreen({
 
       {/* Feedback + advance */}
       {answered ? (
-        <div className="mt-6" role="status">
+        <div className="mt-5 md:mt-6" role="status">
           {picked === card.answer ? (
             <p className="text-lg font-semibold text-emerald-300">+1 for {playerName}!</p>
           ) : (
@@ -609,7 +609,7 @@ function QuestionScreen({
           <button
             type="button"
             onClick={onAdvance}
-            className="mt-5 min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
+            className="mt-4 min-h-[44px] w-full rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta sm:w-auto md:mt-5"
             aria-label={isLastTurn ? "See results" : `Pass to ${otherName}`}
             aria-keyshortcuts="Enter"
           >

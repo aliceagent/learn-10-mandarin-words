@@ -274,14 +274,14 @@ export function LightningApp({ data }: { data: MandarinData }) {
       : "var(--color-accent)";
 
   return (
-    <main className="mx-auto max-w-3xl px-6 pb-24 pt-8 md:px-10 md:pb-12">
+    <main className="mx-auto max-w-3xl px-4 pb-28 pt-5 md:px-10 md:pb-12 md:pt-8">
       <Link href="/stats" className="text-sm font-semibold text-emerald-300 hover:text-emerald-200">
         ← Stats
       </Link>
 
-      <div className="mt-8">
-        <h1 className="text-4xl font-semibold tracking-tight text-white md:text-5xl">Lightning Round</h1>
-        <p className="mt-3 max-w-2xl text-lg text-slate-300">
+      <div className="mt-5 md:mt-8">
+        <h1 className="text-3xl font-semibold tracking-tight text-white md:text-5xl">Lightning Round</h1>
+        <p className="mt-2 max-w-2xl text-base text-slate-300 md:mt-3 md:text-lg">
           60 seconds. Your due and trickiest words. Beat your best.
         </p>
       </div>
@@ -347,7 +347,7 @@ export function LightningApp({ data }: { data: MandarinData }) {
         </div>
       ) : phase === "running" && current ? (
         /* ── Active round ── */
-        <section className="mt-8 rounded-3xl border border-white/10 bg-surface p-6" aria-label="Lightning round quiz">
+        <section className="mt-5 rounded-3xl border border-white/10 bg-surface p-4 md:mt-8 md:p-6" aria-label="Lightning round quiz">
           {/* Screen-reader announcers (Sprint 21): the verdict/multiplier channel
               and the timer-milestone channel are kept separate so a milestone
               never overwrites an in-flight verdict — both polite, so they queue. */}
@@ -361,7 +361,7 @@ export function LightningApp({ data }: { data: MandarinData }) {
           {/* Timer + live score */}
           <div className="flex items-center justify-between gap-4">
             <p
-              className={`font-mono text-4xl font-bold tabular-nums ${timerColor} ${
+              className={`font-mono text-3xl font-bold tabular-nums md:text-4xl ${timerColor} ${
                 urgency === "danger" && !reducedMotion ? "animate-lightning-pulse" : ""
               }`}
               role="timer"
@@ -370,7 +370,7 @@ export function LightningApp({ data }: { data: MandarinData }) {
               {formatClock(remaining)}
             </p>
             <div className="text-right">
-              <p className="text-2xl font-bold text-white tabular-nums">Score {run.score.toLocaleString()}</p>
+              <p className="text-xl font-bold text-white tabular-nums md:text-2xl">Score {run.score.toLocaleString()}</p>
               <p className="mt-0.5 text-xs text-slate-500">#{run.answered + 1}</p>
             </div>
           </div>
@@ -384,7 +384,7 @@ export function LightningApp({ data }: { data: MandarinData }) {
           </div>
 
           {/* Combo chip — only once the multiplier climbs above ×1 */}
-          <div className="mt-4 h-7">
+          <div className="mt-3 h-7 md:mt-4">
             {run.multiplier > 1 ? (
               <span
                 className="inline-flex items-center rounded-full border border-amber-300/50 bg-amber-400/10 px-3 py-1 text-sm font-bold text-amber-300"
@@ -396,22 +396,22 @@ export function LightningApp({ data }: { data: MandarinData }) {
           </div>
 
           {/* Prompt: hanzi + pinyin (pinyin always accompanies the hanzi) + speak */}
-          <div className="mt-4 text-center">
+          <div className="mt-3 text-center md:mt-4">
             <div className="flex items-center justify-center gap-3">
-              <h2 lang={HANZI_LANG} className="font-hanzi text-7xl font-semibold text-white">
+              <h2 lang={HANZI_LANG} className="font-hanzi text-6xl font-semibold text-white md:text-7xl">
                 {current.prompt}
               </h2>
               <SpeakButton text={current.prompt} label={`Pronounce: ${current.prompt}`} />
             </div>
             {current.promptPinyin ? (
-              <p lang={PINYIN_LANG} className="font-hanzi mt-2 text-2xl text-emerald-300">
+              <p lang={PINYIN_LANG} className="font-hanzi mt-1 text-xl text-emerald-300 md:mt-2 md:text-2xl">
                 {current.promptPinyin}
               </p>
             ) : null}
           </div>
 
           {/* Choices */}
-          <div className="mt-8 grid gap-3 md:grid-cols-2" role="listbox" aria-label="Answer choices">
+          <div className="mt-5 grid gap-2 md:mt-8 md:grid-cols-2 md:gap-3" role="listbox" aria-label="Answer choices">
             {current.choices.map((choice, i) => {
               const right = picked !== null && choice === current.answer;
               const wrong = picked === choice && choice !== current.answer;
@@ -424,7 +424,7 @@ export function LightningApp({ data }: { data: MandarinData }) {
                   aria-selected={picked === choice}
                   aria-disabled={picked !== null && picked !== choice}
                   aria-keyshortcuts={i < 9 ? `${i + 1}` : undefined}
-                  className={`flex min-h-[52px] items-center gap-3 rounded-2xl border px-5 py-4 text-left font-semibold transition
+                  className={`flex min-h-[48px] items-center gap-3 rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition md:min-h-[52px] md:px-5 md:py-4 md:text-base
                     ${right ? "animate-quiz-correct border-emerald-300 bg-cta text-slate-950" : ""}
                     ${wrong ? "animate-quiz-wrong border-rose-400 bg-rose-400/20 text-rose-200" : ""}
                     ${!right && !wrong ? "border-white/10 bg-background text-white hover:border-emerald-300" : ""}

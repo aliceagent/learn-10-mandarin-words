@@ -94,10 +94,10 @@ export function QuizPanel({
   if (quizComplete) {
     /* Celebration screen */
     return (
-      <div className="animate-celebrate mt-6 rounded-3xl border border-white/10 bg-surface p-8 text-center">
-        <p className="text-6xl">{missedItemsList.length === 0 ? "🎉" : "💪"}</p>
-        <p className="mt-4 text-2xl font-semibold text-white">Quiz complete!</p>
-        <p className="mt-3 text-5xl font-bold text-emerald-300">{quizState.score}<span className="text-2xl text-slate-400">/{quiz.length}</span></p>
+      <div className="animate-celebrate mt-4 rounded-3xl border border-white/10 bg-surface p-5 text-center md:mt-6 md:p-8">
+        <p className="text-5xl md:text-6xl">{missedItemsList.length === 0 ? "🎉" : "💪"}</p>
+        <p className="mt-3 text-2xl font-semibold text-white md:mt-4">Quiz complete!</p>
+        <p className="mt-2 text-4xl font-bold text-emerald-300 md:mt-3 md:text-5xl">{quizState.score}<span className="text-2xl text-slate-400">/{quiz.length}</span></p>
         {quizState.runBestCombo > 0 ? (
           isNewBest ? (
             <p className="mt-3 text-lg font-bold text-amber-300">🏆 New best combo: ×{quizState.runBestCombo}!</p>
@@ -115,11 +115,11 @@ export function QuizPanel({
 
         {/* Missed-words summary + retry (only when there were mistakes) */}
         {missedItemsList.length > 0 ? (
-          <div className="mx-auto mt-6 max-w-md rounded-2xl border border-white/10 bg-surface-2 p-5 text-left">
+          <div className="mx-auto mt-5 max-w-md rounded-2xl border border-white/10 bg-surface-2 p-4 text-left md:mt-6 md:p-5">
             <p className="text-sm font-semibold text-slate-300">
               {missedItemsList.length} to review
             </p>
-            <ul className="mt-3 space-y-2">
+            <ul className="mt-3 max-h-40 space-y-2 overflow-y-auto pr-1 md:max-h-none">
               {missedItemsList.map((item) => (
                 <li key={item.hanzi} className="flex items-baseline gap-3">
                   <span lang={HANZI_LANG} className="font-hanzi text-xl text-white">{item.hanzi}</span>
@@ -131,7 +131,7 @@ export function QuizPanel({
           </div>
         ) : null}
 
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
+        <div className="mt-5 grid gap-3 sm:flex sm:flex-wrap sm:justify-center md:mt-6">
           {missedItemsList.length > 0 ? (
             <button
               type="button"
@@ -175,7 +175,7 @@ export function QuizPanel({
     : null;
 
   return (
-    <section className="mt-6 rounded-3xl border border-white/10 bg-surface p-6" aria-label="Quiz practice">
+    <section className="mt-4 rounded-3xl border border-white/10 bg-surface p-4 md:mt-6 md:p-6" aria-label="Quiz practice">
       {/* Persistent sr-only verdict/combo announcer (Sprint 21). Empty until an
           answer is picked; the answer word is language-tagged so a screen reader
           voices hanzi/pinyin under the right voice. */}
@@ -197,16 +197,46 @@ export function QuizPanel({
         )}
       </p>
 
-      {/* Quiz mode selector */}
-      <div className="mb-5 flex flex-wrap gap-2" role="group" aria-label="Quiz mode">
+      {/* Quiz mode selector. Collapsed on mobile so the repeated answer loop starts higher. */}
+      <details className="group mb-4 rounded-2xl border border-white/10 bg-surface-2 md:hidden">
+        <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-3 px-4 py-2 text-sm font-semibold text-slate-300 [&::-webkit-details-marker]:hidden">
+          <span>Mode: {quizMode === "hanzi-english" ? "Hanzi → English" : quizMode === "english-hanzi" ? "English → Hanzi" : quizMode === "hanzi-pinyin" ? "Hanzi → Pinyin" : "Listen 🔊"}</span>
+          <span aria-hidden="true" className="text-xs text-slate-500 transition group-open:rotate-180">▾</span>
+        </summary>
+        <div className="grid gap-1 border-t border-white/10 p-1" role="group" aria-label="Quiz mode">
+          {([
+            { key: "hanzi-english", label: "Hanzi → English", disabled: false },
+            { key: "english-hanzi", label: "English → Hanzi", disabled: false },
+            { key: "hanzi-pinyin", label: "Hanzi → Pinyin", disabled: false },
+            ...(audioAvailability !== "unavailable"
+              ? [{ key: "listening", label: "Listen 🔊", disabled: audioAvailability === "offline-voices" } as const]
+              : []),
+          ] as const).map((m) => (
+            <button
+              key={m.key}
+              type="button"
+              onClick={() => { if (!m.disabled) onChangeQuizMode(m.key); }}
+              disabled={m.disabled}
+              className={`min-h-[44px] rounded-xl border px-3 py-2 text-left text-xs font-semibold transition ${
+                m.disabled
+                  ? "cursor-not-allowed border-white/10 text-slate-600 opacity-60"
+                  : quizMode === m.key
+                  ? "border-emerald-300/40 bg-emerald-400/10 text-emerald-200"
+                  : "border-transparent text-slate-400 hover:bg-white/[0.04] hover:text-white"
+              }`}
+              aria-pressed={quizMode === m.key}
+              aria-disabled={m.disabled || undefined}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
+      </details>
+      <div className="mb-5 hidden flex-wrap gap-2 md:flex" role="group" aria-label="Quiz mode">
         {([
           { key: "hanzi-english", label: "Hanzi → English", disabled: false },
           { key: "english-hanzi", label: "English → Hanzi", disabled: false },
           { key: "hanzi-pinyin", label: "Hanzi → Pinyin", disabled: false },
-          // Listening mode appears once speech is confirmed available (detected
-          // post-hydration in topic-app). When the learner is offline and this
-          // device's voices are online-only it shows *disabled* (honest, not
-          // hidden); on permanently voiceless devices it's hidden — no dead mode.
           ...(audioAvailability !== "unavailable"
             ? [{ key: "listening", label: "Listen 🔊", disabled: audioAvailability === "offline-voices" } as const]
             : []),
@@ -216,8 +246,6 @@ export function QuizPanel({
             type="button"
             onClick={() => { if (!m.disabled) onChangeQuizMode(m.key); }}
             disabled={m.disabled}
-            // Quieter Level-2 selector (matches the topic mode tabs): the active
-            // mode is a subtle emerald wash + accent ink, not a full emerald fill.
             className={`min-h-[44px] rounded-full border px-4 py-2 text-xs font-semibold transition ${
               m.disabled
                 ? "cursor-not-allowed border-white/10 text-slate-600 opacity-60"
@@ -233,12 +261,12 @@ export function QuizPanel({
         ))}
       </div>
       {audioAvailability === "offline-voices" ? (
-        <p className="-mt-3 mb-5 text-xs text-slate-500">
+        <p className="-mt-2 mb-4 text-xs text-slate-500 md:-mt-3 md:mb-5">
           Listening is paused while you&apos;re offline — this device&apos;s voices are online-only.
         </p>
       ) : null}
 
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
         <p className="text-sm text-slate-400">Question {(quizState.index % quiz.length) + 1} of {quiz.length}</p>
         {/* Combo meter: hidden below ×2, then a tiered chip that pops on each
             increment (re-keyed on the combo value so the animation re-fires). The
@@ -273,7 +301,7 @@ export function QuizPanel({
         // Connectivity dropped mid-run: every listening prompt would be silent on
         // this device, so replace the play screen with an honest notice and a
         // one-tap escape to a visual mode (the quiz state carries over).
-        <div className="mt-8 rounded-2xl border border-white/10 bg-surface-2 p-6 text-center">
+        <div className="mt-5 rounded-2xl border border-white/10 bg-surface-2 p-5 text-center md:mt-8 md:p-6">
           <p className="text-3xl" aria-hidden="true">🔇</p>
           <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-300">
             You&apos;re offline, and this device&apos;s Chinese voice needs the internet. Keep
@@ -291,7 +319,7 @@ export function QuizPanel({
         quizState.picked === null ? (
           // Before answering: no hanzi/pinyin (that would leak the answer). Just
           // a big play button + helper text. No autoplay — the learner taps play.
-          <div className="mt-8 flex flex-col items-center text-center">
+          <div className="mt-5 flex flex-col items-center text-center md:mt-8">
             <button
               type="button"
               onClick={() => {
@@ -320,20 +348,20 @@ export function QuizPanel({
         ) : (
           // After answering: reveal the ground-truth hanzi + pinyin. role="status"
           // so the reveal is announced to screen readers.
-          <div className="mt-8 text-center" role="status">
+          <div className="mt-5 text-center md:mt-8" role="status">
             <div className="flex items-center justify-center gap-3">
               <h2 lang={HANZI_LANG} className={`font-hanzi ${HANZI_SIZE_CLASS.promptSm[hanziSize]} font-semibold text-white`}>{currentQuiz.prompt}</h2>
               <SpeakButton text={currentQuiz.prompt} label={`Pronounce: ${currentQuiz.prompt}`} />
             </div>
             {currentQuiz.promptPinyin ? (
-              <p lang={PINYIN_LANG} className="font-hanzi mt-2 text-2xl text-emerald-300">{currentQuiz.promptPinyin}</p>
+              <p lang={PINYIN_LANG} className="font-hanzi mt-1 text-xl text-emerald-300 md:mt-2 md:text-2xl">{currentQuiz.promptPinyin}</p>
             ) : null}
           </div>
         )
       ) : (
-        <div className="mt-8 text-center">
+        <div className="mt-5 text-center md:mt-8">
           <div className="flex items-center justify-center gap-3">
-            <h2 lang={quizPromptLang(quizMode)} className={`font-semibold text-white ${quizMode === "english-hanzi" ? "font-sans text-4xl" : `font-hanzi ${HANZI_SIZE_CLASS.hero[hanziSize]}`}`}>
+            <h2 lang={quizPromptLang(quizMode)} className={`font-semibold text-white ${quizMode === "english-hanzi" ? "font-sans text-3xl md:text-4xl" : `font-hanzi ${HANZI_SIZE_CLASS.prompt[hanziSize]}`}`}>
               {currentQuiz.prompt}
             </h2>
             {(quizMode === "hanzi-english" || quizMode === "hanzi-pinyin") ? (
@@ -341,13 +369,13 @@ export function QuizPanel({
             ) : null}
           </div>
           {currentQuiz.promptPinyin ? (
-            <p lang={PINYIN_LANG} className="font-hanzi mt-2 text-2xl text-emerald-300">{currentQuiz.promptPinyin}</p>
+            <p lang={PINYIN_LANG} className="font-hanzi mt-1 text-xl text-emerald-300 md:mt-2 md:text-2xl">{currentQuiz.promptPinyin}</p>
           ) : null}
         </div>
       )}
 
       {/* Choices */}
-      <div className="mt-8 grid gap-3 md:grid-cols-2" role="listbox" aria-label="Answer choices">
+      <div className="mt-5 grid gap-2 md:mt-8 md:grid-cols-2 md:gap-3" role="listbox" aria-label="Answer choices">
         {currentQuiz.choices.map((choice) => {
           const right = quizState.picked !== null && choice === currentQuiz.answer;
           const wrong = quizState.picked === choice && choice !== currentQuiz.answer;
@@ -359,7 +387,7 @@ export function QuizPanel({
               role="option"
               aria-selected={quizState.picked === choice}
               aria-disabled={quizState.picked !== null && quizState.picked !== choice}
-              className={`min-h-[52px] rounded-2xl border px-5 py-4 text-left font-semibold transition
+              className={`min-h-[48px] rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition md:min-h-[52px] md:px-5 md:py-4 md:text-base
                 ${right ? "animate-quiz-correct border-emerald-300 bg-cta text-slate-950" : ""}
                 ${wrong ? "animate-quiz-wrong border-rose-400 bg-rose-400/20 text-rose-200" : ""}
                 ${!right && !wrong ? "border-white/10 bg-surface-2 text-white hover:border-emerald-300" : ""}
@@ -374,11 +402,11 @@ export function QuizPanel({
       </div>
 
       {quizState.picked ? (
-        <div className="mt-6 flex items-center gap-4">
+        <div className="mt-5 flex items-center gap-3 md:mt-6 md:gap-4">
           <button
             type="button"
             onClick={onNext}
-            className="min-h-[44px] rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta"
+            className="min-h-[44px] flex-1 rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta sm:flex-none"
             aria-label={quizState.index + 1 >= quiz.length ? "See results" : "Next question"}
           >
             {quizState.index + 1 >= quiz.length ? "See results" : "Next question"}
