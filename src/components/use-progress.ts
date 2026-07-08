@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ProgressState } from "@/lib/types";
+import type { ConcreteFlashcardDirection } from "@/lib/flashcard-direction";
 import type { ResumableQuizMode, TopicMode } from "@/lib/topic-mode-logic";
 import {
   applyStreakFreeze,
@@ -17,6 +18,7 @@ import {
   recordDailyChallenge,
   recordDailyPractice,
   recordDailyQuizAnswer,
+  recordDirectionalFlashcardGrade,
   recordLastActivity,
   recordRecentTopic,
   markWordKnown,
@@ -199,27 +201,45 @@ export function useProgress() {
         const lastActivity = recordLastActivity(current.lastActivity, { slug, mode, quizMode });
         return lastActivity === current.lastActivity ? current : { ...current, lastActivity };
       }),
-    gradeWord: (key: string, grade: "again" | "hard" | "good" | "easy") => setProgress((current) => {
+    gradeWord: (key: string, grade: "again" | "hard" | "good" | "easy", direction?: ConcreteFlashcardDirection) => setProgress((current) => {
       const now = new Date();
       const existing = current.flashcardStats[key] ?? defaultStat(now);
-      return withPractice({
+      const next: ProgressState = {
         ...current,
         flashcardStats: {
           ...current.flashcardStats,
           [key]: scheduleReview(existing, grade, now),
         },
-      }, key);
+      };
+      if (direction) {
+        next.directionalFlashcardStats = recordDirectionalFlashcardGrade(
+          current.directionalFlashcardStats,
+          key,
+          direction,
+          grade,
+        );
+      }
+      return withPractice(next, key);
     }),
-    markWordKnown: (key: string) => setProgress((current) => {
+    markWordKnown: (key: string, direction?: ConcreteFlashcardDirection) => setProgress((current) => {
       const now = new Date();
       const existing = current.flashcardStats[key];
-      return withPractice({
+      const next: ProgressState = {
         ...current,
         flashcardStats: {
           ...current.flashcardStats,
           [key]: markWordKnown(existing, now),
         },
-      }, key);
+      };
+      if (direction) {
+        next.directionalFlashcardStats = recordDirectionalFlashcardGrade(
+          current.directionalFlashcardStats,
+          key,
+          direction,
+          "easy",
+        );
+      }
+      return withPractice(next, key);
     }),
   }), [progress, loaded, exportProgress, importProgress]);
 }

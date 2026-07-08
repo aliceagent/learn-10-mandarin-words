@@ -1,3 +1,5 @@
+import type { ConcreteFlashcardDirection } from "./flashcard-direction";
+import type { Grade } from "./progress-logic";
 import type { ResumableQuizMode, TopicMode } from "./topic-mode-logic";
 
 export type Sentence = {
@@ -96,6 +98,20 @@ export type FlashcardStat = {
   lapses: number;
 };
 
+export type DirectionalFlashcardStat = {
+  /** Number of graded reviews in this exact prompt direction. */
+  reviewCount: number;
+  /** Direction-specific recall confidence, 0..100, derived from grade quality. */
+  confidence: number;
+  /** Direction-specific grade counts; SRS scheduling still lives in flashcardStats. */
+  gradeCounts: Record<Grade, number>;
+};
+
+export type DirectionalFlashcardStats = Record<
+  string,
+  Partial<Record<ConcreteFlashcardDirection, DirectionalFlashcardStat>>
+>;
+
 // Per-word quiz accuracy, keyed by the same `wordKey` (`topic.slug:hanzi`) used
 // for flashcardStats. `correct` is always ≤ `attempts`; both are non-negative
 // integers. Used to surface weak/tricky words on the stats page.
@@ -175,6 +191,12 @@ export type ProgressState = {
   favoriteTopics: string[];
   favoriteWords: string[];
   flashcardStats: Record<string, FlashcardStat>;
+  /**
+   * Direction-specific flashcard recall history, keyed by wordKey then prompt
+   * direction. Added in schema v13 as a lightweight companion to flashcardStats;
+   * the primary spaced-repetition queue remains flashcardStats.
+   */
+  directionalFlashcardStats: DirectionalFlashcardStats;
   /** Per-word quiz accuracy, keyed by `wordKey`. Added in schema v3. */
   quizStats: Record<string, QuizStat>;
   /**

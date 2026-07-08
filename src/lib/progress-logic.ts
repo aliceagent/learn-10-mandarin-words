@@ -1,6 +1,8 @@
 import type {
   BossStat,
   DailyChallengeResult,
+  DirectionalFlashcardStat,
+  DirectionalFlashcardStats,
   FlashcardStat,
   LastActivity,
   ProgressState,
@@ -11,6 +13,7 @@ import type {
   VocabItem,
 } from "./types";
 import type { ResumableQuizMode, TopicMode } from "./topic-mode-logic.ts";
+import type { ConcreteFlashcardDirection } from "./flashcard-direction.ts";
 // Value imports need the explicit `.ts` extension so they resolve under
 // `node --test` (Node's native TS runner does not add extensions); `next build`
 // and tsc accept it via `allowImportingTsExtensions`. Mirrors quiz-logic.ts.
@@ -55,7 +58,10 @@ import { parseMode, parseQuizMode } from "./topic-mode-logic.ts";
 //   v11 → v12: added `lastActivity` (the single most recent topic + practice mode
 //   + quiz sub-mode, for the home "Resume where you left off" card). Older saves
 //   lack the field and migrate to null, losing nothing else.
-export const CURRENT_PROGRESS_SCHEMA_VERSION = 12;
+//   v12 → v13: added `directionalFlashcardStats` (wordKey → direction → recall
+//   quality counts/confidence). Older saves lack the field and migrate to {},
+//   leaving `flashcardStats` as the primary SRS queue.
+export const CURRENT_PROGRESS_SCHEMA_VERSION = 13;
 
 export const emptyProgress: ProgressState = {
   schemaVersion: CURRENT_PROGRESS_SCHEMA_VERSION,
@@ -63,6 +69,7 @@ export const emptyProgress: ProgressState = {
   favoriteTopics: [],
   favoriteWords: [],
   flashcardStats: {},
+  directionalFlashcardStats: {},
   quizStats: {},
   dailyActivity: {},
   dailyChallenge: {},
@@ -161,6 +168,88 @@ function normalizeFlashcardStats(raw: unknown, now: Date): Record<string, Flashc
     out[key] = normalizeStat(value, now);
   }
   return out;
+}
+
+const DIRECTIONAL_DIRECTIONS = new Set<ConcreteFlashcardDirection>(["zh-en", "en-zh", "pinyin-zh"]);
+
+function nonNegativeInt(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 ? Math.round(value) : 0;
+}
+
+function clampPercent(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) ? Math.min(100, Math.max(0, Math.round(value))) : 0;
+}
+
+const EMPTY_GRADE_COUNTS: Record<Grade, number> = { again: 0, hard: 0, good: 0, easy: 0 };
+const DIRECTIONAL_GRADE_POINTS: Record<Grade, number> = { again: 0, hard: 25, good: 100, easy: 100 };
+
+function directionalConfidence(gradeCounts: Record<Grade, number>): number {
+  const total = Object.values(gradeCounts).reduce((sum, count) => sum + count, 0);
+  if (total === 0) return 0;
+  const points = (Object.keys(DIRECTIONAL_GRADE_POINTS) as Grade[]).reduce(
+    (sum, grade) => sum + gradeCounts[grade] * DIRECTIONAL_GRADE_POINTS[grade],
+    0,
+  );
+  return Math.round(points / total);
+}
+
+export function normalizeDirectionalFlashcardStat(raw: unknown): DirectionalFlashcardStat {
+  if (!raw || typeof raw !== "object") {
+    return { reviewCount: 0, confidence: 0, gradeCounts: { ...EMPTY_GRADE_COUNTS } };
+  }
+  const r = raw as Partial<DirectionalFlashcardStat>;
+  const rawCounts = r.gradeCounts && typeof r.gradeCounts === "object" ? r.gradeCounts : {};
+  const gradeCounts: Record<Grade, number> = {
+    again: nonNegativeInt((rawCounts as Partial<Record<Grade, unknown>>).again),
+    hard: nonNegativeInt((rawCounts as Partial<Record<Grade, unknown>>).hard),
+    good: nonNegativeInt((rawCounts as Partial<Record<Grade, unknown>>).good),
+    easy: nonNegativeInt((rawCounts as Partial<Record<Grade, unknown>>).easy),
+  };
+  const countedReviews = Object.values(gradeCounts).reduce((sum, count) => sum + count, 0);
+  return {
+    reviewCount: Math.max(nonNegativeInt(r.reviewCount), countedReviews),
+    confidence: clampPercent(r.confidence),
+    gradeCounts,
+  };
+}
+
+function normalizeDirectionalFlashcardStats(raw: unknown): DirectionalFlashcardStats {
+  if (!raw || typeof raw !== "object") return {};
+  const out: DirectionalFlashcardStats = {};
+  for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (!value || typeof value !== "object") continue;
+    const directions: Partial<Record<ConcreteFlashcardDirection, DirectionalFlashcardStat>> = {};
+    for (const [direction, stat] of Object.entries(value as Record<string, unknown>)) {
+      if (!DIRECTIONAL_DIRECTIONS.has(direction as ConcreteFlashcardDirection)) continue;
+      directions[direction as ConcreteFlashcardDirection] = normalizeDirectionalFlashcardStat(stat);
+    }
+    if (Object.keys(directions).length > 0) out[key] = directions;
+  }
+  return out;
+}
+
+export function recordDirectionalFlashcardGrade(
+  stats: DirectionalFlashcardStats | undefined,
+  key: string,
+  direction: ConcreteFlashcardDirection,
+  grade: Grade,
+): DirectionalFlashcardStats {
+  const base = normalizeDirectionalFlashcardStats(stats);
+  const wordStats = base[key] ?? {};
+  const previous = normalizeDirectionalFlashcardStat(wordStats[direction]);
+  const gradeCounts = { ...previous.gradeCounts, [grade]: previous.gradeCounts[grade] + 1 };
+  const nextStat: DirectionalFlashcardStat = {
+    reviewCount: previous.reviewCount + 1,
+    confidence: directionalConfidence(gradeCounts),
+    gradeCounts,
+  };
+  return {
+    ...base,
+    [key]: {
+      ...wordStats,
+      [direction]: nextStat,
+    },
+  };
 }
 
 // Repair a single quiz stat: coerce missing/non-finite/negative counts to safe
@@ -426,6 +515,7 @@ export function normalizeProgress(
     favoriteTopics: asStringArray(p.favoriteTopics) ?? [],
     favoriteWords: asStringArray(p.favoriteWords) ?? [],
     flashcardStats: normalizeFlashcardStats(p.flashcardStats, now),
+    directionalFlashcardStats: normalizeDirectionalFlashcardStats(p.directionalFlashcardStats),
     quizStats: normalizeQuizStats(p.quizStats),
     dailyActivity: normalizeDailyActivity(p.dailyActivity),
     dailyChallenge: normalizeDailyChallenge(p.dailyChallenge),

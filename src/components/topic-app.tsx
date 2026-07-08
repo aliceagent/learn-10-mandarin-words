@@ -572,6 +572,7 @@ export function TopicApp({
           cardIndex={cardIndex}
           current={current}
           stat={progress.flashcardStats[currentKey]}
+          directionalStats={progress.directionalFlashcardStats[currentKey]}
           revealed={revealed}
           deckOrder={flashcardDeckOrder}
           onDeckOrderChange={(nextOrder) => {
@@ -579,23 +580,23 @@ export function TopicApp({
             resetFlashcardDeck(nextOrder, "Flashcard deck reordered");
           }}
           onReveal={() => setRevealed(true)}
-          onGrade={(grade) => {
+          onGrade={(grade, direction) => {
             // Compute the projected interval BEFORE grading mutates the stat, so
             // the toast reports exactly what this grade scheduled.
             const days = previewIntervals(progress.flashcardStats[currentKey], new Date())[grade];
             setFlashcardSession((session) =>
               recordFlashcardSessionResult(session, currentKey, grade, progress.flashcardStats[currentKey]),
             );
-            gradeWord(currentKey, grade);
+            gradeWord(currentKey, grade, direction);
             setToast(`“${current.hanzi}” scheduled in ${formatIntervalDays(days)}`);
             setRevealed(false);
             setCardIndex((v) => (v + 1) % flashcardItems.length);
           }}
-          onKnown={() => {
+          onKnown={(direction) => {
             setFlashcardSession((session) =>
               recordFlashcardSessionResult(session, currentKey, "known", progress.flashcardStats[currentKey]),
             );
-            markWordKnown(currentKey);
+            markWordKnown(currentKey, direction);
             track("flashcard_known_marked", { topic: topic.slug });
             setToast(`“${current.hanzi}” marked known — we'll review it less often`);
             setRevealed(false);

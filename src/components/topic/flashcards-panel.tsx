@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { FlashcardStat, Topic, VocabItem } from "@/lib/types";
+import type { FlashcardStat, DirectionalFlashcardStat, Topic, VocabItem } from "@/lib/types";
 import type { Grade } from "@/lib/progress-logic";
 import { formatIntervalDays, previewIntervals } from "@/lib/progress-logic";
 import { confidenceAriaLabel, flashcardConfidence } from "@/lib/flashcard-confidence";
@@ -16,6 +16,7 @@ import { dragTransform, FLING_THRESHOLD_PX, type FlingIntent } from "@/lib/gestu
 import { HANZI_LANG, PINYIN_LANG } from "@/lib/lang";
 import { HANZI_SIZE_CLASS } from "@/lib/hanzi-size";
 import { buildFlashcardFace, directionForCard, FLASHCARD_DIRECTION_OPTIONS } from "@/lib/flashcard-direction";
+import type { ConcreteFlashcardDirection } from "@/lib/flashcard-direction";
 import { FLASHCARD_VISIBILITY_OPTIONS } from "@/lib/flashcard-visibility";
 import type { FlashcardSessionSummary } from "@/lib/flashcard-session-summary";
 import { FLASHCARD_DECK_ORDER_OPTIONS, type FlashcardDeckOrder } from "@/lib/flashcard-deck-order";
@@ -47,6 +48,7 @@ export function FlashcardsPanel({
   cardIndex,
   current,
   stat,
+  directionalStats,
   revealed,
   onReveal,
   onGrade,
@@ -63,10 +65,12 @@ export function FlashcardsPanel({
   /** The current word's saved stat, so grade buttons can preview the next
    *  interval (undefined for a never-graded word). */
   stat: FlashcardStat | undefined;
+  /** Direction-specific recall history for this word, keyed by prompt direction. */
+  directionalStats: Partial<Record<ConcreteFlashcardDirection, DirectionalFlashcardStat>> | undefined;
   revealed: boolean;
   onReveal: () => void;
-  onGrade: (grade: Grade) => void;
-  onKnown: () => void;
+  onGrade: (grade: Grade, direction: ConcreteFlashcardDirection) => void;
+  onKnown: (direction: ConcreteFlashcardDirection) => void;
   deckOrder: FlashcardDeckOrder;
   onDeckOrderChange: (order: FlashcardDeckOrder) => void;
   sessionSummary: FlashcardSessionSummary;
@@ -82,6 +86,7 @@ export function FlashcardsPanel({
   const { direction, setDirection } = useFlashcardDirection();
   const { visibility, toggle } = useFlashcardVisibility();
   const activeDirection = directionForCard(direction, cardIndex);
+  const directionalStat = directionalStats?.[activeDirection];
   const face = buildFlashcardFace(current, activeDirection);
   const confidence = flashcardConfidence(stat);
   // Fling animation state: the card flies off, then the grade lands on
@@ -102,8 +107,8 @@ export function FlashcardsPanel({
     const grade = flingGrade.current;
     flingGrade.current = null;
     setFlingDir(null);
-    if (grade) onGrade(grade);
-  }, [onGrade]);
+    if (grade) onGrade(grade, activeDirection);
+  }, [activeDirection, onGrade]);
 
   useEffect(() => () => {
     if (flingTimer.current) clearTimeout(flingTimer.current);
@@ -113,7 +118,7 @@ export function FlashcardsPanel({
     (grade: Grade, dir: "left" | "right") => {
       // Reduced motion: skip the fly-off, grade immediately (pre-sprint feel).
       if (reducedMotion) {
-        onGrade(grade);
+        onGrade(grade, activeDirection);
         return;
       }
       flinging.current = true;
@@ -121,7 +126,7 @@ export function FlashcardsPanel({
       setFlingDir(dir);
       flingTimer.current = setTimeout(settleFling, 350);
     },
-    [onGrade, reducedMotion, settleFling],
+    [activeDirection, onGrade, reducedMotion, settleFling],
   );
 
   const handleTap = useCallback(() => {
@@ -170,6 +175,15 @@ export function FlashcardsPanel({
         >
           {confidence.label} · {confidence.score}%
         </div>
+        {directionalStat ? (
+          <div className="rounded-full border border-sky-300/25 bg-sky-400/10 px-3 py-1 text-xs font-semibold text-sky-100" title="Confidence for this prompt direction only">
+            This direction · {directionalStat.confidence}% · {directionalStat.reviewCount}x
+          </div>
+        ) : (
+          <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-400">
+            New in this direction
+          </div>
+        )}
         {/* Swipe gesture hints — taught once, on the first card of the deck. */}
         {cardIndex === 0 ? (
           <div className="flex gap-3">
@@ -375,7 +389,7 @@ export function FlashcardsPanel({
           </button>
           <button
             type="button"
-            onClick={onKnown}
+            onClick={() => onKnown(activeDirection)}
             className="min-h-[44px] rounded-full border border-emerald-300/30 px-5 py-3 text-sm font-semibold text-emerald-100 transition hover:border-emerald-200/50 hover:bg-emerald-400/10"
             aria-label={`Mark ${current.hanzi} as known and review it less often`}
           >
@@ -402,7 +416,7 @@ export function FlashcardsPanel({
                 <button
                   key={grade}
                   type="button"
-                  onClick={() => onGrade(grade)}
+                  onClick={() => onGrade(grade, activeDirection)}
                   className={`flex min-h-[64px] flex-col items-center justify-center gap-0.5 rounded-xl border-t-2 ${rule} px-2 py-2 text-center font-semibold text-white transition hover:bg-surface-hover`}
                   aria-label={flashcardGradeAriaLabel(grade, previews[grade])}
                   title={`Internal grade: ${grade}`}

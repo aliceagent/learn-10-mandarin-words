@@ -25,6 +25,7 @@ import {
   markWordKnown,
   normalizeBossStat,
   normalizeBossStats,
+  normalizeDirectionalFlashcardStat,
   normalizeProgress,
   normalizeQuizStat,
   normalizeStat,
@@ -33,6 +34,7 @@ import {
   recordBossResult,
   recordDailyChallenge,
   recordDailyPractice,
+  recordDirectionalFlashcardGrade,
   recordLastActivity,
   scheduleReview,
   streakAtRisk,
@@ -105,10 +107,9 @@ test("normalizeProgress never throws on garbage and preserves valid arrays", () 
 
 // ── lastActivity (schema v12) ────────────────────────────────────────────────
 
-test("normalizeProgress({}) is at schema v12 with lastActivity: null", () => {
+test("normalizeProgress({}) keeps lastActivity null at current schema", () => {
   const p = normalizeProgress({});
-  assert.equal(p.schemaVersion, 12);
-  assert.equal(CURRENT_PROGRESS_SCHEMA_VERSION, 12);
+  assert.equal(p.schemaVersion, CURRENT_PROGRESS_SCHEMA_VERSION);
   assert.equal(p.lastActivity, null);
 });
 
@@ -142,6 +143,75 @@ test("normalizeProgress passes a valid lastActivity through, keeping its quizMod
     mode: "quiz",
     quizMode: "english-hanzi",
     updatedAt: "2026-07-06T10:00:00.000Z",
+  });
+});
+
+// ── directional flashcard practice (schema v13) ───────────────────────────────
+
+test("normalizeProgress({}) is at schema v13 with empty directional flashcard stats", () => {
+  const p = normalizeProgress({});
+  assert.equal(p.schemaVersion, 13);
+  assert.equal(CURRENT_PROGRESS_SCHEMA_VERSION, 13);
+  assert.deepEqual(p.directionalFlashcardStats, {});
+});
+
+test("normalizeProgress migrates legacy saves without directional flashcard stats losslessly", () => {
+  const legacy = {
+    schemaVersion: 12,
+    flashcardStats: {
+      "topic:好": { intervalDays: 3, ease: 2.4, dueAt: "2026-07-05T00:00:00.000Z", reviewCount: 2, lapses: 0 },
+    },
+    learnedTopics: ["topic"],
+  };
+  const p = normalizeProgress(legacy);
+  assert.equal(p.schemaVersion, CURRENT_PROGRESS_SCHEMA_VERSION);
+  assert.deepEqual(p.directionalFlashcardStats, {});
+  assert.deepEqual(Object.keys(p.flashcardStats), ["topic:好"]);
+  assert.deepEqual(p.learnedTopics, ["topic"]);
+});
+
+test("normalizeDirectionalFlashcardStat repairs counts and clamps confidence", () => {
+  const stat = normalizeDirectionalFlashcardStat({
+    reviewCount: 1.2,
+    confidence: 150,
+    gradeCounts: { again: 2.7, hard: -1, good: 1, easy: "bad" },
+  });
+  assert.deepEqual(stat, {
+    reviewCount: 4,
+    confidence: 100,
+    gradeCounts: { again: 3, hard: 0, good: 1, easy: 0 },
+  });
+});
+
+test("recordDirectionalFlashcardGrade updates only the practiced direction and returns a new map", () => {
+  const prev = {
+    "topic:好": {
+      "zh-en": {
+        reviewCount: 2,
+        confidence: 70,
+        gradeCounts: { again: 1, hard: 0, good: 1, easy: 0 },
+      },
+    },
+  };
+  const next = recordDirectionalFlashcardGrade(prev, "topic:好", "en-zh", "easy");
+  assert.notEqual(next, prev);
+  assert.deepEqual(next["topic:好"]["zh-en"], prev["topic:好"]["zh-en"]);
+  assert.deepEqual(next["topic:好"]["en-zh"], {
+    reviewCount: 1,
+    confidence: 100,
+    gradeCounts: { again: 0, hard: 0, good: 0, easy: 1 },
+  });
+});
+
+test("recordDirectionalFlashcardGrade derives confidence from direction-specific recall quality", () => {
+  let map = {};
+  map = recordDirectionalFlashcardGrade(map, "topic:好", "pinyin-zh", "again");
+  map = recordDirectionalFlashcardGrade(map, "topic:好", "pinyin-zh", "hard");
+  map = recordDirectionalFlashcardGrade(map, "topic:好", "pinyin-zh", "good");
+  assert.deepEqual(map["topic:好"]["pinyin-zh"], {
+    reviewCount: 3,
+    confidence: 42,
+    gradeCounts: { again: 1, hard: 1, good: 1, easy: 0 },
   });
 });
 
