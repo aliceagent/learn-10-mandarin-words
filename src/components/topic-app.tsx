@@ -49,10 +49,29 @@ import {
   type FlashcardSessionState,
 } from "@/lib/flashcard-session-summary";
 import {
-  DEFAULT_FLASHCARD_DECK_ORDER,
   orderFlashcardDeck,
   type FlashcardDeckOrder,
 } from "@/lib/flashcard-deck-order";
+import {
+  DEFAULT_FLASHCARD_SETTINGS,
+  flashcardTopicHealth,
+  normalizeFlashcardSettings,
+  type FlashcardSettings,
+} from "@/lib/flashcard-health";
+
+// Persisted UI-only flashcard preferences. This is intentionally separate from
+// ProgressState: changing dashboard visibility or default deck order must never
+// touch SRS scheduling, streaks, or word progress.
+const FLASHCARD_SETTINGS_STORAGE_KEY = "mandarin.flashcardSettings";
+
+function readStoredFlashcardSettings(): FlashcardSettings {
+  if (typeof window === "undefined") return DEFAULT_FLASHCARD_SETTINGS;
+  try {
+    return normalizeFlashcardSettings(JSON.parse(window.localStorage.getItem(FLASHCARD_SETTINGS_STORAGE_KEY) ?? "null"));
+  } catch {
+    return DEFAULT_FLASHCARD_SETTINGS;
+  }
+}
 
 // The Boss Round panel (~660 lines of stage-rendering code) is deferred into its
 // own chunk: the initial mode is always "words"/"phrasebook", so it never renders
@@ -96,7 +115,8 @@ export function TopicApp({
   const [revealed, setRevealed] = useState(false);
   const [flashcardItems, setFlashcardItems] = useState<VocabItem[]>(topic.items);
   const [flashcardSession, setFlashcardSession] = useState<FlashcardSessionState>(() => emptyFlashcardSession(topic));
-  const [flashcardDeckOrder, setFlashcardDeckOrder] = useState<FlashcardDeckOrder>(DEFAULT_FLASHCARD_DECK_ORDER);
+  const [flashcardSettings, setFlashcardSettings] = useState<FlashcardSettings>(() => readStoredFlashcardSettings());
+  const [flashcardDeckOrder, setFlashcardDeckOrder] = useState<FlashcardDeckOrder>(() => readStoredFlashcardSettings().defaultDeckOrder);
   const [flashcardDeckSnapshotKey, setFlashcardDeckSnapshotKey] = useState<string | null>(null);
   const [quizMode, setQuizMode] = useState<QuizMode>(() => parseQuizMode(searchParams.get("q")) ?? "hanzi-english");
   // Tone-practice section sub-mode: the eyes-first per-syllable drill ("read")
@@ -173,6 +193,17 @@ export function TopicApp({
     if (message) setToast(message);
   }
 
+  function updateFlashcardSettings(next: FlashcardSettings) {
+    setFlashcardSettings(next);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(FLASHCARD_SETTINGS_STORAGE_KEY, JSON.stringify(next));
+    }
+  }
+
+  function setDefaultFlashcardDeckOrder(nextOrder: FlashcardDeckOrder) {
+    updateFlashcardSettings({ ...flashcardSettings, defaultDeckOrder: nextOrder });
+  }
+
   const quiz = useMemo(
     () => buildQuiz(activeItems, topic.items, quizMode, keyFor),
     [activeItems, topic.items, quizMode, keyFor],
@@ -194,6 +225,10 @@ export function TopicApp({
   const sessionSummary = useMemo(
     () => flashcardSessionSummary(flashcardSession, flashcardSessionTopic, progress.flashcardStats),
     [flashcardSession, flashcardSessionTopic, progress.flashcardStats],
+  );
+  const flashcardHealth = useMemo(
+    () => flashcardTopicHealth(topic, progress.flashcardStats),
+    [topic, progress.flashcardStats],
   );
 
   // Record a topic start once per mounted topic (anonymous, local/dev only).
@@ -575,6 +610,10 @@ export function TopicApp({
           directionalStats={progress.directionalFlashcardStats[currentKey]}
           revealed={revealed}
           deckOrder={flashcardDeckOrder}
+          health={flashcardHealth}
+          settings={flashcardSettings}
+          onSettingsChange={updateFlashcardSettings}
+          onSetDefaultDeckOrder={setDefaultFlashcardDeckOrder}
           onDeckOrderChange={(nextOrder) => {
             setFlashcardDeckOrder(nextOrder);
             resetFlashcardDeck(nextOrder, "Flashcard deck reordered");

@@ -20,6 +20,7 @@ import type { ConcreteFlashcardDirection } from "@/lib/flashcard-direction";
 import { FLASHCARD_VISIBILITY_OPTIONS } from "@/lib/flashcard-visibility";
 import type { FlashcardSessionSummary } from "@/lib/flashcard-session-summary";
 import { FLASHCARD_DECK_ORDER_OPTIONS, type FlashcardDeckOrder } from "@/lib/flashcard-deck-order";
+import type { FlashcardSettings, FlashcardTopicHealth } from "@/lib/flashcard-health";
 import { flashcardRescuePrompt } from "@/lib/flashcard-rescue";
 import { SpeakButton } from "../speak-button";
 import { TonePinyin } from "../tone-pinyin";
@@ -56,6 +57,10 @@ export function FlashcardsPanel({
   onKnown,
   deckOrder,
   onDeckOrderChange,
+  health,
+  settings,
+  onSettingsChange,
+  onSetDefaultDeckOrder,
   sessionSummary,
   onReviewMissed,
   onRestartSession,
@@ -74,6 +79,10 @@ export function FlashcardsPanel({
   onKnown: (direction: ConcreteFlashcardDirection) => void;
   deckOrder: FlashcardDeckOrder;
   onDeckOrderChange: (order: FlashcardDeckOrder) => void;
+  health: FlashcardTopicHealth;
+  settings: FlashcardSettings;
+  onSettingsChange: (settings: FlashcardSettings) => void;
+  onSetDefaultDeckOrder: (order: FlashcardDeckOrder) => void;
   sessionSummary: FlashcardSessionSummary;
   onReviewMissed: () => void;
   onRestartSession: () => void;
@@ -198,6 +207,47 @@ export function FlashcardsPanel({
         ) : null}
       </div>
 
+      <div className="mt-4 rounded-2xl border border-white/10 bg-surface-2 p-4 text-left">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Flashcard health</p>
+            <p className="mt-1 text-sm text-slate-300">
+              {health.tracked}/{health.totalWords} tracked · {health.due} due · {health.shaky} shaky · {health.solid} solid · {health.mastered} mastered
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <span
+              className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+                health.status === "needs rescue"
+                  ? "border-rose-300/30 bg-rose-400/10 text-rose-100"
+                  : health.status === "due"
+                    ? "border-amber-300/30 bg-amber-400/10 text-amber-100"
+                    : "border-emerald-300/30 bg-emerald-400/10 text-emerald-100"
+              }`}
+            >
+              {health.status}
+            </span>
+            <button
+              type="button"
+              onClick={() => onSettingsChange({ ...settings, showHealthDashboard: !settings.showHealthDashboard })}
+              className="min-h-[32px] rounded-full border border-white/15 px-3 py-1 text-xs font-semibold text-slate-300 transition hover:border-white/30 hover:text-white"
+              aria-pressed={settings.showHealthDashboard}
+            >
+              {settings.showHealthDashboard ? "Hide dashboard" : "Show dashboard"}
+            </button>
+          </div>
+        </div>
+        {settings.showHealthDashboard ? (
+          <div className="mt-3 grid gap-2 sm:grid-cols-5">
+            <HealthMetric label="New" value={health.newWords} />
+            <HealthMetric label="Due" value={health.due} />
+            <HealthMetric label="Shaky" value={health.shaky} />
+            <HealthMetric label="Rescue" value={health.needsRescue} />
+            <HealthMetric label="Mastered" value={health.mastered} />
+          </div>
+        ) : null}
+      </div>
+
       <div className="mt-4 rounded-2xl border border-white/10 bg-surface-2 p-2 text-left">
         <p className="px-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
           Direction
@@ -253,6 +303,13 @@ export function FlashcardsPanel({
         <p className="mt-2 px-2 text-[11px] text-slate-500">
           The order is snapshotted for this pass, so grading won&apos;t move cards under you.
         </p>
+        <button
+          type="button"
+          onClick={() => onSetDefaultDeckOrder(deckOrder)}
+          className="mt-3 min-h-[36px] rounded-full border border-white/15 px-4 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-sky-300/40 hover:text-white"
+        >
+          Use {FLASHCARD_DECK_ORDER_OPTIONS.find((option) => option.key === deckOrder)?.label ?? "this order"} as my default
+        </button>
       </div>
 
       {rescuePrompt ? (
@@ -477,5 +534,14 @@ export function FlashcardsPanel({
         </p>
       ) : null}
     </section>
+  );
+}
+
+function HealthMetric({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-surface/60 px-3 py-2 text-center">
+      <p className="text-lg font-semibold text-white">{value}</p>
+      <p className="text-[11px] uppercase tracking-[0.14em] text-slate-500">{label}</p>
+    </div>
   );
 }
