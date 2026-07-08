@@ -118,7 +118,7 @@ Next:
 - M2. Topic page mode tabs mobile density.
 
 ### M2. Topic page mode tabs mobile density
-Status: pending
+Status: fixed
 Severity: high
 Feature area: Topic lesson page, all modes
 Problem:
@@ -128,6 +128,18 @@ Plan:
 - Prefer a compact horizontally scrollable segmented control or prioritized mobile mode menu.
 - Keep Words/Cards/Quiz high-priority.
 - Ensure active mode is obvious and reachable.
+What changed:
+- Added `mobileTopicModeGroups` to keep Words, Cards, and Quiz in the mobile primary row, with Phrasebook added first for phrase topics.
+- Moved the mobile practice mode control directly below the sticky topic header so repeated-action modes are reachable before the hero/video content.
+- Collapsed advanced modes behind a compact More modes disclosure on mobile while preserving the full desktop tab strip at `md` and up.
+Evidence:
+- `dogfood-output/mobile/screenshots/m2-tabs-before-top.png` showed the top mobile viewport reached the lesson hero and action buttons before mode switching.
+- `dogfood-output/mobile/screenshots/m2-tabs-after-top.png` shows Words, Cards, Quiz, and More modes immediately below the sticky topic header at 390x844.
+QA:
+- Focused test: `node --test tests/topic-mode-logic.test.mjs` passed.
+- Full gate passed: `npm run test && npm run validate:data && npm run validate:quality && npm run lint && npm run build`.
+Next:
+- M3. Quiz and duel answer grids on mobile.
 
 ### M3. Quiz and duel answer grids on mobile
 Status: pending

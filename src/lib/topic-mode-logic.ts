@@ -43,6 +43,22 @@ export const MODE_LABELS: Record<TopicMode, string> = {
   boss: "Boss",
 };
 
+export function mobileTopicModeGroups({
+  isPhrasebook,
+  speechAvailable,
+}: {
+  isPhrasebook: boolean;
+  speechAvailable: boolean;
+}): { primary: TopicMode[]; advanced: TopicMode[] } {
+  const primary: TopicMode[] = isPhrasebook
+    ? ["phrasebook", "words", "flashcards", "quiz"]
+    : ["words", "flashcards", "quiz"];
+  const advanced: TopicMode[] = ["typed", "match", "memory", "cloze", "scramble"];
+  if (speechAvailable) advanced.push("sentence-listen");
+  advanced.push("boss");
+  return { primary, advanced };
+}
+
 // Quiz sub-mode reuses quiz-logic's QuizMode; re-exported here so resume/href
 // callers have one import site for everything mode-related.
 export type ResumableQuizMode = QuizMode;

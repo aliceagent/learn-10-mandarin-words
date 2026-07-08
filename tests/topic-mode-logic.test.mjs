@@ -10,6 +10,7 @@ import {
   parseQuizMode,
   modeQuery,
   topicModeHref,
+  mobileTopicModeGroups,
 } from "../src/lib/topic-mode-logic.ts";
 
 // ── parseMode ────────────────────────────────────────────────────────────────
@@ -78,6 +79,22 @@ test("topicModeHref builds mode deep-links", () => {
 test("topicModeHref falls back to a bare topic href without a mode", () => {
   assert.equal(topicModeHref("x"), "/topics/x");
   assert.equal(topicModeHref("x", null), "/topics/x");
+});
+
+// ── Mobile mode grouping ─────────────────────────────────────────────────────
+
+test("mobileTopicModeGroups keeps the main repeated actions in the primary row", () => {
+  assert.deepEqual(mobileTopicModeGroups({ isPhrasebook: false, speechAvailable: true }), {
+    primary: ["words", "flashcards", "quiz"],
+    advanced: ["typed", "match", "memory", "cloze", "scramble", "sentence-listen", "boss"],
+  });
+});
+
+test("mobileTopicModeGroups includes phrasebook first and omits unavailable listening", () => {
+  assert.deepEqual(mobileTopicModeGroups({ isPhrasebook: true, speechAvailable: false }), {
+    primary: ["phrasebook", "words", "flashcards", "quiz"],
+    advanced: ["typed", "match", "memory", "cloze", "scramble", "boss"],
+  });
 });
 
 // ── Registry drift guards ────────────────────────────────────────────────────

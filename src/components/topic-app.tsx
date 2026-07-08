@@ -9,7 +9,7 @@ import type { CharConnectionGroup } from "@/lib/connections-logic";
 import { isUsefulPhraseTopic, nextTopicAfter, wordKey } from "@/lib/data";
 import { topicCategoryHref } from "@/lib/data-logic";
 import { buildQuiz, itemsForKeys, type QuizMode } from "@/lib/quiz-logic";
-import { modeQuery, parseMode, parseQuizMode, type TopicMode } from "@/lib/topic-mode-logic";
+import { MODE_LABELS, mobileTopicModeGroups, modeQuery, parseMode, parseQuizMode, type TopicMode } from "@/lib/topic-mode-logic";
 import { isNewBestCombo, nextCombo } from "@/lib/combo-logic";
 import { computeStats, formatIntervalDays, isCrowned, previewIntervals, topicProgress, topicWordStatuses } from "@/lib/progress-logic";
 import { downloadableMp4Url, hasPlayableVideo } from "@/lib/video";
@@ -156,6 +156,8 @@ export function TopicApp({
   // meaning (fully usable) for the tabs/panels that hide when audio can't play.
   const { availability: audioAvailability } = useSpeech();
   const speechAvailable = audioAvailability === "ready";
+  const mobileModes = mobileTopicModeGroups({ isPhrasebook, speechAvailable });
+  const mobileAdvancedActive = mobileModes.advanced.includes(mode);
 
   const isLearned = progress.learnedTopics.includes(topic.slug);
   const isFavoriteTopic = progress.favoriteTopics.includes(topic.slug);
@@ -400,6 +402,41 @@ export function TopicApp({
         </div>
       </div>
 
+      <section className="sticky top-[49px] z-20 -mx-6 border-b border-white/10 bg-background/95 px-4 py-2 backdrop-blur md:hidden" aria-label="Mobile practice modes">
+        <div className="flex gap-1 overflow-x-auto rounded-2xl border border-white/10 bg-surface p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {mobileModes.primary.map((mobileMode) => (
+            <button
+              key={mobileMode}
+              type="button"
+              onClick={() => setMode(mobileMode)}
+              className={`min-h-[44px] min-w-[92px] flex-1 rounded-xl px-2 py-2 text-sm font-semibold transition ${mode === mobileMode ? "bg-emerald-400/14 text-emerald-100 ring-1 ring-inset ring-emerald-400/25" : "text-slate-400 hover:bg-white/[0.04] hover:text-white"}`}
+              aria-pressed={mode === mobileMode}
+            >
+              {MODE_LABELS[mobileMode]}
+            </button>
+          ))}
+        </div>
+        <details className="group mt-2 rounded-2xl border border-white/10 bg-surface/70" open={mobileAdvancedActive}>
+          <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-3 px-4 py-2 text-sm font-semibold text-slate-300 [&::-webkit-details-marker]:hidden">
+            <span>{mobileAdvancedActive ? `${MODE_LABELS[mode]} mode` : "More modes"}</span>
+            <span aria-hidden="true" className="text-xs text-slate-500 transition group-open:rotate-180">▾</span>
+          </summary>
+          <div className="grid grid-cols-2 gap-1 border-t border-white/10 p-1">
+            {mobileModes.advanced.map((mobileMode) => (
+              <button
+                key={mobileMode}
+                type="button"
+                onClick={() => setMode(mobileMode)}
+                className={`min-h-[44px] rounded-xl px-3 py-2 text-left text-sm font-semibold transition ${mode === mobileMode ? "bg-emerald-400/14 text-emerald-100 ring-1 ring-inset ring-emerald-400/25" : "text-slate-400 hover:bg-white/[0.04] hover:text-white"}`}
+                aria-pressed={mode === mobileMode}
+              >
+                {mobileMode === "boss" && topicCrowned ? "Boss 👑" : MODE_LABELS[mobileMode]}
+              </button>
+            ))}
+          </div>
+        </details>
+      </section>
+
       {/* ── Hero section ── */}
       <section className="mt-8 grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
         <div>
@@ -531,7 +568,7 @@ export function TopicApp({
           Still a scrollable flex row (not a fixed grid) so 4–5 tabs fit and scroll
           on a 360px screen; the scrollbar is hidden. The `tab-scroll` wrapper
           lays a gentle right-edge fade over the strip to hint at more tabs. */}
-      <div className="tab-scroll relative mt-10">
+      <div className="tab-scroll relative mt-10 hidden md:block">
         <nav
           className="flex gap-1 overflow-x-auto snap-x rounded-2xl border border-white/10 bg-surface p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           aria-label="Practice modes"
