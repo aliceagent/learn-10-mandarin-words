@@ -126,7 +126,7 @@ export function StatsApp({
     stats.daysStudied > 0;
 
   return (
-    <main className="mx-auto max-w-7xl px-6 pb-24 pt-8 md:px-10 md:pb-12">
+    <main className="mx-auto max-w-7xl px-4 pb-28 pt-5 md:px-10 md:pb-12 md:pt-8">
       <div className="flex items-center justify-between gap-3">
         <Link href="/" className="text-sm font-semibold text-emerald-300 hover:text-emerald-200">← Library</Link>
         <Link
@@ -142,21 +142,20 @@ export function StatsApp({
         </Link>
       </div>
 
-      <div className="mt-8 flex flex-wrap items-end justify-between gap-4">
+      <div className="mt-5 flex flex-wrap items-end justify-between gap-4 md:mt-8">
         <div>
-          <h1 className="text-4xl font-semibold tracking-tight text-white md:text-5xl">Your Stats</h1>
-          <p className="mt-3 max-w-2xl text-lg text-slate-300">
-            A local snapshot of your progress. Everything here is computed on your device from your saved
-            progress — no account, no cloud.
+          <h1 className="text-3xl font-semibold tracking-tight text-white md:text-5xl">Your Stats</h1>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300 md:mt-3 md:text-lg">
+            A local progress snapshot from this device. No account, no cloud.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 md:gap-3">
           {streakAtRisk(studiedWithFreezes(progress)) ? (
             <Link
               href="/review"
               className="rounded-full border border-amber-400/60 px-4 py-2 text-sm font-bold text-amber-300 transition hover:border-amber-300 hover:text-amber-200"
             >
-              🔥 {stats.streak}-day streak — practice today to keep it
+              🔥 {stats.streak}-day streak. Practice today to keep it
             </Link>
           ) : stats.streak > 0 ? (
             <div className="flex items-center gap-2 rounded-full bg-amber-400 px-4 py-2" aria-label={`${stats.streak} day streak`}>
@@ -189,23 +188,22 @@ export function StatsApp({
 
       {yesterdayFrozen ? (
         <p className="mt-4 text-sm font-semibold text-sky-300">
-          ❄️ A streak freeze covered yesterday — your streak is safe.
+          ❄️ A streak freeze covered yesterday. Your streak is safe.
         </p>
       ) : null}
 
       {!hasActivity ? (
-        <div className="mt-10 rounded-3xl border border-white/10 bg-surface p-10 text-center">
-          <p className="text-5xl">📊</p>
-          <p className="mt-4 text-2xl font-semibold text-white">No stats yet</p>
-          <p className="mt-3 mx-auto max-w-sm text-slate-400">
-            Study a topic, favorite a few words, and grade some flashcards. Your progress will show up here —
-            and it never leaves this device.
+        <div className="mt-6 rounded-3xl border border-white/10 bg-surface p-5 text-center md:mt-10 md:p-10">
+          <p className="text-3xl md:text-5xl">📊</p>
+          <p className="mt-3 text-xl font-semibold text-white md:mt-4 md:text-2xl">No stats yet</p>
+          <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-slate-400 md:mt-3 md:text-base">
+            Study a topic, favorite words, or grade flashcards. Your progress stays on this device.
           </p>
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Link href="/path" className="min-h-[44px] inline-flex items-center rounded-full bg-emerald-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cta">
+          <div className="mt-4 grid grid-cols-2 gap-3 md:mt-6 md:flex md:flex-wrap md:justify-center">
+            <Link href="/path" className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-emerald-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cta md:px-6 md:text-base">
               Start the path
             </Link>
-            <Link href="/" className="min-h-[44px] inline-flex items-center rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-emerald-300">
+            <Link href="/" className="inline-flex min-h-[44px] items-center justify-center rounded-full border border-white/15 px-5 py-3 text-sm font-semibold text-white transition hover:border-emerald-300 md:px-6 md:text-base">
               Browse topics
             </Link>
           </div>
@@ -213,7 +211,7 @@ export function StatsApp({
       ) : null}
 
       {/* ── Stat grid (always rendered so an empty state still shows zeros) ── */}
-      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-6 grid grid-cols-2 gap-3 md:mt-8 lg:grid-cols-3">
         <GoalCard progress={progress} setDailyGoal={setDailyGoal} />
         <StatCard
           value={`${stats.learnedTopics}`}
@@ -236,7 +234,7 @@ export function StatsApp({
         <StatCard
           value={`${stats.leechWords}`}
           label={`word${stats.leechWords !== 1 ? "s" : ""} flagged for rescue`}
-          sublabel={`missed ${LEECH_LAPSE_THRESHOLD}+ reviews — run a rescue drill`}
+          sublabel={`missed ${LEECH_LAPSE_THRESHOLD}+ reviews. Run a rescue drill`}
           href="/review"
         />
         <StatCard
@@ -281,7 +279,7 @@ export function StatsApp({
         <h2 className="text-xl font-semibold text-white">Study activity</h2>
         <p className="mt-1 text-sm text-slate-400">
           {stats.daysStudied > 0
-            ? "Every square is a day. Study anything — one flashcard counts — to light it up."
+            ? "Every square is a day. One flashcard can light it up."
             : "A whole year of blank squares, and the first green one is a single flashcard away."}
         </p>
         <div className="mt-4 rounded-2xl border border-white/10 bg-surface p-5">
@@ -303,7 +301,7 @@ export function StatsApp({
       <section className="mt-10" aria-label="Mastery by category">
         <h2 className="text-xl font-semibold text-white">Mastery by category</h2>
         <p className="mt-1 text-sm text-slate-400">
-          Words per category — mastered when their review interval reaches a week.
+          Words per category, mastered when their review interval reaches a week.
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {categoryMastery.map((cat) => (
@@ -365,10 +363,10 @@ export function StatsApp({
 
 // ── This week recap card ──────────────────────────────────────────────────────
 // The four trailing-7-day figures, a presence-only day-dot row, and the weekly
-// share button (which hides itself on an empty week). Accuracy falls back to "—"
+// share button (which hides itself on an empty week). Accuracy falls back to "-"
 // until quiz answers land this week, since the per-day tally starts empty at ship.
 function ThisWeekCard({ recap }: { recap: WeeklyRecap }) {
-  const accuracyLabel = recap.accuracy == null ? "—" : `${Math.round(recap.accuracy * 100)}%`;
+  const accuracyLabel = recap.accuracy == null ? "-" : `${Math.round(recap.accuracy * 100)}%`;
   const data: ShareCardData = {
     kind: "weekly",
     wordsPracticed: recap.wordsPracticed,
@@ -475,8 +473,8 @@ function GoalCard({
   const goalDays = Math.min(consecutiveGoalDays(progress), GOAL_WEEK_DAYS);
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-surface p-5 sm:col-span-2 lg:col-span-3">
-      <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+    <div className="col-span-2 rounded-2xl border border-white/10 bg-surface p-4 md:p-5 lg:col-span-3">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between md:gap-5">
         <div className="flex items-center gap-4">
           {current > 0 ? (
             <ProgressRing
@@ -508,7 +506,7 @@ function GoalCard({
             {current > 0 ? (
               <p className="mt-1 text-xs text-sky-300/90">
                 {atFreezeCap
-                  ? `Freeze stash full — ${MAX_STREAK_FREEZES} ❄️ banked`
+                  ? `Freeze stash full. ${MAX_STREAK_FREEZES} ❄️ banked`
                   : `${goalDays} of ${GOAL_WEEK_DAYS} goal days toward a streak freeze ❄️`}
               </p>
             ) : null}
@@ -540,8 +538,8 @@ function StatCard({
   const pct = progress ? Math.min(100, progress.max > 0 ? (progress.current / progress.max) * 100 : 0) : 0;
   const body = (
     <>
-      <div className="text-3xl font-semibold text-white">{value}</div>
-      <div className="mt-1 text-sm font-medium text-slate-300">{label}</div>
+      <div className="text-2xl font-semibold text-white md:text-3xl">{value}</div>
+      <div className="mt-1 text-xs font-medium leading-snug text-slate-300 md:text-sm">{label}</div>
       {sublabel ? <div className="mt-0.5 text-xs text-slate-500">{sublabel}</div> : null}
       {progress && progress.max > 0 ? (
         <div className="progress-bar-track mt-3">
@@ -555,11 +553,11 @@ function StatCard({
     return (
       <Link
         href={href}
-        className="block rounded-2xl border border-white/10 bg-surface p-5 transition hover:-translate-y-0.5 hover:border-emerald-300/50 hover:bg-surface-hover"
+        className="block min-h-[112px] rounded-2xl border border-white/10 bg-surface p-4 transition hover:-translate-y-0.5 hover:border-emerald-300/50 hover:bg-surface-hover md:p-5"
       >
         {body}
       </Link>
     );
   }
-  return <div className="rounded-2xl border border-white/10 bg-surface p-5">{body}</div>;
+  return <div className="min-h-[112px] rounded-2xl border border-white/10 bg-surface p-4 md:p-5">{body}</div>;
 }

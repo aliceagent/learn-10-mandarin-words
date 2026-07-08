@@ -250,7 +250,7 @@ Next:
 - M7. Stats/settings mobile hierarchy.
 
 ### M7. Stats/settings mobile hierarchy
-Status: pending
+Status: fixed
 Severity: low
 Feature area: Stats and settings
 Problem:
@@ -259,6 +259,21 @@ Plan:
 - Audit Stats and Settings at 390x844.
 - Reduce repeated borders/cards if needed.
 - Keep export/import/settings controls clear and safe.
+What changed:
+- Compactified mobile Stats and Settings top spacing, heading scale, section padding, and row rhythm while preserving the desktop hierarchy.
+- Reduced the empty Stats state so the first viewport reaches the daily-goal controls sooner.
+- Changed Stats metric cards to a two-column mobile grid with smaller type and consistent card height to reduce stacked-card fatigue.
+- Increased mobile bottom padding on Stats and Settings so lower controls have clearance above the fixed bottom navigation.
+- Reworded touched visible copy to avoid em-dash separators.
+Evidence:
+- `dogfood-output/mobile/screenshots/m7-stats-before-top.png`
+- `dogfood-output/mobile/screenshots/m7-stats-after-top.png`
+- `dogfood-output/mobile/screenshots/m7-settings-before-top.png`
+- `dogfood-output/mobile/screenshots/m7-settings-after-top.png`
+QA:
+- Full gate passed: `npm run test && npm run validate:data && npm run validate:quality && npm run lint && npm run build`.
+Next:
+- M8. Bottom nav and safe-area clearance.
 
 ### M8. Bottom nav and safe-area clearance
 Status: pending

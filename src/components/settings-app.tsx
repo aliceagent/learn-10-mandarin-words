@@ -30,20 +30,20 @@ export function SettingsApp() {
   const { progress, loaded, setDailyGoal } = useProgress();
 
   return (
-    <main className="mx-auto max-w-3xl px-6 pb-24 pt-8 md:px-10 md:pb-12">
+    <main className="mx-auto max-w-3xl px-4 pb-28 pt-5 md:px-10 md:pb-12 md:pt-8">
       <div className="flex items-center justify-between gap-3">
         <Link href="/" className="text-sm font-semibold text-emerald-300 hover:text-emerald-200">← Library</Link>
         <Link href="/stats" className="text-sm font-semibold text-slate-400 transition hover:text-emerald-300">Your stats</Link>
       </div>
 
-      <div className="mt-8">
-        <h1 className="text-4xl font-semibold tracking-tight text-white md:text-5xl">Settings</h1>
-        <p className="mt-3 text-lg text-slate-300">
-          Preferences are saved on this device — no account, no cloud.
+      <div className="mt-5 md:mt-8">
+        <h1 className="text-3xl font-semibold tracking-tight text-white md:text-5xl">Settings</h1>
+        <p className="mt-2 text-sm leading-relaxed text-slate-300 md:mt-3 md:text-lg">
+          Preferences are saved on this device. No account, no cloud.
         </p>
       </div>
 
-      <div className="mt-8 flex flex-col gap-4">
+      <div className="mt-5 flex flex-col gap-3 md:mt-8 md:gap-4">
         {/* ── Appearance ── */}
         <SettingsSection
           title="Appearance"
@@ -118,10 +118,10 @@ function SettingsSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-3xl border border-white/10 bg-surface p-5 md:p-6">
-      <h2 className="text-xl font-semibold text-white">{title}</h2>
+    <section className="rounded-3xl border border-white/10 bg-surface p-4 md:p-6">
+      <h2 className="text-lg font-semibold text-white md:text-xl">{title}</h2>
       {description ? <p className="mt-1 text-sm text-slate-400">{description}</p> : null}
-      <div className="mt-4 flex flex-col divide-y divide-white/5">{children}</div>
+      <div className="mt-3 flex flex-col divide-y divide-white/5 md:mt-4">{children}</div>
     </section>
   );
 }
@@ -136,9 +136,9 @@ function SettingRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+    <div className="flex flex-wrap items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0 md:py-3">
       <div className="min-w-0">
-        <p className="font-semibold text-white">{title}</p>
+        <p className="text-sm font-semibold text-white md:text-base">{title}</p>
         {detail ? <p className="mt-0.5 text-sm text-slate-400">{detail}</p> : null}
       </div>
       <div className="ml-auto">{children}</div>
@@ -264,15 +264,15 @@ function DataSection() {
   }
 
   return (
-    <section className="rounded-3xl border border-white/10 bg-surface p-5 md:p-6">
-      <h2 className="text-xl font-semibold text-white">Data</h2>
+    <section className="rounded-3xl border border-white/10 bg-surface p-4 md:p-6">
+      <h2 className="text-lg font-semibold text-white md:text-xl">Data</h2>
       <p className="mt-1 text-sm text-slate-400">
         Your progress lives on this device. Back it up or move it to another device.
       </p>
-      <div className="mt-4 flex flex-col divide-y divide-white/5">
+      <div className="mt-3 flex flex-col divide-y divide-white/5 md:mt-4">
         <SettingRow
           title="Export progress"
-          detail="Download everything as a JSON file — a good backup before switching devices."
+          detail="Download everything as a JSON file before switching devices."
         >
           <button
             type="button"
@@ -303,7 +303,7 @@ function DataSection() {
           />
         </SettingRow>
       </div>
-      <p className="mt-4 text-xs text-slate-500">
+      <p className="mt-3 text-xs text-slate-500 md:mt-4">
         Tone colors, theme, and video speed stay on this device and aren&apos;t included in the export. See our{" "}
         <Link href="/privacy" className="font-semibold text-emerald-300 transition hover:text-emerald-200">
           Privacy
