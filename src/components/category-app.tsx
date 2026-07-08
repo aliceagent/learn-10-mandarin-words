@@ -21,17 +21,17 @@ export function CategoryApp({ category, topics }: { category: Category; topics: 
   const summary = masterySummary(topics, progress.flashcardStats, progress.quizStats);
 
   return (
-    <main className="mx-auto max-w-7xl px-6 pb-24 pt-8 md:px-10 md:pb-12">
+    <main className="mx-auto max-w-7xl px-4 pb-28 pt-5 md:px-10 md:pb-12 md:pt-8">
       <Link href="/#categories" className="text-sm font-semibold text-emerald-300 hover:text-emerald-200">
         ← All categories
       </Link>
 
-      <div className="mt-8">
+      <div className="mt-5 md:mt-8">
         <span className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-xs font-medium text-slate-400">
           Category
         </span>
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-white md:text-5xl">{category.name}</h1>
-        <p className="mt-3 max-w-2xl text-lg text-slate-300">
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white md:mt-4 md:text-5xl">{category.name}</h1>
+        <p className="mt-2 max-w-2xl text-base text-slate-300 md:mt-3 md:text-lg">
           {topics.length} topic{topics.length !== 1 ? "s" : ""} · {topics.length * 10} words
         </p>
         {summary.total > 0 ? (
@@ -58,7 +58,7 @@ export function CategoryApp({ category, topics }: { category: Category; topics: 
           </Link>
         </div>
       ) : (
-        <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-6 grid gap-3 md:mt-10 md:grid-cols-2 md:gap-4 xl:grid-cols-3">
           {topics.map((topic) => (
             <TopicCard
               key={topic.slug}

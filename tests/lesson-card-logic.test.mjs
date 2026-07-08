@@ -5,6 +5,7 @@ import {
   lessonCardStatus,
   lessonCardMeta,
   MASTERED_MAJORITY_RATIO,
+  topicCardPreviewItems,
 } from "../src/lib/lesson-card-logic.ts";
 
 // ── fixtures ──────────────────────────────────────────────────────────────────
@@ -129,4 +130,22 @@ test("meta includes 'video' when explicit youtube metadata is present", () => {
 test("meta word count matches items.length and singularizes at 1", () => {
   assert.equal(lessonCardMeta(makeTopic("solo", 1)), "1 word · quiz");
   assert.equal(lessonCardMeta(makeTopic("pair", 2)), "2 words · quiz");
+});
+
+// ── topicCardPreviewItems ────────────────────────────────────────────────────
+
+test("mobile topic cards show three word chips plus remaining count", () => {
+  const topic = makeTopic("pets", 10);
+  assert.deepEqual(topicCardPreviewItems(topic, 3), {
+    items: topic.items.slice(0, 3),
+    remaining: 7,
+  });
+});
+
+test("topic card preview has no remaining count when all items fit", () => {
+  const topic = makeTopic("tiny", 2);
+  assert.deepEqual(topicCardPreviewItems(topic, 3), {
+    items: topic.items,
+    remaining: 0,
+  });
 });

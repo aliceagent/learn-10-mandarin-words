@@ -225,7 +225,7 @@ Next:
 - M6. Topic cards and category pages mobile scanning.
 
 ### M6. Topic cards and category pages mobile scanning
-Status: pending
+Status: fixed
 Severity: medium
 Feature area: Home/category/topic cards
 Problem:
@@ -234,6 +234,20 @@ Plan:
 - Audit card height and visual hierarchy.
 - Make progress/status compact and consistent.
 - Ensure tap targets remain 44px+.
+What changed:
+- Compactified mobile topic cards with smaller padding, radius, title scale, and a shorter featured-hanzi watermark while preserving the desktop card treatment.
+- Hid secondary video/offline/favorite chips on mobile, keeping the category and achievement status as the main scan line.
+- Added `topicCardPreviewItems` so mobile cards show three hanzi chips plus a remaining count instead of five chips, while desktop still shows five.
+- Tightened category-page mobile spacing and the home/category topic grid gap so more lessons fit in the first 390x844 viewport.
+Evidence:
+- `dogfood-output/mobile/screenshots/m6-category-before-top.png`
+- `dogfood-output/mobile/screenshots/m6-category-after-top.png`
+- `dogfood-output/mobile/screenshots/m6-library-before-top.png` showed the screenshot harness can land on a blank app-shell frame for the home anchor; home grid changes were verified by code inspection, lint, build, and the shared `TopicCard` category screenshot.
+QA:
+- Focused test: `node --test tests/lesson-card-logic.test.mjs` passed.
+- Full gate passed: `npm run test && npm run validate:data && npm run validate:quality && npm run lint && npm run build`.
+Next:
+- M7. Stats/settings mobile hierarchy.
 
 ### M7. Stats/settings mobile hierarchy
 Status: pending

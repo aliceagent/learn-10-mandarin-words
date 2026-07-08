@@ -80,3 +80,20 @@ export function lessonCardMeta(
   parts.push("quiz");
   return parts.join(" · ");
 }
+
+/**
+ * The mobile topic grid is for scanning, not previewing all ten words. Keep a
+ * small, stable set of word chips visible and express the rest as a count so
+ * cards stay short on 390px screens while desktop can still show more samples.
+ */
+export function topicCardPreviewItems<T>(
+  topic: { items: readonly T[] },
+  limit: number,
+): { items: readonly T[]; remaining: number } {
+  const safeLimit = Math.max(0, Math.floor(limit));
+  const items = topic.items.slice(0, safeLimit);
+  return {
+    items,
+    remaining: Math.max(0, topic.items.length - items.length),
+  };
+}

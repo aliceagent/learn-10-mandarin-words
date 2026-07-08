@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { FlashcardStat, QuizStat, TopicSummary } from "@/lib/types";
 import { wordKey } from "@/lib/data-logic";
 import { topicWordStatuses } from "@/lib/progress-logic";
-import { lessonCardMeta, type LessonCardStatus } from "@/lib/lesson-card-logic";
+import { lessonCardMeta, topicCardPreviewItems, type LessonCardStatus } from "@/lib/lesson-card-logic";
 import { hasPlayableVideo } from "@/lib/video";
 import { normalizePinyin } from "@/lib/highlight";
 import { HighlightedText } from "./highlighted-text";
@@ -51,6 +51,8 @@ export function TopicCard({
   // passing quizStats; otherwise the card keeps its original studied bar.
   const statuses = quizStats ? topicWordStatuses(topic, flashcardStats, quizStats) : null;
   const videoReady = hasPlayableVideo(topic);
+  const mobilePreview = topicCardPreviewItems(topic, 3);
+  const desktopPreview = topicCardPreviewItems(topic, 5);
 
   // When the home search is active, surface the specific words that matched so
   // the learner can see (and scan) the highlighted hanzi, pinyin, and English
@@ -66,12 +68,12 @@ export function TopicCard({
   return (
     <Link
       href={`/topics/${topic.slug}`}
-      className="group flex flex-col rounded-3xl border border-white/10 bg-surface p-5 transition hover:-translate-y-1 hover:bg-surface-hover"
-      aria-label={`${topic.titleEn} — ${topic.category}`}
+      className="group flex min-h-[44px] flex-col rounded-2xl border border-white/10 bg-surface p-4 transition hover:-translate-y-1 hover:bg-surface-hover md:rounded-3xl md:p-5"
+      aria-label={`${topic.titleEn} - ${topic.category}`}
     >
       {/* Row 1: category badge + status badges */}
       <div className="flex items-center justify-between gap-2">
-        <span className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-xs font-medium text-slate-400">
+        <span className="max-w-[58%] truncate rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[11px] font-medium text-slate-400 md:max-w-none md:text-xs">
           <HighlightedText text={topic.category} query={query} />
         </span>
         {/* Keep at most one loud/filled badge (Learned). Video and Saved read as
@@ -79,7 +81,7 @@ export function TopicCard({
         <div className="flex flex-wrap justify-end gap-1.5 text-xs">
           {videoReady ? (
             <span
-              className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 font-medium text-slate-400"
+              className="hidden rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 font-medium text-slate-400 md:inline-flex"
               title="Video available"
             >
               ▶ Video
@@ -87,15 +89,15 @@ export function TopicCard({
           ) : null}
           {savedOffline ? (
             <span
-              className="rounded-full border border-white/10 px-2.5 py-1 font-medium text-slate-400"
-              title="Video saved — plays without internet"
+              className="hidden rounded-full border border-white/10 px-2.5 py-1 font-medium text-slate-400 md:inline-flex"
+              title="Video saved - plays without internet"
             >
               ✓ Offline
             </span>
           ) : null}
           {favorite ? (
             <span
-              className="rounded-full border border-white/10 px-2.5 py-1 font-medium text-slate-400"
+              className="hidden rounded-full border border-white/10 px-2.5 py-1 font-medium text-slate-400 md:inline-flex"
               title="Saved"
             >
               ★ Saved
@@ -112,7 +114,7 @@ export function TopicCard({
               {crowned ? (
                 <span
                   className="rounded-full border border-amber-300/30 px-2.5 py-1 font-medium text-amber-200/90"
-                  title="Crowned — a flawless Boss Round"
+                  title="Crowned - a flawless Boss Round"
                 >
                   👑 Crowned
                 </span>
@@ -128,17 +130,17 @@ export function TopicCard({
       {/* Row 2: title + featured hanzi */}
       <div className="mt-3 flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="text-lg font-semibold leading-tight text-white transition group-hover:text-emerald-50">
+          <h3 className="text-base font-semibold leading-tight text-white transition group-hover:text-emerald-50 md:text-lg">
             <HighlightedText text={topic.titleEn} query={query} />
           </h3>
-          <p className="font-hanzi mt-1 text-2xl font-semibold text-emerald-300">
+          <p className="font-hanzi mt-1 text-xl font-semibold text-emerald-300 md:text-2xl">
             <HighlightedText text={topic.titleCn} query={query} />
           </p>
         </div>
         {/* Quiet watermark hanzi. Hidden below ~380px so it never collides with
             the title on very narrow screens. */}
         <div
-          className="font-hanzi hidden shrink-0 select-none text-5xl font-bold leading-none text-white/10 transition group-hover:text-white/20 min-[380px]:block"
+          className="font-hanzi hidden shrink-0 select-none text-4xl font-bold leading-none text-white/10 transition group-hover:text-white/20 min-[380px]:block md:text-5xl"
           aria-hidden="true"
         >
           {topic.items[0]?.hanzi}
@@ -172,8 +174,23 @@ export function TopicCard({
       ) : null}
 
       {/* Row 4: hanzi word chips */}
-      <div className="mt-3 flex flex-wrap gap-1.5">
-        {topic.items.slice(0, 5).map((item) => (
+      <div className="mt-3 flex flex-wrap gap-1.5 md:hidden">
+        {mobilePreview.items.map((item) => (
+          <span
+            key={item.hanzi}
+            className="font-hanzi rounded-full bg-white/[0.04] px-2.5 py-1 text-sm text-slate-400"
+          >
+            <HighlightedText text={item.hanzi} query={query} />
+          </span>
+        ))}
+        {mobilePreview.remaining > 0 ? (
+          <span className="rounded-full bg-white/[0.04] px-2.5 py-1 text-xs font-medium text-slate-500">
+            +{mobilePreview.remaining} more
+          </span>
+        ) : null}
+      </div>
+      <div className="mt-3 hidden flex-wrap gap-1.5 md:flex">
+        {desktopPreview.items.map((item) => (
           <span
             key={item.hanzi}
             className="font-hanzi rounded-full bg-white/[0.04] px-2.5 py-1 text-sm text-slate-400"
@@ -208,7 +225,7 @@ export function TopicCard({
           lesson at a glance. */}
       <p className="mt-3 text-xs text-slate-500">{lessonCardMeta(topic)}</p>
 
-      <p className="mt-auto pt-4 text-sm font-semibold text-slate-400 transition group-hover:text-emerald-300">
+      <p className="mt-auto pt-3 text-sm font-semibold text-slate-400 transition group-hover:text-emerald-300 md:pt-4">
         Open lesson →
       </p>
     </Link>
@@ -226,7 +243,7 @@ function StatusChip({ status }: { status: LessonCardStatus }) {
       return (
         <span
           className="rounded-full border border-amber-300/30 px-2.5 py-1 font-medium text-amber-200/90"
-          title="Crowned — a flawless Boss Round"
+          title="Crowned - a flawless Boss Round"
         >
           {status.label}
         </span>
