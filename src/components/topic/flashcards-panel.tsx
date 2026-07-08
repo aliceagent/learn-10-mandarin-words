@@ -20,6 +20,7 @@ import type { ConcreteFlashcardDirection } from "@/lib/flashcard-direction";
 import { FLASHCARD_VISIBILITY_OPTIONS } from "@/lib/flashcard-visibility";
 import type { FlashcardSessionSummary } from "@/lib/flashcard-session-summary";
 import { FLASHCARD_DECK_ORDER_OPTIONS, type FlashcardDeckOrder } from "@/lib/flashcard-deck-order";
+import { flashcardRescuePrompt } from "@/lib/flashcard-rescue";
 import { SpeakButton } from "../speak-button";
 import { TonePinyin } from "../tone-pinyin";
 import { useCardDrag } from "../use-card-drag";
@@ -89,6 +90,10 @@ export function FlashcardsPanel({
   const directionalStat = directionalStats?.[activeDirection];
   const face = buildFlashcardFace(current, activeDirection);
   const confidence = flashcardConfidence(stat);
+  const [dismissedRescueKeys, setDismissedRescueKeys] = useState<Set<string>>(() => new Set());
+  const rescuePrompt = flashcardRescuePrompt(current, stat, {
+    dismissed: dismissedRescueKeys.has(`${topic.slug}:${current.hanzi}`),
+  });
   // Fling animation state: the card flies off, then the grade lands on
   // animation end (with a timeout fallback so an interrupted animation never
   // leaves a stuck card). `flinging` blocks all further input until it settles.
@@ -249,6 +254,37 @@ export function FlashcardsPanel({
           The order is snapshotted for this pass, so grading won&apos;t move cards under you.
         </p>
       </div>
+
+      {rescuePrompt ? (
+        <div className="mt-4 rounded-2xl border border-amber-300/25 bg-amber-400/10 p-4 text-left">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-amber-100">{rescuePrompt.title}</p>
+              <p className="mt-1 text-sm text-slate-300">
+                “{rescuePrompt.word}” has slipped {rescuePrompt.lapses} times. {rescuePrompt.body}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setDismissedRescueKeys((keys) => new Set(keys).add(`${topic.slug}:${current.hanzi}`))}
+              className="min-h-[36px] rounded-full border border-white/15 px-4 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-amber-200/50 hover:text-white"
+            >
+              Skip note
+            </button>
+          </div>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {rescuePrompt.examples.map((example) => (
+              <figure key={`${example.cn}:${example.en}`} className="rounded-xl border border-white/10 bg-surface/60 p-3">
+                <blockquote lang={HANZI_LANG} className="font-hanzi text-lg text-white">{example.cn}</blockquote>
+                <figcaption className="mt-1 text-xs text-slate-400">{example.en}</figcaption>
+              </figure>
+            ))}
+          </div>
+          <p lang={PINYIN_LANG} className="mt-3 font-hanzi text-sm text-emerald-300">
+            <TonePinyin pinyin={rescuePrompt.pinyin} /> · {rescuePrompt.english}
+          </p>
+        </div>
+      ) : null}
 
       <div className="mt-3 rounded-2xl border border-white/10 bg-surface-2 p-2 text-left">
         <p className="px-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
