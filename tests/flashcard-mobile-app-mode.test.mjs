@@ -1,7 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { flashcardMobileAppModeCopy, flashcardMobileShellClass } from "../src/lib/flashcard-mobile-app-mode.ts";
+import {
+  flashcardMobileActionZoneClass,
+  flashcardMobileAppModeCopy,
+  flashcardMobileCardWrapClass,
+  flashcardMobileContentClass,
+  flashcardMobileShellClass,
+} from "../src/lib/flashcard-mobile-app-mode.ts";
 
 test("flashcardMobileAppModeCopy describes embedded vs fullscreen state", () => {
   assert.deepEqual(flashcardMobileAppModeCopy(false), {
@@ -28,5 +34,26 @@ test("flashcardMobileShellClass switches between embedded and mobile fixed app s
   assert.match(fullscreen, /inset-0/);
   assert.match(fullscreen, /h-\[100dvh\]/);
   assert.match(fullscreen, /z-\[80\]/);
+  assert.match(fullscreen, /flex/);
+  assert.match(fullscreen, /flex-col/);
   assert.match(fullscreen, /md:static/);
+});
+
+test("mobile app-mode layout classes reserve flexible card space and a bottom action zone", () => {
+  assert.equal(flashcardMobileContentClass(false), "");
+
+  const content = flashcardMobileContentClass(true);
+  assert.match(content, /flex/);
+  assert.match(content, /min-h-0/);
+  assert.match(content, /flex-1/);
+  assert.match(content, /flex-col/);
+
+  const card = flashcardMobileCardWrapClass(true);
+  assert.match(card, /flex-1/);
+  assert.match(card, /min-h-0/);
+  assert.match(card, /items-center/);
+
+  const actions = flashcardMobileActionZoneClass(true);
+  assert.match(actions, /shrink-0/);
+  assert.match(actions, /pb-1/);
 });

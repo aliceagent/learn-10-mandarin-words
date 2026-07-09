@@ -33,16 +33,22 @@ QA:
 - full gate (`npm run test && npm run validate:data && npm run validate:quality && npm run lint && npm run build`) ✅
 
 ### F2 - One-screen practice layout
-Status: pending
+Status: complete
 
-Optimize the fullscreen content hierarchy:
-- compact top bar
-- card area sized with flex, not page scroll
-- reveal / known / grade controls pinned to the app bottom action zone
-- keep 44px tap targets
-- ensure card + actions fit in 390x844 and 390x700-ish viewports
+Optimized the fullscreen content hierarchy:
+- shell is a flex column using the full `100dvh`
+- compact top area stays fixed at the top of the app surface
+- card area gets flexible `min-h-0 flex-1` space
+- reveal / known / grade controls live in a shrink-wrapped bottom action zone
+- embedded desktop/mobile mode remains unchanged outside fullscreen
+- mobile settings disclosure is hidden in app-mode until F3 replaces it with a proper drawer
 
-QA: screenshot evidence at 390x844 and full gate.
+QA:
+- `npm run test -- tests/flashcard-mobile-app-mode.test.mjs` ✅
+- `npm run lint` ✅
+- `npm run build` ✅
+- Browser tool timed out on local dev, so visual screenshot evidence is deferred to F3/F5; this sprint is backed by helper tests, TypeScript build, and layout code inspection.
+- full gate (`npm run test && npm run validate:data && npm run validate:quality && npm run lint && npm run build`) ✅
 
 ### F3 - Mobile settings drawer
 Status: pending

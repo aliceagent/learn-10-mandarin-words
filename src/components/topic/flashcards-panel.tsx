@@ -22,7 +22,13 @@ import type { FlashcardSessionSummary } from "@/lib/flashcard-session-summary";
 import { FLASHCARD_DECK_ORDER_OPTIONS, type FlashcardDeckOrder } from "@/lib/flashcard-deck-order";
 import type { FlashcardSettings, FlashcardTopicHealth } from "@/lib/flashcard-health";
 import { compactFlashcardSettingsSummary } from "@/lib/flashcard-mobile-settings";
-import { flashcardMobileAppModeCopy, flashcardMobileShellClass } from "@/lib/flashcard-mobile-app-mode";
+import {
+  flashcardMobileActionZoneClass,
+  flashcardMobileAppModeCopy,
+  flashcardMobileCardWrapClass,
+  flashcardMobileContentClass,
+  flashcardMobileShellClass,
+} from "@/lib/flashcard-mobile-app-mode";
 import { flashcardRescuePrompt } from "@/lib/flashcard-rescue";
 import { SpeakButton } from "../speak-button";
 import { TonePinyin } from "../tone-pinyin";
@@ -237,7 +243,8 @@ export function FlashcardsPanel({
         )}
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-slate-400">
+      <div className={flashcardMobileContentClass(mobileAppOpen)}>
+      <div className={`flex flex-wrap items-center justify-between gap-2 text-sm text-slate-400 ${mobileAppOpen ? "shrink-0" : ""}`}>
         <span>Card {cardIndex + 1} of {topic.items.length}</span>
         <div
           className={`rounded-full border px-3 py-1 text-xs font-semibold ${CONFIDENCE_TONE_CLASS[confidence.tone]}`}
@@ -429,6 +436,7 @@ export function FlashcardsPanel({
       </div>
       </div>
 
+      <div className={flashcardMobileCardWrapClass(mobileAppOpen)}>
       {/* Draggable 3D card. Touch handlers live on this wrapper; the fling
           animation + drag transform ride the wrapper (2D), the inner .card-3d
           does the rotateY flip so the two transforms never fight. */}
@@ -495,7 +503,9 @@ export function FlashcardsPanel({
 
       {/* Deck-position dots (decorative; the "Card N of M" text carries it for AT) */}
       <DeckDots count={topic.items.length} current={cardIndex} />
+      </div>
 
+      <div className={flashcardMobileActionZoneClass(mobileAppOpen)}>
       {sessionSummary.complete ? (
         <div className="mx-auto mt-6 max-w-2xl rounded-2xl border border-emerald-300/20 bg-emerald-400/10 p-4 text-left">
           <div className="flex flex-wrap items-start justify-between gap-3">
@@ -592,8 +602,9 @@ export function FlashcardsPanel({
           Tap the card to flip, then grade your recall. Swipe left or right after revealing.
         </p>
       ) : null}
+      </div>
 
-      <details className="group mt-4 rounded-2xl border border-white/10 bg-surface-2 p-2 text-left md:hidden">
+      <details className={`group mt-4 rounded-2xl border border-white/10 bg-surface-2 p-2 text-left md:hidden ${mobileAppOpen ? "hidden" : ""}`}>
         <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-3 px-2 text-sm font-semibold text-slate-200 [&::-webkit-details-marker]:hidden">
           <span>Practice settings</span>
           <span aria-hidden="true" className="text-xs text-slate-500 transition group-open:rotate-180">▾</span>
@@ -724,6 +735,7 @@ export function FlashcardsPanel({
           </div>
         ) : null}
       </details>
+      </div>
     </section>
   );
 }
