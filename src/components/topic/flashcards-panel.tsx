@@ -22,6 +22,7 @@ import type { FlashcardSessionSummary } from "@/lib/flashcard-session-summary";
 import { FLASHCARD_DECK_ORDER_OPTIONS, type FlashcardDeckOrder } from "@/lib/flashcard-deck-order";
 import type { FlashcardSettings, FlashcardTopicHealth } from "@/lib/flashcard-health";
 import { compactFlashcardSettingsSummary } from "@/lib/flashcard-mobile-settings";
+import { flashcardMobileAppModeCopy, flashcardMobileShellClass } from "@/lib/flashcard-mobile-app-mode";
 import { flashcardRescuePrompt } from "@/lib/flashcard-rescue";
 import { SpeakButton } from "../speak-button";
 import { TonePinyin } from "../tone-pinyin";
@@ -109,6 +110,8 @@ export function FlashcardsPanel({
     deckOrderLabel,
     hintCount,
   });
+  const [mobileAppOpen, setMobileAppOpen] = useState(false);
+  const mobileAppCopy = flashcardMobileAppModeCopy(mobileAppOpen);
   const [dismissedRescueKeys, setDismissedRescueKeys] = useState<Set<string>>(() => new Set());
   const rescuePrompt = flashcardRescuePrompt(current, stat, {
     dismissed: dismissedRescueKeys.has(`${topic.slug}:${current.hanzi}`),
@@ -137,6 +140,15 @@ export function FlashcardsPanel({
   useEffect(() => () => {
     if (flingTimer.current) clearTimeout(flingTimer.current);
   }, []);
+
+  useEffect(() => {
+    if (!mobileAppOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [mobileAppOpen]);
 
   const startFling = useCallback(
     (grade: Grade, dir: "left" | "right") => {
@@ -186,10 +198,45 @@ export function FlashcardsPanel({
 
   return (
     <section
-      className="mt-4 rounded-3xl border border-white/10 bg-surface p-3 text-center md:mt-6 md:p-6"
+      className={flashcardMobileShellClass(mobileAppOpen)}
       aria-label="Flashcard practice"
-      role="region"
+      role={mobileAppOpen ? "dialog" : "region"}
+      aria-modal={mobileAppOpen ? true : undefined}
     >
+      <div className="md:hidden">
+        {mobileAppOpen ? (
+          <div className="mb-3 flex min-h-11 items-center justify-between gap-3 text-left">
+            <div>
+              <p className="text-xs font-semibold text-emerald-300">{mobileAppCopy.title}</p>
+              <p className="text-sm text-slate-400">Card {cardIndex + 1} of {topic.items.length}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setMobileAppOpen(false)}
+              className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-white transition hover:border-emerald-300/50 hover:bg-white/5"
+              aria-label={mobileAppCopy.ariaLabel}
+            >
+              {mobileAppCopy.action}
+            </button>
+          </div>
+        ) : (
+          <div className="mb-3 rounded-2xl border border-emerald-300/25 bg-emerald-400/10 p-3 text-left">
+            <p className="text-sm font-semibold text-emerald-200">Practice like an app</p>
+            <p className="mt-1 text-xs leading-5 text-slate-400">
+              Open cards full-screen to hide page chrome and keep the practice loop focused.
+            </p>
+            <button
+              type="button"
+              onClick={() => setMobileAppOpen(true)}
+              className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cta"
+              aria-label={mobileAppCopy.ariaLabel}
+            >
+              {mobileAppCopy.action}
+            </button>
+          </div>
+        )}
+      </div>
+
       <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-slate-400">
         <span>Card {cardIndex + 1} of {topic.items.length}</span>
         <div
