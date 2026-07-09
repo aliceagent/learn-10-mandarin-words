@@ -1,12 +1,15 @@
+"use client";
+
 import Link from "next/link";
 import type { FlashcardStat, QuizStat, TopicSummary } from "@/lib/types";
 import { wordKey } from "@/lib/data-logic";
 import { topicWordStatuses } from "@/lib/progress-logic";
 import { lessonCardMeta, topicCardPreviewItems, type LessonCardStatus } from "@/lib/lesson-card-logic";
-import { hasPlayableVideo } from "@/lib/video";
+import { downloadableMp4Url, hasPlayableVideo } from "@/lib/video";
 import { normalizePinyin } from "@/lib/highlight";
 import { HighlightedText } from "./highlighted-text";
 import { MasteryDots, masteryCountsLabel } from "./mastery-dots";
+import { SaveOfflineButton } from "./save-offline-button";
 
 // Shared topic card used by the home library grid and the per-category pages so
 // both surfaces stay visually identical. Progress-derived flags are passed in by
@@ -51,6 +54,7 @@ export function TopicCard({
   // passing quizStats; otherwise the card keeps its original studied bar.
   const statuses = quizStats ? topicWordStatuses(topic, flashcardStats, quizStats) : null;
   const videoReady = hasPlayableVideo(topic);
+  const offlineSource = downloadableMp4Url(topic);
   const mobilePreview = topicCardPreviewItems(topic, 3);
   const desktopPreview = topicCardPreviewItems(topic, 5);
 
@@ -66,11 +70,11 @@ export function TopicCard({
     : [];
 
   return (
-    <Link
-      href={`/topics/${topic.slug}`}
-      className="group flex min-h-[44px] flex-col rounded-2xl border border-white/10 bg-surface p-4 transition hover:-translate-y-1 hover:bg-surface-hover md:rounded-3xl md:p-5"
+    <article
+      className="flex min-h-[44px] flex-col rounded-2xl border border-white/10 bg-surface p-4 transition hover:-translate-y-1 hover:bg-surface-hover md:rounded-3xl md:p-5"
       aria-label={`${topic.titleEn} - ${topic.category}`}
     >
+      <Link href={`/topics/${topic.slug}`} className="group flex flex-1 flex-col">
       {/* Row 1: category badge + status badges */}
       <div className="flex items-center justify-between gap-2">
         <span className="max-w-[58%] truncate rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[11px] font-medium text-slate-400 md:max-w-none md:text-xs">
@@ -228,7 +232,19 @@ export function TopicCard({
       <p className="mt-auto pt-3 text-sm font-semibold text-slate-400 transition group-hover:text-emerald-300 md:pt-4">
         Open lesson →
       </p>
-    </Link>
+      </Link>
+
+      {offlineSource ? (
+        <div className="mt-3 border-t border-white/10 pt-3">
+          <SaveOfflineButton
+            source={offlineSource}
+            slug={topic.slug}
+            pageUrl={`/topics/${topic.slug}`}
+            variant="card"
+          />
+        </div>
+      ) : null}
+    </article>
   );
 }
 

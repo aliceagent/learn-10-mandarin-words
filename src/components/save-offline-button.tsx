@@ -21,12 +21,14 @@ interface SaveOfflineButtonProps {
   slug: string;
   /** Same-origin lesson page URL to co-cache so the page renders offline. */
   pageUrl?: string;
+  /** Compact card mode for lesson-grid toggles. */
+  variant?: "panel" | "card";
 }
 
 // Explicit "save this lesson for offline" control shown next to downloadable MP4
 // lessons. Renders nothing when the Cache API is unavailable, so it degrades to
 // the existing stream-only behaviour on unsupported browsers.
-export function SaveOfflineButton({ source, slug, pageUrl }: SaveOfflineButtonProps) {
+export function SaveOfflineButton({ source, slug, pageUrl, variant = "panel" }: SaveOfflineButtonProps) {
   const [supported, setSupported] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
   const [size, setSize] = useState<number | null>(null);
@@ -93,23 +95,24 @@ export function SaveOfflineButton({ source, slug, pageUrl }: SaveOfflineButtonPr
   const saving = status === "saving";
   const removing = status === "removing";
   const saved = status === "saved";
+  const compact = variant === "card";
 
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-2">
+      <div className={compact ? "grid grid-cols-2 gap-2" : "flex items-center gap-2"}>
         {saved ? (
           <>
-            <span className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full bg-emerald-400/15 px-4 py-1.5 text-xs font-bold text-emerald-300">
-              ✓ Saved offline{size ? ` · ${formatBytes(size)}` : ""}
+            <span className={`inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-full bg-emerald-400/15 px-3 py-2 text-xs font-bold text-emerald-300 ${compact ? "w-full" : ""}`}>
+              ✓ Offline{!compact && size ? ` · ${formatBytes(size)}` : ""}
             </span>
             <button
               type="button"
               onClick={onRemove}
               disabled={removing}
-              className="inline-flex min-h-[36px] items-center rounded-full border border-white/15 px-4 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-rose-300 hover:text-rose-200 disabled:opacity-60"
+              className={`inline-flex min-h-[40px] items-center justify-center rounded-full border border-white/15 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:border-rose-300 hover:text-rose-200 disabled:opacity-60 ${compact ? "w-full" : ""}`}
               aria-label="Remove the saved offline copy of this lesson"
             >
-              {removing ? "Removing…" : "Remove"}
+              {removing ? "Removing…" : compact ? "Delete" : "Remove"}
             </button>
           </>
         ) : (
@@ -118,10 +121,10 @@ export function SaveOfflineButton({ source, slug, pageUrl }: SaveOfflineButtonPr
             onClick={onSave}
             disabled={saving}
             aria-busy={saving}
-            className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-white/15 px-4 py-1.5 text-xs font-semibold text-emerald-300 transition hover:border-emerald-300 hover:text-emerald-200 disabled:opacity-60"
+            className={`inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-full border border-white/15 px-3 py-2 text-xs font-semibold text-emerald-300 transition hover:border-emerald-300 hover:text-emerald-200 disabled:opacity-60 ${compact ? "w-full col-span-2" : ""}`}
             aria-label="Save this lesson video for offline playback"
           >
-            {saving ? "Saving…" : "⬇ Save for offline"}
+            {saving ? "Saving…" : compact ? "⬇ Save offline" : "⬇ Save for offline"}
           </button>
         )}
       </div>

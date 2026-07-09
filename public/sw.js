@@ -193,7 +193,9 @@ async function serveMedia(request) {
   if (!cached) return fetch(request); // unsaved video → normal network passthrough
 
   const rangeHeader = request.headers.get("range");
-  if (rangeHeader) return buildRangeResponse(cached, rangeHeader);
+  // Opaque no-CORS saves (needed for GitHub Releases) cannot be inspected or
+  // sliced, so replay the whole cached response instead of crashing on Range.
+  if (rangeHeader && cached.type !== "opaque") return buildRangeResponse(cached, rangeHeader);
   return cached;
 }
 

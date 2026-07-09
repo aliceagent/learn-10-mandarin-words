@@ -139,6 +139,22 @@ test("a saved video without a Range header returns the full cached response", as
   assert.equal(res, stored);
 });
 
+test("a saved opaque video with a Range request returns the whole cached response", async () => {
+  const url = "https://github.com/org/repo/releases/download/v1/opaque.mp4";
+  const stored = { type: "opaque" };
+  const cachesObj = {
+    open: async () => ({ match: async (u) => (u === url ? stored : undefined) }),
+  };
+  const fetchImpl = async () => {
+    throw new Error("network must not be used for a saved opaque video");
+  };
+
+  const { handlers } = loadSw({ cachesObj, fetchImpl });
+  const res = await dispatchFetch(handlers.fetch, fakeRequest(url, { range: "bytes=0-99" }));
+
+  assert.equal(res, stored);
+});
+
 test("an unsaved video passes through to the network and is never cached", async () => {
   const url = "https://github.com/org/repo/releases/download/v1/other.mp4";
   let putCount = 0;

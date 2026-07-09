@@ -110,6 +110,19 @@ test("savedLessonSize reads the stored content length, null when absent", async 
   assert.equal(await savedLessonSize(URL_B, { caches }), null);
 });
 
+test("savedLessonSize returns null for opaque saved videos with hidden bodies", async () => {
+  const caches = makeFakeCaches();
+  const opaque = {
+    type: "opaque",
+    headers: new Headers(),
+    blob: async () => ({ size: 0 }),
+  };
+  const cache = await caches.open(VIDEO_CACHE);
+  await cache.put(URL_A, opaque);
+
+  assert.equal(await savedLessonSize(URL_A, { caches }), null);
+});
+
 test("removeLessonOffline deletes a saved lesson", async () => {
   const caches = makeFakeCaches();
   await saveLessonOffline(URL_A, { caches, fetch: async () => mp4Response() });
@@ -144,11 +157,25 @@ test("saveLessonOffline rejects on a non-ok response and stores nothing", async 
   assert.equal(caches._putSpy.length, 0);
 });
 
-test("saveLessonOffline rejects opaque (CORS-blocked) responses", async () => {
+test("saveLessonOffline falls back to an opaque no-CORS save when CORS is blocked", async () => {
   const caches = makeFakeCaches();
-  const fetch = async () => ({ ok: true, status: 200, type: "opaque" });
-  await assert.rejects(() => saveLessonOffline(URL_A, { caches, fetch }), /can't be saved offline/);
-  assert.equal(caches._putSpy.length, 0);
+  const calls = [];
+  const opaque = { ok: false, status: 0, type: "opaque", headers: new Headers() };
+  const fetch = async (url, init = {}) => {
+    calls.push({ url, mode: init.mode });
+    if (init.mode === "cors") throw new TypeError("CORS blocked");
+    assert.equal(init.mode, "no-cors");
+    return opaque;
+  };
+
+  await saveLessonOffline(URL_A, { caches, fetch });
+
+  assert.deepEqual(calls, [
+    { url: URL_A, mode: "cors" },
+    { url: URL_A, mode: "no-cors" },
+  ]);
+  assert.deepEqual(caches._putSpy, [{ cache: VIDEO_CACHE, url: URL_A }]);
+  assert.equal(caches._store.get(VIDEO_CACHE).get(URL_A), opaque);
 });
 
 test("saveLessonOffline surfaces a friendly message on network failure", async () => {

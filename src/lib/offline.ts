@@ -137,16 +137,20 @@ export async function saveLessonOffline(source: string, options: SaveOptions = {
 
   let res: Response;
   try {
-    // Explicit CORS so we get a readable (non-opaque) response we can slice.
+    // Prefer CORS so we get a readable response with size/range support.
     res = await doFetch(source, { mode: "cors" });
   } catch {
-    throw new Error("Couldn't reach the video. Check your connection and try again.");
+    try {
+      // GitHub Release assets can play in <video> while blocking CORS reads.
+      // A no-CORS fetch yields an opaque response that Cache Storage can still
+      // keep for the service worker to replay offline as a whole media response.
+      res = await doFetch(source, { mode: "no-cors" });
+    } catch {
+      throw new Error("Couldn't reach the video. Check your connection and try again.");
+    }
   }
-  if (!res.ok) {
+  if (res.type !== "opaque" && !res.ok) {
     throw new Error(`Download failed (HTTP ${res.status}). Try again later.`);
-  }
-  if (res.type === "opaque") {
-    throw new Error("This video can't be saved offline (the host blocks downloads).");
   }
 
   try {
@@ -239,6 +243,7 @@ export async function savedLessonSize(source: string, deps: OfflineDeps = {}): P
   const cache = await resolveCaches(deps).open(VIDEO_CACHE);
   const res = await cache.match(source);
   if (!res) return null;
+  if (res.type === "opaque") return null;
   const len = res.headers.get("content-length");
   if (len && Number.isFinite(Number(len))) return Number(len);
   try {
