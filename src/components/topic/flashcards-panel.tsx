@@ -21,7 +21,11 @@ import { FLASHCARD_VISIBILITY_OPTIONS } from "@/lib/flashcard-visibility";
 import type { FlashcardSessionSummary } from "@/lib/flashcard-session-summary";
 import { FLASHCARD_DECK_ORDER_OPTIONS, type FlashcardDeckOrder } from "@/lib/flashcard-deck-order";
 import type { FlashcardSettings, FlashcardTopicHealth } from "@/lib/flashcard-health";
-import { compactFlashcardSettingsSummary } from "@/lib/flashcard-mobile-settings";
+import {
+  compactFlashcardSettingsSummary,
+  flashcardMobileSettingsDrawerClass,
+  flashcardMobileSettingsDrawerCopy,
+} from "@/lib/flashcard-mobile-settings";
 import {
   flashcardMobileActionZoneClass,
   flashcardMobileAppModeCopy,
@@ -117,7 +121,9 @@ export function FlashcardsPanel({
     hintCount,
   });
   const [mobileAppOpen, setMobileAppOpen] = useState(false);
+  const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false);
   const mobileAppCopy = flashcardMobileAppModeCopy(mobileAppOpen);
+  const mobileSettingsCopy = flashcardMobileSettingsDrawerCopy(mobileSettingsOpen);
   const [dismissedRescueKeys, setDismissedRescueKeys] = useState<Set<string>>(() => new Set());
   const rescuePrompt = flashcardRescuePrompt(current, stat, {
     dismissed: dismissedRescueKeys.has(`${topic.slug}:${current.hanzi}`),
@@ -216,14 +222,29 @@ export function FlashcardsPanel({
               <p className="text-xs font-semibold text-emerald-300">{mobileAppCopy.title}</p>
               <p className="text-sm text-slate-400">Card {cardIndex + 1} of {topic.items.length}</p>
             </div>
-            <button
-              type="button"
-              onClick={() => setMobileAppOpen(false)}
-              className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-white transition hover:border-emerald-300/50 hover:bg-white/5"
-              aria-label={mobileAppCopy.ariaLabel}
-            >
-              {mobileAppCopy.action}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setMobileSettingsOpen((open) => !open)}
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-emerald-300/30 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:border-emerald-200/50 hover:bg-emerald-400/10"
+                aria-label={mobileSettingsCopy.ariaLabel}
+                aria-expanded={mobileSettingsOpen}
+                aria-controls="flashcard-mobile-settings-drawer"
+              >
+                {mobileSettingsCopy.action}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileSettingsOpen(false);
+                  setMobileAppOpen(false);
+                }}
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-white transition hover:border-emerald-300/50 hover:bg-white/5"
+                aria-label={mobileAppCopy.ariaLabel}
+              >
+                {mobileAppCopy.action}
+              </button>
+            </div>
           </div>
         ) : (
           <div className="mb-3 rounded-2xl border border-emerald-300/25 bg-emerald-400/10 p-3 text-left">
@@ -242,6 +263,182 @@ export function FlashcardsPanel({
           </div>
         )}
       </div>
+
+      {mobileAppOpen ? (
+        <div
+          id="flashcard-mobile-settings-drawer"
+          className={flashcardMobileSettingsDrawerClass(mobileSettingsOpen)}
+          role="dialog"
+          aria-modal="false"
+          aria-label={mobileSettingsCopy.title}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-white">{mobileSettingsCopy.title}</p>
+              <p className="mt-1 text-xs text-slate-400">{mobileSettingsCopy.expanded}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setMobileSettingsOpen(false)}
+              className="min-h-10 rounded-full border border-white/15 px-3 py-1.5 text-xs font-semibold text-slate-200 transition hover:border-white/30 hover:text-white"
+              aria-label="Close flashcard settings drawer"
+            >
+              Done
+            </button>
+          </div>
+
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {mobileSettingsSummary.map((item) => (
+              <span key={item} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-slate-300">
+                {item}
+              </span>
+            ))}
+          </div>
+
+          <div className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-3">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Health</p>
+                <p className="mt-1 text-xs leading-5 text-slate-300">
+                  {health.tracked}/{health.totalWords} tracked · {health.due} due · {health.shaky} shaky · {health.mastered} mastered
+                </p>
+              </div>
+              <span
+                className={`shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${
+                  health.status === "needs rescue"
+                    ? "border-rose-300/30 bg-rose-400/10 text-rose-100"
+                    : health.status === "due"
+                      ? "border-amber-300/30 bg-amber-400/10 text-amber-100"
+                      : "border-emerald-300/30 bg-emerald-400/10 text-emerald-100"
+                }`}
+              >
+                {health.status}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => onSettingsChange({ ...settings, showHealthDashboard: !settings.showHealthDashboard })}
+              className="mt-2 min-h-[40px] rounded-full border border-white/15 px-4 py-2 text-xs font-semibold text-slate-300 transition hover:border-white/30 hover:text-white"
+              aria-pressed={settings.showHealthDashboard}
+            >
+              {settings.showHealthDashboard ? "Hide health details" : "Show health details"}
+            </button>
+            {settings.showHealthDashboard ? (
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <HealthMetric label="New" value={health.newWords} />
+                <HealthMetric label="Due" value={health.due} />
+                <HealthMetric label="Shaky" value={health.shaky} />
+                <HealthMetric label="Rescue" value={health.needsRescue} />
+              </div>
+            ) : null}
+          </div>
+
+          {sessionSummary.complete ? (
+            <div className="mt-3 rounded-2xl border border-emerald-300/20 bg-emerald-400/10 p-3">
+              <p className="text-sm font-semibold text-emerald-100">Session complete</p>
+              <p className="mt-1 text-xs leading-5 text-slate-300">
+                Reviewed {sessionSummary.reviewedCount}/{sessionSummary.totalCount} · {sessionSummary.improvedCount} improved · {sessionSummary.knownCount} known
+              </p>
+            </div>
+          ) : rescuePrompt ? (
+            <div className="mt-3 rounded-2xl border border-amber-300/25 bg-amber-400/10 p-3">
+              <p className="text-sm font-semibold text-amber-100">{rescuePrompt.title}</p>
+              <p className="mt-1 text-xs leading-5 text-slate-300">
+                “{rescuePrompt.word}” has slipped {rescuePrompt.lapses} times. {rescuePrompt.body}
+              </p>
+              <button
+                type="button"
+                onClick={() => setDismissedRescueKeys((keys) => new Set(keys).add(`${topic.slug}:${current.hanzi}`))}
+                className="mt-2 min-h-[40px] rounded-full border border-white/15 px-4 py-2 text-xs font-semibold text-slate-300 transition hover:border-amber-200/50 hover:text-white"
+              >
+                Skip note
+              </button>
+            </div>
+          ) : null}
+
+          <div className="mt-3 border-t border-white/10 pt-3">
+            <p className="px-1 text-xs font-semibold text-slate-400">Direction</p>
+            <div className="mt-2 grid gap-2">
+              {FLASHCARD_DIRECTION_OPTIONS.map((option) => {
+                const active = direction === option.key;
+                return (
+                  <button
+                    key={option.key}
+                    type="button"
+                    onClick={() => setDirection(option.key)}
+                    aria-pressed={active}
+                    className={`min-h-[44px] rounded-xl border px-3 py-2 text-left text-xs transition ${
+                      active
+                        ? "border-emerald-300/40 bg-emerald-400/10 text-emerald-100"
+                        : "border-white/10 text-slate-400 hover:border-white/20 hover:text-white"
+                    }`}
+                  >
+                    <span className="block font-semibold">{option.label}</span>
+                    <span className="mt-0.5 block text-[11px] leading-4 text-slate-500">{option.description}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="mt-3 border-t border-white/10 pt-3">
+            <p className="px-1 text-xs font-semibold text-slate-400">Deck order</p>
+            <div className="mt-2 grid gap-2">
+              {FLASHCARD_DECK_ORDER_OPTIONS.map((option) => {
+                const active = deckOrder === option.key;
+                return (
+                  <button
+                    key={option.key}
+                    type="button"
+                    onClick={() => onDeckOrderChange(option.key)}
+                    aria-pressed={active}
+                    className={`min-h-[44px] rounded-xl border px-3 py-2 text-left text-xs transition ${
+                      active
+                        ? "border-sky-300/40 bg-sky-400/10 text-sky-100"
+                        : "border-white/10 text-slate-400 hover:border-white/20 hover:text-white"
+                    }`}
+                  >
+                    <span className="block font-semibold">{option.label}</span>
+                    <span className="mt-0.5 block text-[11px] leading-4 text-slate-500">{option.description}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <button
+              type="button"
+              onClick={() => onSetDefaultDeckOrder(deckOrder)}
+              className="mt-2 min-h-[40px] rounded-full border border-white/15 px-4 py-2 text-xs font-semibold text-slate-300 transition hover:border-sky-300/40 hover:text-white"
+            >
+              Save as default
+            </button>
+          </div>
+
+          <div className="mt-3 border-t border-white/10 pt-3">
+            <p className="px-1 text-xs font-semibold text-slate-400">Card hints</p>
+            <div className="mt-2 grid gap-2">
+              {FLASHCARD_VISIBILITY_OPTIONS.map((option) => {
+                const active = visibility[option.key];
+                return (
+                  <button
+                    key={option.key}
+                    type="button"
+                    onClick={() => toggle(option.key)}
+                    aria-pressed={active}
+                    className={`min-h-[44px] rounded-xl border px-3 py-2 text-left text-xs transition ${
+                      active
+                        ? "border-emerald-300/40 bg-emerald-400/10 text-emerald-100"
+                        : "border-white/10 text-slate-400 hover:border-white/20 hover:text-white"
+                    }`}
+                  >
+                    <span className="block font-semibold">{option.label}</span>
+                    <span className="mt-0.5 block text-[11px] leading-4 text-slate-500">{option.description}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <div className={flashcardMobileContentClass(mobileAppOpen)}>
       <div className={`flex flex-wrap items-center justify-between gap-2 text-sm text-slate-400 ${mobileAppOpen ? "shrink-0" : ""}`}>

@@ -51,16 +51,23 @@ QA:
 - full gate (`npm run test && npm run validate:data && npm run validate:quality && npm run lint && npm run build`) ✅
 
 ### F3 - Mobile settings drawer
-Status: pending
+Status: complete
 
-Move non-core controls into a lightweight in-app Settings panel:
-- direction
-- deck order
-- hints/pinyin/English visibility
-- health summary
-- rescue/session summary placement
+Moved non-core controls into a lightweight in-app Settings drawer inside fullscreen mobile app-mode:
+- explicit Settings button next to Exit in the fullscreen top bar
+- drawer open/close copy and positioning covered by pure helper tests
+- direction, deck order, card hints/pinyin/English visibility controls in the drawer
+- compact health summary plus optional health metrics
+- rescue note or session-complete summary surfaced inside the drawer
+- embedded mobile settings outside fullscreen remain unchanged
 
-QA: settings interaction smoke + full gate.
+QA:
+- RED verified: `npm run test -- tests/flashcard-mobile-settings.test.mjs` failed on missing drawer helper exports ✅
+- `npm run test -- tests/flashcard-mobile-settings.test.mjs` ✅
+- `npm run test -- tests/flashcard-mobile-settings.test.mjs tests/flashcard-mobile-app-mode.test.mjs` ✅
+- `npm run lint` ✅
+- `npm run build` ✅
+- full gate (`npm run test && npm run validate:data && npm run validate:quality && npm run lint && npm run build`) ✅
 
 ### F4 - Accessibility, gestures, and exit polish
 Status: pending

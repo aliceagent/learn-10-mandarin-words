@@ -1,7 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { compactFlashcardSettingsSummary } from "../src/lib/flashcard-mobile-settings.ts";
+import {
+  compactFlashcardSettingsSummary,
+  flashcardMobileSettingsDrawerCopy,
+  flashcardMobileSettingsDrawerClass,
+} from "../src/lib/flashcard-mobile-settings.ts";
 
 const health = {
   totalWords: 10,
@@ -37,4 +41,31 @@ test("compactFlashcardSettingsSummary handles zero hints without extra wording",
     }),
     ["healthy", "Hanzi to English", "Default", "0 hints"],
   );
+});
+
+test("flashcardMobileSettingsDrawerCopy makes settings entry and drawer state explicit", () => {
+  assert.deepEqual(flashcardMobileSettingsDrawerCopy(false), {
+    action: "Settings",
+    title: "Practice settings",
+    ariaLabel: "Open flashcard settings drawer",
+    expanded: "Settings closed",
+  });
+
+  assert.deepEqual(flashcardMobileSettingsDrawerCopy(true), {
+    action: "Close settings",
+    title: "Practice settings",
+    ariaLabel: "Close flashcard settings drawer",
+    expanded: "Settings open",
+  });
+});
+
+test("flashcardMobileSettingsDrawerClass renders as a lightweight in-app drawer only when open", () => {
+  assert.equal(flashcardMobileSettingsDrawerClass(false), "hidden");
+
+  const open = flashcardMobileSettingsDrawerClass(true);
+  assert.match(open, /absolute/);
+  assert.match(open, /inset-x-3/);
+  assert.match(open, /top-\[calc\(env\(safe-area-inset-top\)\+4\.25rem\)\]/);
+  assert.match(open, /max-h-\[min\(70dvh,34rem\)\]/);
+  assert.match(open, /overflow-y-auto/);
 });
