@@ -8,10 +8,10 @@
 // Sprint 3: calmer + smaller — thinner dots, a gentler current pill, and softer
 // emerald/white tones so the row reads as a quiet position hint, not a bright
 // bar. Position logic (current / done / upcoming) is unchanged.
-export function DeckDots({ count, current }: { count: number; current: number }) {
+export function DeckDots({ count, current, className = "mt-5 flex items-center justify-center gap-1" }: { count: number; current: number; className?: string }) {
   if (count <= 1) return null;
   return (
-    <div className="mt-5 flex items-center justify-center gap-1" aria-hidden="true">
+    <div className={className} aria-hidden="true">
       {Array.from({ length: count }, (_, i) => {
         const state =
           i === current

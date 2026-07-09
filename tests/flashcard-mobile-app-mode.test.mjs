@@ -10,8 +10,10 @@ import {
   flashcardMobileCardWrapClass,
   flashcardMobileContentClass,
   flashcardMobileGestureHint,
+  flashcardMobileHeaderDotsClass,
   flashcardMobilePrimaryActionsClass,
   flashcardMobileStatusRowClass,
+  flashcardMobileCardDotsClass,
   flashcardMobileShellClass,
 } from "../src/lib/flashcard-mobile-app-mode.ts";
 
@@ -78,6 +80,17 @@ test("mobile app-mode hides duplicate chrome, enlarges the card, and keeps actio
   assert.match(actions, /w-full/);
 });
 
+test("mobile app-mode moves deck-position dots into the header instead of inside the card", () => {
+  assert.equal(flashcardMobileHeaderDotsClass(false), "hidden");
+  assert.match(flashcardMobileHeaderDotsClass(true), /mt-1/);
+  assert.match(flashcardMobileHeaderDotsClass(true), /justify-start/);
+  assert.match(flashcardMobileHeaderDotsClass(true), /md:hidden/);
+
+  assert.match(flashcardMobileCardDotsClass(false), /mt-4/);
+  assert.match(flashcardMobileCardDotsClass(false), /flex/);
+  assert.match(flashcardMobileCardDotsClass(true), /hidden/);
+  assert.match(flashcardMobileCardDotsClass(true), /md:flex/);
+});
 test("mobile app-mode a11y state exposes dialog labelling only while fullscreen", () => {
   assert.deepEqual(flashcardMobileAppModeA11y(false), {
     role: "region",

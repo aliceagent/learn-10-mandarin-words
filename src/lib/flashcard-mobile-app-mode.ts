@@ -65,6 +65,14 @@ export function flashcardMobileCardFrameClass(open: boolean): string {
     : "card-3d flex min-h-[240px] items-center justify-center md:min-h-[280px]";
 }
 
+export function flashcardMobileHeaderDotsClass(open: boolean): string {
+  return open ? "mt-1 flex items-center justify-start gap-1 md:hidden" : "hidden";
+}
+
+export function flashcardMobileCardDotsClass(open: boolean): string {
+  return open ? "hidden md:mt-4 md:flex md:items-center md:justify-center md:gap-1" : "mt-4 flex items-center justify-center gap-1";
+}
+
 export function flashcardMobilePrimaryActionsClass(open: boolean): string {
   return open
     ? "mt-2 grid w-full grid-cols-2 items-stretch gap-2 md:mt-8 md:flex md:w-auto md:flex-wrap md:items-center md:justify-center md:gap-3"

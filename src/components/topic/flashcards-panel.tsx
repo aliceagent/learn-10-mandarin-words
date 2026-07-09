@@ -32,9 +32,11 @@ import {
   flashcardMobileAppModeCopy,
   flashcardMobileAppModeKeyboardAction,
   flashcardMobileCardFrameClass,
+  flashcardMobileCardDotsClass,
   flashcardMobileCardWrapClass,
   flashcardMobileContentClass,
   flashcardMobileGestureHint,
+  flashcardMobileHeaderDotsClass,
   flashcardMobilePrimaryActionsClass,
   flashcardMobileStatusRowClass,
   flashcardMobileShellClass,
@@ -301,6 +303,7 @@ export function FlashcardsPanel({
             <div>
               <p id="flashcard-mobile-app-title" className="text-xs font-semibold text-emerald-300">{mobileAppCopy.title}</p>
               <p className="text-sm text-slate-400">Card {cardIndex + 1} of {topic.items.length}</p>
+              <DeckDots count={topic.items.length} current={cardIndex} className={flashcardMobileHeaderDotsClass(mobileAppOpen)} />
               <p id="flashcard-mobile-app-desc" className="sr-only">
                 {mobileGestureHint}. Press Escape to exit.
               </p>
@@ -788,7 +791,7 @@ export function FlashcardsPanel({
       </div>
 
       {/* Deck-position dots (decorative; the "Card N of M" text carries it for AT) */}
-      <DeckDots count={topic.items.length} current={cardIndex} />
+      <DeckDots count={topic.items.length} current={cardIndex} className={flashcardMobileCardDotsClass(mobileAppOpen)} />
       </div>
 
       <div className={flashcardMobileActionZoneClass(mobileAppOpen)}>
