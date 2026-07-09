@@ -28,9 +28,12 @@ import {
 } from "@/lib/flashcard-mobile-settings";
 import {
   flashcardMobileActionZoneClass,
+  flashcardMobileAppModeA11y,
   flashcardMobileAppModeCopy,
+  flashcardMobileAppModeKeyboardAction,
   flashcardMobileCardWrapClass,
   flashcardMobileContentClass,
+  flashcardMobileGestureHint,
   flashcardMobileShellClass,
 } from "@/lib/flashcard-mobile-app-mode";
 import { flashcardRescuePrompt } from "@/lib/flashcard-rescue";
@@ -50,6 +53,9 @@ const CONFIDENCE_TONE_CLASS = {
   emerald: "border-emerald-300/30 bg-emerald-400/10 text-emerald-100",
   rose: "border-rose-300/30 bg-rose-400/10 text-rose-100",
 } as const;
+
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 // The "Cards" tab: a single flashcard rendered as a physical-feeling deck
 // (Sprint 9) — a 3D flip on reveal, drag-to-follow, fling-to-grade, and deck
@@ -123,7 +129,15 @@ export function FlashcardsPanel({
   const [mobileAppOpen, setMobileAppOpen] = useState(false);
   const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false);
   const mobileAppCopy = flashcardMobileAppModeCopy(mobileAppOpen);
+  const mobileAppA11y = flashcardMobileAppModeA11y(mobileAppOpen);
+  const mobileGestureHint = flashcardMobileGestureHint(revealed);
   const mobileSettingsCopy = flashcardMobileSettingsDrawerCopy(mobileSettingsOpen);
+  const mobileAppRef = useRef<HTMLElement>(null);
+  const mobileLaunchButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileExitButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileSettingsButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileSettingsDrawerRef = useRef<HTMLDivElement>(null);
+  const hadMobileAppOpen = useRef(false);
   const [dismissedRescueKeys, setDismissedRescueKeys] = useState<Set<string>>(() => new Set());
   const rescuePrompt = flashcardRescuePrompt(current, stat, {
     dismissed: dismissedRescueKeys.has(`${topic.slug}:${current.hanzi}`),
@@ -161,6 +175,66 @@ export function FlashcardsPanel({
       document.body.style.overflow = previousOverflow;
     };
   }, [mobileAppOpen]);
+
+  useEffect(() => {
+    if (!mobileAppOpen) {
+      if (hadMobileAppOpen.current) {
+        mobileLaunchButtonRef.current?.focus?.();
+      }
+      hadMobileAppOpen.current = false;
+      return;
+    }
+    hadMobileAppOpen.current = true;
+    mobileExitButtonRef.current?.focus?.();
+  }, [mobileAppOpen]);
+
+  useEffect(() => {
+    if (!mobileAppOpen || !mobileSettingsOpen) return;
+    const focusables = mobileSettingsDrawerRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+    focusables?.[0]?.focus();
+  }, [mobileAppOpen, mobileSettingsOpen]);
+
+  useEffect(() => {
+    if (!mobileAppOpen) return;
+    function onKeyDown(e: KeyboardEvent) {
+      const action = flashcardMobileAppModeKeyboardAction({
+        open: mobileAppOpen,
+        settingsOpen: mobileSettingsOpen,
+        key: e.key,
+      });
+      if (action === "close-settings") {
+        e.preventDefault();
+        setMobileSettingsOpen(false);
+        mobileSettingsButtonRef.current?.focus?.();
+        return;
+      }
+      if (action === "close-app") {
+        e.preventDefault();
+        setMobileSettingsOpen(false);
+        setMobileAppOpen(false);
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const node = mobileSettingsOpen ? mobileSettingsDrawerRef.current : mobileAppRef.current;
+      if (!node) return;
+      const focusables = Array.from(node.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey) {
+        if (active === first || !node.contains(active)) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else if (active === last || !node.contains(active)) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [mobileAppOpen, mobileSettingsOpen]);
 
   const startFling = useCallback(
     (grade: Grade, dir: "left" | "right") => {
@@ -210,20 +284,27 @@ export function FlashcardsPanel({
 
   return (
     <section
+      ref={mobileAppRef}
       className={flashcardMobileShellClass(mobileAppOpen)}
-      aria-label="Flashcard practice"
-      role={mobileAppOpen ? "dialog" : "region"}
-      aria-modal={mobileAppOpen ? true : undefined}
+      aria-label={mobileAppOpen ? undefined : "Flashcard practice"}
+      role={mobileAppA11y.role}
+      aria-modal={mobileAppA11y.ariaModal}
+      aria-labelledby={mobileAppA11y.labelledBy}
+      aria-describedby={mobileAppA11y.describedBy}
     >
       <div className="md:hidden">
         {mobileAppOpen ? (
           <div className="mb-3 flex min-h-11 items-center justify-between gap-3 text-left">
             <div>
-              <p className="text-xs font-semibold text-emerald-300">{mobileAppCopy.title}</p>
+              <p id="flashcard-mobile-app-title" className="text-xs font-semibold text-emerald-300">{mobileAppCopy.title}</p>
               <p className="text-sm text-slate-400">Card {cardIndex + 1} of {topic.items.length}</p>
+              <p id="flashcard-mobile-app-desc" className="mt-0.5 text-[11px] leading-4 text-slate-500">
+                {mobileGestureHint}. Press Escape to exit.
+              </p>
             </div>
             <div className="flex items-center gap-2">
               <button
+                ref={mobileSettingsButtonRef}
                 type="button"
                 onClick={() => setMobileSettingsOpen((open) => !open)}
                 className="inline-flex min-h-11 items-center justify-center rounded-full border border-emerald-300/30 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:border-emerald-200/50 hover:bg-emerald-400/10"
@@ -234,13 +315,15 @@ export function FlashcardsPanel({
                 {mobileSettingsCopy.action}
               </button>
               <button
+                ref={mobileExitButtonRef}
                 type="button"
                 onClick={() => {
                   setMobileSettingsOpen(false);
                   setMobileAppOpen(false);
                 }}
-                className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-white transition hover:border-emerald-300/50 hover:bg-white/5"
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-white transition hover:border-emerald-300/50 hover:bg-white/5 motion-reduce:transition-none"
                 aria-label={mobileAppCopy.ariaLabel}
+                aria-keyshortcuts="Escape"
               >
                 {mobileAppCopy.action}
               </button>
@@ -253,10 +336,12 @@ export function FlashcardsPanel({
               Open cards full-screen to hide page chrome and keep the practice loop focused.
             </p>
             <button
+              ref={mobileLaunchButtonRef}
               type="button"
               onClick={() => setMobileAppOpen(true)}
-              className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cta"
+              className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cta motion-reduce:transition-none"
               aria-label={mobileAppCopy.ariaLabel}
+              aria-haspopup="dialog"
             >
               {mobileAppCopy.action}
             </button>
@@ -267,14 +352,15 @@ export function FlashcardsPanel({
       {mobileAppOpen ? (
         <div
           id="flashcard-mobile-settings-drawer"
+          ref={mobileSettingsDrawerRef}
           className={flashcardMobileSettingsDrawerClass(mobileSettingsOpen)}
           role="dialog"
           aria-modal="false"
-          aria-label={mobileSettingsCopy.title}
+          aria-labelledby="flashcard-mobile-settings-title"
         >
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold text-white">{mobileSettingsCopy.title}</p>
+              <p id="flashcard-mobile-settings-title" className="text-sm font-semibold text-white">{mobileSettingsCopy.title}</p>
               <p className="mt-1 text-xs text-slate-400">{mobileSettingsCopy.expanded}</p>
             </div>
             <button

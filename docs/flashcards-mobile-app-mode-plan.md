@@ -70,16 +70,22 @@ QA:
 - full gate (`npm run test && npm run validate:data && npm run validate:quality && npm run lint && npm run build`) ✅
 
 ### F4 - Accessibility, gestures, and exit polish
-Status: pending
+Status: complete
 
-Polish the app-mode interactions:
-- ESC/back affordance if feasible
-- focus management on open/close
-- aria labels/descriptions
-- gesture hints fit without clutter
-- reduced-motion behavior still clean
+Polished the app-mode interactions:
+- fullscreen shell now uses explicit dialog labelling/description only while launched
+- Exit advertises Escape and the shell handles Escape to close settings first, then exit app-mode
+- focus moves to Exit on launch, into the settings drawer when opened, back to Settings when drawer Escape closes, and back to the launcher after exiting
+- concise mobile gesture hints explain tap/reveal and swipe grading without cluttering the card loop
+- reduced-motion path remains instant for fling grading, with motion-reduce-safe app controls
 
-QA: keyboard/AT inspection, lint/build/full gate.
+QA:
+- RED verified: `npm run test -- tests/flashcard-mobile-app-mode.test.mjs` failed on missing a11y/keyboard/gesture helper exports ✅
+- `npm run test -- tests/flashcard-mobile-app-mode.test.mjs` ✅
+- `npm run test -- tests/flashcard-mobile-app-mode.test.mjs tests/flashcard-mobile-settings.test.mjs` ✅
+- `npm run lint` ✅
+- `npm run build` ✅
+- full gate (`npm run test && npm run validate:data && npm run validate:quality && npm run lint && npm run build`) ✅
 
 ### F5 - Production deploy and live smoke
 Status: pending

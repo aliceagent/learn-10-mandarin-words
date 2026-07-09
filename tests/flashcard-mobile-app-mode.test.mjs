@@ -3,9 +3,12 @@ import assert from "node:assert/strict";
 
 import {
   flashcardMobileActionZoneClass,
+  flashcardMobileAppModeA11y,
   flashcardMobileAppModeCopy,
+  flashcardMobileAppModeKeyboardAction,
   flashcardMobileCardWrapClass,
   flashcardMobileContentClass,
+  flashcardMobileGestureHint,
   flashcardMobileShellClass,
 } from "../src/lib/flashcard-mobile-app-mode.ts";
 
@@ -56,4 +59,32 @@ test("mobile app-mode layout classes reserve flexible card space and a bottom ac
   const actions = flashcardMobileActionZoneClass(true);
   assert.match(actions, /shrink-0/);
   assert.match(actions, /pb-1/);
+});
+
+test("mobile app-mode a11y state exposes dialog labelling only while fullscreen", () => {
+  assert.deepEqual(flashcardMobileAppModeA11y(false), {
+    role: "region",
+    ariaModal: undefined,
+    labelledBy: undefined,
+    describedBy: undefined,
+  });
+
+  assert.deepEqual(flashcardMobileAppModeA11y(true), {
+    role: "dialog",
+    ariaModal: true,
+    labelledBy: "flashcard-mobile-app-title",
+    describedBy: "flashcard-mobile-app-desc",
+  });
+});
+
+test("mobile app-mode keyboard action lets Escape close drawer before exiting app", () => {
+  assert.equal(flashcardMobileAppModeKeyboardAction({ open: false, settingsOpen: false, key: "Escape" }), "none");
+  assert.equal(flashcardMobileAppModeKeyboardAction({ open: true, settingsOpen: true, key: "Escape" }), "close-settings");
+  assert.equal(flashcardMobileAppModeKeyboardAction({ open: true, settingsOpen: false, key: "Escape" }), "close-app");
+  assert.equal(flashcardMobileAppModeKeyboardAction({ open: true, settingsOpen: false, key: "Enter" }), "none");
+});
+
+test("mobile app-mode gesture hint stays concise for revealed and unrevealed cards", () => {
+  assert.equal(flashcardMobileGestureHint(false), "Tap to reveal · swipe right to reveal");
+  assert.equal(flashcardMobileGestureHint(true), "Swipe left again · right easy");
 });

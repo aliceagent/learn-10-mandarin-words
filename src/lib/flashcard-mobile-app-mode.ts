@@ -4,6 +4,15 @@ export type FlashcardMobileAppModeCopy = {
   ariaLabel: string;
 };
 
+export type FlashcardMobileAppModeA11y = {
+  role: "region" | "dialog";
+  ariaModal: true | undefined;
+  labelledBy: string | undefined;
+  describedBy: string | undefined;
+};
+
+export type FlashcardMobileAppModeKeyboardAction = "none" | "close-settings" | "close-app";
+
 export function flashcardMobileAppModeCopy(open: boolean): FlashcardMobileAppModeCopy {
   return open
     ? {
@@ -42,4 +51,39 @@ export function flashcardMobileCardWrapClass(open: boolean): string {
 
 export function flashcardMobileActionZoneClass(open: boolean): string {
   return open ? "shrink-0 pb-1 md:pb-0" : "";
+}
+
+export function flashcardMobileAppModeA11y(open: boolean): FlashcardMobileAppModeA11y {
+  if (!open) {
+    return {
+      role: "region",
+      ariaModal: undefined,
+      labelledBy: undefined,
+      describedBy: undefined,
+    };
+  }
+
+  return {
+    role: "dialog",
+    ariaModal: true,
+    labelledBy: "flashcard-mobile-app-title",
+    describedBy: "flashcard-mobile-app-desc",
+  };
+}
+
+export function flashcardMobileAppModeKeyboardAction({
+  open,
+  settingsOpen,
+  key,
+}: {
+  open: boolean;
+  settingsOpen: boolean;
+  key: string;
+}): FlashcardMobileAppModeKeyboardAction {
+  if (!open || key !== "Escape") return "none";
+  return settingsOpen ? "close-settings" : "close-app";
+}
+
+export function flashcardMobileGestureHint(revealed: boolean): string {
+  return revealed ? "Swipe left again · right easy" : "Tap to reveal · swipe right to reveal";
 }
