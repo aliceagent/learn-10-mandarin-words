@@ -132,7 +132,8 @@
         "ten-types-of-holidays",
         "ten-types-of-currencies",
         "ten-types-of-directions",
-        "ten-types-of-facial-expressions"
+        "ten-types-of-facial-expressions",
+        "ten-types-of-emotions"
       ]
     },
     {
@@ -11573,6 +11574,166 @@
         "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-facial-expressions.mp4",
         "kind": "mp4"
       }
+    },
+    {
+      "slug": "ten-types-of-emotions",
+      "titleCn": "十种情绪",
+      "titleEn": "Ten Types of Emotions",
+      "category": "Abstract but Picturable",
+      "categorySlug": "abstract-but-picturable",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-emotions.mp4",
+      "items": [
+        {
+          "hanzi": "讨厌",
+          "pinyin": "tǎoyàn",
+          "english": "dislike",
+          "sentences": [
+            {
+              "cn": "我讨厌排很长的队。",
+              "en": "I dislike waiting in very long lines."
+            },
+            {
+              "cn": "她讨厌下雨天忘带伞。",
+              "en": "She dislikes forgetting an umbrella on rainy days."
+            }
+          ]
+        },
+        {
+          "hanzi": "喜欢",
+          "pinyin": "xǐhuan",
+          "english": "like",
+          "sentences": [
+            {
+              "cn": "我喜欢早上喝一杯茶。",
+              "en": "I like drinking a cup of tea in the morning."
+            },
+            {
+              "cn": "他喜欢听中文歌。",
+              "en": "He likes listening to Chinese songs."
+            }
+          ]
+        },
+        {
+          "hanzi": "担心",
+          "pinyin": "dānxīn",
+          "english": "worry",
+          "sentences": [
+            {
+              "cn": "妈妈担心孩子太晚回家。",
+              "en": "Mom worries when the child comes home too late."
+            },
+            {
+              "cn": "别担心，我会准时到。",
+              "en": "Don't worry, I will arrive on time."
+            }
+          ]
+        },
+        {
+          "hanzi": "紧张",
+          "pinyin": "jǐnzhāng",
+          "english": "nervous",
+          "sentences": [
+            {
+              "cn": "考试以前，我有点紧张。",
+              "en": "Before the exam, I feel a little nervous."
+            },
+            {
+              "cn": "第一次用中文点菜，他很紧张。",
+              "en": "Ordering food in Chinese for the first time made him nervous."
+            }
+          ]
+        },
+        {
+          "hanzi": "尴尬",
+          "pinyin": "gāngà",
+          "english": "embarrassed",
+          "sentences": [
+            {
+              "cn": "我叫错了他的名字，觉得很尴尬。",
+              "en": "I called him by the wrong name and felt embarrassed."
+            },
+            {
+              "cn": "房间突然安静下来，气氛有点尴尬。",
+              "en": "The room suddenly became quiet, and the mood felt awkward."
+            }
+          ]
+        },
+        {
+          "hanzi": "嫉妒",
+          "pinyin": "jídù",
+          "english": "jealous",
+          "sentences": [
+            {
+              "cn": "看到朋友得奖，他有一点嫉妒。",
+              "en": "Seeing his friend win a prize, he felt a little jealous."
+            },
+            {
+              "cn": "嫉妒别人不会让自己进步。",
+              "en": "Being jealous of others will not help you improve."
+            }
+          ]
+        },
+        {
+          "hanzi": "骄傲",
+          "pinyin": "jiāo'ào",
+          "english": "proud",
+          "sentences": [
+            {
+              "cn": "完成这个项目后，我很骄傲。",
+              "en": "After finishing this project, I felt very proud."
+            },
+            {
+              "cn": "父母为她的努力感到骄傲。",
+              "en": "Her parents are proud of her hard work."
+            }
+          ]
+        },
+        {
+          "hanzi": "孤单",
+          "pinyin": "gūdān",
+          "english": "lonely",
+          "sentences": [
+            {
+              "cn": "一个人在新城市，她有点孤单。",
+              "en": "Alone in a new city, she feels a bit lonely."
+            },
+            {
+              "cn": "给朋友打电话以后，我不那么孤单了。",
+              "en": "After calling a friend, I felt less lonely."
+            }
+          ]
+        },
+        {
+          "hanzi": "失望",
+          "pinyin": "shīwàng",
+          "english": "disappointed",
+          "sentences": [
+            {
+              "cn": "比赛取消了，大家都很失望。",
+              "en": "The game was canceled, and everyone was disappointed."
+            },
+            {
+              "cn": "我对这个结果有点失望。",
+              "en": "I am a little disappointed with this result."
+            }
+          ]
+        },
+        {
+          "hanzi": "无聊",
+          "pinyin": "wúliáo",
+          "english": "bored",
+          "sentences": [
+            {
+              "cn": "等车等太久，我觉得很无聊。",
+              "en": "Waiting too long for the bus made me bored."
+            },
+            {
+              "cn": "这部电影不无聊，反而很好看。",
+              "en": "This movie is not boring; actually, it is very good."
+            }
+          ]
+        }
+      ]
     },
     {
       "slug": "ten-types-of-round-things",

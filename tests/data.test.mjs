@@ -22,18 +22,52 @@ import {
 const topics = rawData.topics;
 const categories = rawData.categories;
 
-test("dataset has exactly 103 topics and 1030 words", () => {
-  assert.equal(topics.length, 103);
-  assert.equal(allWords(topics).length, 1030);
+test("dataset has exactly 104 topics and 1040 words", () => {
+  assert.equal(topics.length, 104);
+  assert.equal(allWords(topics).length, 1040);
 });
 
 test("datasetSummary derives hero counts from the real topic list", () => {
   assert.deepEqual(datasetSummary(topics), {
-    listCount: 103,
-    wordCount: 1030,
-    formattedListCount: "103",
-    formattedWordCount: "1,030",
+    listCount: 104,
+    wordCount: 1040,
+    formattedListCount: "104",
+    formattedWordCount: "1,040",
   });
+});
+
+test("Emotions topic includes 10 requested non-happy-sad-hate emotion words", () => {
+  const topic = getTopic(topics, "ten-types-of-emotions");
+  assert.ok(topic, "emotions topic exists");
+  assert.equal(topic.titleEn, "Ten Types of Emotions");
+  assert.equal(topic.titleCn, "十种情绪");
+  assert.equal(topic.categorySlug, "abstract-but-picturable");
+  assert.equal(topic.items.length, 10);
+
+  assert.deepEqual(
+    topic.items.map((item) => [item.english, item.hanzi, item.pinyin]),
+    [
+      ["dislike", "讨厌", "tǎoyàn"],
+      ["like", "喜欢", "xǐhuan"],
+      ["worry", "担心", "dānxīn"],
+      ["nervous", "紧张", "jǐnzhāng"],
+      ["embarrassed", "尴尬", "gāngà"],
+      ["jealous", "嫉妒", "jídù"],
+      ["proud", "骄傲", "jiāo'ào"],
+      ["lonely", "孤单", "gūdān"],
+      ["disappointed", "失望", "shīwàng"],
+      ["bored", "无聊", "wúliáo"],
+    ]
+  );
+
+  const excluded = new Set(["快乐", "开心", "悲伤", "难过", "伤心", "恨"]);
+  for (const item of topic.items) {
+    assert.ok(!excluded.has(item.hanzi), `excluded known emotion present: ${item.hanzi}`);
+    assert.equal(item.sentences.length, 2);
+    for (const sentence of item.sentences) {
+      assert.ok(sentence.cn && sentence.en);
+    }
+  }
 });
 
 test("Hotel to Airport topic includes Jonathan's requested travel words", () => {
