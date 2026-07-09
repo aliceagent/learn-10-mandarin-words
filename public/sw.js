@@ -193,9 +193,12 @@ async function serveMedia(request) {
   if (!cached) return fetch(request); // unsaved video → normal network passthrough
 
   const rangeHeader = request.headers.get("range");
-  // Opaque no-CORS saves (needed for GitHub Releases) cannot be inspected or
-  // sliced, so replay the whole cached response instead of crashing on Range.
-  if (rangeHeader && cached.type !== "opaque") return buildRangeResponse(cached, rangeHeader);
+  // Opaque no-CORS entries from older builds were never truly offline-playable:
+  // the worker cannot inspect or slice them for Range requests. Treat them as
+  // cache misses so online playback still works and offline playback fails
+  // truthfully instead of serving a broken cached response.
+  if (cached.type === "opaque") return fetch(request);
+  if (rangeHeader) return buildRangeResponse(cached, rangeHeader);
   return cached;
 }
 

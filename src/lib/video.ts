@@ -23,6 +23,22 @@ export function remoteMp4(src: string): boolean {
   return /^https?:\/\/.+\.mp4(\?|$)/i.test(src);
 }
 
+const PROJECT_RELEASE_RE = /^https:\/\/github\.com\/aliceagent\/learn-10-mandarin-words\/releases\/download\/([^/?#]+)\/([^/?#]+\.mp4)(?:[?#].*)?$/i;
+
+// GitHub Release asset redirects do not send CORS headers, so browser fetch() can
+// only save them as opaque responses, which cannot be sliced for offline video
+// Range requests. On Vercel, this same-origin rewrite streams the same asset
+// through our domain, giving Cache Storage a readable response for offline save.
+export function githubReleaseProxyUrl(src: string): string | null {
+  const m = PROJECT_RELEASE_RE.exec(src);
+  if (!m) return null;
+  return `/video-proxy/github-releases/${encodeURIComponent(m[1])}/${encodeURIComponent(m[2])}`;
+}
+
+function playableMp4Url(src: string): string {
+  return githubReleaseProxyUrl(src) ?? src;
+}
+
 export type Resolved =
   | { kind: "youtube"; id: string }
   | { kind: "mp4"; src: string; poster?: string; captions?: VideoMeta["captions"] }
@@ -36,13 +52,13 @@ export function resolveSource(src: string, video?: VideoMeta): Resolved {
       if (id) return { kind: "youtube", id };
     }
     if (video.provider === "mp4") {
-      return { kind: "mp4", src: video.source, poster: video.poster, captions: video.captions };
+      return { kind: "mp4", src: playableMp4Url(video.source), poster: video.poster, captions: video.captions };
     }
   }
 
   const ytId = youtubeId(src);
   if (ytId) return { kind: "youtube", id: ytId };
-  if (remoteMp4(src)) return { kind: "mp4", src, poster: video?.poster, captions: video?.captions };
+  if (remoteMp4(src)) return { kind: "mp4", src: playableMp4Url(src), poster: video?.poster, captions: video?.captions };
 
   return { kind: "placeholder" };
 }

@@ -123,6 +123,20 @@ test("savedLessonSize returns null for opaque saved videos with hidden bodies", 
   assert.equal(await savedLessonSize(URL_A, { caches }), null);
 });
 
+test("opaque cached videos do not count as saved lessons", async () => {
+  const caches = makeFakeCaches();
+  const opaque = {
+    type: "opaque",
+    headers: new Headers(),
+    blob: async () => ({ size: 0 }),
+  };
+  const cache = await caches.open(VIDEO_CACHE);
+  await cache.put(URL_A, opaque);
+
+  assert.equal(await isLessonSaved(URL_A, { caches }), false);
+  assert.deepEqual(await listSavedLessons({ caches }), []);
+});
+
 test("removeLessonOffline deletes a saved lesson", async () => {
   const caches = makeFakeCaches();
   await saveLessonOffline(URL_A, { caches, fetch: async () => mp4Response() });
@@ -144,7 +158,7 @@ test("saveLessonOffline also co-caches a same-origin page shell when asked", asy
 
   // Video cache holds the MP4; app cache holds the page.
   assert.equal(caches._store.get(VIDEO_CACHE).has(URL_A), true);
-  assert.equal(caches._store.get("learn10-v1").has("/topics/demo"), true);
+  assert.equal(caches._store.get("learn10-v2").has("/topics/demo"), true);
   assert.deepEqual(seen, [URL_A, "/topics/demo"]);
 });
 
@@ -157,7 +171,7 @@ test("saveLessonOffline rejects on a non-ok response and stores nothing", async 
   assert.equal(caches._putSpy.length, 0);
 });
 
-test("saveLessonOffline falls back to an opaque no-CORS save when CORS is blocked", async () => {
+test("saveLessonOffline rejects opaque no-CORS responses because they cannot reliably play offline", async () => {
   const caches = makeFakeCaches();
   const calls = [];
   const opaque = { ok: false, status: 0, type: "opaque", headers: new Headers() };
@@ -168,14 +182,16 @@ test("saveLessonOffline falls back to an opaque no-CORS save when CORS is blocke
     return opaque;
   };
 
-  await saveLessonOffline(URL_A, { caches, fetch });
+  await assert.rejects(
+    () => saveLessonOffline(URL_A, { caches, fetch }),
+    /doesn't allow offline video saving/,
+  );
 
   assert.deepEqual(calls, [
     { url: URL_A, mode: "cors" },
     { url: URL_A, mode: "no-cors" },
   ]);
-  assert.deepEqual(caches._putSpy, [{ cache: VIDEO_CACHE, url: URL_A }]);
-  assert.equal(caches._store.get(VIDEO_CACHE).get(URL_A), opaque);
+  assert.equal(caches._putSpy.length, 0);
 });
 
 test("saveLessonOffline surfaces a friendly message on network failure", async () => {

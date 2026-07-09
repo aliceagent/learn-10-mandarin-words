@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/video-proxy/github-releases/:tag/:file",
+      "destination": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/:tag/:file"
+    }
+  ]
+}

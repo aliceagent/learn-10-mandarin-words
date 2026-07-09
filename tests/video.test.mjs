@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  githubReleaseProxyUrl,
   downloadableMp4Url,
   hasPlayableVideo,
   remoteMp4,
@@ -51,6 +52,33 @@ test("resolveSource prefers explicit mp4 metadata with poster + captions", () =>
   });
 });
 
+test("githubReleaseProxyUrl maps project release videos to a same-origin Vercel proxy", () => {
+  assert.equal(
+    githubReleaseProxyUrl(
+      "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-furniture.mp4",
+    ),
+    "/video-proxy/github-releases/mandarin-videos-2026-07-03-gap/ten-types-of-furniture.mp4",
+  );
+  assert.equal(githubReleaseProxyUrl("https://cdn.example.com/x.mp4"), null);
+  assert.equal(githubReleaseProxyUrl("not a url"), null);
+});
+
+test("resolveSource rewrites GitHub Release MP4s through the same-origin proxy", () => {
+  const captions = [{ lang: "en", label: "English", src: "/c.vtt" }];
+  const r = resolveSource("/videos/x.mp4", {
+    provider: "mp4",
+    source: "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/tag-one/x.mp4",
+    poster: "/p.jpg",
+    captions,
+  });
+  assert.deepEqual(r, {
+    kind: "mp4",
+    src: "/video-proxy/github-releases/tag-one/x.mp4",
+    poster: "/p.jpg",
+    captions,
+  });
+});
+
 test("resolveSource returns placeholder for a bare local /videos path", () => {
   assert.deepEqual(resolveSource("/videos/ten-types-of-pets.mp4"), { kind: "placeholder" });
   assert.deepEqual(resolveSource("/videos/ten-types-of-pets.mp4", { provider: "none" }), {
@@ -88,6 +116,16 @@ test("downloadableMp4Url returns MP4 URLs only (null for YouTube/placeholder)", 
       video: { provider: "mp4", source: "https://cdn.example.com/y.mp4" },
     }),
     "https://cdn.example.com/y.mp4"
+  );
+  assert.equal(
+    downloadableMp4Url({
+      videoPath: "/videos/x.mp4",
+      video: {
+        provider: "mp4",
+        source: "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/tag-one/y.mp4",
+      },
+    }),
+    "/video-proxy/github-releases/tag-one/y.mp4"
   );
   assert.equal(
     downloadableMp4Url({

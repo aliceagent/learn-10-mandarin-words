@@ -21,7 +21,7 @@ export const VIDEO_CACHE = "learn10-videos-v1";
 
 /** App-shell cache name — mirrors CACHE in public/sw.js. Only used for the
  *  optional, best-effort caching of the lesson page alongside its video. */
-export const APP_CACHE = "learn10-v1";
+export const APP_CACHE = "learn10-v2";
 
 // Minimal structural types so we can accept either the real CacheStorage or a
 // test fake without pulling in the full DOM lib surface.
@@ -141,15 +141,18 @@ export async function saveLessonOffline(source: string, options: SaveOptions = {
     res = await doFetch(source, { mode: "cors" });
   } catch {
     try {
-      // GitHub Release assets can play in <video> while blocking CORS reads.
-      // A no-CORS fetch yields an opaque response that Cache Storage can still
-      // keep for the service worker to replay offline as a whole media response.
+      // One final probe distinguishes a CORS-blocked host from a true network
+      // failure, but the opaque response itself is NOT stored: opaque MP4s cannot
+      // be sliced for Range requests and fail offline playback in real browsers.
       res = await doFetch(source, { mode: "no-cors" });
     } catch {
       throw new Error("Couldn't reach the video. Check your connection and try again.");
     }
   }
-  if (res.type !== "opaque" && !res.ok) {
+  if (res.type === "opaque") {
+    throw new Error("This video host doesn't allow offline video saving yet. You can still play it online.");
+  }
+  if (!res.ok) {
     throw new Error(`Download failed (HTTP ${res.status}). Try again later.`);
   }
 
@@ -233,7 +236,7 @@ export async function isLessonSaved(source: string, deps: OfflineDeps = {}): Pro
   if (!supportsCacheStorage(deps)) return false;
   const cache = await resolveCaches(deps).open(VIDEO_CACHE);
   const match = await cache.match(source);
-  return Boolean(match);
+  return Boolean(match && match.type !== "opaque");
 }
 
 /** Byte size of a saved lesson, or null when it isn't saved. Prefers the stored
@@ -259,5 +262,10 @@ export async function listSavedLessons(deps: OfflineDeps = {}): Promise<string[]
   if (!supportsCacheStorage(deps)) return [];
   const cache = await resolveCaches(deps).open(VIDEO_CACHE);
   const requests = await cache.keys();
-  return requests.map((r) => r.url);
+  const urls: string[] = [];
+  for (const request of requests) {
+    const cached = await cache.match(request);
+    if (cached && cached.type !== "opaque") urls.push(request.url);
+  }
+  return urls;
 }
