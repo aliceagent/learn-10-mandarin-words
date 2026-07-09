@@ -265,7 +265,11 @@ export async function listSavedLessons(deps: OfflineDeps = {}): Promise<string[]
   const urls: string[] = [];
   for (const request of requests) {
     const cached = await cache.match(request);
-    if (cached && cached.type !== "opaque") urls.push(request.url);
+    if (cached && cached.type !== "opaque") {
+      urls.push(request.url);
+    } else if (cached?.type === "opaque") {
+      await cache.delete(request);
+    }
   }
   return urls;
 }

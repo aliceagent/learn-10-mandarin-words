@@ -135,6 +135,7 @@ test("opaque cached videos do not count as saved lessons", async () => {
 
   assert.equal(await isLessonSaved(URL_A, { caches }), false);
   assert.deepEqual(await listSavedLessons({ caches }), []);
+  assert.equal(caches._store.get(VIDEO_CACHE).has(URL_A), false);
 });
 
 test("removeLessonOffline deletes a saved lesson", async () => {
