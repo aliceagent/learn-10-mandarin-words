@@ -88,14 +88,27 @@ QA:
 - full gate (`npm run test && npm run validate:data && npm run validate:quality && npm run lint && npm run build`) ✅
 
 ### F5 - Production deploy and live smoke
-Status: pending
+Status: complete
 
-After F1-F4 are complete:
-- final full QA gate
-- mobile screenshot regression
-- push main
-- deploy Vercel production
-- smoke home/topic flashcards/favorites/search-index
+Completed final release pass:
+- final full QA gate passed locally
+- mobile 390x844 screenshot regression captured for home, topic flashcards, and favorites
+- pushed `main` to origin
+- deployed Vercel production
+- smoke-checked live home, topic flashcards, favorites, and search-index routes
+
+QA:
+- full gate (`npm run test && npm run validate:data && npm run validate:quality && npm run lint && npm run build`) ✅
+- screenshots:
+  - `dogfood-output/screenshots/f5-home-mobile.png` ✅
+  - `dogfood-output/screenshots/f5-topic-flashcards-mobile.png` ✅
+  - `dogfood-output/screenshots/f5-favorites-mobile.png` ✅
+- production deploy: `https://learn-10-mandarin-words.vercel.app` ✅
+- live smoke:
+  - `/` 200 and contains `Learn 10 Mandarin Words` ✅
+  - `/topics/ten-types-of-pets?m=flashcards` 200 and contains `Ten Types of Pets` ✅
+  - `/favorites` 200 and contains `Favorites` ✅
+  - `/search-index.json` 200 JSON with 103 entries ✅
 
 ## Notes
 
