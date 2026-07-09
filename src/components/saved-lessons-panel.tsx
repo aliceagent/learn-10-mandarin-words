@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { data } from "@/lib/data";
-import { downloadableMp4Url } from "@/lib/video";
+import { savedOfflineLessonRows, type SavedOfflineLessonRow } from "@/lib/offline-library-logic";
 import {
   formatBytes,
   listSavedLessons,
@@ -12,42 +13,14 @@ import {
 } from "@/lib/offline";
 import { notifySavedLessonsChanged } from "./use-saved-lessons";
 
-type SavedLesson = {
-  url: string;
-  title: string;
-  slug: string | null;
-  size: number | null;
-};
-
-// Map a saved MP4 URL back to its topic title, so the list reads as lessons
-// rather than raw file URLs. Built from the bundled topic data.
-function describeUrl(url: string): { title: string; slug: string | null } {
-  for (const topic of data.topics) {
-    if (downloadableMp4Url(topic) === url) {
-      return { title: topic.titleEn, slug: topic.slug };
-    }
-  }
-  // Fall back to the file name for anything not in the current dataset.
-  try {
-    const name = new URL(url).pathname.split("/").pop() || url;
-    return { title: decodeURIComponent(name), slug: null };
-  } catch {
-    return { title: url, slug: null };
-  }
-}
-
 // Read every saved lesson and resolve its title + size. Pure data access, no
-// React state — the caller decides what to do with the rows.
-async function loadSavedRows(): Promise<SavedLesson[]> {
+// React state - the caller decides what to do with the rows.
+async function loadSavedRows(): Promise<SavedOfflineLessonRow[]> {
   const urls = await listSavedLessons();
-  const rows = await Promise.all(
-    urls.map(async (url) => {
-      const { title, slug } = describeUrl(url);
-      return { url, title, slug, size: await savedLessonSize(url) };
-    })
+  const sizes = new Map(
+    await Promise.all(urls.map(async (url) => [url, await savedLessonSize(url)] as const)),
   );
-  rows.sort((a, b) => a.title.localeCompare(b.title));
-  return rows;
+  return savedOfflineLessonRows(data.topics, new Set(urls), sizes);
 }
 
 // Lists lessons the learner has explicitly saved for offline playback and lets
@@ -55,13 +28,13 @@ async function loadSavedRows(): Promise<SavedLesson[]> {
 // unavailable or nothing is saved.
 export function SavedLessonsPanel() {
   const [ready, setReady] = useState(false);
-  const [lessons, setLessons] = useState<SavedLesson[]>([]);
+  const [lessons, setLessons] = useState<SavedOfflineLessonRow[]>([]);
 
   useEffect(() => {
     if (!supportsCacheStorage()) return;
     let active = true;
     (async () => {
-      let rows: SavedLesson[] = [];
+      let rows: SavedOfflineLessonRow[] = [];
       try {
         rows = await loadSavedRows();
       } catch {
@@ -95,27 +68,46 @@ export function SavedLessonsPanel() {
   const totalBytes = lessons.reduce((sum, l) => sum + (l.size ?? 0), 0);
 
   return (
-    <section className="mt-10 w-full max-w-md rounded-3xl border border-white/10 bg-surface p-6 text-left">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
-        Saved for offline{totalBytes > 0 ? ` · ${formatBytes(totalBytes)}` : ""}
-      </h2>
+    <section className="mt-10 w-full max-w-md rounded-3xl border border-white/10 bg-surface p-5 text-left md:p-6">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-base font-semibold text-white">Offline saved lessons</h2>
+          <p className="mt-1 text-sm text-slate-400">
+            {lessons.length} lesson{lessons.length !== 1 ? "s" : ""} ready without internet{totalBytes > 0 ? ` · ${formatBytes(totalBytes)}` : ""}
+          </p>
+        </div>
+      </div>
       <ul className="mt-4 space-y-3">
         {lessons.map((lesson) => (
-          <li key={lesson.url} className="flex items-center justify-between gap-3">
+          <li key={lesson.url} className="rounded-2xl border border-white/10 bg-surface-2 p-3">
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-white">{lesson.title}</p>
-              {lesson.size ? (
-                <p className="text-xs text-slate-400">{formatBytes(lesson.size)}</p>
-              ) : null}
+              <p className="mt-1 text-xs text-slate-400">
+                {lesson.size ? formatBytes(lesson.size) : "Saved offline"}
+              </p>
             </div>
-            <button
-              type="button"
-              onClick={() => onRemove(lesson.url)}
-              className="inline-flex min-h-[36px] shrink-0 items-center rounded-full border border-white/15 px-4 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-rose-300 hover:text-rose-200"
-              aria-label={`Remove the saved offline copy of ${lesson.title}`}
-            >
-              Remove
-            </button>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              {lesson.href ? (
+                <Link
+                  href={lesson.href}
+                  className="inline-flex min-h-[40px] items-center justify-center rounded-full bg-emerald-400 px-3 py-2 text-xs font-semibold text-slate-950 transition hover:bg-cta"
+                >
+                  Open lesson
+                </Link>
+              ) : (
+                <span className="inline-flex min-h-[40px] items-center justify-center rounded-full border border-white/10 px-3 py-2 text-xs font-semibold text-slate-600">
+                  No lesson link
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => onRemove(lesson.url)}
+                className="inline-flex min-h-[40px] items-center justify-center rounded-full border border-white/15 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:border-rose-300 hover:text-rose-200"
+                aria-label={`Delete the saved offline copy of ${lesson.title}`}
+              >
+                Delete offline
+              </button>
+            </div>
           </li>
         ))}
       </ul>

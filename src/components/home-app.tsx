@@ -10,6 +10,7 @@ import { goalProgress, streakAtRisk, studiedWithFreezes, todayISO } from "@/lib/
 import { comebackDeck, daysSinceLastStudy, isLapsed } from "@/lib/comeback-logic";
 import { primaryCta } from "@/lib/home-cta-logic";
 import { savedListsHomeSummary } from "@/lib/home-saved-lists-logic";
+import { offlineHomeSummary, savedOfflineLessonRows } from "@/lib/offline-library-logic";
 import { categoryFilterOptions, starterLessons } from "@/lib/lesson-finder-logic";
 import { onboardingNext } from "@/lib/onboarding-next-logic";
 import { lessonCardStatus } from "@/lib/lesson-card-logic";
@@ -122,6 +123,10 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
   const savedListsSummary = useMemo(
     () => savedListsHomeSummary(topics, progress.favoriteTopics, progress.favoriteWords, 3),
     [topics, progress.favoriteTopics, progress.favoriteWords],
+  );
+  const offlineSummary = useMemo(
+    () => offlineHomeSummary(savedOfflineLessonRows(topics, savedOffline)),
+    [topics, savedOffline],
   );
   // Streak reads the studied ∪ frozen union so a spent freeze bridges its day.
   const studiedUnion = studiedWithFreezes(progress);
@@ -296,6 +301,52 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
           </div>
         </div>
       </section>
+
+      {offlineSummary.hasSavedOffline ? (
+        <section className="mx-auto max-w-7xl px-4 pt-1 md:px-10 md:pt-2" aria-label="Offline saved lessons">
+          <div className="rounded-3xl border border-sky-300/25 bg-sky-400/[0.08] p-4 md:p-5">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-sky-300">Offline ready</p>
+                <h2 className="mt-1 text-2xl font-semibold tracking-tight text-white md:text-3xl">
+                  Review offline saved lessons
+                </h2>
+                <p className="mt-2 text-sm text-slate-300">
+                  {offlineSummary.count} downloaded lesson{offlineSummary.count !== 1 ? "s" : ""} ready to open or delete from your device.
+                </p>
+              </div>
+              <Link
+                href="/offline"
+                className="inline-flex min-h-11 items-center justify-center rounded-full bg-sky-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-200"
+              >
+                Review offline saved lessons
+              </Link>
+            </div>
+            <div className="mt-4 grid gap-3 md:grid-cols-3">
+              {offlineSummary.preview.map((lesson) => (
+                lesson.href ? (
+                  <Link
+                    key={lesson.url}
+                    href={lesson.href}
+                    className="group flex min-h-14 items-center justify-between gap-3 rounded-2xl border border-white/10 bg-surface px-4 py-3 transition active:scale-[0.99] hover:border-sky-300/50 hover:bg-surface-hover"
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-semibold text-white group-hover:text-sky-50">{lesson.title}</span>
+                      <span className="mt-0.5 block truncate text-xs text-slate-500">Saved offline</span>
+                    </span>
+                    <span aria-hidden="true" className="shrink-0 text-slate-500 transition group-hover:text-sky-300">→</span>
+                  </Link>
+                ) : (
+                  <div key={lesson.url} className="rounded-2xl border border-white/10 bg-surface px-4 py-3">
+                    <p className="truncate text-sm font-semibold text-white">{lesson.title}</p>
+                    <p className="mt-0.5 text-xs text-slate-500">Manage on the offline page</p>
+                  </div>
+                )
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {loaded && savedListsSummary.hasSavedLists ? (
         <section className="mx-auto max-w-7xl px-4 pt-1 md:px-10 md:pt-2" aria-label="Saved lists">

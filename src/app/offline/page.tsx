@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 import { SavedLessonsPanel } from "@/components/saved-lessons-panel";
 
 export const metadata: Metadata = {
-  title: "Offline",
-  description: "You are offline. Recently visited lessons are still available.",
+  title: "Offline library",
+  description: "Review saved offline Mandarin lessons, open them, or delete downloaded lesson videos.",
   alternates: { canonical: "/offline" },
   // SW fallback shell — keep it out of search results.
   robots: { index: false, follow: false },
@@ -13,12 +13,14 @@ export const metadata: Metadata = {
 export default function OfflinePage() {
   return (
     <main className="mobile-bottom-safe mx-auto flex min-h-[80dvh] max-w-2xl flex-col items-center justify-center px-6 pt-16 text-center">
-      <p className="text-6xl">📡</p>
-      <h1 className="mt-6 text-3xl font-semibold tracking-tight text-white md:text-4xl">You&apos;re offline</h1>
+      <p className="text-6xl">⬇️</p>
+      <h1 className="mt-6 text-3xl font-semibold tracking-tight text-white md:text-4xl">Offline library</h1>
       <p className="mt-4 max-w-md text-slate-300">
-        This page hasn&apos;t been cached yet. Lessons you&apos;ve already opened, plus your saved
-        progress, still work without a connection — everything is stored on your device.
+        Review the lessons you saved for offline playback. Open a saved lesson, or delete its downloaded video when you want the space back.
       </p>
+
+      {/* Lessons the learner explicitly saved for offline playback (client-only). */}
+      <SavedLessonsPanel />
 
       {/* Honest offline help: vocabulary data is local, but the walkthrough
           videos stream from GitHub Releases and need a connection. */}
@@ -55,9 +57,6 @@ export default function OfflinePage() {
           </li>
         </ul>
       </section>
-
-      {/* Lessons the learner explicitly saved for offline playback (client-only). */}
-      <SavedLessonsPanel />
 
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Link
