@@ -2,8 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  lessonCardStatus,
+  lessonCardFavoriteAction,
   lessonCardMeta,
+  lessonCardStatus,
   MASTERED_MAJORITY_RATIO,
   topicCardPreviewItems,
 } from "../src/lib/lesson-card-logic.ts";
@@ -130,6 +131,24 @@ test("meta includes 'video' when explicit youtube metadata is present", () => {
 test("meta word count matches items.length and singularizes at 1", () => {
   assert.equal(lessonCardMeta(makeTopic("solo", 1)), "1 word · quiz");
   assert.equal(lessonCardMeta(makeTopic("pair", 2)), "2 words · quiz");
+});
+
+// ── lessonCardFavoriteAction ─────────────────────────────────────────────────
+
+test("favorite action invites saving an unsaved lesson", () => {
+  assert.deepEqual(lessonCardFavoriteAction(false), {
+    label: "Favorite",
+    ariaLabel: "Mark lesson as favorite",
+    title: "Save this lesson to Favorites",
+  });
+});
+
+test("favorite action makes saved state obvious and reversible", () => {
+  assert.deepEqual(lessonCardFavoriteAction(true), {
+    label: "Favorited",
+    ariaLabel: "Remove lesson from favorites",
+    title: "Saved in Favorites",
+  });
 });
 
 // ── topicCardPreviewItems ────────────────────────────────────────────────────

@@ -30,7 +30,7 @@ import { searchWords } from "@/lib/search-logic";
 export function HomeApp({ data }: { data: HomeIndexData }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
-  const { progress, loaded, completeOnboarding, skipOnboarding, toggleFavoriteWord } = useProgress();
+  const { progress, loaded, completeOnboarding, skipOnboarding, toggleFavoriteWord, toggleFavoriteTopic } = useProgress();
   // Which lesson videos are already in the offline cache — drives the "✓ Offline"
   // card chip. Empty until mount, so it never causes a hydration mismatch.
   const savedOffline = useSavedLessons();
@@ -676,6 +676,7 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
                 quizStats={progress.quizStats}
                 status={lessonCardStatus(topic, progress)}
                 query={query}
+                onToggleFavorite={() => toggleFavoriteTopic(topic.slug)}
               />
             ))}
           </div>

@@ -13,7 +13,7 @@ import { SaveCategoryOfflineButton } from "./save-category-offline-button";
 // same topic-card styling as the home library grid. Additive to the home page's
 // search/filter — this is a standalone, focused view of a single category.
 export function CategoryApp({ category, topics }: { category: Category; topics: Topic[] }) {
-  const { progress, loaded } = useProgress();
+  const { progress, loaded, toggleFavoriteTopic } = useProgress();
   // Videos already in the offline cache — drives the card "✓ Offline" chips.
   const savedOffline = useSavedLessons();
 
@@ -69,6 +69,7 @@ export function CategoryApp({ category, topics }: { category: Category; topics: 
               savedOffline={savedOffline.has(downloadableMp4Url(topic) ?? "")}
               flashcardStats={progress.flashcardStats}
               quizStats={progress.quizStats}
+              onToggleFavorite={() => toggleFavoriteTopic(topic.slug)}
             />
           ))}
         </div>

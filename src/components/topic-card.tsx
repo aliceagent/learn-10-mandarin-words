@@ -4,7 +4,12 @@ import Link from "next/link";
 import type { FlashcardStat, QuizStat, TopicSummary } from "@/lib/types";
 import { wordKey } from "@/lib/data-logic";
 import { topicWordStatuses } from "@/lib/progress-logic";
-import { lessonCardMeta, topicCardPreviewItems, type LessonCardStatus } from "@/lib/lesson-card-logic";
+import {
+  lessonCardFavoriteAction,
+  lessonCardMeta,
+  topicCardPreviewItems,
+  type LessonCardStatus,
+} from "@/lib/lesson-card-logic";
 import { downloadableMp4Url, hasPlayableVideo } from "@/lib/video";
 import { normalizePinyin } from "@/lib/highlight";
 import { HighlightedText } from "./highlighted-text";
@@ -26,6 +31,7 @@ export function TopicCard({
   quizStats,
   status,
   query,
+  onToggleFavorite,
 }: {
   topic: TopicSummary;
   learned: boolean;
@@ -44,6 +50,7 @@ export function TopicCard({
   // card shows mastery dots; callers that omit it (path page) render as before.
   quizStats?: Record<string, QuizStat>;
   query?: string;
+  onToggleFavorite?: () => void;
 }) {
   const studiedCount = topic.items.filter(
     (item) => (flashcardStats[wordKey(topic, item)]?.reviewCount ?? 0) > 0,
@@ -55,6 +62,7 @@ export function TopicCard({
   const statuses = quizStats ? topicWordStatuses(topic, flashcardStats, quizStats) : null;
   const videoReady = hasPlayableVideo(topic);
   const offlineSource = downloadableMp4Url(topic);
+  const favoriteAction = lessonCardFavoriteAction(favorite);
   const mobilePreview = topicCardPreviewItems(topic, 3);
   const desktopPreview = topicCardPreviewItems(topic, 5);
 
@@ -234,8 +242,25 @@ export function TopicCard({
       </p>
       </Link>
 
+      <div className="mt-3 grid gap-2 border-t border-white/10 pt-3 sm:grid-cols-2">
+        <button
+          type="button"
+          onClick={onToggleFavorite}
+          aria-label={favoriteAction.ariaLabel}
+          aria-pressed={favorite}
+          title={favoriteAction.title}
+          className={`inline-flex min-h-[40px] w-full items-center justify-center gap-1.5 rounded-full border px-3 py-2 text-xs font-semibold transition active:scale-[0.98] ${
+            favorite
+              ? "border-amber-300/30 bg-amber-300/15 text-amber-200 hover:border-amber-200/50"
+              : "border-white/15 text-slate-300 hover:border-amber-300/50 hover:text-amber-200"
+          }`}
+        >
+          <span aria-hidden="true">{favorite ? "★" : "☆"}</span>
+          {favoriteAction.label}
+        </button>
+
       {offlineSource ? (
-        <div className="mt-3 border-t border-white/10 pt-3">
+        <div>
           <SaveOfflineButton
             source={offlineSource}
             slug={topic.slug}
@@ -244,6 +269,7 @@ export function TopicCard({
           />
         </div>
       ) : null}
+      </div>
     </article>
   );
 }

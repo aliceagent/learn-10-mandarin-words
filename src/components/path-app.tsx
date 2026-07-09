@@ -13,7 +13,7 @@ import { TopicCard } from "./topic-card";
 // is highlighted and each section shows how many of its topics are learned — so
 // the page is fully useful with no account or backend.
 export function PathApp({ sections }: { sections: PathSection[] }) {
-  const { progress, loaded } = useProgress();
+  const { progress, loaded, toggleFavoriteTopic } = useProgress();
   const learned = useMemo(() => new Set(progress.learnedTopics), [progress.learnedTopics]);
 
   const nextTopic = useMemo(
@@ -101,6 +101,7 @@ export function PathApp({ sections }: { sections: PathSection[] }) {
                     favorite={progress.favoriteTopics.includes(topic.slug)}
                     crowned={Boolean(progress.bossStats[topic.slug]?.crownedAt)}
                     flashcardStats={progress.flashcardStats}
+                    onToggleFavorite={() => toggleFavoriteTopic(topic.slug)}
                   />
                 ))}
               </div>

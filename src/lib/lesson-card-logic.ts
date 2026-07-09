@@ -81,6 +81,20 @@ export function lessonCardMeta(
   return parts.join(" · ");
 }
 
+export function lessonCardFavoriteAction(favorite: boolean): { label: string; ariaLabel: string; title: string } {
+  return favorite
+    ? {
+        label: "Favorited",
+        ariaLabel: "Remove lesson from favorites",
+        title: "Saved in Favorites",
+      }
+    : {
+        label: "Favorite",
+        ariaLabel: "Mark lesson as favorite",
+        title: "Save this lesson to Favorites",
+      };
+}
+
 /**
  * The mobile topic grid is for scanning, not previewing all ten words. Keep a
  * small, stable set of word chips visible and express the rest as a count so
