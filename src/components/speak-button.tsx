@@ -10,6 +10,7 @@ interface SpeakButtonProps {
   lang?: string;
   label?: string;
   className?: string;
+  showSlowPace?: boolean;
 }
 
 // Shared pronunciation control. Internals run through the hardened `useSpeech()`
@@ -20,7 +21,7 @@ interface SpeakButtonProps {
 // match — availability is reflected post-hydration via the hook's `status`,
 // avoiding the hydration mismatch the old inline guard caused on browsers without
 // `speechSynthesis`.
-export function SpeakButton({ text, lang = "zh-CN", label, className }: SpeakButtonProps) {
+export function SpeakButton({ text, lang = "zh-CN", label, className, showSlowPace = true }: SpeakButtonProps) {
   const { availability, speaking, failed, speak, stop } = useSpeech();
   // Which control was tapped last, so the pulse lands on the right button while
   // `speaking` is true. Not derived from the DOM/window, so SSR and first client
@@ -84,19 +85,21 @@ export function SpeakButton({ text, lang = "zh-CN", label, className }: SpeakBut
           <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
         </svg>
       </button>
-      <button
-        type="button"
-        onClick={() => handleSpeak("slow")}
-        aria-label={slowTitle}
-        aria-pressed={speaking && pace === "slow"}
-        aria-disabled={unavailable || undefined}
-        title={slowTitle}
-        className={`inline-flex items-center justify-center rounded-full border border-white/10 px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-slate-400 transition hover:border-emerald-300 hover:text-emerald-300${activeClass(
-          "slow",
-        )}`}
-      >
-        0.6×
-      </button>
+      {showSlowPace ? (
+        <button
+          type="button"
+          onClick={() => handleSpeak("slow")}
+          aria-label={slowTitle}
+          aria-pressed={speaking && pace === "slow"}
+          aria-disabled={unavailable || undefined}
+          title={slowTitle}
+          className={`inline-flex items-center justify-center rounded-full border border-white/10 px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-slate-400 transition hover:border-emerald-300 hover:text-emerald-300${activeClass(
+            "slow",
+          )}`}
+        >
+          0.6×
+        </button>
+      ) : null}
     </span>
   );
 }

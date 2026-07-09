@@ -31,9 +31,12 @@ import {
   flashcardMobileAppModeA11y,
   flashcardMobileAppModeCopy,
   flashcardMobileAppModeKeyboardAction,
+  flashcardMobileCardFrameClass,
   flashcardMobileCardWrapClass,
   flashcardMobileContentClass,
   flashcardMobileGestureHint,
+  flashcardMobilePrimaryActionsClass,
+  flashcardMobileStatusRowClass,
   flashcardMobileShellClass,
 } from "@/lib/flashcard-mobile-app-mode";
 import { flashcardRescuePrompt } from "@/lib/flashcard-rescue";
@@ -298,7 +301,7 @@ export function FlashcardsPanel({
             <div>
               <p id="flashcard-mobile-app-title" className="text-xs font-semibold text-emerald-300">{mobileAppCopy.title}</p>
               <p className="text-sm text-slate-400">Card {cardIndex + 1} of {topic.items.length}</p>
-              <p id="flashcard-mobile-app-desc" className="mt-0.5 text-[11px] leading-4 text-slate-500">
+              <p id="flashcard-mobile-app-desc" className="sr-only">
                 {mobileGestureHint}. Press Escape to exit.
               </p>
             </div>
@@ -527,7 +530,7 @@ export function FlashcardsPanel({
       ) : null}
 
       <div className={flashcardMobileContentClass(mobileAppOpen)}>
-      <div className={`flex flex-wrap items-center justify-between gap-2 text-sm text-slate-400 ${mobileAppOpen ? "shrink-0" : ""}`}>
+      <div className={flashcardMobileStatusRowClass(mobileAppOpen)}>
         <span>Card {cardIndex + 1} of {topic.items.length}</span>
         <div
           className={`rounded-full border px-3 py-1 text-xs font-semibold ${CONFIDENCE_TONE_CLASS[confidence.tone]}`}
@@ -724,7 +727,7 @@ export function FlashcardsPanel({
           animation + drag transform ride the wrapper (2D), the inner .card-3d
           does the rotateY flip so the two transforms never fight. */}
       <div
-        className={`relative mt-4 select-none touch-pan-y cursor-grab active:cursor-grabbing md:mt-6 ${flingClass}`}
+        className={`relative w-full select-none touch-pan-y cursor-grab active:cursor-grabbing md:mt-6 ${mobileAppOpen ? "mt-0 max-w-sm" : "mt-4"} ${flingClass}`}
         style={dragStyle}
         onAnimationEnd={settleFling}
         {...handlers}
@@ -746,7 +749,7 @@ export function FlashcardsPanel({
         </span>
 
         <div className="card-scene">
-          <div className={`card-3d flex min-h-[240px] items-center justify-center md:min-h-[280px] ${revealed ? "is-flipped" : ""}`}>
+          <div className={`${flashcardMobileCardFrameClass(mobileAppOpen)} ${revealed ? "is-flipped" : ""}`}>
             {/* Front face: hanzi + speak */}
             <div className="card-face flex w-full flex-col items-center justify-center">
               <div className="flex items-center justify-center gap-3">
@@ -759,7 +762,7 @@ export function FlashcardsPanel({
                 ) : (
                   <h2 className="text-3xl font-semibold text-white md:text-5xl">{face.promptPrimary}</h2>
                 )}
-                <SpeakButton text={current.hanzi} label={`Pronounce ${current.hanzi}`} />
+                <SpeakButton text={current.hanzi} label={`Pronounce ${current.hanzi}`} showSlowPace={!mobileAppOpen} />
               </div>
               {visibility.showPinyinBeforeReveal && face.promptKind !== "pinyin" ? (
                 <p lang={PINYIN_LANG} className="mt-3 font-hanzi text-2xl text-emerald-300">
@@ -823,11 +826,11 @@ export function FlashcardsPanel({
       ) : null}
 
       {!revealed ? (
-        <div className="mt-4 flex flex-col items-center justify-center gap-3 sm:flex-row md:mt-8">
+        <div className={flashcardMobilePrimaryActionsClass(mobileAppOpen)}>
           <button
             type="button"
             onClick={onReveal}
-            className="min-h-[44px] rounded-full bg-emerald-400 px-7 py-3 font-semibold text-slate-950 transition hover:bg-cta"
+            className={`min-h-[52px] rounded-full bg-emerald-400 px-7 py-3 font-semibold text-slate-950 transition hover:bg-cta ${mobileAppOpen ? "w-full" : ""}`}
             aria-label="Reveal answer"
           >
             Reveal
@@ -835,7 +838,7 @@ export function FlashcardsPanel({
           <button
             type="button"
             onClick={() => onKnown(activeDirection)}
-            className="min-h-[44px] rounded-full border border-emerald-300/30 px-5 py-3 text-sm font-semibold text-emerald-100 transition hover:border-emerald-200/50 hover:bg-emerald-400/10"
+            className={`min-h-[52px] rounded-full border border-emerald-300/30 px-4 py-3 text-sm font-semibold text-emerald-100 transition hover:border-emerald-200/50 hover:bg-emerald-400/10 ${mobileAppOpen ? "w-full" : ""}`}
             aria-label={`Mark ${current.hanzi} as known and review it less often`}
           >
             I know this word
@@ -880,7 +883,7 @@ export function FlashcardsPanel({
       )}
 
       {/* Tip on first card */}
-      {!revealed && cardIndex === 0 ? (
+      {!mobileAppOpen && !revealed && cardIndex === 0 ? (
         <p className="mt-4 text-xs text-slate-600 md:mt-6">
           Tap the card to flip, then grade your recall. Swipe left or right after revealing.
         </p>

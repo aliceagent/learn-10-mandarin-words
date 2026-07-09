@@ -53,6 +53,24 @@ export function flashcardMobileActionZoneClass(open: boolean): string {
   return open ? "shrink-0 pb-1 md:pb-0" : "";
 }
 
+export function flashcardMobileStatusRowClass(open: boolean): string {
+  return open
+    ? "hidden md:flex md:flex-wrap md:items-center md:justify-between md:gap-2 md:text-sm md:text-slate-400"
+    : "flex flex-wrap items-center justify-between gap-2 text-sm text-slate-400";
+}
+
+export function flashcardMobileCardFrameClass(open: boolean): string {
+  return open
+    ? "card-3d flex min-h-[44dvh] items-center justify-center rounded-[2rem] md:min-h-[280px] md:rounded-3xl"
+    : "card-3d flex min-h-[240px] items-center justify-center md:min-h-[280px]";
+}
+
+export function flashcardMobilePrimaryActionsClass(open: boolean): string {
+  return open
+    ? "mt-2 grid w-full grid-cols-2 items-stretch gap-2 md:mt-8 md:flex md:w-auto md:flex-wrap md:items-center md:justify-center md:gap-3"
+    : "mt-4 flex flex-col items-center justify-center gap-3 sm:flex-row md:mt-8";
+}
+
 export function flashcardMobileAppModeA11y(open: boolean): FlashcardMobileAppModeA11y {
   if (!open) {
     return {

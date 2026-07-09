@@ -6,9 +6,12 @@ import {
   flashcardMobileAppModeA11y,
   flashcardMobileAppModeCopy,
   flashcardMobileAppModeKeyboardAction,
+  flashcardMobileCardFrameClass,
   flashcardMobileCardWrapClass,
   flashcardMobileContentClass,
   flashcardMobileGestureHint,
+  flashcardMobilePrimaryActionsClass,
+  flashcardMobileStatusRowClass,
   flashcardMobileShellClass,
 } from "../src/lib/flashcard-mobile-app-mode.ts";
 
@@ -59,6 +62,20 @@ test("mobile app-mode layout classes reserve flexible card space and a bottom ac
   const actions = flashcardMobileActionZoneClass(true);
   assert.match(actions, /shrink-0/);
   assert.match(actions, /pb-1/);
+});
+
+test("mobile app-mode hides duplicate chrome, enlarges the card, and keeps actions side by side", () => {
+  assert.equal(flashcardMobileStatusRowClass(false), "flex flex-wrap items-center justify-between gap-2 text-sm text-slate-400");
+  assert.match(flashcardMobileStatusRowClass(true), /hidden/);
+  assert.match(flashcardMobileStatusRowClass(true), /md:flex/);
+
+  const frame = flashcardMobileCardFrameClass(true);
+  assert.match(frame, /min-h-\[44dvh\]/);
+  assert.match(frame, /rounded-\[2rem\]/);
+
+  const actions = flashcardMobilePrimaryActionsClass(true);
+  assert.match(actions, /grid-cols-2/);
+  assert.match(actions, /w-full/);
 });
 
 test("mobile app-mode a11y state exposes dialog labelling only while fullscreen", () => {
