@@ -275,6 +275,10 @@
     "provider": "mp4",
     "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-facial-expressions.mp4"
   },
+  "ten-types-of-emotions": {
+    "provider": "mp4",
+    "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-emotions.mp4"
+  },
   "ten-types-of-round-things": {
     "provider": "mp4",
     "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-round-things.mp4"
