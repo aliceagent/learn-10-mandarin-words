@@ -202,6 +202,20 @@ async function serveMedia(request) {
   return cached;
 }
 
+async function cachedNavigationFallback(request, url) {
+  const exact = await caches.match(request);
+  if (exact) return exact;
+
+  // The app offline pack caches canonical pathnames (for example
+  // `/topics/ten-types-of-pets`). If the learner opens a mode/deep-link such as
+  // `/topics/ten-types-of-pets?m=cards` while offline, serve the canonical shell
+  // instead of falling all the way back to `/offline`.
+  const canonical = await caches.match(url.pathname);
+  if (canonical) return canonical;
+
+  return caches.match("/offline");
+}
+
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
@@ -228,7 +242,7 @@ self.addEventListener("fetch", (event) => {
           }
           return res;
         })
-        .catch(() => caches.match(request).then((cached) => cached || caches.match("/offline")))
+        .catch(() => cachedNavigationFallback(request, url))
     );
     return;
   }

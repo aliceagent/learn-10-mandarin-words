@@ -188,6 +188,49 @@ test("cross-origin non-media requests are ignored (no respondWith)", async () =>
   assert.equal(out, undefined, "cross-origin non-media should fall through to the browser");
 });
 
+function makeNavigationCaches(entries) {
+  return {
+    match: async (request) => {
+      const key = typeof request === "string" ? request : new URL(request.url).pathname + new URL(request.url).search;
+      return entries.get(key);
+    },
+    open: async () => ({
+      put: async () => {},
+      match: async () => undefined,
+    }),
+  };
+}
+
+test("offline navigation falls back from query-string route to cached canonical pathname", async () => {
+  const topic = new Response("topic-shell", { headers: { "Content-Type": "text/html" } });
+  const offline = new Response("offline-shell", { headers: { "Content-Type": "text/html" } });
+  const cachesObj = makeNavigationCaches(new Map([
+    ["/topics/ten-types-of-pets", topic],
+    ["/offline", offline],
+  ]));
+  const { handlers } = loadSw({ cachesObj, fetchImpl: async () => { throw new TypeError("network offline"); } });
+
+  const res = await dispatchFetch(
+    handlers.fetch,
+    fakeRequest("https://app.example/topics/ten-types-of-pets?m=cards", { mode: "navigate" }),
+  );
+
+  assert.equal(res, topic);
+});
+
+test("offline navigation uses /offline only when exact and canonical route are missing", async () => {
+  const offline = new Response("offline-shell", { headers: { "Content-Type": "text/html" } });
+  const cachesObj = makeNavigationCaches(new Map([["/offline", offline]]));
+  const { handlers } = loadSw({ cachesObj, fetchImpl: async () => { throw new TypeError("network offline"); } });
+
+  const res = await dispatchFetch(
+    handlers.fetch,
+    fakeRequest("https://app.example/topics/never-cached?m=cards", { mode: "navigate" }),
+  );
+
+  assert.equal(res, offline);
+});
+
 test("activate cleanup deletes stale caches but preserves app + video caches", async () => {
   const deleted = [];
   const cachesObj = {
