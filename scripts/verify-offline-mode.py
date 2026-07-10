@@ -211,7 +211,7 @@ async def verify(args: argparse.Namespace) -> None:
                   if (!('serviceWorker' in navigator)) return false;
                   const reg = await Promise.race([
                     navigator.serviceWorker.ready,
-                    new Promise(resolve => setTimeout(() => resolve(null), 12000)),
+                    new Promise(resolve => setTimeout(() => resolve(null), 3000)),
                   ]);
                   return !!reg && !!reg.active;
                 })()
