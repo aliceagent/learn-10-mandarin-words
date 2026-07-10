@@ -188,6 +188,25 @@ test("cross-origin non-media requests are ignored (no respondWith)", async () =>
   assert.equal(out, undefined, "cross-origin non-media should fall through to the browser");
 });
 
+test("cached same-origin JSON assets are served while offline", async () => {
+  const cached = new Response("[]", { headers: { "Content-Type": "application/json" } });
+  const cachesObj = {
+    match: async (request) => {
+      const url = typeof request === "string" ? request : request.url;
+      return url.endsWith("/search-index.json") ? cached : undefined;
+    },
+    open: async () => ({ put: async () => {} }),
+  };
+  const { handlers } = loadSw({ cachesObj, fetchImpl: async () => { throw new TypeError("offline"); } });
+
+  const res = await dispatchFetch(
+    handlers.fetch,
+    fakeRequest("https://app.example/search-index.json"),
+  );
+
+  assert.equal(res, cached);
+});
+
 function makeNavigationCaches(entries) {
   return {
     match: async (request) => {

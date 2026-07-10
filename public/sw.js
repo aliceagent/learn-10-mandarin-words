@@ -87,7 +87,7 @@ function isMedia(url) {
 }
 
 function isStaticAsset(url) {
-  return url.pathname.startsWith("/_next/static") || /\.(svg|png|ico|webmanifest|css|js|woff2?)(\?|$)/i.test(url.pathname);
+  return url.pathname.startsWith("/_next/static") || /\.(svg|png|ico|webmanifest|css|js|json|woff2?)(\?|$)/i.test(url.pathname);
 }
 
 // React Server Component payloads: the App Router fetches these on client-side
