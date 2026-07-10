@@ -46,6 +46,40 @@ DEFAULT_ROUTES = [
     "/topics/ten-types-of-pets?m=cards",
 ]
 
+CORE_OFFLINE_ROUTES = [
+    "/",
+    "/path",
+    "/review",
+    "/practice",
+    "/favorites",
+    "/stats",
+    "/settings",
+    "/offline",
+    "/daily",
+    "/comeback",
+    "/duel",
+    "/lightning",
+    "/tone-pairs",
+    "/privacy",
+]
+CORE_OFFLINE_ASSETS = ["/search-index.json", "/manifest.webmanifest", "/icon.svg", "/icon-maskable.svg", "/favicon.ico"]
+
+
+def local_offline_manifest_urls() -> list[str]:
+    topics_path = os.path.join(os.path.dirname(__file__), "..", "src", "data", "topics.json")
+    try:
+        with open(topics_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except OSError:
+        return []
+    urls = [
+        *CORE_OFFLINE_ROUTES,
+        *CORE_OFFLINE_ASSETS,
+        *(f"/categories/{category['slug']}" for category in data.get("categories", [])),
+        *(f"/topics/{topic['slug']}" for topic in data.get("topics", [])),
+    ]
+    return list(dict.fromkeys(urls))
+
 
 def free_port() -> int:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -192,9 +226,9 @@ async def verify(args: argparse.Namespace) -> None:
             await wait_for(
                 client,
                 session_id,
-                "[...document.querySelectorAll('button')].some(b => b.textContent.includes('Prepare app for offline') || b.textContent.includes('Refresh offline app pack') || b.textContent.includes('Finish offline setup'))",
+                "[...document.querySelectorAll('button')].some(b => !b.disabled && (b.textContent.includes('Prepare app for offline') || b.textContent.includes('Refresh offline app pack') || b.textContent.includes('Finish offline setup')))",
                 timeout=15,
-                label="offline prepare button",
+                label="enabled offline prepare button",
             )
             await evaluate(
                 client,
@@ -202,9 +236,11 @@ async def verify(args: argparse.Namespace) -> None:
                 """
                 (() => {
                   const button = [...document.querySelectorAll('button')].find(b =>
-                    b.textContent.includes('Prepare app for offline') ||
-                    b.textContent.includes('Refresh offline app pack') ||
-                    b.textContent.includes('Finish offline setup')
+                    !b.disabled && (
+                      b.textContent.includes('Prepare app for offline') ||
+                      b.textContent.includes('Refresh offline app pack') ||
+                      b.textContent.includes('Finish offline setup')
+                    )
                   );
                   if (!button) return false;
                   button.click();
@@ -213,13 +249,47 @@ async def verify(args: argparse.Namespace) -> None:
                 """,
             )
             print("Preparing app offline pack…")
-            ready_text = await wait_for(
-                client,
-                session_id,
-                "document.body.innerText.includes('Ready for offline study')",
-                timeout=args.prepare_timeout,
-                label="offline app pack ready",
-            )
+            try:
+                ready_text = await wait_for(
+                    client,
+                    session_id,
+                    "document.body.innerText.includes('Ready for offline study')",
+                    timeout=args.prepare_timeout,
+                    label="offline app pack ready",
+                )
+            except Exception:
+                body_text = await evaluate(
+                    client,
+                    session_id,
+                    "document.body.innerText.slice(0, 1200)",
+                    timeout_ms=5000,
+                )
+                cache_count = await evaluate(
+                    client,
+                    session_id,
+                    f"caches.open('{APP_CACHE}').then(c => c.keys()).then(k => k.length).catch(() => -1)",
+                    timeout_ms=5000,
+                )
+                missing: list[str] = []
+                manifest = local_offline_manifest_urls()
+                if manifest:
+                    missing_expr = """
+                    (async (manifest) => {
+                      const cache = await caches.open('%s');
+                      const missing = [];
+                      for (const url of manifest) {
+                        if (!(await cache.match(url))) missing.push(url);
+                      }
+                      return missing;
+                    })(%s)
+                    """ % (APP_CACHE, json.dumps(manifest))
+                    missing = await evaluate(client, session_id, missing_expr, timeout_ms=10000) or []
+                print("OFFLINE PREP DIAGNOSTIC", file=sys.stderr)
+                print(f"cache entries so far: {cache_count}", file=sys.stderr)
+                if missing:
+                    print(f"missing manifest urls: {missing}", file=sys.stderr)
+                print(body_text, file=sys.stderr)
+                raise
             if not ready_text:
                 raise RuntimeError("Offline app pack did not report ready")
 

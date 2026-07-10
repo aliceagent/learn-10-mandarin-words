@@ -123,13 +123,26 @@ export async function prepareAppOffline(
     }
   }
 
+  const retryFailures: OfflineAppPackFailure[] = [];
+  for (const failure of failed) {
+    try {
+      await cacheAppUrl(failure.url, doFetch, cache);
+      cached++;
+    } catch (err) {
+      retryFailures.push({
+        url: failure.url,
+        message: err instanceof Error ? err.message : failure.message,
+      });
+    }
+  }
+
   return {
     total: urls.length,
     cached,
-    failed,
+    failed: retryFailures,
     skipped,
     cancelled: false,
-    complete: failed.length === 0 && skipped === 0 && cached === urls.length,
+    complete: retryFailures.length === 0 && skipped === 0 && cached === urls.length,
   };
 }
 

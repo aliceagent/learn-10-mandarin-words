@@ -92,6 +92,23 @@ test("prepareAppOffline skips unsafe media/proxy/external URLs and never caches 
   assert.deepEqual([...caches._store.get(APP_CACHE).keys()], ["/safe"]);
 });
 
+test("prepareAppOffline retries transient route failures once", async () => {
+  const caches = makeFakeCaches();
+  const attempts = new Map();
+  const result = await prepareAppOffline(["/flaky"], {
+    caches,
+    fetch: async (url) => {
+      attempts.set(url, (attempts.get(url) ?? 0) + 1);
+      if (attempts.get(url) === 1) throw new TypeError("transient production miss");
+      return htmlResponse("ok after retry");
+    },
+  });
+
+  assert.deepEqual(result, { total: 1, cached: 1, failed: [], skipped: 0, cancelled: false, complete: true });
+  assert.equal(attempts.get("/flaky"), 2);
+  assert.equal(caches._store.get(APP_CACHE).has("/flaky"), true);
+});
+
 test("prepareAppOffline records failures and continues", async () => {
   const caches = makeFakeCaches();
   const result = await prepareAppOffline(["/ok", "/missing", "/bad-network"], {

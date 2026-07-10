@@ -30,7 +30,7 @@ export function offlineAppPackCopy(
       tone: "sky",
       title: "Partially ready offline",
       status: `${status.cached} of ${status.total} app pages cached`,
-      body: `${missing} item${missing === 1 ? "" : "s"} still need to download before this is fully flight-ready. Try Prepare app for offline again while connected.`,
+      body: `${missing} item${missing === 1 ? "" : "s"} still ${missing === 1 ? "needs" : "need"} to download before this is fully flight-ready. Try Prepare app for offline again while connected.`,
     };
   }
 
