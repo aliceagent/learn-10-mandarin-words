@@ -26,6 +26,8 @@ import { ThemeToggle } from "./theme-toggle";
 // helper the highlighter uses, keeping search and highlight in lockstep.
 import { normalizePinyin } from "@/lib/highlight";
 import { searchWords } from "@/lib/search-logic";
+import { offlineAppManifestUrls } from "@/lib/offline-app-manifest";
+import { OfflineAppPackCard } from "./offline-app-pack-card";
 
 export function HomeApp({ data }: { data: HomeIndexData }) {
   const [query, setQuery] = useState("");
@@ -64,6 +66,7 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
   // Rejoin the index with the lazily-loaded word data so everything downstream
   // (haystack, searchWords, matched-word rows, cards) keeps its TopicSummary shape.
   const topics = useMemo(() => mergeWordIndex(data.topics, words), [data.topics, words]);
+  const offlineManifestUrls = useMemo(() => offlineAppManifestUrls(data), [data]);
 
   const nextTopic = useMemo(
     () => nextRecommendedTopic(topics, progress.learnedTopics),
@@ -300,6 +303,10 @@ export function HomeApp({ data }: { data: HomeIndexData }) {
             </Link>
           </div>
         </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 pt-1 md:px-10 md:pt-2" aria-label="Prepare offline mode">
+        <OfflineAppPackCard manifestUrls={offlineManifestUrls} />
       </section>
 
       {offlineSummary.hasSavedOffline ? (

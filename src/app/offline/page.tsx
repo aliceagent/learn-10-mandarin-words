@@ -1,6 +1,9 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { SavedLessonsPanel } from "@/components/saved-lessons-panel";
+import { OfflineAppPackCard } from "@/components/offline-app-pack-card";
+import { data } from "@/lib/data";
+import { offlineAppManifestUrls } from "@/lib/offline-app-manifest";
 
 export const metadata: Metadata = {
   title: "Offline library",
@@ -11,13 +14,19 @@ export const metadata: Metadata = {
 };
 
 export default function OfflinePage() {
+  const manifestUrls = offlineAppManifestUrls(data);
+
   return (
     <main className="mobile-bottom-safe mx-auto flex min-h-[80dvh] max-w-2xl flex-col items-center justify-center px-6 pt-16 text-center">
       <p className="text-6xl">⬇️</p>
       <h1 className="mt-6 text-3xl font-semibold tracking-tight text-white md:text-4xl">Offline library</h1>
       <p className="mt-4 max-w-md text-slate-300">
-        Review the lessons you saved for offline playback. Open a saved lesson, or delete its downloaded video when you want the space back.
+        Prepare the app itself for airplane mode, then review saved lesson videos, open them, or delete downloads when you want the space back.
       </p>
+
+      <div className="mt-8 w-full">
+        <OfflineAppPackCard manifestUrls={manifestUrls} compact />
+      </div>
 
       {/* Lessons the learner explicitly saved for offline playback (client-only). */}
       <SavedLessonsPanel />
@@ -33,8 +42,7 @@ export default function OfflinePage() {
             <span aria-hidden="true">✅</span>
             <span>
               <strong className="font-semibold text-white">Vocabulary &amp; the app itself.</strong>{" "}
-              Words, pinyin, flashcards, quizzes, and your saved progress live on your device, so any
-              lesson you&apos;ve already opened keeps working with no connection.
+              Tap <span className="font-semibold text-emerald-300">Prepare app for offline</span> while connected to cache the app pages, words, pinyin, flashcards, quizzes, review, and saved-list screens on this device.
             </span>
           </li>
           <li className="flex gap-3">
