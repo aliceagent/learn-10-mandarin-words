@@ -59,7 +59,7 @@ test("offlineAppManifestUrls includes every category and topic route exactly onc
   }
 
   assert.equal(data.categories.length, 14);
-  assert.equal(data.topics.length, 104);
+  assert.equal(data.topics.length, 108);
   assert.equal(urls.length, CORE_OFFLINE_ROUTES.length + CORE_OFFLINE_ASSETS.length + data.categories.length + data.topics.length);
 });
 

@@ -155,5 +155,5 @@ test("dataset-wide: every word yields 4 unique same-length options incl. the ans
       words++;
     }
   }
-  assert.equal(words, 1040);
+  assert.equal(words, 1080);
 });

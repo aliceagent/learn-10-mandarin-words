@@ -22,18 +22,109 @@ import {
 const topics = rawData.topics;
 const categories = rawData.categories;
 
-test("dataset has exactly 104 topics and 1040 words", () => {
-  assert.equal(topics.length, 104);
-  assert.equal(allWords(topics).length, 1040);
+test("dataset has exactly 108 topics and 1080 words", () => {
+  assert.equal(topics.length, 108);
+  assert.equal(allWords(topics).length, 1080);
 });
 
 test("datasetSummary derives hero counts from the real topic list", () => {
   assert.deepEqual(datasetSummary(topics), {
-    listCount: 104,
-    wordCount: 1040,
-    formattedListCount: "104",
-    formattedWordCount: "1,040",
+    listCount: 108,
+    wordCount: 1080,
+    formattedListCount: "108",
+    formattedWordCount: "1,080",
   });
+});
+
+test("Castle, positive emotions, deserts, and computer equipment topics include Jonathan's requested lists", () => {
+  const expected = [
+    {
+      slug: "ten-things-in-a-castle",
+      titleEn: "Ten Things in a Castle",
+      titleCn: "城堡里的十种东西",
+      categorySlug: "places-and-buildings",
+      items: [
+        ["castle gate", "城门", "chéngmén"],
+        ["tower", "塔楼", "tǎlóu"],
+        ["wall", "城墙", "chéngqiáng"],
+        ["moat", "护城河", "hùchénghé"],
+        ["throne", "王座", "wángzuò"],
+        ["hall", "大厅", "dàtīng"],
+        ["armory", "兵器库", "bīngqìkù"],
+        ["dungeon", "地牢", "dìláo"],
+        ["drawbridge", "吊桥", "diàoqiáo"],
+        ["flag", "旗帜", "qízhì"],
+      ],
+    },
+    {
+      slug: "ten-positive-emotions",
+      titleEn: "Ten Positive Emotions",
+      titleCn: "十种积极情绪",
+      categorySlug: "abstract-but-picturable",
+      items: [
+        ["joy", "喜悦", "xǐyuè"],
+        ["excitement", "兴奋", "xīngfèn"],
+        ["gratitude", "感激", "gǎnjī"],
+        ["hope", "希望", "xīwàng"],
+        ["confidence", "自信", "zìxìn"],
+        ["calm", "平静", "píngjìng"],
+        ["relief", "安心", "ānxīn"],
+        ["contentment", "满足", "mǎnzú"],
+        ["admiration", "欣赏", "xīnshǎng"],
+        ["curiosity", "好奇", "hàoqí"],
+      ],
+    },
+    {
+      slug: "ten-famous-deserts",
+      titleEn: "Ten Famous Deserts",
+      titleCn: "十个著名沙漠",
+      categorySlug: "plants-and-nature",
+      items: [
+        ["Sahara Desert", "撒哈拉沙漠", "Sāhālā Shāmò"],
+        ["Gobi Desert", "戈壁沙漠", "Gēbì Shāmò"],
+        ["Taklamakan Desert", "塔克拉玛干沙漠", "Tǎkèlāmǎgān Shāmò"],
+        ["Kalahari Desert", "卡拉哈里沙漠", "Kǎlāhālǐ Shāmò"],
+        ["Mojave Desert", "莫哈韦沙漠", "Mòhāwéi Shāmò"],
+        ["Atacama Desert", "阿塔卡马沙漠", "ātǎkǎmǎ shāmò"],
+        ["Arabian Desert", "阿拉伯沙漠", "ālābó shāmò"],
+        ["Negev Desert", "内盖夫沙漠", "Nèigàifū Shāmò"],
+        ["Thar Desert", "塔尔沙漠", "Tǎ'ěr Shāmò"],
+        ["Sonoran Desert", "索诺兰沙漠", "Suǒnuòlán Shāmò"],
+      ],
+    },
+    {
+      slug: "ten-types-of-computer-equipment",
+      titleEn: "Ten Types of Computer Equipment",
+      titleCn: "十种电脑设备",
+      categorySlug: "home-and-objects",
+      items: [
+        ["computer", "电脑", "diànnǎo"],
+        ["monitor", "显示器", "xiǎnshìqì"],
+        ["keyboard", "键盘", "jiànpán"],
+        ["mouse", "鼠标", "shǔbiāo"],
+        ["printer", "打印机", "dǎyìnjī"],
+        ["scanner", "扫描仪", "sǎomiáoyí"],
+        ["router", "路由器", "lùyóuqì"],
+        ["hard drive", "硬盘", "yìngpán"],
+        ["webcam", "摄像头", "shèxiàngtóu"],
+        ["USB drive", "优盘", "yōupán"],
+      ],
+    },
+  ];
+
+  for (const spec of expected) {
+    const topic = getTopic(topics, spec.slug);
+    assert.ok(topic, `${spec.slug} exists`);
+    assert.equal(topic.titleEn, spec.titleEn);
+    assert.equal(topic.titleCn, spec.titleCn);
+    assert.equal(topic.categorySlug, spec.categorySlug);
+    assert.equal(topic.items.length, 10);
+    assert.deepEqual(topic.items.map((item) => [item.english, item.hanzi, item.pinyin]), spec.items);
+    for (const item of topic.items) {
+      assert.equal(item.sentences.length, 2);
+      for (const sentence of item.sentences) assert.ok(sentence.cn && sentence.en);
+    }
+  }
 });
 
 test("Emotions topic includes 10 requested non-happy-sad-hate emotion words", () => {

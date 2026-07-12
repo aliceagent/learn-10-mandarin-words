@@ -402,5 +402,21 @@
   "ten-types-of-things-at-a-scenic-spot": {
     "provider": "mp4",
     "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-things-at-a-scenic-spot.mp4"
+  },
+  "ten-things-in-a-castle": {
+    "provider": "mp4",
+    "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-things-in-a-castle.mp4"
+  },
+  "ten-positive-emotions": {
+    "provider": "mp4",
+    "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-positive-emotions.mp4"
+  },
+  "ten-famous-deserts": {
+    "provider": "mp4",
+    "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-famous-deserts.mp4"
+  },
+  "ten-types-of-computer-equipment": {
+    "provider": "mp4",
+    "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-computer-equipment.mp4"
   }
 }

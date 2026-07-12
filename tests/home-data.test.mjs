@@ -39,15 +39,15 @@ test("toTopicSummary preserves every topic-level field", () => {
   }
 });
 
-test("hasPlayableVideo parity across all 104 topics", () => {
+test("hasPlayableVideo parity across all 108 topics", () => {
   for (const topic of topics) {
     assert.equal(hasPlayableVideo(toTopicSummary(topic)), hasPlayableVideo(topic));
   }
 });
 
-test("summaries cover the whole dataset (104 topics, 1040 items)", () => {
-  assert.equal(summaries.length, 104);
-  assert.equal(summaries.reduce((n, t) => n + t.items.length, 0), 1040);
+test("summaries cover the whole dataset (108 topics, 1080 items)", () => {
+  assert.equal(summaries.length, 108);
+  assert.equal(summaries.reduce((n, t) => n + t.items.length, 0), 1080);
 });
 
 test("datasetSummary is identical for slim and full topics", () => {

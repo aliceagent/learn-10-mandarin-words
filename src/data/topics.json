@@ -24,7 +24,8 @@
         "ten-types-of-things-in-the-sky",
         "ten-types-of-weather",
         "ten-types-of-stones-gems",
-        "ten-types-of-seasonal-things"
+        "ten-types-of-seasonal-things",
+        "ten-famous-deserts"
       ]
     },
     {
@@ -73,7 +74,8 @@
         "ten-types-of-toys",
         "ten-types-of-cleaning-supplies",
         "ten-types-of-bedding",
-        "ten-types-of-rooms"
+        "ten-types-of-rooms",
+        "ten-types-of-computer-equipment"
       ]
     },
     {
@@ -85,7 +87,8 @@
         "ten-types-of-buildings",
         "ten-types-of-public-places",
         "ten-types-of-city-facilities",
-        "ten-types-of-homes"
+        "ten-types-of-homes",
+        "ten-things-in-a-castle"
       ]
     },
     {
@@ -133,7 +136,8 @@
         "ten-types-of-currencies",
         "ten-types-of-directions",
         "ten-types-of-facial-expressions",
-        "ten-types-of-emotions"
+        "ten-types-of-emotions",
+        "ten-positive-emotions"
       ]
     },
     {
@@ -2664,6 +2668,166 @@
         "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-seasonal-things.mp4",
         "kind": "mp4"
       }
+    },
+    {
+      "slug": "ten-famous-deserts",
+      "titleCn": "十个著名沙漠",
+      "titleEn": "Ten Famous Deserts",
+      "category": "Plants & Nature",
+      "categorySlug": "plants-and-nature",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-famous-deserts.mp4",
+      "items": [
+        {
+          "hanzi": "撒哈拉沙漠",
+          "pinyin": "Sāhālā Shāmò",
+          "english": "Sahara Desert",
+          "sentences": [
+            {
+              "cn": "撒哈拉沙漠在非洲北部。",
+              "en": "The Sahara Desert is in northern Africa."
+            },
+            {
+              "cn": "撒哈拉沙漠非常炎热。",
+              "en": "The Sahara Desert is extremely hot."
+            }
+          ]
+        },
+        {
+          "hanzi": "戈壁沙漠",
+          "pinyin": "Gēbì Shāmò",
+          "english": "Gobi Desert",
+          "sentences": [
+            {
+              "cn": "戈壁沙漠横跨中国和蒙古。",
+              "en": "The Gobi Desert stretches across China and Mongolia."
+            },
+            {
+              "cn": "戈壁沙漠的夜晚很冷。",
+              "en": "Nights in the Gobi Desert are very cold."
+            }
+          ]
+        },
+        {
+          "hanzi": "塔克拉玛干沙漠",
+          "pinyin": "Tǎkèlāmǎgān Shāmò",
+          "english": "Taklamakan Desert",
+          "sentences": [
+            {
+              "cn": "塔克拉玛干沙漠在新疆。",
+              "en": "The Taklamakan Desert is in Xinjiang."
+            },
+            {
+              "cn": "古代商队曾经过塔克拉玛干沙漠。",
+              "en": "Ancient caravans once crossed the Taklamakan Desert."
+            }
+          ]
+        },
+        {
+          "hanzi": "卡拉哈里沙漠",
+          "pinyin": "Kǎlāhālǐ Shāmò",
+          "english": "Kalahari Desert",
+          "sentences": [
+            {
+              "cn": "卡拉哈里沙漠位于非洲南部。",
+              "en": "The Kalahari Desert is in southern Africa."
+            },
+            {
+              "cn": "许多野生动物生活在卡拉哈里沙漠。",
+              "en": "Many wild animals live in the Kalahari Desert."
+            }
+          ]
+        },
+        {
+          "hanzi": "莫哈韦沙漠",
+          "pinyin": "Mòhāwéi Shāmò",
+          "english": "Mojave Desert",
+          "sentences": [
+            {
+              "cn": "莫哈韦沙漠在美国西部。",
+              "en": "The Mojave Desert is in the western United States."
+            },
+            {
+              "cn": "莫哈韦沙漠里有约书亚树。",
+              "en": "There are Joshua trees in the Mojave Desert."
+            }
+          ]
+        },
+        {
+          "hanzi": "阿塔卡马沙漠",
+          "pinyin": "ātǎkǎmǎ shāmò",
+          "english": "Atacama Desert",
+          "sentences": [
+            {
+              "cn": "阿塔卡马沙漠非常干燥。",
+              "en": "The Atacama Desert is extremely dry."
+            },
+            {
+              "cn": "科学家在阿塔卡马沙漠观察星空。",
+              "en": "Scientists observe the stars in the Atacama Desert."
+            }
+          ]
+        },
+        {
+          "hanzi": "阿拉伯沙漠",
+          "pinyin": "ālābó shāmò",
+          "english": "Arabian Desert",
+          "sentences": [
+            {
+              "cn": "阿拉伯沙漠覆盖阿拉伯半岛的大部分地区。",
+              "en": "The Arabian Desert covers much of the Arabian Peninsula."
+            },
+            {
+              "cn": "阿拉伯沙漠里有广阔的沙丘。",
+              "en": "The Arabian Desert has vast sand dunes."
+            }
+          ]
+        },
+        {
+          "hanzi": "内盖夫沙漠",
+          "pinyin": "Nèigàifū Shāmò",
+          "english": "Negev Desert",
+          "sentences": [
+            {
+              "cn": "内盖夫沙漠在以色列南部。",
+              "en": "The Negev Desert is in southern Israel."
+            },
+            {
+              "cn": "内盖夫沙漠的夜空很美。",
+              "en": "The night sky in the Negev Desert is beautiful."
+            }
+          ]
+        },
+        {
+          "hanzi": "塔尔沙漠",
+          "pinyin": "Tǎ'ěr Shāmò",
+          "english": "Thar Desert",
+          "sentences": [
+            {
+              "cn": "塔尔沙漠位于印度和巴基斯坦附近。",
+              "en": "The Thar Desert is near India and Pakistan."
+            },
+            {
+              "cn": "塔尔沙漠也叫大印度沙漠。",
+              "en": "The Thar Desert is also called the Great Indian Desert."
+            }
+          ]
+        },
+        {
+          "hanzi": "索诺兰沙漠",
+          "pinyin": "Suǒnuòlán Shāmò",
+          "english": "Sonoran Desert",
+          "sentences": [
+            {
+              "cn": "索诺兰沙漠里有巨大的仙人掌。",
+              "en": "The Sonoran Desert has giant cacti."
+            },
+            {
+              "cn": "索诺兰沙漠跨越美国和墨西哥。",
+              "en": "The Sonoran Desert spans the United States and Mexico."
+            }
+          ]
+        }
+      ]
     },
     {
       "slug": "ten-types-of-drinks",
@@ -7781,6 +7945,166 @@
       }
     },
     {
+      "slug": "ten-types-of-computer-equipment",
+      "titleCn": "十种电脑设备",
+      "titleEn": "Ten Types of Computer Equipment",
+      "category": "Home & Objects",
+      "categorySlug": "home-and-objects",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-computer-equipment.mp4",
+      "items": [
+        {
+          "hanzi": "电脑",
+          "pinyin": "diànnǎo",
+          "english": "computer",
+          "sentences": [
+            {
+              "cn": "这台电脑启动得很快。",
+              "en": "This computer starts very quickly."
+            },
+            {
+              "cn": "我用电脑学习中文。",
+              "en": "I use a computer to study Chinese."
+            }
+          ]
+        },
+        {
+          "hanzi": "显示器",
+          "pinyin": "xiǎnshìqì",
+          "english": "monitor",
+          "sentences": [
+            {
+              "cn": "这个显示器很清楚。",
+              "en": "This monitor is very clear."
+            },
+            {
+              "cn": "他把显示器放在桌子中间。",
+              "en": "He puts the monitor in the middle of the desk."
+            }
+          ]
+        },
+        {
+          "hanzi": "键盘",
+          "pinyin": "jiànpán",
+          "english": "keyboard",
+          "sentences": [
+            {
+              "cn": "我的键盘有中文输入法。",
+              "en": "My keyboard has a Chinese input method."
+            },
+            {
+              "cn": "她用键盘打字很快。",
+              "en": "She types very fast on the keyboard."
+            }
+          ]
+        },
+        {
+          "hanzi": "鼠标",
+          "pinyin": "shǔbiāo",
+          "english": "mouse",
+          "sentences": [
+            {
+              "cn": "这个鼠标很轻。",
+              "en": "This mouse is very light."
+            },
+            {
+              "cn": "请把鼠标移到右边。",
+              "en": "Please move the mouse to the right."
+            }
+          ]
+        },
+        {
+          "hanzi": "打印机",
+          "pinyin": "dǎyìnjī",
+          "english": "printer",
+          "sentences": [
+            {
+              "cn": "办公室里有一台打印机。",
+              "en": "There is a printer in the office."
+            },
+            {
+              "cn": "打印机没有纸了。",
+              "en": "The printer is out of paper."
+            }
+          ]
+        },
+        {
+          "hanzi": "扫描仪",
+          "pinyin": "sǎomiáoyí",
+          "english": "scanner",
+          "sentences": [
+            {
+              "cn": "我用扫描仪扫描护照。",
+              "en": "I use the scanner to scan a passport."
+            },
+            {
+              "cn": "这台扫描仪可以保存图片。",
+              "en": "This scanner can save images."
+            }
+          ]
+        },
+        {
+          "hanzi": "路由器",
+          "pinyin": "lùyóuqì",
+          "english": "router",
+          "sentences": [
+            {
+              "cn": "路由器在客厅的角落。",
+              "en": "The router is in the corner of the living room."
+            },
+            {
+              "cn": "重启路由器以后，网络好了。",
+              "en": "After restarting the router, the internet worked."
+            }
+          ]
+        },
+        {
+          "hanzi": "硬盘",
+          "pinyin": "yìngpán",
+          "english": "hard drive",
+          "sentences": [
+            {
+              "cn": "硬盘里有很多照片。",
+              "en": "There are many photos on the hard drive."
+            },
+            {
+              "cn": "我需要一个更大的硬盘。",
+              "en": "I need a bigger hard drive."
+            }
+          ]
+        },
+        {
+          "hanzi": "摄像头",
+          "pinyin": "shèxiàngtóu",
+          "english": "webcam",
+          "sentences": [
+            {
+              "cn": "视频会议前，请打开摄像头。",
+              "en": "Please turn on the webcam before the video meeting."
+            },
+            {
+              "cn": "这个摄像头画面很清楚。",
+              "en": "This webcam has a very clear picture."
+            }
+          ]
+        },
+        {
+          "hanzi": "优盘",
+          "pinyin": "yōupán",
+          "english": "USB drive",
+          "sentences": [
+            {
+              "cn": "我把文件存在优盘里。",
+              "en": "I saved the file on the USB drive."
+            },
+            {
+              "cn": "这个优盘很小，但是容量很大。",
+              "en": "This USB drive is small but has a large capacity."
+            }
+          ]
+        }
+      ]
+    },
+    {
       "slug": "ten-types-of-restaurants",
       "titleCn": "十种饭馆",
       "titleEn": "Ten Types of Restaurants",
@@ -8769,6 +9093,166 @@
         "source": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-types-of-homes.mp4",
         "kind": "mp4"
       }
+    },
+    {
+      "slug": "ten-things-in-a-castle",
+      "titleCn": "城堡里的十种东西",
+      "titleEn": "Ten Things in a Castle",
+      "category": "Places & Buildings",
+      "categorySlug": "places-and-buildings",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-things-in-a-castle.mp4",
+      "items": [
+        {
+          "hanzi": "城门",
+          "pinyin": "chéngmén",
+          "english": "castle gate",
+          "sentences": [
+            {
+              "cn": "游客从城门走进古老的城堡。",
+              "en": "The tourists walk into the old castle through the castle gate."
+            },
+            {
+              "cn": "晚上，城门慢慢关上了。",
+              "en": "At night, the castle gate slowly closes."
+            }
+          ]
+        },
+        {
+          "hanzi": "塔楼",
+          "pinyin": "tǎlóu",
+          "english": "tower",
+          "sentences": [
+            {
+              "cn": "塔楼很高，可以看到远处的森林。",
+              "en": "The tower is tall, and you can see the distant forest."
+            },
+            {
+              "cn": "士兵站在塔楼上看守城堡。",
+              "en": "The soldier stands on the tower and guards the castle."
+            }
+          ]
+        },
+        {
+          "hanzi": "城墙",
+          "pinyin": "chéngqiáng",
+          "english": "wall",
+          "sentences": [
+            {
+              "cn": "厚厚的城墙保护着城堡。",
+              "en": "The thick wall protects the castle."
+            },
+            {
+              "cn": "我们沿着城墙走了一圈。",
+              "en": "We walked around along the castle wall."
+            }
+          ]
+        },
+        {
+          "hanzi": "护城河",
+          "pinyin": "hùchénghé",
+          "english": "moat",
+          "sentences": [
+            {
+              "cn": "护城河围着整个城堡。",
+              "en": "The moat surrounds the whole castle."
+            },
+            {
+              "cn": "桥下的护城河很宽。",
+              "en": "The moat under the bridge is very wide."
+            }
+          ]
+        },
+        {
+          "hanzi": "王座",
+          "pinyin": "wángzuò",
+          "english": "throne",
+          "sentences": [
+            {
+              "cn": "王座在大厅的最前面。",
+              "en": "The throne is at the front of the hall."
+            },
+            {
+              "cn": "国王坐在金色的王座上。",
+              "en": "The king sits on the golden throne."
+            }
+          ]
+        },
+        {
+          "hanzi": "大厅",
+          "pinyin": "dàtīng",
+          "english": "hall",
+          "sentences": [
+            {
+              "cn": "城堡的大厅里有长长的桌子。",
+              "en": "There are long tables in the castle hall."
+            },
+            {
+              "cn": "客人们在大厅里跳舞。",
+              "en": "The guests dance in the hall."
+            }
+          ]
+        },
+        {
+          "hanzi": "兵器库",
+          "pinyin": "bīngqìkù",
+          "english": "armory",
+          "sentences": [
+            {
+              "cn": "兵器库里放着剑和盾牌。",
+              "en": "Swords and shields are kept in the armory."
+            },
+            {
+              "cn": "导游带我们参观了兵器库。",
+              "en": "The guide took us to visit the armory."
+            }
+          ]
+        },
+        {
+          "hanzi": "地牢",
+          "pinyin": "dìláo",
+          "english": "dungeon",
+          "sentences": [
+            {
+              "cn": "地牢又冷又暗。",
+              "en": "The dungeon is cold and dark."
+            },
+            {
+              "cn": "这个故事里的骑士被关在地牢里。",
+              "en": "The knight in this story is locked in the dungeon."
+            }
+          ]
+        },
+        {
+          "hanzi": "吊桥",
+          "pinyin": "diàoqiáo",
+          "english": "drawbridge",
+          "sentences": [
+            {
+              "cn": "吊桥放下来以后，我们才能进城堡。",
+              "en": "We can enter the castle after the drawbridge is lowered."
+            },
+            {
+              "cn": "木制的吊桥横跨护城河。",
+              "en": "The wooden drawbridge crosses the moat."
+            }
+          ]
+        },
+        {
+          "hanzi": "旗帜",
+          "pinyin": "qízhì",
+          "english": "flag",
+          "sentences": [
+            {
+              "cn": "城堡顶上飘着红色的旗帜。",
+              "en": "A red flag flies on top of the castle."
+            },
+            {
+              "cn": "风把旗帜吹得很高。",
+              "en": "The wind blows the flag high."
+            }
+          ]
+        }
+      ]
     },
     {
       "slug": "ten-types-of-vehicles",
@@ -11730,6 +12214,166 @@
             {
               "cn": "这部电影不无聊，反而很好看。",
               "en": "This movie is not boring; actually, it is very good."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "ten-positive-emotions",
+      "titleCn": "十种积极情绪",
+      "titleEn": "Ten Positive Emotions",
+      "category": "Abstract but Picturable",
+      "categorySlug": "abstract-but-picturable",
+      "videoPath": "https://github.com/aliceagent/learn-10-mandarin-words/releases/download/mandarin-videos-2026-07-03-gap/ten-positive-emotions.mp4",
+      "items": [
+        {
+          "hanzi": "喜悦",
+          "pinyin": "xǐyuè",
+          "english": "joy",
+          "sentences": [
+            {
+              "cn": "收到好消息时，他脸上充满喜悦。",
+              "en": "When he receives good news, his face is full of joy."
+            },
+            {
+              "cn": "孩子们的笑声带来很多喜悦。",
+              "en": "The children's laughter brings a lot of joy."
+            }
+          ]
+        },
+        {
+          "hanzi": "兴奋",
+          "pinyin": "xīngfèn",
+          "english": "excitement",
+          "sentences": [
+            {
+              "cn": "比赛开始前，大家都很兴奋。",
+              "en": "Before the game starts, everyone is excited."
+            },
+            {
+              "cn": "她因为第一次坐飞机而感到兴奋。",
+              "en": "She feels excitement because it is her first flight."
+            }
+          ]
+        },
+        {
+          "hanzi": "感激",
+          "pinyin": "gǎnjī",
+          "english": "gratitude",
+          "sentences": [
+            {
+              "cn": "我对你的帮助充满感激。",
+              "en": "I am full of gratitude for your help."
+            },
+            {
+              "cn": "他说话时带着真诚的感激。",
+              "en": "He speaks with sincere gratitude."
+            }
+          ]
+        },
+        {
+          "hanzi": "希望",
+          "pinyin": "xīwàng",
+          "english": "hope",
+          "sentences": [
+            {
+              "cn": "新的计划给我们带来希望。",
+              "en": "The new plan gives us hope."
+            },
+            {
+              "cn": "即使很难，她心里仍有希望。",
+              "en": "Even when it is hard, she still has hope in her heart."
+            }
+          ]
+        },
+        {
+          "hanzi": "自信",
+          "pinyin": "zìxìn",
+          "english": "confidence",
+          "sentences": [
+            {
+              "cn": "多练习会增加你的自信。",
+              "en": "More practice will increase your confidence."
+            },
+            {
+              "cn": "他带着自信走上舞台。",
+              "en": "He walks onto the stage with confidence."
+            }
+          ]
+        },
+        {
+          "hanzi": "平静",
+          "pinyin": "píngjìng",
+          "english": "calm",
+          "sentences": [
+            {
+              "cn": "深呼吸让我感到平静。",
+              "en": "Deep breathing makes me feel calm."
+            },
+            {
+              "cn": "湖面很平静。",
+              "en": "The surface of the lake is very calm."
+            }
+          ]
+        },
+        {
+          "hanzi": "安心",
+          "pinyin": "ānxīn",
+          "english": "relief",
+          "sentences": [
+            {
+              "cn": "听到家人安全的消息，我终于安心了。",
+              "en": "After hearing that my family was safe, I finally felt relief."
+            },
+            {
+              "cn": "作业做完后，她安心地睡觉了。",
+              "en": "After finishing her homework, she went to sleep with relief."
+            }
+          ]
+        },
+        {
+          "hanzi": "满足",
+          "pinyin": "mǎnzú",
+          "english": "contentment",
+          "sentences": [
+            {
+              "cn": "吃完热饭以后，他感到很满足。",
+              "en": "After eating a hot meal, he feels contentment."
+            },
+            {
+              "cn": "简单的生活也能带来满足。",
+              "en": "A simple life can also bring contentment."
+            }
+          ]
+        },
+        {
+          "hanzi": "欣赏",
+          "pinyin": "xīnshǎng",
+          "english": "admiration",
+          "sentences": [
+            {
+              "cn": "我很欣赏她的勇气。",
+              "en": "I really admire her courage."
+            },
+            {
+              "cn": "老师欣赏学生的努力。",
+              "en": "The teacher admires the student's effort."
+            }
+          ]
+        },
+        {
+          "hanzi": "好奇",
+          "pinyin": "hàoqí",
+          "english": "curiosity",
+          "sentences": [
+            {
+              "cn": "孩子对新世界充满好奇。",
+              "en": "The child is full of curiosity about the new world."
+            },
+            {
+              "cn": "好奇让他问了很多问题。",
+              "en": "Curiosity makes him ask many questions."
             }
           ]
         }
